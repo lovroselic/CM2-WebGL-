@@ -18,6 +18,6 @@ const LoadAudio = [
     { srcName: "UseScroll.mp3", name: "PickBox" },
     { srcName: "Scream.mp3", name: "Scream" },
 ];
-const LoadFonts = [];
+const LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
 const LoadRotatedSheetSequences = [];
 const LoadSheetSequences = [];

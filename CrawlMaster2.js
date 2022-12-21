@@ -26,7 +26,7 @@ var INI = {
 
 };
 var PRG = {
-    VERSION: "0.00",
+    VERSION: "0.01.01",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -70,19 +70,20 @@ var PRG = {
 
 
         //boxes
-        ENGINE.gameWIDTH = 768;
-        ENGINE.sideWIDTH = 960 - ENGINE.gameWIDTH;
-        ENGINE.gameHEIGHT = 768;
+        ENGINE.gameWIDTH = 640;
+        ENGINE.titleWIDTH = 1040;
+        ENGINE.sideWIDTH = (ENGINE.titleWIDTH - ENGINE.gameWIDTH) / 2;
+        ENGINE.gameHEIGHT = 480;
         ENGINE.titleHEIGHT = 80;
-        ENGINE.titleWIDTH = 960;
         ENGINE.bottomHEIGHT = 40;
-        ENGINE.bottomWIDTH = 960;
+        ENGINE.bottomWIDTH = ENGINE.titleWIDTH;
 
         $("#bottom").css("margin-top", ENGINE.gameHEIGHT + ENGINE.titleHEIGHT + ENGINE.bottomHEIGHT);
-        $(ENGINE.gameWindowId).width(ENGINE.gameWIDTH + ENGINE.sideWIDTH + 4);
-        ENGINE.addBOX("TITLE", ENGINE.titleWIDTH, ENGINE.titleHEIGHT, ["title"], null);
-        ENGINE.addBOX("ROOM", ENGINE.gameWIDTH, ENGINE.gameHEIGHT, ["background", "webgl", "debug", "text", "FPS", "button", "click"], "side");
-        ENGINE.addBOX("SIDE", ENGINE.sideWIDTH, ENGINE.gameHEIGHT, ["sideback"], "fside");
+        $(ENGINE.gameWindowId).width(ENGINE.gameWIDTH + 2*ENGINE.sideWIDTH + 4);
+        ENGINE.addBOX("TITLE", ENGINE.titleWIDTH, ENGINE.titleHEIGHT, ["title","compassRose", "compassNeedle"], null);
+        ENGINE.addBOX("LSIDE", ENGINE.sideWIDTH, ENGINE.gameHEIGHT, ["Lsideback", "potion", "time", "statusBars", "stat", "gold"], "side");
+        ENGINE.addBOX("ROOM", ENGINE.gameWIDTH, ENGINE.gameHEIGHT, ["background", "webgl", "sword",  "info","text", "FPS", "button", "click"], "side");
+        ENGINE.addBOX("SIDE", ENGINE.sideWIDTH, ENGINE.gameHEIGHT, ["sideback", "keys", "minimap", "scrolls"], "fside");
         ENGINE.addBOX("DOWN", ENGINE.bottomWIDTH, ENGINE.bottomHEIGHT, ["bottom", "bottomText"], null);
 
         if (DEBUG._2D_display) {
@@ -137,22 +138,19 @@ var GAME = {
         $(ENGINE.topCanvas).off("click", ENGINE.mouseClick);
         $(ENGINE.topCanvas).css("cursor", "");
         ENGINE.hideMouse();
-        //GAME.extraLife = SCORE.extraLife.clone();
 
         $("#pause").prop("disabled", false);
         $("#pause").off();
         GAME.paused = false;
 
-        let GameRD = new RenderData("Annie", 60, "#DDD", "text", "#FFF", 2, 2, 2);
+        let GameRD = new RenderData("DeepDown", 60, "#DAA", "text", "#F22", 2, 2, 2);
         ENGINE.TEXT.setRD(GameRD);
         ENGINE.watchVisibility(GAME.lostFocus);
         ENGINE.GAME.start(16);
         GAME.completed = false;
         GAME.won = false;
         GAME.level = 1;
-        //GAME.level = 7;
-        //GAME.score = 0;
-        //GAME.lives = 3;
+
         //HERO.startInit();
         GAME.fps = new FPS_short_term_measurement(300);
         GAME.levelStart();
@@ -161,27 +159,14 @@ var GAME = {
         console.log("starting level", GAME.level);
         GAME.levelFinished = false;
         GAME.prepareForRestart();
-
         GAME.initLevel(GAME.level);
         GAME.continueLevel(GAME.level);
     },
     initLevel(level) {
         console.log("...level", level, 'initialization');
-        /*if (!MAP[level]) {
-            let adj_level = ((level - 1) % INI.MAX_LEVEL) + 1;
-            MAP[level] = $.extend(true, {}, MAP[adj_level]);
-        }*/
-        /*if (!MAP[level].unpacked) {
-            MAP[level].start = Grid.toClass(JSON.parse(MAP[level].start));
-            MAP[level].dynamite = Grid.toClass(JSON.parse(MAP[level].dynamite));
-            MAP[level].flow = Grid.toClass(JSON.parse(MAP[level].flow));
-            MAP[level].unpacked = true;
-        }*/
         MAP[level].map = FREE_MAP.import(JSON.parse(MAP[level].data));
         MAP[level].pw = MAP[level].map.width * ENGINE.INI.GRIDPIX;
         MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
-        //ENGINE.VIEWPORT.setMax({ x: MAP[level].pw, y: MAP[level].ph });
-
     },
     continueLevel(level) {
         console.log("game continues on level", level);
@@ -226,7 +211,6 @@ var GAME = {
     drawFirstFrame(level) {
         TITLE.firstFrame();
         if (DEBUG._2D_display) {
-
             ENGINE.resizeBOX("LEVEL", MAP[level].pw, MAP[level].ph);
             ENGINE.BLOCKGRID.configure("pacgrid", "#FFF", "#000");
             ENGINE.BLOCKGRID.draw(MAP[GAME.level].map);
@@ -247,8 +231,6 @@ var GAME = {
         console.log("GAME SETUP started");
         $("#buttons").prepend("<input type='button' id='startGame' value='Start Game'>");
         $("#startGame").prop("disabled", true);
-
-
     },
     setTitle() {
         const text = GAME.generateTitleText();
@@ -370,14 +352,9 @@ var GAME = {
 var TITLE = {
     firstFrame() {
         TITLE.clearAllLayers();
-        //TITLE.sideBackground();
-        //TITLE.topBackground();
         TITLE.blackBackgrounds();
         TITLE.titlePlot();
         TITLE.bottom();
-        //TITLE.hiScore();
-        //TITLE.score();
-
     },
     startTitle() {
         $("#pause").prop("disabled", true);
@@ -401,24 +378,21 @@ var TITLE = {
         this.topBackground();
         this.bottomBackground();
         this.sideBackground();
-        ENGINE.fillLayer("background", "#000");
+        ENGINE.fillLayer("background", "#666");
     },
     topBackground() {
         var CTX = LAYER.title;
         CTX.fillStyle = "#000";
-        CTX.roundRect(0, 0, ENGINE.titleWIDTH, ENGINE.titleHEIGHT,
-            { upperLeft: 20, upperRight: 20, lowerLeft: 0, lowerRight: 0 },
-            true, true);
+        CTX.roundRect(0, 0, ENGINE.titleWIDTH, ENGINE.titleHEIGHT, { upperLeft: 20, upperRight: 20, lowerLeft: 0, lowerRight: 0 }, true, true);
     },
     bottomBackground() {
         var CTX = LAYER.bottom;
         CTX.fillStyle = "#000";
-        CTX.roundRect(0, 0, ENGINE.bottomWIDTH, ENGINE.bottomHEIGHT,
-            { upperLeft: 0, upperRight: 0, lowerLeft: 20, lowerRight: 20 },
-            true, true);
+        CTX.roundRect(0, 0, ENGINE.bottomWIDTH, ENGINE.bottomHEIGHT, { upperLeft: 0, upperRight: 0, lowerLeft: 20, lowerRight: 20 }, true, true);
     },
     sideBackground() {
         ENGINE.fillLayer("sideback", "#000");
+        ENGINE.fillLayer("Lsideback", "#111");
     },
     bottom() {
         this.bottomVersion();
@@ -455,7 +429,7 @@ var TITLE = {
     titlePlot() {
         let CTX = LAYER.title;
         var fs = 42;
-        CTX.font = fs + "px Annie";
+        CTX.font = fs + "px DeepDown";
         CTX.textAlign = "center";
         let txt = CTX.measureText(PRG.NAME);
         let x = ENGINE.titleWIDTH / 2;
@@ -475,7 +449,7 @@ var TITLE = {
         ENGINE.clearLayer("button");
         FORM.BUTTON.POOL.clear();
         let x = 36;
-        let y = 720;
+        let y = 440;
         let w = 166;
         let h = 24;
         let startBA = new Area(x, y, w, h);
@@ -492,28 +466,7 @@ var TITLE = {
     music() {
         AUDIO.Title.play();
     },
-    hiScore() {
-        var CTX = LAYER.title;
-        var fs = 20;
-        CTX.font = fs + "px Annie";
-        CTX.fillStyle = GAME.grad;
-        CTX.shadowColor = "#cec967";
-        CTX.shadowOffsetX = 1;
-        CTX.shadowOffsetY = 1;
-        CTX.shadowBlur = 1;
-        CTX.textAlign = "left";
-        var x = 700;
-        var y = 32 + fs;
-        var index = SCORE.SCORE.name[0].indexOf("&nbsp");
-        var HS;
-        if (index > 0) {
-            HS = SCORE.SCORE.name[0].substring(0, SCORE.SCORE.name[0].indexOf("&nbsp"));
-        } else {
-            HS = SCORE.SCORE.name[0];
-        }
-        var text = "HISCORE: " + SCORE.SCORE.value[0].toString().padStart(6, "0") + " by " + HS;
-        CTX.fillText(text, x, y);
-    },
+
     _grad(CTX, txt, fs, x, y) {
         let txtm = CTX.measureText(txt);
         let gx = x - txtm.width / 2;
@@ -583,23 +536,6 @@ var TITLE = {
             TITLE.lives();
         }
     },
-    /*
-    stage() {
-        this._text("stage", "LEVEL", 200, "level", 2);
-    },
-    dinamite() {
-        this._sprite('dinamite', 'DYNAMITE', 268, 'dinamite', 'Dynamite_00');
-    },
-    lives() {
-        this._sprite('lives', 'LIVES', 102, 'lives', 'Hero_idle_left_0');
-    },
-    energy() {
-        this._percentBar("energy", "ENERGY", 350, "energy");
-    },
-    air() {
-        this._percentBar("air", "AIR", 420, "air", "blue");
-    },
-    */
 
     gameOver() {
         ENGINE.clearLayer("text");
@@ -608,7 +544,7 @@ var TITLE = {
         var x = ENGINE.gameWIDTH / 2;
         var y = ENGINE.gameHEIGHT / 2;
         var fs = 64;
-        CTX.font = fs + "px Annie";
+        CTX.font = fs + "px DeedDown";
         var txt = CTX.measureText("GAME OVER");
         var gx = x - txt.width / 2;
         var gy = y - fs;
