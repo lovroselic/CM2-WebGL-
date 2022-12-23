@@ -30,7 +30,7 @@ const DownRight = new Vector(1, 1);
 const DownLeft = new Vector(-1, 1);
 
 const ENGINE = {
-  VERSION: "3.14",
+  VERSION: "3.15",
   CSS: "color: #0FA",
   INI: {
     ANIMATION_INTERVAL: 16,
@@ -1884,7 +1884,7 @@ const ENGINE = {
       CTX.lineJoin = "round";
       let point = player.pos.toPoint();
       CTX.pixelAtPoint(point);
-      let r = Math.round((ENGINE.INI.GRIDPIX * player.size) / 2);
+      let r = Math.round(ENGINE.INI.GRIDPIX * player.r);
       CTX.beginPath();
       CTX.arc(point.x, point.y, r, 0, 2 * Math.PI);
       CTX.moveTo(point.x, point.y);

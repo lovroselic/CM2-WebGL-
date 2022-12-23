@@ -26,7 +26,7 @@ var INI = {
 
 };
 var PRG = {
-    VERSION: "0.01.01",
+    VERSION: "0.01.02",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -55,6 +55,7 @@ var PRG = {
             $("#maze_version").html(DUNGEON.VERSION);
             $("#iam_version").html(IndexArrayManagers.VERSION);
             $("#lib_version").html(LIB.VERSION);
+            $("#webgl_version").html(WebGL.VERSION);
 
         } else {
             $('#debug').hide();
@@ -79,10 +80,10 @@ var PRG = {
         ENGINE.bottomWIDTH = ENGINE.titleWIDTH;
 
         $("#bottom").css("margin-top", ENGINE.gameHEIGHT + ENGINE.titleHEIGHT + ENGINE.bottomHEIGHT);
-        $(ENGINE.gameWindowId).width(ENGINE.gameWIDTH + 2*ENGINE.sideWIDTH + 4);
-        ENGINE.addBOX("TITLE", ENGINE.titleWIDTH, ENGINE.titleHEIGHT, ["title","compassRose", "compassNeedle"], null);
+        $(ENGINE.gameWindowId).width(ENGINE.gameWIDTH + 2 * ENGINE.sideWIDTH + 4);
+        ENGINE.addBOX("TITLE", ENGINE.titleWIDTH, ENGINE.titleHEIGHT, ["title", "compassRose", "compassNeedle"], null);
         ENGINE.addBOX("LSIDE", ENGINE.sideWIDTH, ENGINE.gameHEIGHT, ["Lsideback", "potion", "time", "statusBars", "stat", "gold"], "side");
-        ENGINE.addBOX("ROOM", ENGINE.gameWIDTH, ENGINE.gameHEIGHT, ["background", "webgl", "sword",  "info","text", "FPS", "button", "click"], "side");
+        ENGINE.addBOX("ROOM", ENGINE.gameWIDTH, ENGINE.gameHEIGHT, ["background", "webgl", "sword", "info", "text", "FPS", "button", "click"], "side");
         ENGINE.addBOX("SIDE", ENGINE.sideWIDTH, ENGINE.gameHEIGHT, ["sideback", "keys", "minimap", "scrolls"], "fside");
         ENGINE.addBOX("DOWN", ENGINE.bottomWIDTH, ENGINE.bottomHEIGHT, ["bottom", "bottomText"], null);
 
@@ -151,7 +152,8 @@ var GAME = {
         GAME.won = false;
         GAME.level = 1;
 
-        //HERO.startInit();
+        HERO.startInit();
+        ENGINE.VECTOR2D.configure("player");
         GAME.fps = new FPS_short_term_measurement(300);
         GAME.levelStart();
     },
@@ -167,6 +169,8 @@ var GAME = {
         MAP[level].map = FREE_MAP.import(JSON.parse(MAP[level].data));
         MAP[level].pw = MAP[level].map.width * ENGINE.INI.GRIDPIX;
         MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
+        HERO.player = new $3D_player(new Vector3(3, 4, 0), Vector3.from_2D_dir(UP), MAP[level].map);
+        console.log("HERO", HERO);
     },
     continueLevel(level) {
         console.log("game continues on level", level);
@@ -176,6 +180,10 @@ var GAME = {
     levelExecute() {
         GAME.drawFirstFrame(GAME.level);
         GAME.resume();
+    },
+    drawPlayer() {
+        ENGINE.clearLayer(ENGINE.VECTOR2D.layerString);
+        ENGINE.VECTOR2D.draw(HERO.player);
     },
 
 
@@ -199,7 +207,7 @@ var GAME = {
     frameDraw(lapsedTime) {
         //ENGINE.clearLayerStack();
         if (DEBUG._2D_display) {
-
+            GAME.drawPlayer();
         }
 
 
@@ -292,6 +300,8 @@ var GAME = {
     },
     respond(lapsedTime) {
         if (HERO.dead) return;
+        HERO.player.respond(lapsedTime);
+
         var map = ENGINE.GAME.keymap;
 
         if (map[ENGINE.KEY.map.F4]) {

@@ -6,7 +6,7 @@
 console.clear();
 
 var LIB = {
-  VERSION: "3.05",
+  VERSION: "3.06",
   CSS: "color: #EFE",
   log: function () {
     console.log(`%cPrototype LIB ${LIB.VERSION} loaded`, LIB.CSS);
@@ -21,6 +21,7 @@ changelog:
 3.00: new fresh version
 3.04: updates for Invasion
 3.05: RNDF, updates for RUN, Set prototypes, substr -> substring updates;
+3.06: 3d vectors
 */
 
 (function () {
@@ -707,6 +708,7 @@ class Vector {
     return sum;
   }
 }
+
 class Direction {
   constructor(vector, len, weight) {
     this.dir = new Vector(vector.x, vector.y);
