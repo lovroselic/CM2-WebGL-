@@ -16,7 +16,7 @@ known bugs:
 */
 
 const GRID = {
-  VERSION: "3.08",
+  VERSION: "3.09",
   CSS: "color: #0AA",
   SETTING: {
     ALLOW_CROSS: false,
@@ -1106,8 +1106,8 @@ class GridArray {
     let check = this.check(grid, MAPDICT.WALL);
     return !check;
   }
-  entityNotInWall(pos, dir, r, resolution = 4) {
-    let checks = this.pointsAroundEntity(pos, dir, r, resolution = 4);
+  entityNotInWall(pos, dir, r, resolution = 8) {
+    let checks = this.pointsAroundEntity(pos, dir, r, resolution = 9);
     for (const point of checks) {
       let notWall = this.positionIsNotWall(point);
       if (!notWall) return false;

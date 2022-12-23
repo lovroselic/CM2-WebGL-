@@ -51,7 +51,8 @@ class $3D_player {
         this.dir = Vector3.from_2D_dir(this.dir.rotate2D(angle), this.dir.z);
     }
     bumpEnemy(nextPos) {
-        let checkGrids = this.GA.gridsAroundEntity(nextPos, this.dir, this.r);
+        let checkGrids = this.GA.gridsAroundEntity(nextPos, Vector3.to_FP_Vector(this.dir), this.r); //grid check is 2D!
+        if (!this.map.enemyIA) return;
         let enemies = this.map.enemyIA.unrollArray(checkGrids);
         if (enemies.size > 0) {
             for (const e of enemies) {
@@ -66,13 +67,12 @@ class $3D_player {
     }
     move(reverse, lapsedTime) {
         let length = (lapsedTime / 1000) * this.moveSpeed;
-        let dir;
+        let dir = Vector3.to_FP_Vector(this.dir);
         if (reverse) {
-            dir = this.dir.reverse();
-        } else {
-            dir = this.dir;
+            dir = dir.reverse();
         }
-        let nextPos = this.pos.translate(dir, length);
+        let nextPos3 = this.pos.translate(dir, length); //3D
+        let nextPos = Vector3.to_FP_Grid(nextPos3);
 
         //check if staircase
         let bump = this.usingStaircase(nextPos);
@@ -83,9 +83,9 @@ class $3D_player {
 
         if (this.bumpEnemy(nextPos)) return;
 
-        let check = this.GA.entityNotInWall(nextPos, this.dir, this.r);
+        let check = this.GA.entityNotInWall(nextPos, dir, this.r);
         if (check) {
-            this.pos = nextPos;
+            this.pos = nextPos3;
         }
     }
     usingStaircase(nextPos, resolution = 4) {
@@ -114,8 +114,9 @@ class $3D_player {
     }
     strafe(rotDirection, lapsedTime) {
         let length = (lapsedTime / 1000) * this.moveSpeed;
-        let dir = this.dir.rotate((rotDirection * Math.PI) / 2);
-        let nextPos = this.pos.translate(dir, length);
+        let dir = Vector3.to_FP_Vector(this.dir).rotate((rotDirection * Math.PI) / 2);
+        let nextPos3 = this.pos.translate(dir, length);
+        let nextPos = Vector3.to_FP_Grid(nextPos3);
         //check if staircase
         let bump = this.usingStaircase(nextPos);
         if (bump !== null) {
@@ -124,9 +125,9 @@ class $3D_player {
         }
 
         if (this.bumpEnemy(nextPos)) return;
-        let check = this.GA.entityNotInWall(nextPos, this.dir, this.r);
+        let check = this.GA.entityNotInWall(nextPos, dir, this.r);
         if (check) {
-            this.pos = nextPos;
+            this.pos = nextPos3;
         }
     }
     circleCollision(entity, nextPos = null) {
@@ -150,26 +151,26 @@ class $3D_player {
             this.rotate(1, lapsedTime);
             return;
         }
-        /*if (map[ENGINE.KEY.map.W]) {
+        if (map[ENGINE.KEY.map.W]) {
             this.move(false, lapsedTime);
             return;
-        }*/
-        /*if (map[ENGINE.KEY.map.S]) {
+        }
+        if (map[ENGINE.KEY.map.S]) {
             this.move(true, lapsedTime);
             return;
-        }*/
-        /*if (map[ENGINE.KEY.map.A]) {
+        }
+        if (map[ENGINE.KEY.map.A]) {
             this.strafe(-1, lapsedTime);
             return;
-        }*/
-        /*if (map[ENGINE.KEY.map.D]) {
+        }
+        if (map[ENGINE.KEY.map.D]) {
             this.strafe(1, lapsedTime);
             return;
-        }*/
-        /*if (map[ENGINE.KEY.map.LT] || map[ENGINE.KEY.map.LTC]) {
-            this.dir = FP_Vector.toClass(this.dir.ortoAlign());
+        }
+        if (map[ENGINE.KEY.map.LT] || map[ENGINE.KEY.map.LTC]) {
+            this.dir = Vector3.from_2D_dir(Vector3.to_FP_Vector(this.dir).ortoAlign(), this.dir.z);
             return;
-        }*/
+        }
     }
 
 }

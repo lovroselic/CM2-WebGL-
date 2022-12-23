@@ -26,7 +26,7 @@ var INI = {
 
 };
 var PRG = {
-    VERSION: "0.01.02",
+    VERSION: "0.01.03",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
