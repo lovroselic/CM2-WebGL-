@@ -8,14 +8,98 @@
 //                                           //
 //           WebGL libs and classes          //
 //                                           //
-//                                           //
-//                                           //
 ///////////////////////////////////////////////
 
 const WebGL = {
-    VERSION: "0.01",
+    VERSION: "0.02",
     CSS: "color: gold",
+    CTX: null,
+    VERBOSE: true,
+    setContext(layer) {
+        this.CTX = LAYER[layer];
+        if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
+        if (this.CTX === null) console.error("Unable to initialize WebGL. Your browser or machine may not support it.");
+    },
+    init(layer, world) {
+        this.setContext(layer);
+        if (this.VERBOSE) console.log(`%cWorld:`, this.CSS, world);
+        const gl = this.CTX;
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+    }
 };
+
+const WORLD = {
+    init() {
+        this.positions = [];
+        this.indices = [];
+        this.textureCoordinates = [];
+    },
+    addCube(Z, grid) {
+        return this.addElement(ELEMENT.CUBE, Z, grid);
+    },
+    addElement(E, Z, grid) {
+        //console.log("addEl", Z, grid);
+        let positions = [...E.positions];
+        let indices = [...E.indices];
+        let textureCoordinates = [...E.textureCoordinates];
+
+        //positions
+        for (let p = 0; p < positions.length; p += 3) {
+            positions[p] += grid.x;
+            positions[p + 1] += grid.y;
+            positions[p + 2] += Z;
+        }
+
+        //indices
+        for (let i = 0; i < indices.length; i++) {
+            indices[i] += this.positions.length;
+        }
+
+        //console.log(".adding", positions, indices, textureCoordinates);
+        this.positions = this.positions.concat(positions);
+        this.indices = this.indices.concat(indices);
+        this.textureCoordinates = this.textureCoordinates.concat(textureCoordinates);
+    },
+    build(GA, Z = 0) {
+        console.time("WorldBuilding");
+        //console.log("GA", GA);
+        this.init();
+
+        for (let [index, value] of GA.map.entries()) {
+            let grid = GA.indexToGrid(index);
+            //console.log(index, "->", value, "grid", grid);
+            switch (value) {
+                case MAPDICT.EMPTY:
+                    //add cube Z-1, Z+1
+                    this.addCube(Z - 1, grid);
+                    this.addCube(Z + 1, grid);
+
+                    break;
+                case MAPDICT.WALL:
+                    //add cube Z
+                    this.addCube(Z, grid);
+
+                    break;
+                default:
+                    console.error("world building GA value error", value);
+            }
+        }
+
+        console.timeEnd("WorldBuilding");
+        return new World(this.positions, this.indices, this.textureCoordinates);
+    }
+};
+
+/** Classes */
+
+class World {
+    constructor(positions, indices, textureCoordinates) {
+        this.positions = positions;
+        this.indices = indices;
+        this.textureCoordinates = textureCoordinates;
+    }
+}
 
 class $3D_player {
     constructor(position, dir, map = null, size = 0.5) {
@@ -172,8 +256,50 @@ class $3D_player {
             return;
         }
     }
-
 }
+
+/** Elements */
+
+const ELEMENT = {
+    CUBE: {
+        positions: [
+            // Front face
+            -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
+            // Back face
+            -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0,
+            // Top face
+            -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0,
+            // Bottom face
+            -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
+            // Right face
+            1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,
+            // Left face
+            -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0,
+        ],
+        indices: [
+            0, 1, 2, 0, 2, 3, // front
+            4, 5, 6, 4, 6, 7, // back
+            8, 9, 10, 8, 10, 11, // top
+            12, 13, 14, 12, 14, 15, // bottom
+            16, 17, 18, 16, 18, 19, // right
+            20, 21, 22, 20, 22, 23, // left
+        ],
+        textureCoordinates: [
+            // Front
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            // Back
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            // Top
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            // Bottom
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            // Right
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            // Left
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+        ]
+    }
+};
 
 
 

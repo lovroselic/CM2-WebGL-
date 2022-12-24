@@ -26,7 +26,7 @@ var INI = {
 
 };
 var PRG = {
-    VERSION: "0.01.03",
+    VERSION: "0.01.04",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -83,7 +83,7 @@ var PRG = {
         $(ENGINE.gameWindowId).width(ENGINE.gameWIDTH + 2 * ENGINE.sideWIDTH + 4);
         ENGINE.addBOX("TITLE", ENGINE.titleWIDTH, ENGINE.titleHEIGHT, ["title", "compassRose", "compassNeedle"], null);
         ENGINE.addBOX("LSIDE", ENGINE.sideWIDTH, ENGINE.gameHEIGHT, ["Lsideback", "potion", "time", "statusBars", "stat", "gold"], "side");
-        ENGINE.addBOX("ROOM", ENGINE.gameWIDTH, ENGINE.gameHEIGHT, ["background", "webgl", "sword", "info", "text", "FPS", "button", "click"], "side");
+        ENGINE.addBOX("ROOM", ENGINE.gameWIDTH, ENGINE.gameHEIGHT, ["background", "3d_webgl", "sword", "info", "text", "FPS", "button", "click"], "side");
         ENGINE.addBOX("SIDE", ENGINE.sideWIDTH, ENGINE.gameHEIGHT, ["sideback", "keys", "minimap", "scrolls"], "fside");
         ENGINE.addBOX("DOWN", ENGINE.bottomWIDTH, ENGINE.bottomHEIGHT, ["bottom", "bottomText"], null);
 
@@ -144,7 +144,7 @@ var GAME = {
         $("#pause").off();
         GAME.paused = false;
 
-        let GameRD = new RenderData("DeepDown", 60, "#DAA", "text", "#F22", 2, 2, 2);
+        let GameRD = new RenderData("DeepDown", 60, "#DC143C", "text", "#F22", 2, 2, 2);
         ENGINE.TEXT.setRD(GameRD);
         ENGINE.watchVisibility(GAME.lostFocus);
         ENGINE.GAME.start(16);
@@ -171,6 +171,12 @@ var GAME = {
         MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
         HERO.player = new $3D_player(new Vector3(3, 4, 0), Vector3.from_2D_dir(UP), MAP[level].map);
         console.log("HERO", HERO);
+        MAP[level].world = WORLD.build(MAP[level].map.GA);
+        //console.log("world", MAP[level].world);
+
+        //
+        WebGL.init('webgl', MAP[level].world);
+
     },
     continueLevel(level) {
         console.log("game continues on level", level);
@@ -185,8 +191,6 @@ var GAME = {
         ENGINE.clearLayer(ENGINE.VECTOR2D.layerString);
         ENGINE.VECTOR2D.draw(HERO.player);
     },
-
-
     run(lapsedTime) {
         if (ENGINE.GAME.stopAnimation) return;
         GAME.respond(lapsedTime);
@@ -401,7 +405,7 @@ var TITLE = {
         CTX.roundRect(0, 0, ENGINE.bottomWIDTH, ENGINE.bottomHEIGHT, { upperLeft: 0, upperRight: 0, lowerLeft: 20, lowerRight: 20 }, true, true);
     },
     sideBackground() {
-        ENGINE.fillLayer("sideback", "#000");
+        ENGINE.fillLayer("sideback", "#222");
         ENGINE.fillLayer("Lsideback", "#111");
     },
     bottom() {

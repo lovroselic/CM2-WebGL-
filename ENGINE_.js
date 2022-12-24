@@ -189,13 +189,17 @@ const ENGINE = {
     let prop;
     let canvasElement;
     for (let x = 0; x < layers; x++) {
+      prop = alias.shift();
       canvasElement = `<canvas class='layer' 
       id='${id}_canvas_${x}' width='${width}' height='${height}' 
-      style='z-index:${x}; top:${ENGINE.currentTOP}px; left:${ENGINE.currentLEFT}px'></canvas>`;
-
+      style='z-index:${x}; top:${ENGINE.currentTOP}px; left:${ENGINE.currentLEFT}px' title='${prop}'></canvas>`;
       $(`#${id}`).append(canvasElement);
-      prop = alias.shift();
-      LAYER[prop] = $(`#${id}_canvas_${x}`)[0].getContext("2d");
+
+      if (prop.startsWith("3d_")) {
+        LAYER[prop.substring(3)] = $(`#${id}_canvas_${x}`)[0].getContext("webgl");
+      } else {
+        LAYER[prop] = $(`#${id}_canvas_${x}`)[0].getContext("2d");
+      }
     }
     if (type === "side") {
       ENGINE.currentLEFT += width;
