@@ -63,6 +63,7 @@ const ENGINE = {
   WASM_SOURCE: "https://www.c00lsch00l.eu/WASM/",
   AUDIO_SOURCE: "https://www.c00lsch00l.eu/Mp3/",
   FONT_SOURCE: "https://www.c00lsch00l.eu/Fonts/",
+  SHADER_SOURCE: "./Assets/",
   checkProximity: true, //check proximity before pixel perfect evaluation of collision to background
   LOAD_W: 160,
   LOAD_H: 22,
@@ -1102,6 +1103,7 @@ const ENGINE = {
     HMWASM: null,
     HMSounds: null,
     HMPacks: null,
+    HMShaders: null,
     preload() {
       console.time("preloading");
       console.group("preload");
@@ -1117,7 +1119,8 @@ const ENGINE = {
         loadRotatedSheetSequences(),
         loadingSounds(),
         loadWASM(),
-        loadAllFonts()
+        loadAllFonts(),
+        loadShaders()
       ]).then(function () {
         console.log("%cAll assets loaded and ready!", ENGINE.CSS);
         console.log("%c****************************", ENGINE.CSS);
@@ -1133,6 +1136,7 @@ const ENGINE = {
         LAYER.PRELOAD[name] = $("#" + id)[0].getContext("2d");
       }
       function loadTextures(arrPath = LoadTextures) {
+
         console.log(`%c ...loading ${arrPath.length} textures`, ENGINE.CSS);
         ENGINE.LOAD.HMTextures = arrPath.length;
         if (ENGINE.LOAD.HMTextures) appendCanvas("Textures");
@@ -1326,6 +1330,21 @@ const ENGINE = {
           };
         });
       }
+
+      function loadShaders(arrPath = LoadShaders) {
+        console.log(`%c ...loading ${arrPath.length} Shaders`, ENGINE.CSS);
+        ENGINE.LOAD.HMShaders = arrPath.length;
+        if (ENGINE.LOAD.HMShaders) appendCanvas("Shaders");
+        const temp = Promise.all(
+          arrPath.map(shader => loadShader(shader, 'Shaders'))
+        ).then((instance) => {
+          instance.forEach((el) => {
+            const name = el.split("///")[1];
+            SHADER[name] = el;
+          });
+        });
+      }
+
       function loadWASM(arrPath = LoadExtWasm) {
         var LoadIntWasm = []; //internal hard coded ENGINE requirements
         var toLoad = [...arrPath, ...LoadIntWasm];
@@ -1335,7 +1354,7 @@ const ENGINE = {
         const temp = Promise.all(
           toLoad.map((wasm) => loadWebAssembly(wasm, "WASM"))
         ).then((instance) => {
-          instance.forEach(function (el) {
+          instance.forEach((el) => {
             ENGINE.linkToWasm(el);
           });
         });
@@ -1422,7 +1441,7 @@ const ENGINE = {
         switch (typeof srcData) {
           case "string":
             srcName = srcData;
-            name = srcName.substr(0, srcName.indexOf("."));
+            name = srcName.substring(0, srcName.indexOf("."));
             break;
           case "object":
             srcName = srcData.srcName;
@@ -1453,7 +1472,16 @@ const ENGINE = {
           audio.load();
         });
       }
-      function loadWebAssembly(fileName, counter) {
+      async function loadShader(fileName, counter) {
+        fileName = ENGINE.SHADER_SOURCE + fileName;
+        return fetch(fileName).
+          then((response) => {
+            ENGINE.LOAD[counter]++;
+            ENGINE.drawLoadingGraph(counter);
+            return response.text();
+          });
+      }
+      async function loadWebAssembly(fileName, counter) {
         fileName = ENGINE.WASM_SOURCE + fileName;
         return fetch(fileName)
           .then((response) => response.arrayBuffer())
@@ -1983,6 +2011,7 @@ var ASSET = {
   }
 };
 var WASM = {};
+const SHADER = {};
 var MEMORY = {};
 var PATTERN = {
   create(which) {

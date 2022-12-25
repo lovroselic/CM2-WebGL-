@@ -21,3 +21,4 @@ const LoadAudio = [
 const LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
 const LoadRotatedSheetSequences = [];
 const LoadSheetSequences = [];
+const LoadShaders = ['vShader.glsl','fShader.glsl'];
