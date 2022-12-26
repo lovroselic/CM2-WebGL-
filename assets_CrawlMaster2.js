@@ -6,19 +6,10 @@
 "use strict";
 console.log("%cAssets for CrawlMaster2 ready.", "color: orange");
 
-const LoadTextures = ["BrickWall4.jpg", "RockFloor.jpg"];
-const LoadSprites = [];
-const LoadSequences = [];
-const LoadSheets = [];
-const ExtendSheetTag = [];
-const LoadPacks = [];
-const LoadRotated = [];
-const LoadExtWasm = [];
-const LoadAudio = [
+var LoadTextures = ["BrickWall4.jpg", "RockFloor.jpg"];
+var LoadAudio = [
     { srcName: "UseScroll.mp3", name: "PickBox" },
     { srcName: "Scream.mp3", name: "Scream" },
 ];
-const LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
-const LoadRotatedSheetSequences = [];
-const LoadSheetSequences = [];
-const LoadShaders = ['vShader.glsl','fShader.glsl'];
+var LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
+var LoadShaders = ['vShader.glsl', 'fShader.glsl'];

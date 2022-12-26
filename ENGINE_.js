@@ -18,6 +18,21 @@ TODO:
 
 ////////////////////////////////////////////////////
 
+// Asset map
+var LoadTextures = null;
+var LoadSprites = null;
+var LoadSequences = null;
+var LoadSheets = null;
+var ExtendSheetTag = null;
+var LoadPacks = null;
+var LoadRotated = null;
+var LoadExtWasm = null;
+var LoadAudio = null;
+var LoadFonts = null;
+var LoadRotatedSheetSequences = null;
+var LoadSheetSequences = null;
+var LoadShaders = null;
+
 //vector definitions
 const UP = new Vector(0, -1);
 const DOWN = new Vector(0, 1);
@@ -1136,7 +1151,7 @@ const ENGINE = {
         LAYER.PRELOAD[name] = $("#" + id)[0].getContext("2d");
       }
       function loadTextures(arrPath = LoadTextures) {
-
+        if (!arrPath) return true;
         console.log(`%c ...loading ${arrPath.length} textures`, ENGINE.CSS);
         ENGINE.LOAD.HMTextures = arrPath.length;
         if (ENGINE.LOAD.HMTextures) appendCanvas("Textures");
@@ -1151,6 +1166,7 @@ const ENGINE = {
         return temp;
       }
       function loadSprites(arrPath = LoadSprites) {
+        if (!arrPath) return true;
         console.log(`%c ...loading ${arrPath.length} sprites`, ENGINE.CSS);
         ENGINE.LOAD.HMSprites = arrPath.length;
         if (ENGINE.LOAD.HMSprites) appendCanvas("Sprites");
@@ -1165,6 +1181,7 @@ const ENGINE = {
         return temp;
       }
       function loadSequences(arrPath = LoadSequences) {
+        if (!arrPath) return true;
         console.log(`%c ...loading ${arrPath.length} sequences`, ENGINE.CSS);
         var toLoad = [];
 
@@ -1193,6 +1210,7 @@ const ENGINE = {
         return temp;
       }
       function loadPacks(arrPath = LoadPacks) {
+        if (!arrPath) return true;
         console.log(`%c ...loading ${arrPath.length} packs`, ENGINE.CSS);
         var toLoad = [];
         arrPath.forEach(function (el) {
@@ -1219,6 +1237,7 @@ const ENGINE = {
         return temp;
       }
       function loadSheets(arrPath = LoadSheets, addTag = ExtendSheetTag) {
+        if (!arrPath) return true;
         console.log(`%c ...loading ${arrPath.length} sheets`, ENGINE.CSS);
         var toLoad = [];
         var all_tags = ["left", "right", "front", "back", ...addTag];
@@ -1251,6 +1270,7 @@ const ENGINE = {
         return temp;
       }
       function loadSheetSequences(arrPath = LoadSheetSequences) {
+        if (!arrPath) return true;
         console.log(`%c ...loading ${arrPath.length} sheet sequences`, ENGINE.CSS);
         var toLoad = [];
         arrPath.forEach(function (el) {
@@ -1274,6 +1294,7 @@ const ENGINE = {
         return temp;
       }
       function loadRotated(arrPath = LoadRotated) {
+        if (!arrPath) return true;
         console.log(`%c ...loading ${arrPath.length} rotated sprites`, ENGINE.CSS);
         ENGINE.LOAD.HMRotated = arrPath.length;
         if (ENGINE.LOAD.HMRotated) appendCanvas("Rotated");
@@ -1290,6 +1311,7 @@ const ENGINE = {
         return temp;
       }
       function loadRotatedSheetSequences(arrPath = LoadRotatedSheetSequences) {
+        if (!arrPath) return true;
         console.log(`%c ...loading ${arrPath.length} rotated sheet sequences`, ENGINE.CSS);
         var toLoad = [];
         arrPath.forEach(function (el) {
@@ -1332,6 +1354,7 @@ const ENGINE = {
       }
 
       function loadShaders(arrPath = LoadShaders) {
+        if (!arrPath) return true;
         console.log(`%c ...loading ${arrPath.length} Shaders`, ENGINE.CSS);
         ENGINE.LOAD.HMShaders = arrPath.length;
         if (ENGINE.LOAD.HMShaders) appendCanvas("Shaders");
@@ -1346,6 +1369,7 @@ const ENGINE = {
       }
 
       function loadWASM(arrPath = LoadExtWasm) {
+        if (!arrPath) return true;
         var LoadIntWasm = []; //internal hard coded ENGINE requirements
         var toLoad = [...arrPath, ...LoadIntWasm];
         console.log(`%c ...loading ${toLoad.length} WASM files`, ENGINE.CSS);
@@ -1362,6 +1386,7 @@ const ENGINE = {
         return temp;
       }
       function loadingSounds(arrPath = LoadAudio) {
+        if (!arrPath) return true;
         console.log(`%c ...loading ${arrPath.length} sounds`, ENGINE.CSS);
         ENGINE.LOAD.HMSounds = arrPath.length;
         if (ENGINE.LOAD.HMSounds) appendCanvas("Sounds");
@@ -1375,6 +1400,7 @@ const ENGINE = {
         });
       }
       function loadAllFonts(arrPath = LoadFonts) {
+        if (!arrPath) return true;
         console.log(`%c ...loading ${arrPath.length} fonts`, ENGINE.CSS);
         ENGINE.LOAD.HMFonts = arrPath.length;
         if (ENGINE.LOAD.HMFonts) {
@@ -3003,5 +3029,6 @@ var FILTER = {
     }
   }
 };
+
 //END
 console.log(`%cENGINE ${ENGINE.VERSION} loaded.`, ENGINE.CSS);
