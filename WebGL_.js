@@ -10,22 +10,276 @@
 //                                           //
 ///////////////////////////////////////////////
 
+/**
+ * https://glmatrix.net/docs/
+ * https://blogs.oregonstate.edu/learnfromscratch/2021/10/05/understanding-various-coordinate-systems-in-opengl/
+ * https://learnopengl.com/Getting-started/Transformations
+ * https://learnopengl.com/Getting-started/Coordinate-Systems
+ * https://webglfundamentals.org/webgl/lessons/webgl-3d-camera.html
+ * this: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/#the-model-view-and-projection-matrices
+ */
+
 const WebGL = {
     VERSION: "0.03",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
+    program: null,
+    buffer: null,
+    texture: null,
+    aspect: null,
+    zNear: 0.1,
+    zFar: 100,
+    projectionMatrix: null,
+    vertexCount: null,
     setContext(layer) {
         this.CTX = LAYER[layer];
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
         if (this.CTX === null) console.error("Unable to initialize WebGL. Your browser or machine may not support it.");
     },
-    init(layer, world) {
+    init(layer, world, texture, camera, vsSource = SHADER.vShader, fsSource = SHADER.fShader) {
         this.setContext(layer);
         if (this.VERBOSE) console.log(`%cWorld:`, this.CSS, world);
         const gl = this.CTX;
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
+        this.initShaderProgram(gl, vsSource, fsSource);
+        console.log(`%cProgram:`, this.CSS, this.program);
+        this.initBuffers(gl, world);
+        console.log(`%cBuffer:`, this.CSS, this.buffer);
+        this.setTexture(gl, texture);
+        console.log(`%cTexture:`, this.CSS, this.texture);
+        this.aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+        console.log(`%cAspect:`, this.CSS, this.aspect);
+        this.setCamera(camera);
+        this.vertexCount = world.indices.length;
+        console.log(`%cWebGL:`, this.CSS, this);
+    },
+    setCamera(camera) {
+        this.camera = camera;
+        const projectionMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.perspective(projectionMatrix, this.camera.fov, this.aspect, this.zNear, this.zFar);
+        this.projectionMatrix = projectionMatrix;
+    },
+    setTexture(gl, img) {
+        const texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        this.texture = texture;
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    },
+    initBuffers(gl, world) {
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.positions), gl.STATIC_DRAW);
+
+        const indexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(world.indices), gl.STATIC_DRAW);
+
+        const textureCoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.textureCoordinates), gl.STATIC_DRAW);
+
+        const normalBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.vertexNormals), gl.STATIC_DRAW);
+
+        //
+        this.buffer = {
+            position: positionBuffer,
+            indices: indexBuffer,
+            normal: normalBuffer,
+            textureCoord: textureCoordBuffer,
+        };
+    },
+    loadShader(gl, type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            console.error(`An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader)}`);
+            gl.deleteShader(shader);
+            return null;
+        }
+        return shader;
+    },
+    initShaderProgram(gl, vsSource, fsSource) {
+        const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vsSource);
+        const fragmentShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+        // Create the shader program
+        const shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, vertexShader);
+        gl.attachShader(shaderProgram, fragmentShader);
+        gl.linkProgram(shaderProgram);
+        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+            console.error(`Unable to initialize the shader program: ${gl.getProgramInfoLog(shaderProgram)}`);
+            return null;
+        }
+        const programInfo = {
+            program: shaderProgram,
+            attribLocations: {
+                vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
+                vertexNormal: gl.getAttribLocation(shaderProgram, "aVertexNormal"),
+                textureCoord: gl.getAttribLocation(shaderProgram, "aTextureCoord"),
+            },
+            uniformLocations: {
+                projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
+                modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
+                normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
+                uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
+            },
+        };
+        this.program = programInfo;
+    },
+    renderScene() {
+        const gl = this.CTX;
+        gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
+        gl.clearDepth(1.0); // Clear everything
+        gl.enable(gl.DEPTH_TEST); // Enable depth testing
+        gl.depthFunc(gl.LEQUAL); // Near things obscure far things
+        // Clear the canvas before we start drawing on it.
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        // Set the drawing position to the "identity" point, which is
+        // the center of the scene.
+
+
+        // Now move the drawing position where we want to start drawing 
+
+        //adj camera dir
+        const invCameraDir = glMatrix.vec3.create();
+        glMatrix.vec3.inverse(invCameraDir, this.camera.dir.array);
+        const invCameraPos = glMatrix.vec3.create();
+        glMatrix.vec3.inverse(invCameraPos, this.camera.pos.array);
+
+
+
+
+        // view (lookAt) matrix
+
+        const viewMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, this.camera.dir.array, [0.0, 0.0, 1.0]); //~works?
+        //glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, [0, 0, 0], [0.0, 0.0, 1.0]);
+        //glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
+        //glMatrix.mat4.lookAt(viewMatrix, invCameraPos, invCameraDir, [0.0, 0.0, 1.0]); //black screen
+
+
+
+        const modelViewMatrix = glMatrix.mat4.create();
+        const modelMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.mul(modelViewMatrix, viewMatrix, modelMatrix);
+
+
+        //const modelViewMatrix = glMatrix.mat4.clone(viewMatrix);
+
+        //console.log("lookAtMatrix", lookAtMatrix);
+        //throw "debug";
+
+        //glMatrix.mat4.mul(modelViewMatrix, lookAtMatrix, modelViewMatrix);
+        //console.log("modelViewMatrix", modelViewMatrix);
+
+        /*
+        glMatrix.mat4.translate(
+            modelViewMatrix, // destination matrix
+            modelViewMatrix, // matrix to translate
+            this.camera.pos.array // amount to translate
+        );
+        */
+
+        /*glMatrix.mat4.translate(
+            modelViewMatrix, // destination matrix
+            modelViewMatrix, // matrix to translate
+            [-0, -0, 0] // amount to translate
+        );*/
+
+
+        /*
+        glMatrix.mat4.translate(
+            modelViewMatrix, // destination matrix
+            modelViewMatrix, // matrix to translate
+            //[0, 0, 0] // amount to translate
+            this.camera.pos.array // amount to translate
+        );
+        */
+
+
+
+        /*
+        glMatrix.mat4.rotate(
+            modelViewMatrix, // destination matrix
+            modelViewMatrix, // matrix to rotate
+            0, // amount to rotate in radians
+            [0, 0, 1]
+        ); // axis to rotate around (Z)
+        */
+
+
+
+        //const invMatrix = glMatrix.mat4.create();
+        //glMatrix.mat4.invert(invMatrix, modelViewMatrix);
+        //console.log("invMatrix", invMatrix);
+        //glMatrix.mat4.mul(modelViewMatrix, invMatrix, modelViewMatrix); //1
+        //glMatrix.mat4.mul(modelViewMatrix, lookAtMatrix, modelViewMatrix); //look
+        //glMatrix.mat4.mul(modelViewMatrix, invMatrix, modelViewMatrix); //2
+        //console.log("modelViewMatrix", modelViewMatrix);
+
+
+        /*
+        glMatrix.mat4.translate(
+            modelViewMatrix, // destination matrix
+            modelViewMatrix, // matrix to translate
+            //[0, 0, 0] // amount to translate
+            this.camera.pos.array // amount to translate
+        );
+        */
+
+
+
+        //for lightning
+        const normalMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.invert(normalMatrix, modelViewMatrix);
+        glMatrix.mat4.transpose(normalMatrix, normalMatrix);
+
+        //setPositionAttribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.position);
+        gl.vertexAttribPointer(this.program.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(this.program.attribLocations.vertexPosition);
+
+        //setTextureAttribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.textureCoord);
+        gl.vertexAttribPointer(this.program.attribLocations.textureCoord, 2, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(this.program.attribLocations.textureCoord);
+
+        // Tell WebGL which indices to use to index the vertices
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffer.indices);
+
+        //setNormalAttribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.normal);
+        gl.vertexAttribPointer(this.program.attribLocations.vertexNormal, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(this.program.attribLocations.vertexNormal);
+
+        // Tell WebGL to use our program when drawing
+        gl.useProgram(this.program.program);
+
+        // Set the shader uniforms, viewProjectionMatrix
+        gl.uniformMatrix4fv(this.program.uniformLocations.projectionMatrix, false, this.projectionMatrix);
+        //gl.uniformMatrix4fv(this.program.uniformLocations.projectionMatrix, false, viewProjectionMatrix);
+        gl.uniformMatrix4fv(this.program.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+        gl.uniformMatrix4fv(this.program.uniformLocations.normalMatrix, false, normalMatrix);
+
+        // Tell WebGL we want to affect texture unit 0
+        gl.activeTexture(gl.TEXTURE0);
+
+        // Bind the texture to texture unit 0
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+        // Tell the shader we bound the texture to texture unit 0
+        gl.uniform1i(this.program.uniformLocations.uSampler, 0);
+
+        //draw
+        gl.drawElements(gl.TRIANGLES, this.vertexCount, gl.UNSIGNED_SHORT, 0);
     }
 };
 
@@ -34,6 +288,7 @@ const WORLD = {
         this.positions = [];
         this.indices = [];
         this.textureCoordinates = [];
+        this.vertexNormals = [];
     },
     addCube(Z, grid) {
         return this.addElement(ELEMENT.CUBE, Z, grid);
@@ -43,6 +298,7 @@ const WORLD = {
         let positions = [...E.positions];
         let indices = [...E.indices];
         let textureCoordinates = [...E.textureCoordinates];
+        let vertexNormals = [...E.vertexNormals];
 
         //positions
         for (let p = 0; p < positions.length; p += 3) {
@@ -56,14 +312,21 @@ const WORLD = {
             indices[i] += this.positions.length;
         }
 
+        //vertexNormals
+        for (let p = 0; p < vertexNormals.length; p += 3) {
+            vertexNormals[p] += grid.x;
+            vertexNormals[p + 1] += grid.y;
+            vertexNormals[p + 2] += Z;
+        }
+
         //console.log(".adding", positions, indices, textureCoordinates);
         this.positions = this.positions.concat(positions);
         this.indices = this.indices.concat(indices);
         this.textureCoordinates = this.textureCoordinates.concat(textureCoordinates);
+        this.vertexNormals = this.vertexNormals.concat(vertexNormals);
     },
     build(GA, Z = 0) {
         console.time("WorldBuilding");
-        //console.log("GA", GA);
         this.init();
 
         for (let [index, value] of GA.map.entries()) {
@@ -72,13 +335,15 @@ const WORLD = {
             switch (value) {
                 case MAPDICT.EMPTY:
                     //add cube Z-1, Z+1
-                    this.addCube(Z - 1, grid);
-                    this.addCube(Z + 1, grid);
+                    //this.addCube(Z - 1, grid);
+                    //this.addCube(Z + 1, grid);
 
                     break;
                 case MAPDICT.WALL:
                     //add cube Z
                     this.addCube(Z, grid);
+                    //this.addCube(Z - 1, grid);
+                    //this.addCube(Z + 1, grid);
 
                     break;
                 default:
@@ -87,22 +352,39 @@ const WORLD = {
         }
 
         console.timeEnd("WorldBuilding");
-        return new World(this.positions, this.indices, this.textureCoordinates);
+        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals);
+    },
+    buildDummy2() {
+        console.time("WorldBuilding");
+        this.init();
+        this.addCube(0, new Grid(0, 0));
+        this.addCube(0, new Grid(1, 0));
+        this.addCube(0, new Grid(0, 1));
+        console.timeEnd("WorldBuilding");
+        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals);
+    },
+    buildDummy() {
+        console.time("WorldBuilding");
+        this.init();
+        this.addCube(0, new Grid(0, 0));
+        console.timeEnd("WorldBuilding");
+        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals);
     }
 };
 
 /** Classes */
 
 class World {
-    constructor(positions, indices, textureCoordinates) {
+    constructor(positions, indices, textureCoordinates, vertexNormals) {
         this.positions = positions;
         this.indices = indices;
         this.textureCoordinates = textureCoordinates;
+        this.vertexNormals = vertexNormals;
     }
 }
 
 class $3D_player {
-    constructor(position, dir, map = null, size = 0.5) {
+    constructor(position, dir, map = null, size = 0.5, Z = 0.5) {
         this.setPos(position);
         this.setDir(dir);
         this.setMap(map);
@@ -111,6 +393,7 @@ class $3D_player {
         this.setFov();
         this.rotationResolution = 64;
         this.setSpeed(4.0);
+        this.Z = Z;
     }
     setSpeed(speed) {
         this.moveSpeed = speed;
@@ -159,7 +442,8 @@ class $3D_player {
         let nextPos = Vector3.to_FP_Grid(nextPos3);
 
         //check if staircase
-        let bump = this.usingStaircase(nextPos);
+        //let bump = this.usingStaircase(nextPos);
+        let bump = null;
         if (bump !== null) {
             bump.interact();
             return;
@@ -167,7 +451,8 @@ class $3D_player {
 
         if (this.bumpEnemy(nextPos)) return;
 
-        let check = this.GA.entityNotInWall(nextPos, dir, this.r);
+        //let check = this.GA.entityNotInWall(nextPos, dir, this.r);
+        let check = true;
         if (check) {
             this.pos = nextPos3;
         }
@@ -202,14 +487,16 @@ class $3D_player {
         let nextPos3 = this.pos.translate(dir, length);
         let nextPos = Vector3.to_FP_Grid(nextPos3);
         //check if staircase
-        let bump = this.usingStaircase(nextPos);
+        //let bump = this.usingStaircase(nextPos);
+        let bump = null;
         if (bump !== null) {
             bump.interact();
             return;
         }
 
         if (this.bumpEnemy(nextPos)) return;
-        let check = this.GA.entityNotInWall(nextPos, dir, this.r);
+        //let check = this.GA.entityNotInWall(nextPos, dir, this.r);
+        let check = true;
         if (check) {
             this.pos = nextPos3;
         }
@@ -297,13 +584,23 @@ const ELEMENT = {
             0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
             // Left
             0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+        ],
+        vertexNormals: [
+            // Front
+            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+            // Back
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            // Top
+            0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+            // Bottom
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            // Right
+            1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+            // Left
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
         ]
     }
 };
-
-
-/** Shaders */
-
 
 
 //END
