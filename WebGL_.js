@@ -86,12 +86,17 @@ const WebGL = {
         gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.vertexNormals), gl.STATIC_DRAW);
 
+        const colorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.colors), gl.STATIC_DRAW);
+
         //
         this.buffer = {
             position: positionBuffer,
             indices: indexBuffer,
             normal: normalBuffer,
             textureCoord: textureCoordBuffer,
+            colors: colorBuffer
         };
     },
     loadShader(gl, type, source) {
@@ -123,6 +128,7 @@ const WebGL = {
                 vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
                 vertexNormal: gl.getAttribLocation(shaderProgram, "aVertexNormal"),
                 textureCoord: gl.getAttribLocation(shaderProgram, "aTextureCoord"),
+                vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
             },
             uniformLocations: {
                 projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
@@ -148,15 +154,6 @@ const WebGL = {
 
         // Now move the drawing position where we want to start drawing 
 
-        //adj camera dir
-        const invCameraDir = glMatrix.vec3.create();
-        glMatrix.vec3.inverse(invCameraDir, this.camera.dir.array);
-        const invCameraPos = glMatrix.vec3.create();
-        glMatrix.vec3.inverse(invCameraPos, this.camera.pos.array);
-
-
-
-
         // view (lookAt) matrix
 
         const viewMatrix = glMatrix.mat4.create();
@@ -170,29 +167,6 @@ const WebGL = {
         const modelViewMatrix = glMatrix.mat4.create();
         const modelMatrix = glMatrix.mat4.create();
         glMatrix.mat4.mul(modelViewMatrix, viewMatrix, modelMatrix);
-
-
-        //const modelViewMatrix = glMatrix.mat4.clone(viewMatrix);
-
-        //console.log("lookAtMatrix", lookAtMatrix);
-        //throw "debug";
-
-        //glMatrix.mat4.mul(modelViewMatrix, lookAtMatrix, modelViewMatrix);
-        //console.log("modelViewMatrix", modelViewMatrix);
-
-        /*
-        glMatrix.mat4.translate(
-            modelViewMatrix, // destination matrix
-            modelViewMatrix, // matrix to translate
-            this.camera.pos.array // amount to translate
-        );
-        */
-
-        /*glMatrix.mat4.translate(
-            modelViewMatrix, // destination matrix
-            modelViewMatrix, // matrix to translate
-            [-0, -0, 0] // amount to translate
-        );*/
 
 
         /*
@@ -226,17 +200,6 @@ const WebGL = {
         //console.log("modelViewMatrix", modelViewMatrix);
 
 
-        /*
-        glMatrix.mat4.translate(
-            modelViewMatrix, // destination matrix
-            modelViewMatrix, // matrix to translate
-            //[0, 0, 0] // amount to translate
-            this.camera.pos.array // amount to translate
-        );
-        */
-
-
-
         //for lightning
         const normalMatrix = glMatrix.mat4.create();
         glMatrix.mat4.invert(normalMatrix, modelViewMatrix);
@@ -247,36 +210,45 @@ const WebGL = {
         gl.vertexAttribPointer(this.program.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(this.program.attribLocations.vertexPosition);
 
+        //setColorAttribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.colors);
+        gl.vertexAttribPointer(this.program.attribLocations.vertexColor, 4, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(this.program.attribLocations.vertexColor);
+
         //setTextureAttribute
+        /*
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.textureCoord);
         gl.vertexAttribPointer(this.program.attribLocations.textureCoord, 2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(this.program.attribLocations.textureCoord);
+        */
 
         // Tell WebGL which indices to use to index the vertices
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffer.indices);
 
         //setNormalAttribute
+        /*
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.normal);
         gl.vertexAttribPointer(this.program.attribLocations.vertexNormal, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(this.program.attribLocations.vertexNormal);
+        */
+        
 
         // Tell WebGL to use our program when drawing
         gl.useProgram(this.program.program);
 
         // Set the shader uniforms, viewProjectionMatrix
         gl.uniformMatrix4fv(this.program.uniformLocations.projectionMatrix, false, this.projectionMatrix);
-        //gl.uniformMatrix4fv(this.program.uniformLocations.projectionMatrix, false, viewProjectionMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.modelViewMatrix, false, modelViewMatrix);
-        gl.uniformMatrix4fv(this.program.uniformLocations.normalMatrix, false, normalMatrix);
+        //gl.uniformMatrix4fv(this.program.uniformLocations.normalMatrix, false, normalMatrix);
 
         // Tell WebGL we want to affect texture unit 0
-        gl.activeTexture(gl.TEXTURE0);
+        //gl.activeTexture(gl.TEXTURE0);
 
         // Bind the texture to texture unit 0
-        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        //gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
         // Tell the shader we bound the texture to texture unit 0
-        gl.uniform1i(this.program.uniformLocations.uSampler, 0);
+        //gl.uniform1i(this.program.uniformLocations.uSampler, 0);
 
         //draw
         gl.drawElements(gl.TRIANGLES, this.vertexCount, gl.UNSIGNED_SHORT, 0);
@@ -289,6 +261,7 @@ const WORLD = {
         this.indices = [];
         this.textureCoordinates = [];
         this.vertexNormals = [];
+        this.colors = [];
     },
     addCube(Z, grid) {
         return this.addElement(ELEMENT.CUBE, Z, grid);
@@ -299,6 +272,7 @@ const WORLD = {
         let indices = [...E.indices];
         let textureCoordinates = [...E.textureCoordinates];
         let vertexNormals = [...E.vertexNormals];
+        let colors = [...E.colors];
 
         //positions
         for (let p = 0; p < positions.length; p += 3) {
@@ -324,6 +298,7 @@ const WORLD = {
         this.indices = this.indices.concat(indices);
         this.textureCoordinates = this.textureCoordinates.concat(textureCoordinates);
         this.vertexNormals = this.vertexNormals.concat(vertexNormals);
+        this.colors = this.colors.concat(colors);
     },
     build(GA, Z = 0) {
         console.time("WorldBuilding");
@@ -352,7 +327,7 @@ const WORLD = {
         }
 
         console.timeEnd("WorldBuilding");
-        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals);
+        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals, this.colors);
     },
     buildDummy2() {
         console.time("WorldBuilding");
@@ -361,25 +336,26 @@ const WORLD = {
         this.addCube(0, new Grid(1, 0));
         this.addCube(0, new Grid(0, 1));
         console.timeEnd("WorldBuilding");
-        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals);
+        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals, this.colors);
     },
     buildDummy() {
         console.time("WorldBuilding");
         this.init();
         this.addCube(0, new Grid(0, 0));
         console.timeEnd("WorldBuilding");
-        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals);
+        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals, this.colors);
     }
 };
 
 /** Classes */
 
 class World {
-    constructor(positions, indices, textureCoordinates, vertexNormals) {
+    constructor(positions, indices, textureCoordinates, vertexNormals, colors = null) {
         this.positions = positions;
         this.indices = indices;
         this.textureCoordinates = textureCoordinates;
         this.vertexNormals = vertexNormals;
+        this.colors = colors;
     }
 }
 
@@ -563,6 +539,21 @@ const ELEMENT = {
             // Left face
             -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0,
         ],
+        colors: [],
+        setColors() {
+            for (let i = 0; i < this.faceColors.length; i++) {
+                const c = this.faceColors[i];
+                this.colors = this.colors.concat(c, c, c, c);
+            }
+        },
+        faceColors: [
+            [1.0, 1.0, 1.0, 1.0], // Front face: white
+            [1.0, 0.0, 0.0, 1.0], // Back face: red
+            [0.0, 1.0, 0.0, 1.0], // Top face: green
+            [0.0, 0.0, 1.0, 1.0], // Bottom face: blue
+            [1.0, 1.0, 0.0, 1.0], // Right face: yellow
+            [1.0, 0.0, 1.0, 1.0], // Left face: purple
+        ],
         indices: [
             0, 1, 2, 0, 2, 3, // front
             4, 5, 6, 4, 6, 7, // back
@@ -602,6 +593,7 @@ const ELEMENT = {
     }
 };
 
+ELEMENT.CUBE.setColors();
 
 //END
 console.log(`%cWebGL ${WebGL.VERSION} loaded.`, WebGL.CSS);
