@@ -157,11 +157,9 @@ const WebGL = {
         // view (lookAt) matrix
 
         const viewMatrix = glMatrix.mat4.create();
-        glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, this.camera.dir.array, [0.0, 0.0, 1.0]); //~works?
-        //glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, [0, 0, 0], [0.0, 0.0, 1.0]);
-        //glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]);
-        //glMatrix.mat4.lookAt(viewMatrix, invCameraPos, invCameraDir, [0.0, 0.0, 1.0]); //black screen
-
+        let cameratarget = this.camera.pos.translate(this.camera.dir);
+        //glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, this.camera.dir.array, [0.0, 1.0, 0.0]); //~works? (white is front!), should be pos + dir
+        glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, cameratarget.array, [0.0, 1.0, 0.0]); //~works? (white is front!), should be pos + dir
 
 
         const modelViewMatrix = glMatrix.mat4.create();
@@ -391,7 +389,8 @@ class $3D_player {
     }
     rotate(rotDirection, lapsedTime) {
         let angle = Math.round(lapsedTime / ENGINE.INI.ANIMATION_INTERVAL) * rotDirection * ((2 * Math.PI) / this.rotationResolution);
-        this.dir = Vector3.from_2D_dir(this.dir.rotate2D(angle), this.dir.z);
+        this.dir = Vector3.from_2D_dir(this.dir.rotate2D(angle), this.dir.y);
+        this.log();
     }
     bumpEnemy(nextPos) {
         let checkGrids = this.GA.gridsAroundEntity(nextPos, Vector3.to_FP_Vector(this.dir), this.r); //grid check is 2D!
@@ -410,10 +409,13 @@ class $3D_player {
     }
     move(reverse, lapsedTime) {
         let length = (lapsedTime / 1000) * this.moveSpeed;
-        let dir = Vector3.to_FP_Vector(this.dir);
+        //let dir = Vector3.to_FP_Vector(this.dir);
+        let dir = this.dir;
+        
         if (reverse) {
-            dir = dir.reverse();
+            dir = dir.reverse2D();
         }
+        //console.log("dir", dir);
         let nextPos3 = this.pos.translate(dir, length); //3D
         let nextPos = Vector3.to_FP_Grid(nextPos3);
 
@@ -432,6 +434,7 @@ class $3D_player {
         if (check) {
             this.pos = nextPos3;
         }
+        this.log();
     }
     usingStaircase(nextPos, resolution = 4) {
         let currentGrid = Grid.toClass(this.pos);
@@ -459,7 +462,9 @@ class $3D_player {
     }
     strafe(rotDirection, lapsedTime) {
         let length = (lapsedTime / 1000) * this.moveSpeed;
-        let dir = Vector3.to_FP_Vector(this.dir).rotate((rotDirection * Math.PI) / 2);
+        ///this.dir = Vector3.from_2D_dir(this.dir.rotate2D(angle), this.dir.y);
+        let dir = Vector3.from_2D_dir(this.dir.rotate2D((rotDirection * Math.PI) / 2), this.dir.y);
+        //let dir = Vector3.to_FP_Vector(this.dir).rotate((rotDirection * Math.PI) / 2);
         let nextPos3 = this.pos.translate(dir, length);
         let nextPos = Vector3.to_FP_Grid(nextPos3);
         //check if staircase
@@ -476,6 +481,10 @@ class $3D_player {
         if (check) {
             this.pos = nextPos3;
         }
+        this.log();
+    }
+    log(){
+        console.log("pos:", this.pos, "dir", this.dir);
     }
     circleCollision(entity, nextPos = null) {
         let distance;
@@ -515,7 +524,7 @@ class $3D_player {
             return;
         }
         if (map[ENGINE.KEY.map.LT] || map[ENGINE.KEY.map.LTC]) {
-            this.dir = Vector3.from_2D_dir(Vector3.to_FP_Vector(this.dir).ortoAlign(), this.dir.z);
+            this.dir = Vector3.from_2D_dir(Vector3.to_FP_Vector(this.dir).ortoAlign(), this.dir.y);
             return;
         }
     }

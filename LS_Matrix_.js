@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////
 
 const LS_matrix = {
-    VERSION: "0.02",
+    VERSION: "0.03",
     CSS: "color: red",
 };
 
@@ -31,22 +31,26 @@ class Vector3 {
     toArray() {
         this.array = new Float32Array([this.x, this.y, this.z]);
     }
-    static from_2D_dir(dir, z = 0) {
-        return new Vector3(dir.x, dir.y, z);
+    static from_2D_dir(dir, y = 0) {
+        return new Vector3(dir.x, y, dir.y); //
     }
     static to_FP_Grid(v) {
-        return new FP_Grid(v.x, v.y);
+        return new FP_Grid(v.x, v.z);
     }
     static to_FP_Vector(v) {
-        return new FP_Vector(v.x, v.y);
+        return new FP_Vector(v.x, v.z);
     }
     toPoint() {
-        let grid = new FP_Grid(this.x, this.y);
+        let grid = new FP_Grid(this.x, this.z);
         return grid.toPoint();
     }
     rotate2D(rad) {
-        let FPV = new FP_Vector(this.x, this.y);
+        let FPV = new FP_Vector(this.x, this.z);
         return FPV.rotate(rad);
+    }
+    reverse2D() {
+        //const FPV =  this.rotate2D(Math.PI);
+        return Vector3.from_2D_dir(this.rotate2D(Math.PI), this.y);
     }
     rotateX() { }
     rotateY() { }

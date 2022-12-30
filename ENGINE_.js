@@ -1940,13 +1940,14 @@ const ENGINE = {
       CTX.lineWidth = 1;
       CTX.miterLimit = 1;
       CTX.lineJoin = "round";
-      let point = player.pos.toPoint();
+      //let point = player.pos.toPoint();
+      let point = Vector3.to_FP_Grid(player.pos).toPoint();
       CTX.pixelAtPoint(point);
       let r = Math.round(ENGINE.INI.GRIDPIX * player.r);
       CTX.beginPath();
       CTX.arc(point.x, point.y, r, 0, 2 * Math.PI);
       CTX.moveTo(point.x, point.y);
-      let end = point.translate(player.dir, r);
+      let end = point.translate(Vector3.to_FP_Grid(player.dir), r);
       CTX.lineTo(end.x, end.y);
       CTX.stroke();
     },
