@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////
 
 const LS_matrix = {
-    VERSION: "0.03",
+    VERSION: "0.04",
     CSS: "color: red",
 };
 
@@ -49,7 +49,6 @@ class Vector3 {
         return FPV.rotate(rad);
     }
     reverse2D() {
-        //const FPV =  this.rotate2D(Math.PI);
         return Vector3.from_2D_dir(this.rotate2D(Math.PI), this.y);
     }
     rotateX() { }

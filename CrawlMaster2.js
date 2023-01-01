@@ -26,7 +26,7 @@ var INI = {
 
 };
 var PRG = {
-    VERSION: "0.01.09",
+    VERSION: "0.01.10",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -169,16 +169,11 @@ var GAME = {
         MAP[level].map = FREE_MAP.import(JSON.parse(MAP[level].data));
         MAP[level].pw = MAP[level].map.width * ENGINE.INI.GRIDPIX;
         MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
-        //HERO.player = new $3D_player(new Vector3(3, 4, 0.5), Vector3.from_2D_dir(UP), MAP[level].map);
-        //HERO.player = new $3D_player(new Vector3(3, 4, 0.5), Vector3.from_2D_dir(UP), MAP[level].map);
-        HERO.player = new $3D_player(new Vector3(0, 0, -0), Vector3.from_2D_dir(UP), MAP[level].map);
-        //HERO.player = new $3D_player(new Vector3(3, 4, 0.5), new Vector3(0,-1,-1), MAP[level].map);
-        //HERO.player = new $3D_player(new Vector3(0.95, 1.05, 0.5), Vector3.from_2D_dir(UP), MAP[level].map);
+        HERO.player = new $3D_player(new Vector3(3.5, 0.5, 4.5), Vector3.from_2D_dir(UP), MAP[level].map);
+  
   
         console.log("HERO", HERO);
-        //MAP[level].world = WORLD.build(MAP[level].map.GA);
-        MAP[level].world = WORLD.buildDummy();
-        //MAP[level].world = WORLD.buildDummy2();
+        MAP[level].world = WORLD.build(MAP[level].map.GA);
         console.log("world", MAP[level].world);
 
         //

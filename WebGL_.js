@@ -20,7 +20,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.03",
+    VERSION: "0.04",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -86,9 +86,11 @@ const WebGL = {
         gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.vertexNormals), gl.STATIC_DRAW);
 
+        /*
         const colorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.colors), gl.STATIC_DRAW);
+        */
 
         //
         this.buffer = {
@@ -96,7 +98,7 @@ const WebGL = {
             indices: indexBuffer,
             normal: normalBuffer,
             textureCoord: textureCoordBuffer,
-            colors: colorBuffer
+            //colors: colorBuffer
         };
     },
     loadShader(gl, type, source) {
@@ -128,7 +130,7 @@ const WebGL = {
                 vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
                 vertexNormal: gl.getAttribLocation(shaderProgram, "aVertexNormal"),
                 textureCoord: gl.getAttribLocation(shaderProgram, "aTextureCoord"),
-                vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
+                //vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
             },
             uniformLocations: {
                 projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
@@ -145,63 +147,23 @@ const WebGL = {
         gl.clearDepth(1.0); // Clear everything
         gl.enable(gl.DEPTH_TEST); // Enable depth testing
         gl.depthFunc(gl.LEQUAL); // Near things obscure far things
+        // Cull triangles which normal is not towards the camera
+        gl.enable(gl.CULL_FACE);
         // Clear the canvas before we start drawing on it.
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         // Set the drawing position to the "identity" point, which is
         // the center of the scene.
-
-
         // Now move the drawing position where we want to start drawing 
-
-        // view (lookAt) matrix
 
         const viewMatrix = glMatrix.mat4.create();
         let cameratarget = this.camera.pos.translate(this.camera.dir);
-        //glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, this.camera.dir.array, [0.0, 1.0, 0.0]); //~works? (white is front!), should be pos + dir
-        glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, cameratarget.array, [0.0, 1.0, 0.0]); //~works? (white is front!), should be pos + dir
-
-
-        const modelViewMatrix = glMatrix.mat4.create();
-        const modelMatrix = glMatrix.mat4.create();
-        glMatrix.mat4.mul(modelViewMatrix, viewMatrix, modelMatrix);
-
-
-        /*
-        glMatrix.mat4.translate(
-            modelViewMatrix, // destination matrix
-            modelViewMatrix, // matrix to translate
-            //[0, 0, 0] // amount to translate
-            this.camera.pos.array // amount to translate
-        );
-        */
-
-
-
-        /*
-        glMatrix.mat4.rotate(
-            modelViewMatrix, // destination matrix
-            modelViewMatrix, // matrix to rotate
-            0, // amount to rotate in radians
-            [0, 0, 1]
-        ); // axis to rotate around (Z)
-        */
-
-
-
-        //const invMatrix = glMatrix.mat4.create();
-        //glMatrix.mat4.invert(invMatrix, modelViewMatrix);
-        //console.log("invMatrix", invMatrix);
-        //glMatrix.mat4.mul(modelViewMatrix, invMatrix, modelViewMatrix); //1
-        //glMatrix.mat4.mul(modelViewMatrix, lookAtMatrix, modelViewMatrix); //look
-        //glMatrix.mat4.mul(modelViewMatrix, invMatrix, modelViewMatrix); //2
-        //console.log("modelViewMatrix", modelViewMatrix);
-
+        glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, cameratarget.array, [0.0, 1.0, 0.0]); 
 
         //for lightning
         const normalMatrix = glMatrix.mat4.create();
-        glMatrix.mat4.invert(normalMatrix, modelViewMatrix);
-        glMatrix.mat4.transpose(normalMatrix, normalMatrix);
+        glMatrix.mat4.invert(normalMatrix, viewMatrix);
+        glMatrix.mat4.transpose(normalMatrix, viewMatrix);
 
         //setPositionAttribute
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.position);
@@ -209,44 +171,46 @@ const WebGL = {
         gl.enableVertexAttribArray(this.program.attribLocations.vertexPosition);
 
         //setColorAttribute
+        /*
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.colors);
         gl.vertexAttribPointer(this.program.attribLocations.vertexColor, 4, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(this.program.attribLocations.vertexColor);
+        */
 
         //setTextureAttribute
-        /*
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.textureCoord);
         gl.vertexAttribPointer(this.program.attribLocations.textureCoord, 2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(this.program.attribLocations.textureCoord);
-        */
+
 
         // Tell WebGL which indices to use to index the vertices
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffer.indices);
 
         //setNormalAttribute
-        /*
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.normal);
         gl.vertexAttribPointer(this.program.attribLocations.vertexNormal, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(this.program.attribLocations.vertexNormal);
-        */
-        
+
+
 
         // Tell WebGL to use our program when drawing
         gl.useProgram(this.program.program);
 
         // Set the shader uniforms, viewProjectionMatrix
         gl.uniformMatrix4fv(this.program.uniformLocations.projectionMatrix, false, this.projectionMatrix);
-        gl.uniformMatrix4fv(this.program.uniformLocations.modelViewMatrix, false, modelViewMatrix);
-        //gl.uniformMatrix4fv(this.program.uniformLocations.normalMatrix, false, normalMatrix);
+        gl.uniformMatrix4fv(this.program.uniformLocations.modelViewMatrix, false, viewMatrix);
+        gl.uniformMatrix4fv(this.program.uniformLocations.normalMatrix, false, normalMatrix);
 
         // Tell WebGL we want to affect texture unit 0
-        //gl.activeTexture(gl.TEXTURE0);
+        gl.activeTexture(gl.TEXTURE0);
 
         // Bind the texture to texture unit 0
-        //gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
         // Tell the shader we bound the texture to texture unit 0
-        //gl.uniform1i(this.program.uniformLocations.uSampler, 0);
+        gl.uniform1i(this.program.uniformLocations.uSampler, 0);
 
         //draw
         gl.drawElements(gl.TRIANGLES, this.vertexCount, gl.UNSIGNED_SHORT, 0);
@@ -259,46 +223,44 @@ const WORLD = {
         this.indices = [];
         this.textureCoordinates = [];
         this.vertexNormals = [];
-        this.colors = [];
+        //this.colors = [];
     },
-    addCube(Z, grid) {
-        return this.addElement(ELEMENT.CUBE, Z, grid);
+    addCube(Y, grid) {
+        return this.addElement(ELEMENT.CUBE, Y, grid);
     },
-    addElement(E, Z, grid) {
-        //console.log("addEl", Z, grid);
+    addElement(E, Y, grid) {
         let positions = [...E.positions];
         let indices = [...E.indices];
         let textureCoordinates = [...E.textureCoordinates];
         let vertexNormals = [...E.vertexNormals];
-        let colors = [...E.colors];
+        //let colors = [...E.colors];
 
         //positions
         for (let p = 0; p < positions.length; p += 3) {
             positions[p] += grid.x;
-            positions[p + 1] += grid.y;
-            positions[p + 2] += Z;
+            positions[p + 1] += Y;
+            positions[p + 2] += grid.y;
         }
 
         //indices
         for (let i = 0; i < indices.length; i++) {
-            indices[i] += this.positions.length;
+            indices[i] += this.positions.length / 3;
         }
 
         //vertexNormals
         for (let p = 0; p < vertexNormals.length; p += 3) {
             vertexNormals[p] += grid.x;
-            vertexNormals[p + 1] += grid.y;
-            vertexNormals[p + 2] += Z;
+            vertexNormals[p + 1] += Y;
+            vertexNormals[p + 2] += grid.y;
         }
 
-        //console.log(".adding", positions, indices, textureCoordinates);
         this.positions = this.positions.concat(positions);
         this.indices = this.indices.concat(indices);
         this.textureCoordinates = this.textureCoordinates.concat(textureCoordinates);
         this.vertexNormals = this.vertexNormals.concat(vertexNormals);
-        this.colors = this.colors.concat(colors);
+        //this.colors = this.colors.concat(colors);
     },
-    build(GA, Z = 0) {
+    build(GA, Y = 0) {
         console.time("WorldBuilding");
         this.init();
 
@@ -307,17 +269,14 @@ const WORLD = {
             //console.log(index, "->", value, "grid", grid);
             switch (value) {
                 case MAPDICT.EMPTY:
-                    //add cube Z-1, Z+1
-                    //this.addCube(Z - 1, grid);
-                    //this.addCube(Z + 1, grid);
+                    //add cube Y-1, Y+1
+                    this.addCube(Y - 1, grid);
+                    this.addCube(Y + 1, grid);
 
                     break;
                 case MAPDICT.WALL:
-                    //add cube Z
-                    this.addCube(Z, grid);
-                    //this.addCube(Z - 1, grid);
-                    //this.addCube(Z + 1, grid);
-
+                    //add cube Y
+                    this.addCube(Y, grid);
                     break;
                 default:
                     console.error("world building GA value error", value);
@@ -325,24 +284,8 @@ const WORLD = {
         }
 
         console.timeEnd("WorldBuilding");
-        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals, this.colors);
+        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals);
     },
-    buildDummy2() {
-        console.time("WorldBuilding");
-        this.init();
-        this.addCube(0, new Grid(0, 0));
-        this.addCube(0, new Grid(1, 0));
-        this.addCube(0, new Grid(0, 1));
-        console.timeEnd("WorldBuilding");
-        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals, this.colors);
-    },
-    buildDummy() {
-        console.time("WorldBuilding");
-        this.init();
-        this.addCube(0, new Grid(0, 0));
-        console.timeEnd("WorldBuilding");
-        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals, this.colors);
-    }
 };
 
 /** Classes */
@@ -358,7 +301,7 @@ class World {
 }
 
 class $3D_player {
-    constructor(position, dir, map = null, size = 0.5, Z = 0.5) {
+    constructor(position, dir, map = null, size = 0.5, H = 0.5) {
         this.setPos(position);
         this.setDir(dir);
         this.setMap(map);
@@ -367,7 +310,7 @@ class $3D_player {
         this.setFov();
         this.rotationResolution = 64;
         this.setSpeed(4.0);
-        this.Z = Z;
+        this.H = H;
     }
     setSpeed(speed) {
         this.moveSpeed = speed;
@@ -390,7 +333,7 @@ class $3D_player {
     rotate(rotDirection, lapsedTime) {
         let angle = Math.round(lapsedTime / ENGINE.INI.ANIMATION_INTERVAL) * rotDirection * ((2 * Math.PI) / this.rotationResolution);
         this.dir = Vector3.from_2D_dir(this.dir.rotate2D(angle), this.dir.y);
-        this.log();
+        //this.log();
     }
     bumpEnemy(nextPos) {
         let checkGrids = this.GA.gridsAroundEntity(nextPos, Vector3.to_FP_Vector(this.dir), this.r); //grid check is 2D!
@@ -409,13 +352,12 @@ class $3D_player {
     }
     move(reverse, lapsedTime) {
         let length = (lapsedTime / 1000) * this.moveSpeed;
-        //let dir = Vector3.to_FP_Vector(this.dir);
         let dir = this.dir;
-        
+
         if (reverse) {
             dir = dir.reverse2D();
         }
-        //console.log("dir", dir);
+
         let nextPos3 = this.pos.translate(dir, length); //3D
         let nextPos = Vector3.to_FP_Grid(nextPos3);
 
@@ -429,12 +371,12 @@ class $3D_player {
 
         if (this.bumpEnemy(nextPos)) return;
 
-        //let check = this.GA.entityNotInWall(nextPos, dir, this.r);
-        let check = true;
+        let check = this.GA.entityNotInWall(nextPos, Vector3.to_FP_Vector(dir), this.r);
+        //let check = true;
         if (check) {
             this.pos = nextPos3;
         }
-        this.log();
+        //this.log();
     }
     usingStaircase(nextPos, resolution = 4) {
         let currentGrid = Grid.toClass(this.pos);
@@ -462,9 +404,7 @@ class $3D_player {
     }
     strafe(rotDirection, lapsedTime) {
         let length = (lapsedTime / 1000) * this.moveSpeed;
-        ///this.dir = Vector3.from_2D_dir(this.dir.rotate2D(angle), this.dir.y);
         let dir = Vector3.from_2D_dir(this.dir.rotate2D((rotDirection * Math.PI) / 2), this.dir.y);
-        //let dir = Vector3.to_FP_Vector(this.dir).rotate((rotDirection * Math.PI) / 2);
         let nextPos3 = this.pos.translate(dir, length);
         let nextPos = Vector3.to_FP_Grid(nextPos3);
         //check if staircase
@@ -476,14 +416,13 @@ class $3D_player {
         }
 
         if (this.bumpEnemy(nextPos)) return;
-        //let check = this.GA.entityNotInWall(nextPos, dir, this.r);
-        let check = true;
+        let check = this.GA.entityNotInWall(nextPos, Vector3.to_FP_Vector(dir), this.r);
         if (check) {
             this.pos = nextPos3;
         }
-        this.log();
+        //this.log();
     }
-    log(){
+    log() {
         console.log("pos:", this.pos, "dir", this.dir);
     }
     circleCollision(entity, nextPos = null) {
@@ -534,7 +473,7 @@ class $3D_player {
 
 const ELEMENT = {
     CUBE: {
-        positions: [
+        /*positions: [
             // Front face
             -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
             // Back face
@@ -547,22 +486,36 @@ const ELEMENT = {
             1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,
             // Left face
             -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0,
+        ],*/
+        positions: [
+            // Front face
+            0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0,
+            // Back face
+            0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,
+            // Top face
+            0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0,
+            // Bottom face
+            0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+            // Right face
+            1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0,
+            // Left face
+            0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0,
         ],
-        colors: [],
-        setColors() {
+        //colors: [],
+        /*setColors() {
             for (let i = 0; i < this.faceColors.length; i++) {
                 const c = this.faceColors[i];
                 this.colors = this.colors.concat(c, c, c, c);
             }
-        },
-        faceColors: [
+        },*/
+        /*faceColors: [
             [1.0, 1.0, 1.0, 1.0], // Front face: white
             [1.0, 0.0, 0.0, 1.0], // Back face: red
             [0.0, 1.0, 0.0, 1.0], // Top face: green
             [0.0, 0.0, 1.0, 1.0], // Bottom face: blue
             [1.0, 1.0, 0.0, 1.0], // Right face: yellow
             [1.0, 0.0, 1.0, 1.0], // Left face: purple
-        ],
+        ],*/
         indices: [
             0, 1, 2, 0, 2, 3, // front
             4, 5, 6, 4, 6, 7, // back
@@ -575,13 +528,13 @@ const ELEMENT = {
             // Front
             0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
             // Back
-            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,
             // Top
             0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
             // Bottom
             0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
             // Right
-            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,
             // Left
             0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
         ],
@@ -602,7 +555,7 @@ const ELEMENT = {
     }
 };
 
-ELEMENT.CUBE.setColors();
+//ELEMENT.CUBE.setColors();
 
 //END
 console.log(`%cWebGL ${WebGL.VERSION} loaded.`, WebGL.CSS);
