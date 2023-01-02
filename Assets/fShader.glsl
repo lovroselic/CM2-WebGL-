@@ -15,7 +15,8 @@ void main(void) {
     highp vec3 ambientLight = ambientStrength * ambientLightColor;
 
     //diffuse
-    highp float diffuseStrength = 0.6;
+    highp float dist = max(distance(uCameraPos, FragPos), 0.65);
+    highp float diffuseStrength = 1.0 / (dist * dist);
     highp vec3 diffuseLightColor = vec3(1, 1, 0.9);
     highp vec3 norm = normalize(v_normal);
     highp vec3 lightDir = normalize(uCameraPos - FragPos);
