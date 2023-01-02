@@ -26,7 +26,7 @@ var INI = {
 
 };
 var PRG = {
-    VERSION: "0.01.10",
+    VERSION: "0.01.12",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -407,8 +407,8 @@ var TITLE = {
         CTX.roundRect(0, 0, ENGINE.bottomWIDTH, ENGINE.bottomHEIGHT, { upperLeft: 0, upperRight: 0, lowerLeft: 20, lowerRight: 20 }, true, true);
     },
     sideBackground() {
-        ENGINE.fillLayer("sideback", "#222");
-        ENGINE.fillLayer("Lsideback", "#111");
+        ENGINE.fillLayer("sideback", "#000");
+        ENGINE.fillLayer("Lsideback", "#000");
     },
     bottom() {
         this.bottomVersion();

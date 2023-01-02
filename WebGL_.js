@@ -17,10 +17,15 @@
  * https://learnopengl.com/Getting-started/Coordinate-Systems
  * https://webglfundamentals.org/webgl/lessons/webgl-3d-camera.html
  * this: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/#the-model-view-and-projection-matrices
+ * https://learnopengl.com/Lighting/Basic-Lighting
+ * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-directional.html
+ * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-point.html
+ * 
+ * https://stackoverflow.com/questions/72042788/webgl-camera-position-affecting-spotlight
  */
 
 const WebGL = {
-    VERSION: "0.04",
+    VERSION: "0.06",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -130,13 +135,14 @@ const WebGL = {
                 vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
                 vertexNormal: gl.getAttribLocation(shaderProgram, "aVertexNormal"),
                 textureCoord: gl.getAttribLocation(shaderProgram, "aTextureCoord"),
-                //vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
             },
             uniformLocations: {
                 projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
                 modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
                 normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
                 uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
+                cameraDir: gl.getUniformLocation(shaderProgram, "uCameraDir"),
+                cameraPos: gl.getUniformLocation(shaderProgram, "uCameraPos")
             },
         };
         this.program = programInfo;
@@ -157,25 +163,21 @@ const WebGL = {
         // Now move the drawing position where we want to start drawing 
 
         const viewMatrix = glMatrix.mat4.create();
-        let cameratarget = this.camera.pos.translate(this.camera.dir);
-        glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, cameratarget.array, [0.0, 1.0, 0.0]); 
+        const cameratarget = this.camera.pos.translate(this.camera.dir);
+        glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, cameratarget.array, [0.0, 1.0, 0.0]);
+
 
         //for lightning
-        const normalMatrix = glMatrix.mat4.create();
+        const normalMatrix = glMatrix.mat4.create(); //identity
         glMatrix.mat4.invert(normalMatrix, viewMatrix);
-        glMatrix.mat4.transpose(normalMatrix, viewMatrix);
+        //glMatrix.mat4.invert(normalMatrix, normalMatrix);
+        glMatrix.mat4.transpose(normalMatrix, normalMatrix);
 
         //setPositionAttribute
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.position);
         gl.vertexAttribPointer(this.program.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(this.program.attribLocations.vertexPosition);
 
-        //setColorAttribute
-        /*
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.colors);
-        gl.vertexAttribPointer(this.program.attribLocations.vertexColor, 4, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(this.program.attribLocations.vertexColor);
-        */
 
         //setTextureAttribute
 
@@ -193,8 +195,6 @@ const WebGL = {
         gl.vertexAttribPointer(this.program.attribLocations.vertexNormal, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(this.program.attribLocations.vertexNormal);
 
-
-
         // Tell WebGL to use our program when drawing
         gl.useProgram(this.program.program);
 
@@ -202,6 +202,21 @@ const WebGL = {
         gl.uniformMatrix4fv(this.program.uniformLocations.projectionMatrix, false, this.projectionMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.modelViewMatrix, false, viewMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.normalMatrix, false, normalMatrix);
+
+        //cameraDir
+        //const invCameraDir = glMatrix.vec3.create();
+        //glMatrix.vec3.inverse(invCameraDir, this.camera.dir.array);
+
+
+        gl.uniform3fv(this.program.uniformLocations.cameraPos, this.camera.pos.array);
+        //gl.uniform3fv(this.program.uniformLocations.cameraPos, [0,0,0]);
+
+        gl.uniform3fv(this.program.uniformLocations.cameraDir, [this.camera.dir.x, 0, -this.camera.dir.z]);
+        //gl.uniform3fv(this.program.uniformLocations.cameraDir, this.camera.dir.array);
+        //gl.uniform3fv(this.program.uniformLocations.cameraDir, [0,0,-1]);
+        //gl.uniform3fv(this.program.uniformLocations.cameraDir, [0, 0, 1]);
+     
+        console.log("this.camera.dir.array", this.camera.dir.array, [0, 0, 1], [this.camera.dir.x, 0, -this.camera.dir.z]);
 
         // Tell WebGL we want to affect texture unit 0
         gl.activeTexture(gl.TEXTURE0);
@@ -247,12 +262,14 @@ const WORLD = {
             indices[i] += this.positions.length / 3;
         }
 
-        //vertexNormals
+        //vertexNormals - directions should not be translated
+        /*
         for (let p = 0; p < vertexNormals.length; p += 3) {
             vertexNormals[p] += grid.x;
             vertexNormals[p + 1] += Y;
             vertexNormals[p + 2] += grid.y;
         }
+        */
 
         this.positions = this.positions.concat(positions);
         this.indices = this.indices.concat(indices);
@@ -372,7 +389,7 @@ class $3D_player {
         if (this.bumpEnemy(nextPos)) return;
 
         let check = this.GA.entityNotInWall(nextPos, Vector3.to_FP_Vector(dir), this.r);
-        //let check = true;
+
         if (check) {
             this.pos = nextPos3;
         }
@@ -473,20 +490,6 @@ class $3D_player {
 
 const ELEMENT = {
     CUBE: {
-        /*positions: [
-            // Front face
-            -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
-            // Back face
-            -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0,
-            // Top face
-            -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0,
-            // Bottom face
-            -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
-            // Right face
-            1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,
-            // Left face
-            -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0,
-        ],*/
         positions: [
             // Front face
             0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0,
@@ -501,21 +504,6 @@ const ELEMENT = {
             // Left face
             0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0,
         ],
-        //colors: [],
-        /*setColors() {
-            for (let i = 0; i < this.faceColors.length; i++) {
-                const c = this.faceColors[i];
-                this.colors = this.colors.concat(c, c, c, c);
-            }
-        },*/
-        /*faceColors: [
-            [1.0, 1.0, 1.0, 1.0], // Front face: white
-            [1.0, 0.0, 0.0, 1.0], // Back face: red
-            [0.0, 1.0, 0.0, 1.0], // Top face: green
-            [0.0, 0.0, 1.0, 1.0], // Bottom face: blue
-            [1.0, 1.0, 0.0, 1.0], // Right face: yellow
-            [1.0, 0.0, 1.0, 1.0], // Left face: purple
-        ],*/
         indices: [
             0, 1, 2, 0, 2, 3, // front
             4, 5, 6, 4, 6, 7, // back
@@ -542,16 +530,16 @@ const ELEMENT = {
             // Front
             0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
             // Back
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,
             // Top
             0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
             // Bottom
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,
             // Right
             1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
             // Left
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-        ]
+            -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
+          ]
     }
 };
 
