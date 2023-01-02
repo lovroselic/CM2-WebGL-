@@ -21,11 +21,10 @@
  * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-directional.html
  * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-point.html
  * 
- * https://stackoverflow.com/questions/72042788/webgl-camera-position-affecting-spotlight
  */
 
 const WebGL = {
-    VERSION: "0.06",
+    VERSION: "0.07",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -91,19 +90,11 @@ const WebGL = {
         gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.vertexNormals), gl.STATIC_DRAW);
 
-        /*
-        const colorBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.colors), gl.STATIC_DRAW);
-        */
-
-        //
         this.buffer = {
             position: positionBuffer,
             indices: indexBuffer,
             normal: normalBuffer,
             textureCoord: textureCoordBuffer,
-            //colors: colorBuffer
         };
     },
     loadShader(gl, type, source) {
@@ -139,9 +130,7 @@ const WebGL = {
             uniformLocations: {
                 projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
                 modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
-                normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
                 uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
-                cameraDir: gl.getUniformLocation(shaderProgram, "uCameraDir"),
                 cameraPos: gl.getUniformLocation(shaderProgram, "uCameraPos")
             },
         };
@@ -158,29 +147,17 @@ const WebGL = {
         // Clear the canvas before we start drawing on it.
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        // Set the drawing position to the "identity" point, which is
-        // the center of the scene.
-        // Now move the drawing position where we want to start drawing 
 
         const viewMatrix = glMatrix.mat4.create();
         const cameratarget = this.camera.pos.translate(this.camera.dir);
         glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, cameratarget.array, [0.0, 1.0, 0.0]);
-
-
-        //for lightning
-        const normalMatrix = glMatrix.mat4.create(); //identity
-        glMatrix.mat4.invert(normalMatrix, viewMatrix);
-        //glMatrix.mat4.invert(normalMatrix, normalMatrix);
-        glMatrix.mat4.transpose(normalMatrix, normalMatrix);
 
         //setPositionAttribute
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.position);
         gl.vertexAttribPointer(this.program.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(this.program.attribLocations.vertexPosition);
 
-
         //setTextureAttribute
-
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.textureCoord);
         gl.vertexAttribPointer(this.program.attribLocations.textureCoord, 2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(this.program.attribLocations.textureCoord);
@@ -201,22 +178,7 @@ const WebGL = {
         // Set the shader uniforms, viewProjectionMatrix
         gl.uniformMatrix4fv(this.program.uniformLocations.projectionMatrix, false, this.projectionMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.modelViewMatrix, false, viewMatrix);
-        gl.uniformMatrix4fv(this.program.uniformLocations.normalMatrix, false, normalMatrix);
-
-        //cameraDir
-        //const invCameraDir = glMatrix.vec3.create();
-        //glMatrix.vec3.inverse(invCameraDir, this.camera.dir.array);
-
-
         gl.uniform3fv(this.program.uniformLocations.cameraPos, this.camera.pos.array);
-        //gl.uniform3fv(this.program.uniformLocations.cameraPos, [0,0,0]);
-
-        gl.uniform3fv(this.program.uniformLocations.cameraDir, [this.camera.dir.x, 0, -this.camera.dir.z]);
-        //gl.uniform3fv(this.program.uniformLocations.cameraDir, this.camera.dir.array);
-        //gl.uniform3fv(this.program.uniformLocations.cameraDir, [0,0,-1]);
-        //gl.uniform3fv(this.program.uniformLocations.cameraDir, [0, 0, 1]);
-     
-        console.log("this.camera.dir.array", this.camera.dir.array, [0, 0, 1], [this.camera.dir.x, 0, -this.camera.dir.z]);
 
         // Tell WebGL we want to affect texture unit 0
         gl.activeTexture(gl.TEXTURE0);
@@ -238,7 +200,6 @@ const WORLD = {
         this.indices = [];
         this.textureCoordinates = [];
         this.vertexNormals = [];
-        //this.colors = [];
     },
     addCube(Y, grid) {
         return this.addElement(ELEMENT.CUBE, Y, grid);
@@ -248,7 +209,6 @@ const WORLD = {
         let indices = [...E.indices];
         let textureCoordinates = [...E.textureCoordinates];
         let vertexNormals = [...E.vertexNormals];
-        //let colors = [...E.colors];
 
         //positions
         for (let p = 0; p < positions.length; p += 3) {
@@ -262,20 +222,10 @@ const WORLD = {
             indices[i] += this.positions.length / 3;
         }
 
-        //vertexNormals - directions should not be translated
-        /*
-        for (let p = 0; p < vertexNormals.length; p += 3) {
-            vertexNormals[p] += grid.x;
-            vertexNormals[p + 1] += Y;
-            vertexNormals[p + 2] += grid.y;
-        }
-        */
-
         this.positions = this.positions.concat(positions);
         this.indices = this.indices.concat(indices);
         this.textureCoordinates = this.textureCoordinates.concat(textureCoordinates);
         this.vertexNormals = this.vertexNormals.concat(vertexNormals);
-        //this.colors = this.colors.concat(colors);
     },
     build(GA, Y = 0) {
         console.time("WorldBuilding");
@@ -283,7 +233,6 @@ const WORLD = {
 
         for (let [index, value] of GA.map.entries()) {
             let grid = GA.indexToGrid(index);
-            //console.log(index, "->", value, "grid", grid);
             switch (value) {
                 case MAPDICT.EMPTY:
                     //add cube Y-1, Y+1
