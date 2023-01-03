@@ -26,7 +26,7 @@ var INI = {
 
 };
 var PRG = {
-    VERSION: "0.02.00",
+    VERSION: "0.02.01",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -176,8 +176,16 @@ var GAME = {
         MAP[level].world = WORLD.build(MAP[level].map.GA);
         console.log("world", MAP[level].world);
 
+        const textureData = {
+            wall: TEXTURE[MAP[level].wall],
+            floor: TEXTURE[MAP[level].floor],
+            ceil: TEXTURE[MAP[level].ceil]
+        };
+
         //
-        WebGL.init('webgl', MAP[level].world, TEXTURE.BlackBrickWall128, HERO.player);
+        //WebGL.init('webgl', MAP[level].world, TEXTURE.BlackBrickWall128, HERO.player);
+        //WebGL.init('webgl', MAP[level].world, TEXTURE.CastleWall, HERO.player);
+        WebGL.init('webgl', MAP[level].world, textureData, HERO.player);
 
     },
     continueLevel(level) {

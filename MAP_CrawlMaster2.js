@@ -11,9 +11,11 @@ var MAP = {
         data: `
         {"width":"8","height":"8","map":"BB5AA12BABB2AA3BABAA6BB5ABB3ABAA2BAA4BB12A$"}
         `,
-        
+        floor: "RockFloor",
+        ceil: "MorgueFloor",
+        wall: "CastleWall"
     },
-   
+
 };
 
 var SPAWN = {

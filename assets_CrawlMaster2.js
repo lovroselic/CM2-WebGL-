@@ -6,7 +6,11 @@
 "use strict";
 console.log("%cAssets for CrawlMaster2 ready.", "color: orange");
 
-var LoadTextures = ["BrickWall4.jpg", "RockFloor.jpg", "BlackBrickWall128.jpg"];
+var LoadTextures = ["BrickWall4.jpg", "BlackBrickWall128.jpg",
+    { srcName: "CastleWall.jpg", name: "CastleWall" },
+    { srcName: "RockFloor.jpg", name: "RockFloor" },
+    { srcName: "MorgueFloor.jpg", name: "MorgueFloor" },
+];
 var LoadAudio = [
     { srcName: "UseScroll.mp3", name: "PickBox" },
     { srcName: "Scream.mp3", name: "Scream" },
