@@ -20,14 +20,20 @@
  * https://learnopengl.com/Lighting/Basic-Lighting
  * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-directional.html
  * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-point.html
+ * https://webglfundamentals.org/webgl/lessons/webgl-drawing-multiple-things.html
  * 
  */
 
 const WebGL = {
-    VERSION: "0.10.0",
+    VERSION: "0.10.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
+    INI: {
+        PIC_WIDTH: 0.5,
+        PIC_TOP: 0.2,
+        PIC_OUT: 0.01,
+    },
     program: null,
     buffer: null,
     texture: null,
@@ -36,6 +42,7 @@ const WebGL = {
     zFar: 100,
     projectionMatrix: null,
     vertexCount: null,
+    staticDecalList: [DECAL3D],
     setContext(layer) {
         this.CTX = LAYER[layer];
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
@@ -75,11 +82,21 @@ const WebGL = {
             const texture = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, texture);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureData[T]);
-            gl.generateMipmap(gl.TEXTURE_2D);
+            if (isPowerOf2(textureData[T].width) && isPowerOf2(textureData[T].height)) {
+                gl.generateMipmap(gl.TEXTURE_2D);
+            } else {
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            }
             this.texture[T] = texture;
         }
 
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+        function isPowerOf2(value) {
+            return (value & (value - 1)) === 0;
+        }
     },
     initBuffers(gl, world) {
         const positionBuffer = gl.createBuffer();
@@ -210,6 +227,18 @@ const WebGL = {
         //ceil
         gl.bindTexture(gl.TEXTURE_2D, this.texture.ceil);
         gl.drawElements(gl.TRIANGLES, this.world.offset.ceil_count, gl.UNSIGNED_SHORT, this.world.offset.ceil_start * 2);
+
+        let decalCount = 0;
+        for (const iam of WebGL.staticDecalList) {
+            for (const decal of iam.POOL) {
+                //console.log(decal.texture);
+                //gl.bindTexture(gl.TEXTURE_2D, decal.texture);
+                gl.bindTexture(gl.TEXTURE_2D, this.texture.ceil);
+                gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, (this.world.offset.decal_start + decalCount) * 2);
+                decalCount++;
+            }
+        }
+
     }
 };
 
@@ -242,6 +271,83 @@ const WORLD = {
             textureCoordinates: [],
             vertexNormals: [],
         };
+
+        this.decal = {
+            positions: [],
+            indices: [],
+            textureCoordinates: [],
+            vertexNormals: [],
+        };
+    },
+    addPic(Y, grid, type, face, pic) {
+        const E = ELEMENT[`${face}_FACE`];
+        console.log("....adding pic", E, Y, grid, type);
+        let positions = [...E.positions];
+        let indices = [...E.indices];
+        let textureCoordinates = [...E.textureCoordinates];
+        let vertexNormals = [...E.vertexNormals];
+
+        const leftX = (WebGL.INI.PIC_WIDTH / 2.0);
+        const rightX = 1.0 - leftX;
+        console.log(".... offx", leftX, rightX);
+        const R = pic.width / pic.height;
+        console.log(".... R ", R);
+        const topY = 1.0 - WebGL.INI.PIC_TOP;
+        const bottomY = 1.0 - ((WebGL.INI.PIC_WIDTH / R) + WebGL.INI.PIC_TOP);
+        console.log(".... offy", topY, bottomY);
+
+        //scale
+        switch (face) {
+            case "FRONT":
+                positions[0] = leftX;
+                positions[1] = bottomY;
+                //2 = z
+                positions[3] = rightX;
+                positions[4] = bottomY;
+                //5 = z
+                positions[6] = rightX;
+                positions[7] = topY;
+                //8 = z
+                positions[9] = leftX;
+                positions[10] = topY;
+                //11 = z
+                for (let z of [2, 5, 8, 11]) {
+                    positions[z] += WebGL.INI.PIC_OUT;
+                }
+
+                break;
+            case "BACK":
+                break;
+            case "RIGHT":
+                break;
+            case "LEFT":
+                break;
+            default:
+                console.error("addPic face error:", face);
+                break;
+        }
+        //translate
+        for (let p = 0; p < positions.length; p += 3) {
+            positions[p] += grid.x;
+            positions[p + 1] += Y;
+            positions[p + 2] += grid.y;
+        }
+
+        //
+        console.log(".... stuff:", positions, indices, textureCoordinates, vertexNormals);
+
+        //indices
+        indices = indices.map(e => e + (this[type].positions.length / 3));
+
+        this[type].positions = this[type].positions.concat(positions);
+        this[type].indices = this[type].indices.concat(indices);
+        this[type].textureCoordinates = this[type].textureCoordinates.concat(textureCoordinates);
+        this[type].vertexNormals = this[type].vertexNormals.concat(vertexNormals);
+    },
+    addFace(Y, grid, type, face) {
+
+
+
     },
     addCube(Y, grid, type) {
         return this.addElement(ELEMENT.CUBE, Y, grid, type);
@@ -268,7 +374,8 @@ const WORLD = {
         this[type].vertexNormals = this[type].vertexNormals.concat(vertexNormals);
 
     },
-    build(GA, Y = 0) {
+    build(map, Y = 0) {
+        const GA = map.GA;
         console.time("WorldBuilding");
         this.init();
 
@@ -290,16 +397,31 @@ const WORLD = {
             }
         }
 
+        /** build static decals */
+        console.log("building static decals ...");
+        for (const iam of WebGL.staticDecalList) {
+            //console.log("iam", iam, iam.POOL);
+            for (const decal of iam.POOL) {
+                console.log(".. adding decal", decal);
+                this.addPic(Y, decal.grid, "decal", decal.face, decal.texture);
+            }
+        }
+
+
+
+        /** static decal end */
+
         //update index offsets
 
         this.floor.indices = this.floor.indices.map(e => e + this.wall.positions.length / 3);
         this.ceil.indices = this.ceil.indices.map(e => e + (this.wall.positions.length + this.floor.positions.length) / 3);
+        this.decal.indices = this.decal.indices.map(e => e + (this.wall.positions.length + this.floor.positions.length + this.ceil.positions.length) / 3);
 
         //
-        this.positions = [...this.wall.positions, ...this.floor.positions, ...this.ceil.positions];
-        this.indices = [...this.wall.indices, ...this.floor.indices, ...this.ceil.indices];
-        this.textureCoordinates = [...this.wall.textureCoordinates, ...this.floor.textureCoordinates, ...this.ceil.textureCoordinates];
-        this.vertexNormals = [...this.wall.vertexNormals, ...this.floor.vertexNormals, ...this.ceil.vertexNormals];
+        this.positions = [...this.wall.positions, ...this.floor.positions, ...this.ceil.positions, ...this.decal.positions];
+        this.indices = [...this.wall.indices, ...this.floor.indices, ...this.ceil.indices, ...this.decal.indices];
+        this.textureCoordinates = [...this.wall.textureCoordinates, ...this.floor.textureCoordinates, ...this.ceil.textureCoordinates, ...this.decal.textureCoordinates];
+        this.vertexNormals = [...this.wall.vertexNormals, ...this.floor.vertexNormals, ...this.ceil.vertexNormals, ...this.decal.vertexNormals];
 
         const offset = {
             wall_start: 0,
@@ -308,6 +430,8 @@ const WORLD = {
             floor_count: this.floor.indices.length,
             ceil_start: this.wall.indices.length + this.floor.indices.length,
             ceil_count: this.ceil.indices.length,
+            decal_start: this.wall.indices.length + this.floor.indices.length + this.ceil.indices.length,
+            decal_count: this.decal.indices.length,
         };
 
         console.timeEnd("WorldBuilding");
@@ -496,9 +620,52 @@ class $3D_player {
     }
 }
 
+class Decal {
+    constructor(grid, face, texture) {
+        this.grid = grid;
+        this.face = face;
+        this.texture = texture;
+    }
+    setObject(offset, length) {
+        this.offset = offset;
+        this.length = length;
+    }
+}
+class StaticDecal extends Decal {
+    constructor(grid, face, texture) {
+        super(grid, face, texture);
+        this.type = "StaticDecal";
+        this.interactive = false;
+    }
+}
+
 /** Elements */
 
 const ELEMENT = {
+    FRONT_FACE: {
+        positions: [0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0,],
+        indices: [0, 1, 2, 0, 2, 3],
+        textureCoordinates: [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0],
+        vertexNormals: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0]
+    },
+    BACK_FACE: {
+        positions: [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,],
+        indices: [0, 1, 2, 0, 2, 3],
+        textureCoordinates: [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,],
+        vertexNormals: [0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0]
+    },
+    RIGHT_FACE: {
+        positions: [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0,],
+        indices: [0, 1, 2, 0, 2, 3],
+        textureCoordinates: [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,],
+        vertexNormals: [1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,]
+    },
+    LEFT_FACE: {
+        positions: [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0],
+        indices: [0, 1, 2, 0, 2, 3],
+        textureCoordinates: [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0],
+        vertexNormals: [-1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,],
+    },
     CUBE: {
         positions: [
             // Front face

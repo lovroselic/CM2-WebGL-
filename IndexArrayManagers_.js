@@ -12,7 +12,7 @@ TODO:
 */
 
 const IndexArrayManagers = {
-    VERSION: "2.03",
+    VERSION: "2.04",
 };
 
 class IAM {
@@ -312,6 +312,13 @@ class Missile_RC extends IAM {
     }
 }
 
+class Decal3D extends IAM {
+    constructor() {
+        super();
+        this.IA = "Decal3D";
+    }
+}
+
 class Decal_IA extends IAM {
     constructor() {
         super();
@@ -531,6 +538,7 @@ var DESTRUCTION_ANIMATION = new Destruction_Animation();
 var CHANGING_ANIMATION = new Changing_Animation();
 var MISSILE = new Missile_RC();
 var DECAL = new Decal_IA();
+var DECAL3D = new Decal3D();
 /** *********************************************** */
 
 console.log(`%cIndexArrayManagers (IAM) ${IndexArrayManagers.VERSION} ready.`, "color: #7FFFD4");

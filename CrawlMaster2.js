@@ -26,7 +26,7 @@ var INI = {
 
 };
 var PRG = {
-    VERSION: "0.02.02",
+    VERSION: "0.02.04",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -170,10 +170,14 @@ var GAME = {
         MAP[level].pw = MAP[level].map.width * ENGINE.INI.GRIDPIX;
         MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
         HERO.player = new $3D_player(new Vector3(3.5, 0.5, 4.5), Vector3.from_2D_dir(UP), MAP[level].map);
-  
-  
         console.log("HERO", HERO);
-        MAP[level].world = WORLD.build(MAP[level].map.GA);
+
+        DECAL3D.init(MAP[level].map);
+        console.log("DECAL3D", DECAL3D);
+
+        SPAWN.spawn(level);
+
+        MAP[level].world = WORLD.build(MAP[level].map);
         console.log("world", MAP[level].world);
 
         const textureData = {
@@ -183,8 +187,6 @@ var GAME = {
         };
 
         //
-        //WebGL.init('webgl', MAP[level].world, TEXTURE.BlackBrickWall128, HERO.player);
-        //WebGL.init('webgl', MAP[level].world, TEXTURE.CastleWall, HERO.player);
         WebGL.init('webgl', MAP[level].world, textureData, HERO.player);
 
     },
