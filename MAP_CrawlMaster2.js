@@ -85,10 +85,11 @@ var SPAWN = {
     },
     decals(level) {
         console.log("spawning decals ... ", level);
-        const decalsLocations = [{ x: 2, y: 2, f: 'FRONT' }];
+        const decalsLocations = [{ x: 2, y: 2, f: 'FRONT' }, { x: 5, y: 2, f: 'FRONT' }, { x: 3, y: 5, f: 'BACK' }, { x: 0, y: 3, f: 'RIGHT' }, { x: 7, y: 3, f: 'LEFT' }];
 
         for (let D of decalsLocations) {
             const picture = DECAL_PAINTINGS.chooseRandom();
+            console.log("picture", picture);
             DECAL3D.add(new StaticDecal(new Grid(D.x, D.y), D.f, SPRITE[picture], "picture"));
         }
 

@@ -25,7 +25,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.10.3",
+    VERSION: "0.10.4",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -179,7 +179,7 @@ const WebGL = {
     renderScene() {
         const gl = this.CTX;
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        gl.clearDepth(1.0); // Clear everything
+        gl.clearDepth(1.0);
         gl.enable(gl.DEPTH_TEST); // Enable depth testing
         gl.depthFunc(gl.LEQUAL); // Near things obscure far things
         gl.enable(gl.CULL_FACE);
@@ -244,7 +244,7 @@ const WebGL = {
         for (const iam of WebGL.staticDecalList) {
             for (const decal of iam.POOL) {
                 gl.bindTexture(gl.TEXTURE_2D, decal.texture);
-                gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, (this.world.offset.decal_start + decalCount) * 2);
+                gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, (this.world.offset.decal_start + decalCount * 6) * 2);
                 decalCount++;
             }
         }
@@ -318,25 +318,54 @@ const WORLD = {
             case "FRONT":
                 positions[0] = leftX;
                 positions[1] = bottomY;
-                //2 = z
                 positions[3] = rightX;
                 positions[4] = bottomY;
-                //5 = z
                 positions[6] = rightX;
                 positions[7] = topY;
-                //8 = z
                 positions[9] = leftX;
                 positions[10] = topY;
-                //11 = z
                 for (let z of [2, 5, 8, 11]) {
                     positions[z] += WebGL.INI.PIC_OUT;
                 }
                 break;
             case "BACK":
+                positions[0] = leftX;
+                positions[1] = bottomY;
+                positions[3] = leftX;
+                positions[4] = topY;
+                positions[6] = rightX;
+                positions[7] = topY;
+                positions[9] = rightX;
+                positions[10] = bottomY;
+                for (let z of [2, 5, 8, 11]) {
+                    positions[z] -= WebGL.INI.PIC_OUT;
+                }
                 break;
             case "RIGHT":
+                positions[1] = bottomY;
+                positions[2] = leftX;
+                positions[4] = topY;
+                positions[5] = leftX;
+                positions[7] = topY;
+                positions[8] = rightX;
+                positions[10] = bottomY;
+                positions[11] = rightX;
+                for (let x of [0, 3, 6, 9]) {
+                    positions[x] += WebGL.INI.PIC_OUT;
+                }
                 break;
             case "LEFT":
+                positions[1] = bottomY;
+                positions[2] = leftX;
+                positions[4] = bottomY;
+                positions[5] = rightX;
+                positions[7] = topY;
+                positions[8] = rightX;
+                positions[10] = topY;
+                positions[11] = leftX;
+                for (let x of [0, 3, 6, 9]) {
+                    positions[x] -= WebGL.INI.PIC_OUT;
+                }
                 break;
             default:
                 console.error("addPic face error:", decal.face);
