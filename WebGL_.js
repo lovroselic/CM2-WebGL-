@@ -25,7 +25,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.10.2",
+    VERSION: "0.10.3",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -87,6 +87,7 @@ const WebGL = {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         }
 
         return texture;
@@ -109,7 +110,7 @@ const WebGL = {
         for (const iam of WebGL.staticDecalList) {
             for (const decal of iam.POOL) {
                 decal.texture = this.createTexture(decal.texture);
-             }
+            }
         }
     },
     initBuffers(gl, world) {
@@ -288,21 +289,32 @@ const WORLD = {
             vertexNormals: [],
         };
     },
-    addPic(Y, grid, type, face, pic) {
-        const E = ELEMENT[`${face}_FACE`];
+    getBoundaries(cat, R) {
+        let leftX, rightX, topY, bottomY;
+        switch (cat) {
+            case "picture":
+                leftX = (WebGL.INI.PIC_WIDTH / 2.0);
+                rightX = 1.0 - leftX;
+                topY = 1.0 - WebGL.INI.PIC_TOP;
+                bottomY = 1.0 - ((WebGL.INI.PIC_WIDTH / R) + WebGL.INI.PIC_TOP);
+                break;
+            default:
+                console.error("decal category error", cat);
+                break;
+        }
+        return [leftX, rightX, topY, bottomY];
+    },
+    addPic(Y, decal, type) {
+        const R = decal.texture.width / decal.texture.height;
+        const [leftX, rightX, topY, bottomY] = this.getBoundaries(decal.category, R);
+        const E = ELEMENT[`${decal.face}_FACE`];
         let positions = [...E.positions];
         let indices = [...E.indices];
         let textureCoordinates = [...E.textureCoordinates];
         let vertexNormals = [...E.vertexNormals];
 
-        const leftX = (WebGL.INI.PIC_WIDTH / 2.0);
-        const rightX = 1.0 - leftX;
-        const R = pic.width / pic.height;
-        const topY = 1.0 - WebGL.INI.PIC_TOP;
-        const bottomY = 1.0 - ((WebGL.INI.PIC_WIDTH / R) + WebGL.INI.PIC_TOP);
-
         //scale
-        switch (face) {
+        switch (decal.face) {
             case "FRONT":
                 positions[0] = leftX;
                 positions[1] = bottomY;
@@ -319,7 +331,6 @@ const WORLD = {
                 for (let z of [2, 5, 8, 11]) {
                     positions[z] += WebGL.INI.PIC_OUT;
                 }
-
                 break;
             case "BACK":
                 break;
@@ -328,15 +339,15 @@ const WORLD = {
             case "LEFT":
                 break;
             default:
-                console.error("addPic face error:", face);
+                console.error("addPic face error:", decal.face);
                 break;
         }
 
         //translate
         for (let p = 0; p < positions.length; p += 3) {
-            positions[p] += grid.x;
+            positions[p] += decal.grid.x;
             positions[p + 1] += Y;
-            positions[p + 2] += grid.y;
+            positions[p + 2] += decal.grid.y;
         }
 
         //indices
@@ -346,11 +357,6 @@ const WORLD = {
         this[type].indices = this[type].indices.concat(indices);
         this[type].textureCoordinates = this[type].textureCoordinates.concat(textureCoordinates);
         this[type].vertexNormals = this[type].vertexNormals.concat(vertexNormals);
-    },
-    addFace(Y, grid, type, face) {
-
-
-
     },
     addCube(Y, grid, type) {
         return this.addElement(ELEMENT.CUBE, Y, grid, type);
@@ -405,7 +411,7 @@ const WORLD = {
         for (const iam of WebGL.staticDecalList) {
             for (const decal of iam.POOL) {
                 console.log(".. adding decal", decal);
-                this.addPic(Y, decal.grid, "decal", decal.face, decal.texture);
+                this.addPic(Y, decal, "decal");
             }
         }
         /** static decal end */
@@ -620,19 +626,16 @@ class $3D_player {
 }
 
 class Decal {
-    constructor(grid, face, texture) {
+    constructor(grid, face, texture, category) {
         this.grid = grid;
         this.face = face;
         this.texture = texture;
-    }
-    setObject(offset, length) {
-        this.offset = offset;
-        this.length = length;
+        this.category = category;
     }
 }
 class StaticDecal extends Decal {
-    constructor(grid, face, texture) {
-        super(grid, face, texture);
+    constructor(grid, face, texture, category) {
+        super(grid, face, texture, category);
         this.type = "StaticDecal";
         this.interactive = false;
     }

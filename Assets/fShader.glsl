@@ -16,7 +16,7 @@ void main(void) {
     //diffuse
     highp float dist = distance(uCameraPos, FragPos);
     highp float attenuation = 1.0 / (1.0 + 0.15 * dist + 0.45 * dist * dist);
-    highp float diffuseStrength = 2.5 ;
+    highp float diffuseStrength = 2.0 ;
     highp vec3 diffuseLightColor = vec3(1, 1, 0.9);
     highp vec3 norm = normalize(v_normal);
     highp vec3 lightDir = normalize(uCameraPos - FragPos);
@@ -26,6 +26,7 @@ void main(void) {
     highp vec3 light = ambientLight + diffuse;
 
     highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
+    if (texelColor.a < 0.6) discard;
     gl_FragColor = vec4(texelColor.rgb * light, texelColor.a);
 
 }
