@@ -26,7 +26,7 @@ var INI = {
 
 };
 var PRG = {
-    VERSION: "0.03.02",
+    VERSION: "0.03.03",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -174,6 +174,8 @@ var GAME = {
 
         DECAL3D.init(MAP[level].map);
         console.log("DECAL3D", DECAL3D);
+        LIGHTS3D.init(MAP[level].map);
+        console.log("LIGHTS3D", LIGHTS3D);
 
         SPAWN.spawn(level);
 

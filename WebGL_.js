@@ -21,11 +21,12 @@
  * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-directional.html
  * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-point.html
  * https://webglfundamentals.org/webgl/lessons/webgl-drawing-multiple-things.html
+ * https://learnopengl.com/Lighting/Multiple-lights
  * 
  */
 
 const WebGL = {
-    VERSION: "0.10.4",
+    VERSION: "0.10.5",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -33,6 +34,8 @@ const WebGL = {
         PIC_WIDTH: 0.5,
         PIC_TOP: 0.2,
         PIC_OUT: 0.01,
+        LIGHT_WIDTH: 0.4,
+        LIGHT_TOP: 0.1
     },
     program: null,
     buffer: null,
@@ -42,7 +45,7 @@ const WebGL = {
     zFar: 100,
     projectionMatrix: null,
     vertexCount: null,
-    staticDecalList: [DECAL3D],
+    staticDecalList: [DECAL3D, LIGHTS3D],
     setContext(layer) {
         this.CTX = LAYER[layer];
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
@@ -293,10 +296,16 @@ const WORLD = {
         let leftX, rightX, topY, bottomY;
         switch (cat) {
             case "picture":
-                leftX = (WebGL.INI.PIC_WIDTH / 2.0);
+                leftX = ((1 - WebGL.INI.PIC_WIDTH) / 2.0);
                 rightX = 1.0 - leftX;
                 topY = 1.0 - WebGL.INI.PIC_TOP;
                 bottomY = 1.0 - ((WebGL.INI.PIC_WIDTH / R) + WebGL.INI.PIC_TOP);
+                break;
+            case "light":
+                leftX = ((1-WebGL.INI.LIGHT_WIDTH) / 2.0);
+                rightX = 1.0 - leftX;
+                topY = 1.0 - WebGL.INI.LIGHT_TOP;
+                bottomY = 1.0 - ((WebGL.INI.LIGHT_WIDTH / R) + WebGL.INI.LIGHT_TOP);
                 break;
             default:
                 console.error("decal category error", cat);
@@ -682,13 +691,13 @@ const ELEMENT = {
     BACK_FACE: {
         positions: [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,],
         indices: [0, 1, 2, 0, 2, 3],
-        textureCoordinates: [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,],
+        textureCoordinates: [1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,],
         vertexNormals: [0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0]
     },
     RIGHT_FACE: {
         positions: [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0,],
         indices: [0, 1, 2, 0, 2, 3],
-        textureCoordinates: [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,],
+        textureCoordinates: [1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,],
         vertexNormals: [1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,]
     },
     LEFT_FACE: {

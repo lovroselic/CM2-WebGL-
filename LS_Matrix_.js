@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////
 
 const LS_matrix = {
-    VERSION: "0.04",
+    VERSION: "0.05",
     CSS: "color: red",
 };
 
@@ -30,6 +30,21 @@ class Vector3 {
     }
     toArray() {
         this.array = new Float32Array([this.x, this.y, this.z]);
+    }
+    clone(){
+        return new Vector3(this.x, this.y, this.z);
+    }
+    set_x(x){
+        this.x = x;
+        this.toArray();
+    }
+    set_y(y){
+        this.y = y;
+        this.toArray();
+    }
+    set_z(z){
+        this.y = y;
+        this.toArray();
     }
     static from_2D_dir(dir, y = 0) {
         return new Vector3(dir.x, y, dir.y); //

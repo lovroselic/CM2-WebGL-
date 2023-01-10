@@ -29,11 +29,14 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9",
     "ManicMiner3", "Prince3", "Infiltrator2", "1942_2", "Arnie1", "BTF1", "BeachHead5", "Biggles1", "BlueThunder1", "BrianBloodaxe1", "BrideOfFrakenstein1",
     "BruceLee1", "Captive", "EnigmaForce", "Fred3", "Fred4", "JSW4", "ManiacMansion2", "PQ1", "Pengo", "Pirates", "PolePosition", "Silkworm1", "SirFred1",
     "SirFred2", "SirFred3", "SuperDogfight", "SuperDogfight2", "Unknown1", "BattleThroughTime", "BOF3", "Chopper2", "Cliffhanger", "F1", "IM10", "MoonPatrol", "SummerGames10",
-    "FF5"
+    "FF5", "LaraCroft1", "LaraCroft2", "IM13", "FF101","FF100","AA100"
 ];
 
-//const DECAL_PAINTINGS =["FF5"];
+//const DECAL_PAINTINGS =["IM13", "FF101","FF100","AA100"];
+//const DECAL_PAINTINGS =["WallLamp"];
 console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
+
+const LIGHT_DECALS = ["WallLamp"];
 
 console.log("%cMAP for CrawlMaster2 loaded.", "color: #888");
 var MAP = {
@@ -82,6 +85,7 @@ var SPAWN = {
     spawn(level) {
         console.log("spawning ...");
         this.decals(level);
+        this.lights(level);
     },
     decals(level) {
         console.log("spawning decals ... ", level);
@@ -94,6 +98,14 @@ var SPAWN = {
         }
 
         console.log("DECAL3D", DECAL3D);
-    }
+    },
+    lights(level){
+        console.log("spawning lights ... ", level);
+        const lightLocations = [{ x: 1, y: 0, f: 'FRONT' }, { x: 4, y: 0, f: 'FRONT' }];
+        for (let L of lightLocations){
+            const light = LIGHT_DECALS.chooseRandom();
+            LIGHTS3D.add(new StaticDecal(new Grid(L.x, L.y), L.f, SPRITE[light], "light"));
+        }
+    },
 
 };

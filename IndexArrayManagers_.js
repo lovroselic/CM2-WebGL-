@@ -539,6 +539,7 @@ var CHANGING_ANIMATION = new Changing_Animation();
 var MISSILE = new Missile_RC();
 var DECAL = new Decal_IA();
 var DECAL3D = new Decal3D();
+var LIGHTS3D = new Decal3D();
 /** *********************************************** */
 
 console.log(`%cIndexArrayManagers (IAM) ${IndexArrayManagers.VERSION} ready.`, "color: #7FFFD4");

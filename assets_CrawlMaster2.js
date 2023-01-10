@@ -52,7 +52,10 @@ LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
 LoadShaders = ['vShader.glsl', 'fShader.glsl'];
 
 LoadSprites = [
+    { srcName: "WallLamp256.png", name: "WallLamp" },
+    { srcName: "CompassRose.png", name: "CompassRose" },
     { srcName: "LSgrb.png", name: "Crest" },
+    //decal-pics
     { srcName: "SVS7.png", name: "SVS1" },
     { srcName: "SVS6.png", name: "SVS2" },
     { srcName: "SVS4.png", name: "SVS3" },
@@ -119,7 +122,7 @@ LoadSprites = [
     { srcName: "Kara.png", name: "Karateka" },
     { srcName: "Eric.png", name: "Eric" },
     { srcName: "ST.png", name: "ST" },
-    { srcName: "C64.png", name: "C64" },
+    { srcName: "C64b.png", name: "C64" },
     { srcName: "JSW2.png", name: "JSW2" },
     { srcName: "IM.png", name: "IM" },
     { srcName: "moon.png", name: "Moon" },
@@ -219,7 +222,7 @@ LoadSprites = [
     { srcName: "JSW3.png", name: "JSW3" },
     { srcName: "Choplifter.png", name: "Choplifter" },
     { srcName: "Barbarian5.png", name: "Barbarian5" },
-    { srcName: "HoraceSki.png", name: "HoraceSki" },
+    { srcName: "HoraceSki2.png", name: "HoraceSki" },
     { srcName: "Iceman.png", name: "Iceman" },
     { srcName: "CSB1.png", name: "CSB1" },
     { srcName: "WOW2.png", name: "WOW2" },
@@ -369,7 +372,7 @@ LoadSprites = [
     { srcName: "AA40.png", name: "AA40" },
     { srcName: "SeaWolf.png", name: "SeaWolf" },
     { srcName: "GIJoe10.png", name: "GIJoe10" },
-    { srcName: "CompassRose.png", name: "CompassRose" },
+ 
     { srcName: "Hobbit1.png", name: "Hobbit1" },
     { srcName: "Hobbit3.png", name: "Hobbit3" },
     { srcName: "Ghostbusters2.png", name: "Ghostbusters2" },
@@ -421,4 +424,11 @@ LoadSprites = [
     { srcName: "IM10.png", name: "IM10" },
     { srcName: "MoonPatrol.png", name: "MoonPatrol" },
     { srcName: "SummerGames10.png", name: "SummerGames10" },
+    { srcName: "LaraCroft1.png", name: "LaraCroft1" },
+    { srcName: "LaraCroft2.png", name: "LaraCroft2" },
+
+    { srcName: "IM13.png", name: "IM13" },
+    { srcName: "FF101.png", name: "FF101" },
+    { srcName: "FF100.png", name: "FF100" },
+    { srcName: "AA100.png", name: "AA100" },
 ];
