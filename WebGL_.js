@@ -28,7 +28,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.10.6",
+    VERSION: "0.11.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -92,7 +92,6 @@ const WebGL = {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         }
 
         return texture;
@@ -154,13 +153,9 @@ const WebGL = {
         return shader;
     },
     updateShaders() {
-        //SHADER.fShader = SHADER.fShader.replace(666, LIGHTS3D.POOL.length * 3);
-        //SHADER.fShader = SHADER.fShader.replace(666, LIGHTS3D.POOL.length);
-        //SHADER.fShader = `#define N_LIGHTS ${LIGHTS3D.POOL.length}\n` + SHADER.fShader;
-        console.log(SHADER.fShader);
+        SHADER.fShader = SHADER.fShader.replace("N_LIGHTS = 1", `N_LIGHTS = ${LIGHTS3D.POOL.length}`);
     },
     initShaderProgram(gl, vsSource, fsSource) {
-        this.updateShaders();
         const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vsSource);
         const fragmentShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
         // Create the shader program
@@ -184,7 +179,6 @@ const WebGL = {
                 modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
                 uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
                 cameraPos: gl.getUniformLocation(shaderProgram, "uCameraPos"),
-                //lights: [],
                 lights: gl.getUniformLocation(shaderProgram, "uPointLights")
             },
         };
@@ -218,9 +212,7 @@ const WebGL = {
         for (let L = 0; L < LIGHTS3D.POOL.length; L++) {
             lights = [...lights, ...LIGHTS3D.POOL[L].position.array];
         }
-        //console.log("lights",lights);
         gl.uniform3fv(this.program.uniformLocations.lights, new Float32Array(lights));
-        //gl.uniform1f(this.program.uniformLocations.lights, new Float32Array(lights));
 
         this.renderDungeon();
     },

@@ -26,7 +26,7 @@ var INI = {
 
 };
 var PRG = {
-    VERSION: "0.03.04",
+    VERSION: "0.04.00",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -189,6 +189,7 @@ var GAME = {
         };
 
         //
+        WebGL.updateShaders();
         WebGL.init('webgl', MAP[level].world, textureData, HERO.player);
 
     },
