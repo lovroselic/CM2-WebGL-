@@ -22,11 +22,13 @@
  * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-point.html
  * https://webglfundamentals.org/webgl/lessons/webgl-drawing-multiple-things.html
  * https://learnopengl.com/Lighting/Multiple-lights
+ * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-point.html
+ * https://webglfundamentals.org/webgl/lessons/webgl-qna-setting-the-values-of-a-struct-array-from-js-to-glsl.html
  * 
  */
 
 const WebGL = {
-    VERSION: "0.10.5",
+    VERSION: "0.10.6",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -151,7 +153,14 @@ const WebGL = {
         }
         return shader;
     },
+    updateShaders() {
+        //SHADER.fShader = SHADER.fShader.replace(666, LIGHTS3D.POOL.length * 3);
+        //SHADER.fShader = SHADER.fShader.replace(666, LIGHTS3D.POOL.length);
+        //SHADER.fShader = `#define N_LIGHTS ${LIGHTS3D.POOL.length}\n` + SHADER.fShader;
+        console.log(SHADER.fShader);
+    },
     initShaderProgram(gl, vsSource, fsSource) {
+        this.updateShaders();
         const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vsSource);
         const fragmentShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
         // Create the shader program
@@ -174,9 +183,12 @@ const WebGL = {
                 projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
                 modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
                 uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
-                cameraPos: gl.getUniformLocation(shaderProgram, "uCameraPos")
+                cameraPos: gl.getUniformLocation(shaderProgram, "uCameraPos"),
+                //lights: [],
+                lights: gl.getUniformLocation(shaderProgram, "uPointLights")
             },
         };
+
         this.program = programInfo;
     },
     renderScene() {
@@ -200,6 +212,15 @@ const WebGL = {
         gl.uniformMatrix4fv(this.program.uniformLocations.projectionMatrix, false, this.projectionMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.modelViewMatrix, false, viewMatrix);
         gl.uniform3fv(this.program.uniformLocations.cameraPos, this.camera.pos.array);
+
+        //light uniforms
+        let lights = [];
+        for (let L = 0; L < LIGHTS3D.POOL.length; L++) {
+            lights = [...lights, ...LIGHTS3D.POOL[L].position.array];
+        }
+        //console.log("lights",lights);
+        gl.uniform3fv(this.program.uniformLocations.lights, new Float32Array(lights));
+        //gl.uniform1f(this.program.uniformLocations.lights, new Float32Array(lights));
 
         this.renderDungeon();
     },
@@ -251,7 +272,6 @@ const WebGL = {
                 decalCount++;
             }
         }
-
     }
 };
 
@@ -302,7 +322,7 @@ const WORLD = {
                 bottomY = 1.0 - ((WebGL.INI.PIC_WIDTH / R) + WebGL.INI.PIC_TOP);
                 break;
             case "light":
-                leftX = ((1-WebGL.INI.LIGHT_WIDTH) / 2.0);
+                leftX = ((1 - WebGL.INI.LIGHT_WIDTH) / 2.0);
                 rightX = 1.0 - leftX;
                 topY = 1.0 - WebGL.INI.LIGHT_TOP;
                 bottomY = 1.0 - ((WebGL.INI.LIGHT_WIDTH / R) + WebGL.INI.LIGHT_TOP);
@@ -445,10 +465,10 @@ const WORLD = {
         }
 
         /** build static decals */
-        console.log("building static decals ...");
+        //console.log("building static decals ...");
         for (const iam of WebGL.staticDecalList) {
             for (const decal of iam.POOL) {
-                console.log(".. adding decal", decal);
+                //console.log(".. adding decal", decal);
                 this.addPic(Y, decal, "decal");
             }
         }
@@ -593,7 +613,6 @@ class $3D_player {
                 }
             }
         }
-
         return null;
     }
     strafe(rotDirection, lapsedTime) {
@@ -678,6 +697,47 @@ class StaticDecal extends Decal {
         this.interactive = false;
     }
 }
+class LightDecal extends Decal {
+    constructor(grid, face, texture, category) {
+        super(grid, face, texture, category);
+        this.type = "LightDecal";
+        this.interactive = false;
+        this.setPosition(grid, face);
+    }
+    setPosition(grid, face) {
+        let off = FaceToOffset(face, WebGL.INI.PIC_OUT);
+        let pos = FP_Grid.toClass(grid).add(off);
+        this.position = new Vector3(pos.x, WebGL.INI.LIGHT_TOP, pos.y);
+    }
+}
+
+/** Utility functions */
+
+const FaceToOffset = function (face, E = 0) {
+    let x, y;
+    switch (face) {
+        case "FRONT":
+            x = 0.5;
+            y = 1.0 + E;
+            break;
+        case "BACK":
+            x = 0.5;
+            y = 0.0 - E;
+            break;
+        case "LEFT":
+            x = 0.0 - E;
+            y = 0.5;
+            break;
+        case "RIGHT":
+            x = 1.0 + E;
+            y = 0.5;
+            break;
+        default:
+            console.error("FaceToVector, invalid face", face);
+            break;
+    }
+    return new FP_Grid(x, y);
+};
 
 /** Elements */
 
@@ -759,8 +819,6 @@ const ELEMENT = {
         ]
     }
 };
-
-//ELEMENT.CUBE.setColors();
 
 //END
 console.log(`%cWebGL ${WebGL.VERSION} loaded.`, WebGL.CSS);

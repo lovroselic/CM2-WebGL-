@@ -101,10 +101,10 @@ var SPAWN = {
     },
     lights(level){
         console.log("spawning lights ... ", level);
-        const lightLocations = [{ x: 1, y: 0, f: 'FRONT' }, { x: 4, y: 0, f: 'FRONT' }];
+        const lightLocations = [{ x: 1, y: 0, f: 'FRONT' }, { x: 6, y: 0, f: 'FRONT' }];
         for (let L of lightLocations){
             const light = LIGHT_DECALS.chooseRandom();
-            LIGHTS3D.add(new StaticDecal(new Grid(L.x, L.y), L.f, SPRITE[light], "light"));
+            LIGHTS3D.add(new LightDecal(new Grid(L.x, L.y), L.f, SPRITE[light], "light"));
         }
     },
 
