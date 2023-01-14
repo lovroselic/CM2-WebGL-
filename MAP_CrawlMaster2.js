@@ -29,20 +29,21 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9",
     "ManicMiner3", "Prince3", "Infiltrator2", "1942_2", "Arnie1", "BTF1", "BeachHead5", "Biggles1", "BlueThunder1", "BrianBloodaxe1", "BrideOfFrakenstein1",
     "BruceLee1", "Captive", "EnigmaForce", "Fred3", "Fred4", "JSW4", "ManiacMansion2", "PQ1", "Pengo", "Pirates", "PolePosition", "Silkworm1", "SirFred1",
     "SirFred2", "SirFred3", "SuperDogfight", "SuperDogfight2", "Unknown1", "BattleThroughTime", "BOF3", "Chopper2", "Cliffhanger", "F1", "IM10", "MoonPatrol", "SummerGames10",
-    "FF5", "LaraCroft1", "LaraCroft2", "IM13", "FF101","FF100","AA100"
+    "FF5", "LaraCroft1", "LaraCroft2", "IM13", "FF101","FF100","AA100","UW10","KL10","SVS100","SVS101","SP4"
 ];
 
-//const DECAL_PAINTINGS =["IM13", "FF101","FF100","AA100"];
+//const DECAL_PAINTINGS =["UW10","KL10","SVS100","SVS101","SP4","VIC20"];
 //const DECAL_PAINTINGS =["WallLamp"];
 console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 
 const LIGHT_DECALS = ["WallLamp"];
 
 console.log("%cMAP for CrawlMaster2 loaded.", "color: #888");
+//{"width":"8","height":"8","map":"BB5AA12BABB2AA3BABAA6BB5ABB3ABAA2BAA4BB12A$"}
 var MAP = {
     1: {
         data: `
-        {"width":"8","height":"8","map":"BB5AA12BABB2AA3BABAA6BB5ABB3ABAA2BAA4BB12A$"}
+        {"width":"16","height":"16","map":"BB11ABB10AA30BAA32BAA13BAA6BB2AA8BAA6BAA2BAA7BB2AA3BB4ABAA11BB2AA2BB2AA10BB9ABB2AA2BAA2BB2AA3BAA2BB3AA4BAA4BAA4BB5ABABABB16ABB14A$"}
         `,
         //floor: "RockFloor",
         //floor: "StoneFloor3",
@@ -89,7 +90,8 @@ var SPAWN = {
     },
     decals(level) {
         console.log("spawning decals ... ", level);
-        const decalsLocations = [{ x: 2, y: 2, f: 'FRONT' }, { x: 5, y: 2, f: 'FRONT' }, { x: 3, y: 5, f: 'BACK' }, { x: 0, y: 3, f: 'RIGHT' }, { x: 7, y: 3, f: 'LEFT' }];
+        const decalsLocations = [{ x: 2, y: 2, f: 'FRONT' }, { x: 5, y: 2, f: 'FRONT' }, { x: 3, y: 5, f: 'BACK' }, { x: 0, y: 3, f: 'RIGHT' }, { x: 7, y: 3, f: 'LEFT' },
+        { x: 2, y: 7, f: 'BACK' }];
 
         for (let D of decalsLocations) {
             const picture = DECAL_PAINTINGS.chooseRandom();
@@ -101,7 +103,7 @@ var SPAWN = {
     },
     lights(level){
         console.log("spawning lights ... ", level);
-        const lightLocations = [{ x: 1, y: 0, f: 'FRONT' }, { x: 6, y: 0, f: 'FRONT' }];
+        const lightLocations = [{ x: 1, y: 0, f: 'FRONT' }, { x: 6, y: 0, f: 'FRONT' }, { x: 11, y: 15, f: 'BACK' }, { x: 15, y: 9, f: 'LEFT' }];
         for (let L of lightLocations){
             const light = LIGHT_DECALS.chooseRandom();
             LIGHTS3D.add(new LightDecal(new Grid(L.x, L.y), L.f, SPRITE[light], "light"));

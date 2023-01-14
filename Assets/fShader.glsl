@@ -26,7 +26,7 @@ void main(void) {
     //adding point lights
     vec3 PL_output = vec3(0.0);
 
-    for(int i = 0; i < N_LIGHTS + 1; i++) {
+    for(int i = 0; i < N_LIGHTS; i++) {
         PL_output += CalcPointLight(uPointLights[i], FragPos, viewDir, norm);
     }
 
@@ -42,14 +42,14 @@ void main(void) {
 
 vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal){
     //ambient
-    float ambientStrength = 0.10;
+    float ambientStrength = 0.25;
     vec3 ambientLightColor = vec3(1, 1, 0.9);
     vec3 ambientLight = ambientStrength * ambientLightColor;
 
     //diffuse
     float dist = distance(cameraPos, FragPos);
-    float attenuation = 1.0 / (1.0 + 0.15 * dist + 0.45 * dist * dist);
-    float diffuseStrength = 1.0;
+    float attenuation = 1.0 / (1.0 + 0.10 * dist + 0.40 * dist * dist);
+    float diffuseStrength = 1.2;
     vec3 diffuseLightColor = vec3(1, 1, 0.9);
     float diff = max(dot(normal, viewDir), 0.0);
     vec3 diffuselight = diffuseStrength * attenuation * diff * diffuseLightColor;
@@ -58,7 +58,7 @@ vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal){
     float shininess = 128.0 * 0.20;
     vec3 reflectDir = reflect(-viewDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-    float specStrength = 0.99;
+    float specStrength = 1.2;
     vec3 specularLight = diffuseLightColor * spec * specStrength * attenuation;
 
     return ambientLight + diffuselight + specularLight;
