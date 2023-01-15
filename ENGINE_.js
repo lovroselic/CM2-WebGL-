@@ -1107,6 +1107,7 @@ const ENGINE = {
     Packs: 0,
     SheetSequences: 0,
     RotSeq: 0,
+    Shaders: 0,
     HMRotSeq: null,
     HMSheetSequences: null,
     HMFonts: null,

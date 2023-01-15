@@ -28,7 +28,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.11.0",
+    VERSION: "0.11.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -37,7 +37,9 @@ const WebGL = {
         PIC_TOP: 0.2,
         PIC_OUT: 0.01,
         LIGHT_WIDTH: 0.4,
-        LIGHT_TOP: 0.1
+        LIGHT_TOP: 0.1,
+        DEFAULT_RESOLUTION: 256,
+        MIN_RESOLUTION: 128,
     },
     program: null,
     buffer: null,
@@ -304,8 +306,11 @@ const WORLD = {
             vertexNormals: [],
         };
     },
-    getBoundaries(cat, R) {
+    getBoundaries(cat, W, H, resolution) {
+        const R = W / H;
         let leftX, rightX, topY, bottomY;
+        let dW, dH;
+
         switch (cat) {
             case "picture":
                 leftX = ((1 - WebGL.INI.PIC_WIDTH) / 2.0);
@@ -319,15 +324,33 @@ const WORLD = {
                 topY = 1.0 - WebGL.INI.LIGHT_TOP;
                 bottomY = 1.0 - ((WebGL.INI.LIGHT_WIDTH / R) + WebGL.INI.LIGHT_TOP);
                 break;
+            case "crest":
+                dW = (1.0 - W / resolution) / 2;
+                dH = (1.0 - H / resolution) / 2;
+                leftX = dW;
+                rightX = 1.0 - dW;
+                topY = 1.0 - dH;
+                bottomY = dH;
+                break;
             default:
                 console.error("decal category error", cat);
                 break;
         }
         return [leftX, rightX, topY, bottomY];
     },
+    divineResolution(pic) {
+        let maxDimension = Math.max(pic.width, pic.height);
+        let resolution = 2 ** (Math.ceil(Math.log2(maxDimension)));
+        console.log("...divineResolution", maxDimension, resolution);
+        return Math.max(resolution, WebGL.INI.MIN_RESOLUTION);
+    },
     addPic(Y, decal, type) {
-        const R = decal.texture.width / decal.texture.height;
-        const [leftX, rightX, topY, bottomY] = this.getBoundaries(decal.category, R);
+        let resolution = WebGL.INI.DEFAULT_RESOLUTION;
+        if (decal.category === "crest") {
+            resolution = this.divineResolution(decal.texture);
+        }
+        console.log(".resolution", decal.category, resolution);
+        const [leftX, rightX, topY, bottomY] = this.getBoundaries(decal.category, decal.texture.width, decal.texture.height, resolution);
         const E = ELEMENT[`${decal.face}_FACE`];
         let positions = [...E.positions];
         let indices = [...E.indices];
@@ -675,23 +698,24 @@ class $3D_player {
 }
 
 class Decal {
-    constructor(grid, face, texture, category) {
+    constructor(grid, face, texture, category, name) {
         this.grid = grid;
         this.face = face;
         this.texture = texture;
         this.category = category;
+        this.name = name;
     }
 }
 class StaticDecal extends Decal {
-    constructor(grid, face, texture, category) {
-        super(grid, face, texture, category);
+    constructor(grid, face, texture, category, name) {
+        super(grid, face, texture, category, name);
         this.type = "StaticDecal";
         this.interactive = false;
     }
 }
 class LightDecal extends Decal {
-    constructor(grid, face, texture, category) {
-        super(grid, face, texture, category);
+    constructor(grid, face, texture, category, name) {
+        super(grid, face, texture, category, name);
         this.type = "LightDecal";
         this.interactive = false;
         this.setPosition(grid, face);

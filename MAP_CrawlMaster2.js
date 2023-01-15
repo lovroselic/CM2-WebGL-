@@ -29,7 +29,7 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9",
     "ManicMiner3", "Prince3", "Infiltrator2", "1942_2", "Arnie1", "BTF1", "BeachHead5", "Biggles1", "BlueThunder1", "BrianBloodaxe1", "BrideOfFrakenstein1",
     "BruceLee1", "Captive", "EnigmaForce", "Fred3", "Fred4", "JSW4", "ManiacMansion2", "PQ1", "Pengo", "Pirates", "PolePosition", "Silkworm1", "SirFred1",
     "SirFred2", "SirFred3", "SuperDogfight", "SuperDogfight2", "Unknown1", "BattleThroughTime", "BOF3", "Chopper2", "Cliffhanger", "F1", "IM10", "MoonPatrol", "SummerGames10",
-    "FF5", "LaraCroft1", "LaraCroft2", "IM13", "FF101","FF100","AA100","UW10","KL10","SVS100","SVS101","SP4"
+    "FF5", "LaraCroft1", "LaraCroft2", "IM13", "FF101", "FF100", "AA100", "UW10", "KL10", "SVS100", "SVS101", "SP4"
 ];
 
 //const DECAL_PAINTINGS =["UW10","KL10","SVS100","SVS101","SP4","VIC20"];
@@ -37,6 +37,10 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9",
 console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 
 const LIGHT_DECALS = ["WallLamp"];
+
+const DECAL_CRESTS = ["LS", "Skull4", "Skull3", "Skull2", "Skull1", "Crack4", "Crack3"];
+//const DECAL_CRESTS = [];
+console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
 
 console.log("%cMAP for CrawlMaster2 loaded.", "color: #888");
 //{"width":"8","height":"8","map":"BB5AA12BABB2AA3BABAA6BB5ABB3ABAA2BAA4BB12A$"}
@@ -96,17 +100,25 @@ var SPAWN = {
         for (let D of decalsLocations) {
             const picture = DECAL_PAINTINGS.chooseRandom();
             console.log("picture", picture);
-            DECAL3D.add(new StaticDecal(new Grid(D.x, D.y), D.f, SPRITE[picture], "picture"));
+            DECAL3D.add(new StaticDecal(new Grid(D.x, D.y), D.f, SPRITE[picture], "picture", picture));
         }
+
+        const crestLocations = [{ x: 0, y: 5, f: 'RIGHT' }];
+        for (let D of crestLocations) {
+            const crest = DECAL_CRESTS.chooseRandom();
+            console.log("crest", crest);
+            DECAL3D.add(new StaticDecal(new Grid(D.x, D.y), D.f, SPRITE[crest], "crest", crest));
+        }
+
 
         console.log("DECAL3D", DECAL3D);
     },
-    lights(level){
+    lights(level) {
         console.log("spawning lights ... ", level);
         const lightLocations = [{ x: 1, y: 0, f: 'FRONT' }, { x: 6, y: 0, f: 'FRONT' }, { x: 11, y: 15, f: 'BACK' }, { x: 15, y: 9, f: 'LEFT' }];
-        for (let L of lightLocations){
+        for (let L of lightLocations) {
             const light = LIGHT_DECALS.chooseRandom();
-            LIGHTS3D.add(new LightDecal(new Grid(L.x, L.y), L.f, SPRITE[light], "light"));
+            LIGHTS3D.add(new LightDecal(new Grid(L.x, L.y), L.f, SPRITE[light], "light", light));
         }
     },
 

@@ -33,7 +33,7 @@ void main(void) {
     light += PL_output;
 
     vec4 texelColor = texture2D(uSampler, vTextureCoord);
-    if(texelColor.a < 0.6) {
+    if(texelColor.a < 0.4) {
         discard;
     }
 
