@@ -7,7 +7,7 @@
 ///////////////////////Dungeon.js///////////////
 //                                            //
 //        Procedureal maze and dungeon        //
-//             generation: 3.06               //
+//             generation: 3.07               //
 //                                            //
 //    dependencies: Prototype LS, ENGINE      //
 ////////////////////////////////////////////////
@@ -1418,8 +1418,10 @@ class Dungeon extends MasterDungeon {
             this.keys[DUNGEON.LOCK_LEVELS[DUNGEON.LOCK_LEVEL - 1]] = keyLocation;
 
             //locking the doors
-            for (let lockedDoor in this.lockedRooms) {
-                this.GA.closeDoor(this.lockedRooms[lockedDoor].door[0]);
+            if (DUNGEON.CREATE_LOCKED) {
+                for (let lockedDoor in this.lockedRooms) {
+                    this.GA.closeDoor(this.lockedRooms[lockedDoor].door[0]);
+                }
             }
         }
 
@@ -1698,7 +1700,7 @@ var FREE_MAP = {
     }
 };
 var DUNGEON = {
-    VERSION: "3.06",
+    VERSION: "3.07",
     CSS: "color: #f4ee42",
     REFUSE_CONNECTION_TO_ROOM: true,
     LIMIT_ROOMS: false,
@@ -1719,6 +1721,7 @@ var DUNGEON = {
     MIN_LOCK_LEVEL: 1,
     LOCK_LEVELS: ["Gold", "Silver", "Red"],
     N_SHRINES: 3,
+    CREATE_LOCKED: false,
     setLockLevel(level) {
         let lockLevel = Math.min(this.MAX_LOCK_LEVEL, level);
         lockLevel = Math.max(this.MIN_LOCK_LEVEL, level);

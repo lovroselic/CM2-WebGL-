@@ -28,7 +28,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.11.1",
+    VERSION: "0.11.2",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -299,6 +299,13 @@ const WORLD = {
             vertexNormals: [],
         };
 
+        this.door = {
+            positions: [],
+            indices: [],
+            textureCoordinates: [],
+            vertexNormals: [],
+        };
+
         this.decal = {
             positions: [],
             indices: [],
@@ -341,7 +348,6 @@ const WORLD = {
     divineResolution(pic) {
         let maxDimension = Math.max(pic.width, pic.height);
         let resolution = 2 ** (Math.ceil(Math.log2(maxDimension)));
-        console.log("...divineResolution", maxDimension, resolution);
         return Math.max(resolution, WebGL.INI.MIN_RESOLUTION);
     },
     addPic(Y, decal, type) {
@@ -349,7 +355,6 @@ const WORLD = {
         if (decal.category === "crest") {
             resolution = this.divineResolution(decal.texture);
         }
-        console.log(".resolution", decal.category, resolution);
         const [leftX, rightX, topY, bottomY] = this.getBoundaries(decal.category, decal.texture.width, decal.texture.height, resolution);
         const E = ELEMENT[`${decal.face}_FACE`];
         let positions = [...E.positions];
@@ -480,10 +485,8 @@ const WORLD = {
         }
 
         /** build static decals */
-        //console.log("building static decals ...");
         for (const iam of WebGL.staticDecalList) {
             for (const decal of iam.POOL) {
-                //console.log(".. adding decal", decal);
                 this.addPic(Y, decal, "decal");
             }
         }

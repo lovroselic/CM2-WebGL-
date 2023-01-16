@@ -53,7 +53,7 @@ LoadShaders = ['vShader.glsl', 'fShader.glsl'];
 LoadSprites = [
     { srcName: "WallLamp256.png", name: "WallLamp" },
     { srcName: "CompassRose.png", name: "CompassRose" },
-    
+
     //decal-other
     { srcName: "LS.png", name: "LS" },
     { srcName: "Skull4.png", name: "Skull4" },
@@ -62,6 +62,9 @@ LoadSprites = [
     { srcName: "Skull1.png", name: "Skull1" },
     { srcName: "Crack4.png", name: "Crack4" },
     { srcName: "Crack3.png", name: "Crack3" },
+    { srcName: "Skeleton11.png", name: "Skeleton11" },
+    { srcName: "Skeleton12.png", name: "Skeleton12" },
+
     //decal-pics
     { srcName: "SVS7.png", name: "SVS1" },
     { srcName: "SVS6.png", name: "SVS2" },
@@ -302,7 +305,6 @@ LoadSprites = [
     { srcName: "SP2.png", name: "SP2" },
     { srcName: "SP1.png", name: "SP1" },
     { srcName: "EveLSL.png", name: "EveLSL" },
-
     { srcName: "SVS24.png", name: "SVS24" },
     { srcName: "SVS23.png", name: "SVS23" },
     { srcName: "KQ10.png", name: "KQ10" },
@@ -397,4 +399,24 @@ LoadSprites = [
     { srcName: "SVS100.png", name: "SVS100" },
     { srcName: "SVS101.png", name: "SVS101" },
     { srcName: "SP4.png", name: "SP4" },
+    { srcName: "JSW10.png", name: "JSW10" },
+    { srcName: "Vixen3.png", name: "Vixen3" },
+    { srcName: "WOW10.png", name: "WOW10" },
+    { srcName: "ESB.png", name: "ESB" },
+    { srcName: "Galaxians10.png", name: "Galaxians10" },
+    { srcName: "BC10.png", name: "BC10" },
+    { srcName: "ActecChallenge2.png", name: "ActecChallenge2" },
+
+    { srcName: "AlleyKat.png", name: "AlleyKat" },
+    { srcName: "BeachHead100.png", name: "BeachHead100" },
+    { srcName: "Blackwyche2.png", name: "Blackwyche2" },
+    { srcName: "Hero100.png", name: "Hero100" },
+    { srcName: "Invaders2.png", name: "Invaders2" },
+    { srcName: "KL102.png", name: "KL102" },
+    { srcName: "Karn1.png", name: "Karn1" },
+    { srcName: "LastNinja10.png", name: "LastNinja10" },
+    { srcName: "MoonBuggy.png", name: "MoonBuggy" },
+    { srcName: "PQ3.png", name: "PQ3" },
+    { srcName: "Pitfall2-100.png", name: "Pitfall2-100" },
+    { srcName: "SVS103.png", name: "SVS103" },
 ];

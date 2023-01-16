@@ -26,7 +26,7 @@ var INI = {
 
 };
 var PRG = {
-    VERSION: "0.04.02",
+    VERSION: "0.04.03",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -230,6 +230,8 @@ var GAME = {
         }
         WebGL.renderScene();
 
+        TITLE.compassNeedle();
+
         if (DEBUG.FPS) {
             GAME.FPS(lapsedTime);
         }
@@ -379,11 +381,13 @@ var GAME = {
     }
 };
 var TITLE = {
+    stack: {},
     firstFrame() {
         TITLE.clearAllLayers();
         TITLE.blackBackgrounds();
         TITLE.titlePlot();
         TITLE.bottom();
+        TITLE.compass();
     },
     startTitle() {
         $("#pause").prop("disabled", true);
@@ -408,6 +412,25 @@ var TITLE = {
         this.bottomBackground();
         this.sideBackground();
         ENGINE.fillLayer("background", "#666");
+    },
+    compass() {
+        let x = ((ENGINE.titleWIDTH - ENGINE.sideWIDTH) + ENGINE.sideWIDTH / 2) | 0;
+        let y = (ENGINE.titleHEIGHT / 2) | 0;
+        ENGINE.spriteDraw("compassRose", x, y, SPRITE.CompassRose);
+        TITLE.stack.compassX = x;
+        TITLE.stack.compassY = y;
+        this.compassNeedle();
+    },
+    compassNeedle() {
+        ENGINE.clearLayer("compassNeedle");
+        let CTX = LAYER.compassNeedle;
+        CTX.strokeStyle = "#F00";
+        let [x, y] = [TITLE.stack.compassX, TITLE.stack.compassY];
+        CTX.beginPath();
+        CTX.moveTo(x, y);
+        let end = new Point(x, y).translate(Vector3.to_FP_Vector(HERO.player.dir), (SPRITE.CompassRose.width / 2 * 0.8) | 0);
+        CTX.lineTo(end.x, end.y);
+        CTX.stroke();
     },
     topBackground() {
         var CTX = LAYER.title;
