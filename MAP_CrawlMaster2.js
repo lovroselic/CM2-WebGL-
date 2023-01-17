@@ -19,7 +19,7 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9",
     "Portal1", "Prince1", "Prince2", "RRR", "RickDangerous", "Robin", "SOF", "SQ1", "ST", "SVS1", "SVS10", "SVS11", "SVS2", "SVS3", "SVS4",
     "SW2", "SW4", "Scramble2", "Scramble3", "Scramble4", "Skyrim", "Soccer", "Sorcery2", "Sorcery3", "TR1", "TR1", "TR10", "TR2", "TR2", "TR3",
     "TheSentinel", "Tut", "Tut2", "UU", "UU2", "Ultima1", "Ultima2", "Under", "VIC20", "Valhalla", "Vixen1", "Vixen2", "WDW", "WG2", "WG3", "WOW1",
-    "WOW2", "WOW3", "Walls", "Wally", "Winter", "Wolf1", "Wolf2", "Zak", "Zaxxon", "ZimSalaBim", "Zong", "galaxian", "sabre2", "ski", "trash",
+    "WOW2", "Walls", "Wally", "Winter", "Wolf1", "Wolf2", "Zak", "Zaxxon", "ZimSalaBim", "Zong", "galaxian", "sabre2", "ski", "trash",
     "zx1", "WG4", "BlueMax4", "Witcher5", "LSL9", "Shamus1", "PharaohCurse3", "Witcher4", "Witcher3", "TempleOfApshai", "Witcher2", "KnightLore2",
     "Witcher1", "Spelunker", "ShamusCase2", "Ishar2", "Ishar1", "Jungle1", "Pitfall5", "PharaohCurse2", "Frontier", "LSL8", "SP2", "SP1", "EveLSL",
     "SVS24", "SVS23", "KQ10", "Shamus20", "Pitfall21", "Apshai6", "Apshai5", "MontyMole", "PacClose", "PacGhost", "Pitfall20", "SVS22", "SVS21",
@@ -43,6 +43,11 @@ const DECAL_CRESTS = ["LS", "Skull4", "Skull3", "Skull2", "Skull1", "Crack4", "C
 //const DECAL_CRESTS = [];
 console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
 
+const COMMON_GATES = ["WoodenGate1"];
+const RED_GATES = ["RedGate1"];
+const SILVER_GATES = ["SilverGate1"];
+const GOLD_GATES = ["GoldGate1"];
+
 console.log("%cMAP for CrawlMaster2 loaded.", "color: #888");
 //{"width":"8","height":"8","map":"BB5AA12BABB2AA3BABAA6BB5ABB3ABAA2BAA4BB12A$"}
 var MAP = {
@@ -64,9 +69,9 @@ var MAP = {
         //floor: "DirtFloor",
         //floor: "TiledFloor",
         //floor: "Tile",
-        //floor: "GreenDungeonWall", //keep
+        floor: "GreenDungeonWall", //keep
         //floor: "Wall7",
-        floor: "MorgueFloor",
+        //floor: "MorgueFloor",
 
         //ceil: "GreenDungeonWall",
         //ceil: "RockCeiling",
@@ -89,14 +94,14 @@ var MAP = {
 
 var SPAWN = {
     spawn(level) {
-        console.log("spawning ...");
+        console.log("spawning ... level", level);
         this.decals(level);
         this.lights(level);
+        this.gates(level);
     },
     decals(level) {
-        console.log("spawning decals ... ", level);
         const decalsLocations = [{ x: 2, y: 2, f: 'FRONT' }, { x: 5, y: 2, f: 'FRONT' }, { x: 3, y: 5, f: 'BACK' }, { x: 0, y: 3, f: 'RIGHT' }, { x: 7, y: 3, f: 'LEFT' },
-        { x: 2, y: 7, f: 'BACK' }];
+        { x: 2, y: 7, f: 'BACK' }, { x: 3, y: 0, f: 'FRONT' }];
 
         for (let D of decalsLocations) {
             const picture = DECAL_PAINTINGS.chooseRandom();
@@ -110,16 +115,41 @@ var SPAWN = {
             console.log("crest", crest);
             DECAL3D.add(new StaticDecal(new Grid(D.x, D.y), D.f, SPRITE[crest], "crest", crest));
         }
-
-
-        console.log("DECAL3D", DECAL3D);
     },
     lights(level) {
-        console.log("spawning lights ... ", level);
         const lightLocations = [{ x: 1, y: 0, f: 'FRONT' }, { x: 6, y: 0, f: 'FRONT' }, { x: 11, y: 15, f: 'BACK' }, { x: 15, y: 9, f: 'LEFT' }];
         for (let L of lightLocations) {
             const light = LIGHT_DECALS.chooseRandom();
             LIGHTS3D.add(new LightDecal(new Grid(L.x, L.y), L.f, SPRITE[light], "light", light));
+        }
+    },
+    gates(level) {
+        const gateLocations = [{ x: 6, y: 7, type: 'common' }];
+        //const gateLocations = [{ x: 6, y: 7, type: 'red' }];
+        //const gateLocations = [{ x: 6, y: 7, type: 'silver' }];
+        //const gateLocations = [{ x: 6, y: 7, type: 'gold' }];
+
+        for (let L of gateLocations) {
+            let gatePic = null;
+            switch (L.type) {
+                case "common":
+                    gatePic = COMMON_GATES.chooseRandom();
+                    break;
+                case "red":
+                    gatePic = RED_GATES.chooseRandom();
+                    break;
+                case "silver":
+                    gatePic = SILVER_GATES.chooseRandom();
+                    break;
+                case "gold":
+                    gatePic = GOLD_GATES.chooseRandom();
+                    break;
+                default:
+                    console.error("spawning gate, gate type error", type);
+                    break;
+            }
+
+            GATE3D.add(new Gate(new Grid(L.x, L.y), SPRITE[gatePic], gatePic, L.type));
         }
     },
 

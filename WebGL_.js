@@ -50,6 +50,7 @@ const WebGL = {
     projectionMatrix: null,
     vertexCount: null,
     staticDecalList: [DECAL3D, LIGHTS3D],
+    dynamicDecalList: [GATE3D],
     setContext(layer) {
         this.CTX = LAYER[layer];
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
@@ -75,6 +76,17 @@ const WebGL = {
             console.log(`%cTexture:`, this.CSS, this.texture);
             console.log(`%cAspect:`, this.CSS, this.aspect);
             console.log(`%cWebGL:`, this.CSS, this);
+        }
+    },
+    init_required_IAM(map) {
+        DECAL3D.init(map);
+        LIGHTS3D.init(map);
+        GATE3D.init(map);
+
+        if (this.VERBOSE) {
+            console.log("DECAL3D", DECAL3D);
+            console.log("LIGHTS3D", LIGHTS3D);
+            console.log("GATE3D", GATE3D);
         }
     },
     setCamera(camera) {
@@ -113,7 +125,7 @@ const WebGL = {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     },
     setDecalTextures() {
-        for (const iam of WebGL.staticDecalList) {
+        for (const iam of [...WebGL.staticDecalList, ...WebGL.dynamicDecalList]) {
             for (const decal of iam.POOL) {
                 decal.texture = this.createTexture(decal.texture);
             }
@@ -258,12 +270,21 @@ const WebGL = {
         gl.bindTexture(gl.TEXTURE_2D, this.texture.ceil);
         gl.drawElements(gl.TRIANGLES, this.world.offset.ceil_count, gl.UNSIGNED_SHORT, this.world.offset.ceil_start * 2);
 
+        //static decals
         let decalCount = 0;
         for (const iam of WebGL.staticDecalList) {
             for (const decal of iam.POOL) {
                 gl.bindTexture(gl.TEXTURE_2D, decal.texture);
                 gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, (this.world.offset.decal_start + decalCount * 6) * 2);
                 decalCount++;
+            }
+        }
+
+        //existing doors
+        for (const door of GATE3D.POOL) {
+            if (door) {
+                gl.bindTexture(gl.TEXTURE_2D, door.texture);
+                gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, (this.world.offset.door_start + ((door.id - 1) * 36)) * 2);
             }
         }
     }
@@ -492,17 +513,53 @@ const WORLD = {
         }
         /** static decal end */
 
+        /** build gates */
+        for (const door of GATE3D.POOL) {
+            this.addCube(Y, door.grid, "door");
+        }
+        /** gates end */
+
         //update index offsets
 
         this.floor.indices = this.floor.indices.map(e => e + this.wall.positions.length / 3);
         this.ceil.indices = this.ceil.indices.map(e => e + (this.wall.positions.length + this.floor.positions.length) / 3);
         this.decal.indices = this.decal.indices.map(e => e + (this.wall.positions.length + this.floor.positions.length + this.ceil.positions.length) / 3);
+        this.door.indices = this.door.indices.map(e => e + (
+            this.wall.positions.length +
+            this.floor.positions.length +
+            this.ceil.positions.length +
+            this.decal.positions.length
+        ) / 3);
 
         //
-        this.positions = [...this.wall.positions, ...this.floor.positions, ...this.ceil.positions, ...this.decal.positions];
-        this.indices = [...this.wall.indices, ...this.floor.indices, ...this.ceil.indices, ...this.decal.indices];
-        this.textureCoordinates = [...this.wall.textureCoordinates, ...this.floor.textureCoordinates, ...this.ceil.textureCoordinates, ...this.decal.textureCoordinates];
-        this.vertexNormals = [...this.wall.vertexNormals, ...this.floor.vertexNormals, ...this.ceil.vertexNormals, ...this.decal.vertexNormals];
+        this.positions = [
+            ...this.wall.positions,
+            ...this.floor.positions,
+            ...this.ceil.positions,
+            ...this.decal.positions,
+            ...this.door.positions
+        ];
+        this.indices = [
+            ...this.wall.indices,
+            ...this.floor.indices,
+            ...this.ceil.indices,
+            ...this.decal.indices,
+            ...this.door.indices
+        ];
+        this.textureCoordinates = [
+            ...this.wall.textureCoordinates,
+            ...this.floor.textureCoordinates,
+            ...this.ceil.textureCoordinates,
+            ...this.decal.textureCoordinates,
+            ...this.door.textureCoordinates
+        ];
+        this.vertexNormals = [
+            ...this.wall.vertexNormals,
+            ...this.floor.vertexNormals,
+            ...this.ceil.vertexNormals,
+            ...this.decal.vertexNormals,
+            ...this.door.vertexNormals
+        ];
 
         const offset = {
             wall_start: 0,
@@ -513,6 +570,12 @@ const WORLD = {
             ceil_count: this.ceil.indices.length,
             decal_start: this.wall.indices.length + this.floor.indices.length + this.ceil.indices.length,
             decal_count: this.decal.indices.length,
+            door_start:
+                this.wall.indices.length +
+                this.floor.indices.length +
+                this.ceil.indices.length +
+                this.decal.indices.length,
+            door_count: this.door.indices.length,
         };
 
         console.timeEnd("WorldBuilding");
@@ -729,6 +792,16 @@ class LightDecal extends Decal {
         this.position = new Vector3(pos.x, WebGL.INI.LIGHT_TOP, pos.y);
     }
 }
+class Gate {
+    constructor(grid, texture, name, type) {
+        this.grid = grid;
+        this.texture = texture;
+        this.name = name;
+        this.type = type;
+        this.interactive = true;
+    }
+}
+
 
 /** Utility functions */
 

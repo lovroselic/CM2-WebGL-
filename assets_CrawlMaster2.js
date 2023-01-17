@@ -54,6 +54,12 @@ LoadSprites = [
     { srcName: "WallLamp256.png", name: "WallLamp" },
     { srcName: "CompassRose.png", name: "CompassRose" },
 
+    //decal-gates
+    { srcName: "GoldGate1_256.png", name: "GoldGate1" },
+    { srcName: "RedGate1_256.png", name: "RedGate1" },
+    { srcName: "SilverGate1_256.png", name: "SilverGate1" },
+    { srcName: "WoodeGate1_256.png", name: "WoodenGate1" },
+
     //decal-other
     { srcName: "LS.png", name: "LS" },
     { srcName: "Skull4.png", name: "Skull4" },
@@ -84,7 +90,7 @@ LoadSprites = [
     { srcName: "TR1.png", name: "TR1" },
     { srcName: "CH1.png", name: "CH1" },
     { srcName: "UU.png", name: "UU" },
-    { srcName: "Wow3.png", name: "WOW3" },
+    //{ srcName: "Wow3.png", name: "WOW3" },
     { srcName: "WizardOfWor.png", name: "WOW1" },
     { srcName: "AA9.png", name: "AA9" },
     { srcName: "AA8.png", name: "AA8" },
