@@ -124,6 +124,7 @@ var SPAWN = {
         }
     },
     gates(level) {
+        let GA = MAP[level].map.GA;
         const gateLocations = [{ x: 6, y: 7, type: 'common' }];
         //const gateLocations = [{ x: 6, y: 7, type: 'red' }];
         //const gateLocations = [{ x: 6, y: 7, type: 'silver' }];
@@ -131,6 +132,8 @@ var SPAWN = {
 
         for (let L of gateLocations) {
             let gatePic = null;
+            let grid = new Grid(L.x, L.y);
+            GA.addDoor(grid); //needs to be removed if door set properly in the map!!
             switch (L.type) {
                 case "common":
                     gatePic = COMMON_GATES.chooseRandom();
@@ -148,8 +151,8 @@ var SPAWN = {
                     console.error("spawning gate, gate type error", type);
                     break;
             }
-
-            GATE3D.add(new Gate(new Grid(L.x, L.y), SPRITE[gatePic], gatePic, L.type));
+            GATE3D.add(new Gate(grid, SPRITE[gatePic], gatePic, L.type));
+            GA.closeDoor(grid);
         }
     },
 

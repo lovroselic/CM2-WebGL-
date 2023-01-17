@@ -633,6 +633,9 @@ class GridArray {
     if (this.isOutOfBounds(grid)) return false;
     return this.map[this.gridToIndex(grid)] & (MAPDICT.WALL === MAPDICT.WALL);
   }
+  addDoor(grid){
+    this.set(grid, MAPDICT.DOOR);
+  }
   toDoor(grid) {
     this.setValue(grid, MAPDICT.DOOR);
   }
