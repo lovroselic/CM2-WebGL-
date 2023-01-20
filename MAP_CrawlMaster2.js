@@ -153,7 +153,7 @@ var SPAWN = {
                     console.error("spawning gate, gate type error", type);
                     break;
             }
-            GATE3D.add(new Gate(grid, SPRITE[gatePic], gatePic, L.type));
+            GATE3D.add(new Gate(grid, SPRITE[gatePic], gatePic, L.type, GATE3D));
             GA.closeDoor(grid);
         }
     },

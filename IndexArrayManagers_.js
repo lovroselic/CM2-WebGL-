@@ -313,9 +313,20 @@ class Missile_RC extends IAM {
 }
 
 class Decal3D extends IAM {
-    constructor() {
+    constructor(len = null) {
         super();
         this.IA = "Decal3D";
+        this.len = len;
+        if (this.len) {
+            this.id_offset = GLOBAL_ID_MANAGER.offset.last();
+            GLOBAL_ID_MANAGER.offset.push(this.id_offset + this.len);
+            GLOBAL_ID_MANAGER.IAM.push(this);
+        }
+    }
+    globalId(id) {
+        if (this.id_offset != null) {
+            return id + this.id_offset;
+        }
     }
 }
 
@@ -525,6 +536,23 @@ class Enemy_RC extends IAM {
     }
 }
 
+/** GLOBAL ID */
+const GLOBAL_ID_MANAGER = {
+    offset: [0],
+    IAM: [],
+    getObject(globalId) {
+        if (this.offset.length < 2) return null;
+        let idx = 1;
+        while (idx < this.offset.length && globalId < this.offset[idx]) {
+            idx++;
+        }
+        idx -= 2;
+        let id = globalId - this.offset[idx];
+        console.log("..id", id, "idx", idx);
+        return this.IAM[idx].POOL[id - 1];
+    }
+};
+
 /**  IAM INSTANCES */
 var DECOR = new Decor();
 var PROFILE_BALLISTIC = new Profile_Ballistic();
@@ -540,7 +568,8 @@ var MISSILE = new Missile_RC();
 var DECAL = new Decal_IA();
 var DECAL3D = new Decal3D();
 var LIGHTS3D = new Decal3D();
-var GATE3D = new Decal3D();
+var GATE3D = new Decal3D(100);
 /** *********************************************** */
 
 console.log(`%cIndexArrayManagers (IAM) ${IndexArrayManagers.VERSION} ready.`, "color: #7FFFD4");
+console.log("GLOBAL_ID_MANAGER", GLOBAL_ID_MANAGER);

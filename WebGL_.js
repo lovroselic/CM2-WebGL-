@@ -34,7 +34,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.11.6",
+    VERSION: "0.11.7",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -366,7 +366,7 @@ const WebGL = {
                 gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, (this.world.offset.door_start + ((door.id - 1) * 36)) * 2);
 
                 // to texture 
-                let id = 666; //debug
+                let id = GATE3D.globalId(door.id); 
                 let id_vec = this.idToVec(id);
 
                 gl.useProgram(this.pickProgram.program);
@@ -411,6 +411,9 @@ const WebGL = {
                     const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
                     if (id > 0) {
                         console.log("id", id);
+                        const obj = GLOBAL_ID_MANAGER.getObject(id);
+                        console.log("obj", obj);
+                        obj.interact();
                     }
                 }
             }
@@ -924,12 +927,17 @@ class LightDecal extends Decal {
     }
 }
 class Gate {
-    constructor(grid, texture, name, type) {
+    constructor(grid, texture, name, type, IAM) {
         this.grid = grid;
         this.texture = texture;
         this.name = name;
         this.type = type;
+        this.IAM = IAM;
         this.interactive = true;
+    }
+    interact(){
+        console.log("interacting");
+        this.IAM.remove(this.id);
     }
 }
 
