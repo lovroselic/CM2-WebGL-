@@ -25,10 +25,16 @@
  * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-point.html
  * https://webglfundamentals.org/webgl/lessons/webgl-qna-setting-the-values-of-a-struct-array-from-js-to-glsl.html
  * 
+ * https://learnopengl.com/Advanced-OpenGL/Advanced-Data
+ * https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/readPixels
+ * 
+ * https://webglfundamentals.org/webgl/lessons/webgl-render-to-texture.html
+ * https://webglfundamentals.org/webgl/lessons/webgl-picking.html
+ * http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
  */
 
 const WebGL = {
-    VERSION: "0.11.4",
+    VERSION: "0.11.6",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -42,6 +48,7 @@ const WebGL = {
         MIN_RESOLUTION: 128,
     },
     program: null,
+    pickProgram: null,
     buffer: null,
     texture: null,
     aspect: null,
@@ -49,6 +56,9 @@ const WebGL = {
     zFar: 100,
     projectionMatrix: null,
     vertexCount: null,
+    targetTexture: null,
+    depthBuffer: null,
+    frameBuffer: null,
     staticDecalList: [DECAL3D, LIGHTS3D],
     dynamicDecalList: [GATE3D],
     setContext(layer) {
@@ -56,25 +66,23 @@ const WebGL = {
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
         if (this.CTX === null) console.error("Unable to initialize WebGL. Your browser or machine may not support it.");
     },
-    init(layer, world, textureData, camera, vsSource = SHADER.vShader, fsSource = SHADER.fShader) {
+    init(layer, world, textureData, camera, vsSource = SHADER.vShader, fsSource = SHADER.fShader, pick_vSource = SHADER.pick_vShader, pick_fSource = SHADER.pick_fShader) {
         this.world = world;
         this.setContext(layer);
         const gl = this.CTX;
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         this.initShaderProgram(gl, vsSource, fsSource);
+        this.initPickProgram(gl, pick_vSource, pick_fSource);
         this.initBuffers(gl, world);
         this.setTexture(textureData);
         this.setDecalTextures();
         this.aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
         this.setCamera(camera);
+        this.setPickBuffers(gl);
 
         if (this.VERBOSE) {
             console.log(`%cWorld:`, this.CSS, this.world);
-            console.log(`%cProgram:`, this.CSS, this.program);
-            console.log(`%cBuffer:`, this.CSS, this.buffer);
-            console.log(`%cTexture:`, this.CSS, this.texture);
-            console.log(`%cAspect:`, this.CSS, this.aspect);
             console.log(`%cWebGL:`, this.CSS, this);
         }
     },
@@ -155,6 +163,35 @@ const WebGL = {
             textureCoord: textureCoordBuffer,
         };
     },
+    setPickBuffers(gl) {
+        // Create a texture to render to
+        const targetTexture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, targetTexture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        this.targetTexture = targetTexture;
+
+        // create a depth renderbuffer
+        const depthBuffer = gl.createRenderbuffer();
+        gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
+        this.depthBuffer = depthBuffer;
+
+        // Create and bind the framebuffer
+        const fb = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+
+        // attach the texture as the first color attachment
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.targetTexture, 0);
+
+        // make a depth buffer and the same size as the targetTexture
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depthBuffer);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.canvas.clientWidth, gl.canvas.clientHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthBuffer);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, gl.canvas.clientWidth, gl.canvas.clientHeight);
+
+        this.frameBuffer = fb;
+    },
     loadShader(gl, type, source) {
         const shader = gl.createShader(type);
         gl.shaderSource(shader, source);
@@ -169,10 +206,34 @@ const WebGL = {
     updateShaders() {
         SHADER.fShader = SHADER.fShader.replace("N_LIGHTS = 1", `N_LIGHTS = ${LIGHTS3D.POOL.length}`);
     },
+    initPickProgram(gl, vsSource, fsSource) {
+        const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vsSource);
+        const fragmentShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+        const shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, vertexShader);
+        gl.attachShader(shaderProgram, fragmentShader);
+        gl.linkProgram(shaderProgram);
+        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+            console.error(`Unable to initialize the shader program: ${gl.getProgramInfoLog(shaderProgram)}`);
+            return null;
+        }
+        const programInfo = {
+            program: shaderProgram,
+            attribLocations: {
+                vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
+            },
+            uniformLocations: {
+                projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
+                modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
+                id: gl.getUniformLocation(shaderProgram, "u_id"),
+            },
+        };
+
+        this.pickProgram = programInfo;
+    },
     initShaderProgram(gl, vsSource, fsSource) {
         const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vsSource);
         const fragmentShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
-        // Create the shader program
         const shaderProgram = gl.createProgram();
         gl.attachShader(shaderProgram, vertexShader);
         gl.attachShader(shaderProgram, fragmentShader);
@@ -213,13 +274,12 @@ const WebGL = {
         const cameratarget = this.camera.pos.translate(this.camera.dir);
         glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, cameratarget.array, [0.0, 1.0, 0.0]);
 
-        // Tell WebGL to use our program when drawing
         gl.useProgram(this.program.program);
-
         // Set the uniform matrices
         gl.uniformMatrix4fv(this.program.uniformLocations.projectionMatrix, false, this.projectionMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.modelViewMatrix, false, viewMatrix);
         gl.uniform3fv(this.program.uniformLocations.cameraPos, this.camera.pos.array);
+
 
         //light uniforms
         let lights = [];
@@ -228,10 +288,18 @@ const WebGL = {
         }
         gl.uniform3fv(this.program.uniformLocations.lights, new Float32Array(lights));
 
+
+        //and pickProgram
+        gl.useProgram(this.pickProgram.program);
+        gl.uniformMatrix4fv(this.pickProgram.uniformLocations.projectionMatrix, false, this.projectionMatrix);
+        gl.uniformMatrix4fv(this.pickProgram.uniformLocations.modelViewMatrix, false, viewMatrix);
+
         this.renderDungeon();
     },
     renderDungeon() {
         const gl = this.CTX;
+        gl.useProgram(this.program.program);
+
         //dungeon
         //setPositionAttribute
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.position);
@@ -258,6 +326,17 @@ const WebGL = {
         gl.bindTexture(gl.TEXTURE_2D, this.texture.wall);
         gl.uniform1i(this.program.uniformLocations.uSampler, 0);
 
+        //picking program
+        gl.useProgram(this.pickProgram.program);
+        //setPositionAttribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.position);
+        gl.vertexAttribPointer(this.pickProgram.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(this.pickProgram.attribLocations.vertexPosition);
+
+
+        //start draw
+        gl.useProgram(this.program.program);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null); //
         //draw separated
         //wall
         gl.drawElements(gl.TRIANGLES, this.world.offset.wall_count, gl.UNSIGNED_SHORT, this.world.offset.wall_start * 2);
@@ -285,7 +364,57 @@ const WebGL = {
             if (door) {
                 gl.bindTexture(gl.TEXTURE_2D, door.texture);
                 gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, (this.world.offset.door_start + ((door.id - 1) * 36)) * 2);
+
+                // to texture 
+                let id = 666; //debug
+                let id_vec = this.idToVec(id);
+
+                gl.useProgram(this.pickProgram.program);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
+                gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
+                gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, (this.world.offset.door_start + ((door.id - 1) * 36)) * 2);
+
+                //back to canvas
+                gl.useProgram(this.program.program);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null); //
             }
+        }
+    },
+    idToVec(id) {
+        return [((id >> 0) & 0xFF) / 0xFF, ((id >> 8) & 0xFF) / 0xFF, ((id >> 16) & 0xFF) / 0xFF, ((id >> 24) & 0xFF) / 0xFF];
+    },
+    DATA: {
+        window: null,
+        layer: null,
+    },
+    MOUSE: {
+        initialize(id) {
+            WebGL.DATA.window = id;
+            WebGL.DATA.layer = ENGINE.getCanvasName(id);
+            ENGINE.topCanvas = WebGL.DATA.layer;
+            $(WebGL.DATA.layer).on(
+                "mousemove",
+                { layer: WebGL.DATA.layer },
+                ENGINE.readMouse
+            );
+            console.log(`%cWebGL.MOUSE -> window ${WebGL.DATA.window}, layer: ${WebGL.DATA.layer}`, WebGL.CSS);
+        },
+        click() {
+            if (ENGINE.mouseOverId(WebGL.DATA.window)) {
+                if (ENGINE.mouseClickId(WebGL.DATA.window)) {
+                    const gl = WebGL.CTX;
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, WebGL.frameBuffer);
+                    const pixelX = ENGINE.mouseX;
+                    const pixelY = gl.canvas.height - ENGINE.mouseY - 1;
+                    const data = new Uint8Array(4);
+                    gl.readPixels(pixelX, pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data);
+                    const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
+                    if (id > 0) {
+                        console.log("id", id);
+                    }
+                }
+            }
+
         }
     }
 };
@@ -499,6 +628,8 @@ const WORLD = {
                 case MAPDICT.WALL:
                     //add cube Y
                     this.addCube(Y, grid, "wall");
+                    break;
+                case MAPDICT.WALL + MAPDICT.DOOR + MAPDICT.RESERVED:
                     break;
                 default:
                     console.error("world building GA value error", value);

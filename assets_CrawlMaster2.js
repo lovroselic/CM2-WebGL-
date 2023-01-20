@@ -48,7 +48,7 @@ LoadAudio = [
     { srcName: "Scream.mp3", name: "Scream" },
 ];
 LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
-LoadShaders = ['vShader.glsl', 'fShader.glsl'];
+LoadShaders = ['vShader.glsl', 'fShader.glsl', 'pick_vShader.glsl', 'pick_fShader.glsl'];
 
 LoadSprites = [
     { srcName: "WallLamp256.png", name: "WallLamp" },
@@ -170,7 +170,6 @@ LoadSprites = [
     { srcName: "Invaders.png", name: "Invaders" },
     { srcName: "Pitfall.png", name: "Pitfall" },
     { srcName: "Aztec.png", name: "Aztec" },
-    { srcName: "Pitfall2.png", name: "Pitfall2" },
     { srcName: "Pitfall3.png", name: "Pitfall3" },
     { srcName: "DK.png", name: "DK" },
     { srcName: "PAC2.png", name: "PAC2" },
@@ -190,7 +189,6 @@ LoadSprites = [
     { srcName: "BC1.png", name: "BC1" },
     { srcName: "Jupiter_Lander.png", name: "Jupiter_Lander" },
     { srcName: "CrystalCastles.png", name: "CrystalCastles" },
-    { srcName: "SVS11.png", name: "SVS11" },
     { srcName: "SVS10.png", name: "SVS10" },
     { srcName: "ZimSalaBim.png", name: "ZimSalaBim" },
     { srcName: "Barbarian1.png", name: "Barbarian1" },
@@ -412,7 +410,6 @@ LoadSprites = [
     { srcName: "Galaxians10.png", name: "Galaxians10" },
     { srcName: "BC10.png", name: "BC10" },
     { srcName: "ActecChallenge2.png", name: "ActecChallenge2" },
-
     { srcName: "AlleyKat.png", name: "AlleyKat" },
     { srcName: "BeachHead100.png", name: "BeachHead100" },
     { srcName: "Blackwyche2.png", name: "Blackwyche2" },
@@ -425,4 +422,22 @@ LoadSprites = [
     { srcName: "PQ3.png", name: "PQ3" },
     { srcName: "Pitfall2-100.png", name: "Pitfall2-100" },
     { srcName: "SVS103.png", name: "SVS103" },
+    { srcName: "Amiga.png", name: "Amiga" },
+    { srcName: "Apshai10.png", name: "Apshai10" },
+    { srcName: "BC103.png", name: "BC103" },
+    { srcName: "Barbarian3.png", name: "Barbarian3" },
+    { srcName: "BattleChopper.png", name: "BattleChopper" },
+    { srcName: "Belwothe.png", name: "Belwothe" },
+    { srcName: "BladeRunner.png", name: "BladeRunner" },
+    { srcName: "BlueMax20.png", name: "BlueMax20" },
+    { srcName: "BrideOfFrankenstein.png", name: "BrideOfFrankenstein" },
+    { srcName: "Goonies5.png", name: "Goonies5" },
+    { srcName: "Hero103.png", name: "Hero103" },
+    { srcName: "LSL100.png", name: "LSL100" },
+    { srcName: "LaraCroft21.png", name: "LaraCroft21" },
+    { srcName: "MoonZX.png", name: "MoonZX" },
+    { srcName: "OlympicSkier.png", name: "OlympicSkier" },
+    { srcName: "Pitfall23.png", name: "Pitfall23" },
+    { srcName: "Prince4.png", name: "Prince4" },
+    { srcName: "PurpleHeart.png", name: "PurpleHeart" },
 ];
