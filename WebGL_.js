@@ -34,7 +34,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.11.7",
+    VERSION: "0.11.8",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -46,6 +46,7 @@ const WebGL = {
         LIGHT_TOP: 0.1,
         DEFAULT_RESOLUTION: 256,
         MIN_RESOLUTION: 128,
+        INTERACT_DISTANCE: 1.3,
     },
     program: null,
     pickProgram: null,
@@ -366,7 +367,7 @@ const WebGL = {
                 gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, (this.world.offset.door_start + ((door.id - 1) * 36)) * 2);
 
                 // to texture 
-                let id = GATE3D.globalId(door.id); 
+                let id = GATE3D.globalId(door.id);
                 let id_vec = this.idToVec(id);
 
                 gl.useProgram(this.pickProgram.program);
@@ -413,7 +414,20 @@ const WebGL = {
                         console.log("id", id);
                         const obj = GLOBAL_ID_MANAGER.getObject(id);
                         console.log("obj", obj);
-                        obj.interact();
+                        //if less than distance
+                        let objGrid = Grid.toCenter(obj.grid);
+                        let PPos2d = Vector3.to_FP_Grid(HERO.player.pos);
+                        let distance = PPos2d.EuclidianDistance(objGrid);
+
+                        console.log("objGrid", objGrid, "pos", PPos2d, "distance", distance);
+                        if (distance < WebGL.INI.INTERACT_DISTANCE) {
+                            //door is not yet open
+
+                            //WTF missing faces - need to remove vertices???
+                            obj.interact(HERO.player.GA);
+                        }
+
+
                     }
                 }
             }
@@ -935,9 +949,10 @@ class Gate {
         this.IAM = IAM;
         this.interactive = true;
     }
-    interact(){
-        console.log("interacting");
+    interact(GA) {
+        console.log("interacting, GA", GA);
         this.IAM.remove(this.id);
+        GA.openDoor(this.grid);
     }
 }
 
