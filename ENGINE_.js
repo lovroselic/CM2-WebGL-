@@ -1859,8 +1859,6 @@ const ENGINE = {
           }
         }
       }
-      if (ENGINE.verbose)
-        console.log(`%cBLOCKGRID draw ${performance.now() - t0} ms`, ENGINE.CSS);
     },
     wall(x, y, CTX, value) {
       let FS;

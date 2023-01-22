@@ -42,7 +42,7 @@ void main(void) {
 
 vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal){
     //ambient
-    float ambientStrength = 0.20;
+    float ambientStrength = 0.15;
     vec3 ambientLightColor = vec3(1, 1, 0.9);
     vec3 ambientLight = ambientStrength * ambientLightColor;
 

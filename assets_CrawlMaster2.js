@@ -46,6 +46,7 @@ LoadTextures = [
 LoadAudio = [
     { srcName: "UseScroll.mp3", name: "PickBox" },
     { srcName: "Scream.mp3", name: "Scream" },
+    { srcName: "OpenGate.mp3", name: "OpenGate" },
 ];
 LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
 LoadShaders = ['vShader.glsl', 'fShader.glsl', 'pick_vShader.glsl', 'pick_fShader.glsl'];
@@ -200,7 +201,6 @@ LoadSprites = [
     { srcName: "MrRobot.png", name: "MrRobot" },
     { srcName: "Impossible_Mission4.png", name: "Impossible_Mission4" },
     { srcName: "Drelbs.png", name: "Drelbs" },
-    { srcName: "FalconPatrol2.png", name: "FalconPatrol2" },
     { srcName: "Wolf1.png", name: "Wolf1" },
     { srcName: "Wolf2.png", name: "Wolf2" },
     { srcName: "Zaxxon.png", name: "Zaxxon" },
@@ -440,4 +440,18 @@ LoadSprites = [
     { srcName: "Pitfall23.png", name: "Pitfall23" },
     { srcName: "Prince4.png", name: "Prince4" },
     { srcName: "PurpleHeart.png", name: "PurpleHeart" },
+
+    { srcName: "AntAttack2.png", name: "AntAttack2" },
+    { srcName: "BeachHeadReplace.png", name: "BeachHeadReplace" },
+    { srcName: "Cavelon13.png", name: "Cavelon13" },
+    { srcName: "Cavelon4.png", name: "Cavelon4" },
+    { srcName: "CongoBongo2.png", name: "CongoBongo2" },
+    { srcName: "FalconPatrol7.png", name: "FalconPatrol7" },
+    { srcName: "Fred21.png", name: "Fred21" },
+    { srcName: "Frogger2.png", name: "Frogger2" },
+    { srcName: "LSL31.png", name: "LSL31" },
+    { srcName: "LaraCroft123.png", name: "LaraCroft123" },
+    { srcName: "RobinToTheRescue1.png", name: "RobinToTheRescue1" },
+    { srcName: "Ski64.png", name: "Ski64" },
+    { srcName: "SpaceQuest10.png", name: "SpaceQuest10" },
 ];

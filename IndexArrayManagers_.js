@@ -328,6 +328,13 @@ class Decal3D extends IAM {
             return id + this.id_offset;
         }
     }
+    manage(lapsedTime) {
+        for (const item of this.POOL) {
+            if (item) {
+                item.manage(lapsedTime);
+            }
+        }
+    }
 }
 
 class Decal_IA extends IAM {
@@ -554,21 +561,22 @@ const GLOBAL_ID_MANAGER = {
 };
 
 /**  IAM INSTANCES */
-var DECOR = new Decor();
-var PROFILE_BALLISTIC = new Profile_Ballistic();
-var PROFILE_ACTORS = new Profile_Actors();
-var ENEMY_TG = new Enemy_TG();
-var ENEMY_RC = new Enemy_RC();
-var VANISHING = new Vanishing();
-var FLOOR_OBJECT = new Floor_Object();
-var FLOOR_OBJECT_WIDE = new Floor_Object(4, 4);
-var DESTRUCTION_ANIMATION = new Destruction_Animation();
-var CHANGING_ANIMATION = new Changing_Animation();
-var MISSILE = new Missile_RC();
-var DECAL = new Decal_IA();
-var DECAL3D = new Decal3D();
-var LIGHTS3D = new Decal3D();
-var GATE3D = new Decal3D(100);
+const DECOR = new Decor();
+const PROFILE_BALLISTIC = new Profile_Ballistic();
+const PROFILE_ACTORS = new Profile_Actors();
+const ENEMY_TG = new Enemy_TG();
+const ENEMY_RC = new Enemy_RC();
+const VANISHING = new Vanishing();
+const FLOOR_OBJECT = new Floor_Object();
+const FLOOR_OBJECT_WIDE = new Floor_Object(4, 4);
+const DESTRUCTION_ANIMATION = new Destruction_Animation();
+const CHANGING_ANIMATION = new Changing_Animation();
+const MISSILE = new Missile_RC();
+const DECAL = new Decal_IA();
+const DECAL3D = new Decal3D();
+const LIGHTS3D = new Decal3D();
+const VANISHING3D = new Decal3D();
+const GATE3D = new Decal3D(100);
 /** *********************************************** */
 
 console.log(`%cIndexArrayManagers (IAM) ${IndexArrayManagers.VERSION} ready.`, "color: #7FFFD4");

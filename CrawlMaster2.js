@@ -26,7 +26,7 @@ var INI = {
 
 };
 var PRG = {
-    VERSION: "0.04.09",
+    VERSION: "0.04.10",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -206,6 +206,7 @@ var GAME = {
     run(lapsedTime) {
         if (ENGINE.GAME.stopAnimation) return;
         GAME.respond(lapsedTime);
+        VANISHING3D.manage(lapsedTime);
 
         //HERO.manage();
         let checkMouse = WebGL.MOUSE.click();
@@ -232,6 +233,9 @@ var GAME = {
 
         if (DEBUG.FPS) {
             GAME.FPS(lapsedTime);
+        }
+        if (DEBUG._2D_display) {
+            ENGINE.BLOCKGRID.draw(MAP[GAME.level].map);
         }
     },
 

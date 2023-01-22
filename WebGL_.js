@@ -36,7 +36,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.11.9",
+    VERSION: "0.12.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -69,7 +69,11 @@ const WebGL = {
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
         if (this.CTX === null) console.error("Unable to initialize WebGL. Your browser or machine may not support it.");
     },
-    init(layer, world, textureData, camera, vsSource = SHADER.vShader, fsSource = SHADER.fShader, pick_vSource = SHADER.pick_vShader, pick_fSource = SHADER.pick_fShader) {
+    init(layer, world, textureData, camera,
+        vsSource = SHADER.vShader,
+        fsSource = SHADER.fShader,
+        pick_vSource = SHADER.pick_vShader,
+        pick_fSource = SHADER.pick_fShader) {
         this.world = world;
         this.setContext(layer);
         const gl = this.CTX;
@@ -93,11 +97,13 @@ const WebGL = {
         DECAL3D.init(map);
         LIGHTS3D.init(map);
         GATE3D.init(map);
+        VANISHING3D.init(map);
 
         if (this.VERBOSE) {
             console.log("DECAL3D", DECAL3D);
             console.log("LIGHTS3D", LIGHTS3D);
             console.log("GATE3D", GATE3D);
+            console.log("VANISHING3D", VANISHING3D);
         }
     },
     setCamera(camera) {
@@ -392,9 +398,9 @@ const WebGL = {
     hideCube(id, type) {
         let offset = (this.world.positionOffset[`${type}_start`] + ((id - 1) * 72)) * 4;
         let data = ELEMENT.CUBE.hidden;
-        return this.hideVertices(offset, data);
+        return this.updateVertices(offset, data);
     },
-    hideVertices(offset, data) {
+    updateVertices(offset, data) {
         const gl = this.CTX;
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.position);
         gl.bufferSubData(gl.ARRAY_BUFFER, offset, data);
@@ -430,6 +436,7 @@ const WebGL = {
                     const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
                     if (id > 0) {
                         const obj = GLOBAL_ID_MANAGER.getObject(id);
+                        if (!obj) return;
                         if (!obj.interactive) return;
                         console.log("obj", obj);
                         let PPos2d = Vector3.to_FP_Grid(HERO.player.pos);
@@ -668,7 +675,9 @@ const WORLD = {
 
         /** build gates */
         for (const door of GATE3D.POOL) {
+            let door_vertice_offset = this.door.positions.length;
             this.addCube(Y, door.grid, "door");
+            door.vertice_data = this.door.positions.slice(door_vertice_offset, door_vertice_offset + 72);
         }
         /** gates end */
 
@@ -975,11 +984,46 @@ class Gate {
     hide() {
         WebGL.hideCube(this.id, "door");
     }
+    lift() {
+        let gate = new LiftingGate(this, this.grid, this.texture, this.name, this.vertice_data, VANISHING3D);
+        VANISHING3D.add(gate);
+    }
     interact(GA) {
-        console.log("interacting, GA", GA);
         this.interactive = false;
-        this.IAM.remove(this.id);
+        this.lift();
         GA.openDoor(this.grid);
+        AUDIO.OpenGate.play();
+    }
+}
+class LiftingGate {
+    constructor(gate, grid, texture, name, data, IAM) {
+        this.gate = gate;
+        this.grid = grid;
+        this.texture = texture;
+        this.name = name;
+        this.vertice_data = new Float32Array(data);
+        this.IAM = IAM;
+    }
+    manage(lapsedTime) {
+        const DOOR_LIFTING_SPEED = 0.60;
+        const dY = DOOR_LIFTING_SPEED * lapsedTime / 1000;
+        this.lift(dY);
+        let offset = (WebGL.world.positionOffset.door_start + ((this.gate.id - 1) * 72)) * 4;
+        WebGL.updateVertices(offset, this.vertice_data);
+        if (this.done()) this.remove();
+    }
+    lift(dY) {
+        for (let i = 0; i < this.vertice_data.length; i += 3) {
+            this.vertice_data[i + 1] += dY;
+        }
+    }
+    done() {
+        return this.vertice_data[1] > 1.0;
+    }
+    remove() {
+        //this.gate.hide();
+        this.gate.IAM.remove(this.gate.id);
+        this.IAM.remove(this.id);
     }
 }
 
