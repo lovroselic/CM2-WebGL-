@@ -31,10 +31,12 @@
  * https://webglfundamentals.org/webgl/lessons/webgl-render-to-texture.html
  * https://webglfundamentals.org/webgl/lessons/webgl-picking.html
  * http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
+ * 
+ * https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData
  */
 
 const WebGL = {
-    VERSION: "0.11.8",
+    VERSION: "0.11.9",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -144,18 +146,22 @@ const WebGL = {
         const positionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.positions), gl.STATIC_DRAW);
+        //gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.positions), gl.DYNAMIC_DRAW);
 
         const indexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(world.indices), gl.STATIC_DRAW);
+        //gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(world.indices), gl.DYNAMIC_DRAW);
 
         const textureCoordBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.textureCoordinates), gl.STATIC_DRAW);
+        //gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.textureCoordinates), gl.DYNAMIC_DRAW);
 
         const normalBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.vertexNormals), gl.STATIC_DRAW);
+        //gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.vertexNormals), gl.DYNAMIC_DRAW);
 
         this.buffer = {
             position: positionBuffer,
@@ -281,14 +287,12 @@ const WebGL = {
         gl.uniformMatrix4fv(this.program.uniformLocations.modelViewMatrix, false, viewMatrix);
         gl.uniform3fv(this.program.uniformLocations.cameraPos, this.camera.pos.array);
 
-
         //light uniforms
         let lights = [];
         for (let L = 0; L < LIGHTS3D.POOL.length; L++) {
             lights = [...lights, ...LIGHTS3D.POOL[L].position.array];
         }
         gl.uniform3fv(this.program.uniformLocations.lights, new Float32Array(lights));
-
 
         //and pickProgram
         gl.useProgram(this.pickProgram.program);
@@ -333,7 +337,6 @@ const WebGL = {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.position);
         gl.vertexAttribPointer(this.pickProgram.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(this.pickProgram.attribLocations.vertexPosition);
-
 
         //start draw
         gl.useProgram(this.program.program);
@@ -384,6 +387,21 @@ const WebGL = {
     idToVec(id) {
         return [((id >> 0) & 0xFF) / 0xFF, ((id >> 8) & 0xFF) / 0xFF, ((id >> 16) & 0xFF) / 0xFF, ((id >> 24) & 0xFF) / 0xFF];
     },
+
+    /** buffer manipulation */
+    hideCube(id, type) {
+        let offset = (this.world.positionOffset[`${type}_start`] + ((id - 1) * 72)) * 4;
+        let data = ELEMENT.CUBE.hidden;
+        return this.hideVertices(offset, data);
+    },
+    hideVertices(offset, data) {
+        const gl = this.CTX;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.position);
+        gl.bufferSubData(gl.ARRAY_BUFFER, offset, data);
+    },
+
+    /** end buffer manipulation */
+
     DATA: {
         window: null,
         layer: null,
@@ -411,27 +429,18 @@ const WebGL = {
                     gl.readPixels(pixelX, pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data);
                     const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
                     if (id > 0) {
-                        console.log("id", id);
                         const obj = GLOBAL_ID_MANAGER.getObject(id);
+                        if (!obj.interactive) return;
                         console.log("obj", obj);
-                        //if less than distance
-                        let objGrid = Grid.toCenter(obj.grid);
                         let PPos2d = Vector3.to_FP_Grid(HERO.player.pos);
-                        let distance = PPos2d.EuclidianDistance(objGrid);
-
-                        console.log("objGrid", objGrid, "pos", PPos2d, "distance", distance);
+                        let distance = PPos2d.EuclidianDistance(Grid.toCenter(obj.grid));
+                        console.log("distance", distance);
                         if (distance < WebGL.INI.INTERACT_DISTANCE) {
-                            //door is not yet open
-
-                            //WTF missing faces - need to remove vertices???
                             obj.interact(HERO.player.GA);
                         }
-
-
                     }
                 }
             }
-
         }
     }
 };
@@ -637,16 +646,12 @@ const WORLD = {
             let grid = GA.indexToGrid(index);
             switch (value) {
                 case MAPDICT.EMPTY:
-                    //add cube Y-1, Y+1
+                case MAPDICT.WALL + MAPDICT.DOOR + MAPDICT.RESERVED:
                     this.addCube(Y - 1, grid, "floor");
                     this.addCube(Y + 1, grid, "ceil");
-
                     break;
                 case MAPDICT.WALL:
-                    //add cube Y
                     this.addCube(Y, grid, "wall");
-                    break;
-                case MAPDICT.WALL + MAPDICT.DOOR + MAPDICT.RESERVED:
                     break;
                 default:
                     console.error("world building GA value error", value);
@@ -726,20 +731,38 @@ const WORLD = {
             door_count: this.door.indices.length,
         };
 
+        const positionOffset = {
+            wall_start: 0,
+            wall_count: this.wall.positions.length,
+            floor_start: this.wall.positions.length,
+            floor_count: this.floor.positions.length,
+            ceil_start: this.wall.positions.length + this.floor.positions.length,
+            ceil_count: this.ceil.positions.length,
+            decal_start: this.wall.positions.length + this.floor.positions.length + this.ceil.positions.length,
+            decal_count: this.decal.positions.length,
+            door_start:
+                this.wall.positions.length +
+                this.floor.positions.length +
+                this.ceil.positions.length +
+                this.decal.positions.length,
+            door_count: this.door.positions.length,
+        };
+
         console.timeEnd("WorldBuilding");
-        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals, offset);
+        return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals, offset, positionOffset);
     },
 };
 
 /** Classes */
 
 class World {
-    constructor(positions, indices, textureCoordinates, vertexNormals, offset) {
+    constructor(positions, indices, textureCoordinates, vertexNormals, offset, positionOffset) {
         this.positions = positions;
         this.indices = indices;
         this.textureCoordinates = textureCoordinates;
         this.vertexNormals = vertexNormals;
         this.offset = offset;
+        this.positionOffset = positionOffset;
     }
 }
 
@@ -949,8 +972,12 @@ class Gate {
         this.IAM = IAM;
         this.interactive = true;
     }
+    hide() {
+        WebGL.hideCube(this.id, "door");
+    }
     interact(GA) {
         console.log("interacting, GA", GA);
+        this.interactive = false;
         this.IAM.remove(this.id);
         GA.openDoor(this.grid);
     }
@@ -1062,7 +1089,9 @@ const ELEMENT = {
             1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
             // Left
             -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
-        ]
+        ],
+        //hidden: new Float32Array(72).fill(-10.0),
+        hidden: new Float32Array(72),
     }
 };
 
