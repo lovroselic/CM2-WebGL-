@@ -36,7 +36,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.12.0",
+    VERSION: "0.12.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -678,6 +678,14 @@ const WORLD = {
             let door_vertice_offset = this.door.positions.length;
             this.addCube(Y, door.grid, "door");
             door.vertice_data = this.door.positions.slice(door_vertice_offset, door_vertice_offset + 72);
+
+            //smudge bottom
+            let door_texture_offset = this.door.textureCoordinates.length - 48 + 24;
+            for (let i = 0; i < 8; i++) {
+                if (this.door.textureCoordinates[door_texture_offset + i] === 1.0) {
+                    this.door.textureCoordinates[door_texture_offset + i] = 0.1;
+                }
+            }
         }
         /** gates end */
 
