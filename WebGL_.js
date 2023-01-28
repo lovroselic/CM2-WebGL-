@@ -33,10 +33,17 @@
  * http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
  * 
  * https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData
+ * 
+ * https://learnopengl.com/Model-Loading/Assimp
+ * https://webglfundamentals.org/webgl/lessons/webgl-load-obj.html
+ * http://paulbourke.net/dataformats/obj/
+ * https://en.wikipedia.org/wiki/Wavefront_.obj_file
+ * http://learnwebgl.brown37.net/rendering/obj_to_buffers.html
+ * http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
  */
 
 const WebGL = {
-    VERSION: "0.12.1",
+    VERSION: "0.13.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -63,7 +70,7 @@ const WebGL = {
     depthBuffer: null,
     frameBuffer: null,
     staticDecalList: [DECAL3D, LIGHTS3D],
-    dynamicDecalList: [GATE3D],
+    dynamicDecalList: [GATE3D, ITEM3D],
     setContext(layer) {
         this.CTX = LAYER[layer];
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
@@ -98,12 +105,14 @@ const WebGL = {
         LIGHTS3D.init(map);
         GATE3D.init(map);
         VANISHING3D.init(map);
+        ITEM3D.init(map);
 
         if (this.VERBOSE) {
             console.log("DECAL3D", DECAL3D);
             console.log("LIGHTS3D", LIGHTS3D);
             console.log("GATE3D", GATE3D);
             console.log("VANISHING3D", VANISHING3D);
+            console.log("ITEM3D", ITEM3D);
         }
     },
     setCamera(camera) {
@@ -389,6 +398,32 @@ const WebGL = {
                 gl.bindFramebuffer(gl.FRAMEBUFFER, null); //
             }
         }
+
+        //items
+        let current_item_index_offset = 0;
+        for (const item of ITEM3D.POOL) {
+            if (item) {
+                gl.bindTexture(gl.TEXTURE_2D, item.texture);
+                gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, 2 * this.world.offset.item_start + current_item_index_offset);
+
+
+                // to texture 
+                let id = ITEM3D.globalId(item.id);
+                let id_vec = this.idToVec(id);
+                //let id_vec = [255, 255, 255, 253];
+
+                gl.useProgram(this.pickProgram.program);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
+                gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
+                gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, 2 * this.world.offset.item_start + current_item_index_offset);
+
+                //back to canvas
+                gl.useProgram(this.program.program);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+                current_item_index_offset += item.byte_length;
+            }
+        }
     },
     idToVec(id) {
         return [((id >> 0) & 0xFF) / 0xFF, ((id >> 8) & 0xFF) / 0xFF, ((id >> 16) & 0xFF) / 0xFF, ((id >> 24) & 0xFF) / 0xFF];
@@ -453,48 +488,18 @@ const WebGL = {
 };
 
 const WORLD = {
+    bufferTypes: ["positions", 'indices', "textureCoordinates", "vertexNormals"],
+    objectTypes: ["wall", "floor", "ceil", "decal", "door", "item"],
     init() {
-        this.positions = [];
-        this.indices = [];
-        this.textureCoordinates = [];
-        this.vertexNormals = [];
-
-        this.totalIndexCount = 0;
-
-        this.wall = {
-            positions: [],
-            indices: [],
-            textureCoordinates: [],
-            vertexNormals: [],
-        };
-
-        this.floor = {
-            positions: [],
-            indices: [],
-            textureCoordinates: [],
-            vertexNormals: [],
-        };
-
-        this.ceil = {
-            positions: [],
-            indices: [],
-            textureCoordinates: [],
-            vertexNormals: [],
-        };
-
-        this.door = {
-            positions: [],
-            indices: [],
-            textureCoordinates: [],
-            vertexNormals: [],
-        };
-
-        this.decal = {
-            positions: [],
-            indices: [],
-            textureCoordinates: [],
-            vertexNormals: [],
-        };
+        for (let BT of this.bufferTypes) {
+            this[BT] = [];
+        }
+        for (let OT of this.objectTypes) {
+            this[OT] = {};
+            for (let BT of this.bufferTypes) {
+                this[OT][BT] = [];
+            }
+        }
     },
     getBoundaries(cat, W, H, resolution) {
         const R = W / H;
@@ -622,7 +627,7 @@ const WORLD = {
     addCube(Y, grid, type) {
         return this.addElement(ELEMENT.CUBE, Y, grid, type);
     },
-    addElement(E, Y, grid, type) {
+    addElement(E, Y, grid, type, scale = null) {
         let positions = [...E.positions];
         let indices = [...E.indices];
         let textureCoordinates = [...E.textureCoordinates];
@@ -630,6 +635,11 @@ const WORLD = {
 
         //positions
         for (let p = 0; p < positions.length; p += 3) {
+            if (scale) {
+                positions[p] *= scale[0];
+                positions[p + 1] *= scale[1];
+                positions[p + 2] *= scale[2];
+            }
             positions[p] += grid.x;
             positions[p + 1] += Y;
             positions[p + 2] += grid.y;
@@ -689,85 +699,49 @@ const WORLD = {
         }
         /** gates end */
 
-        //update index offsets
+        /** items */
+        for (const item of ITEM3D.POOL) {
+            console.log("item", item.name, ITEM3D.globalId(item.id), item);
+            //addElement(E, Y, grid, type, scale = null)
+            this.addElement(item.element, item.Y, item.grid, 'item', item.scale);
+        }
 
-        this.floor.indices = this.floor.indices.map(e => e + this.wall.positions.length / 3);
-        this.ceil.indices = this.ceil.indices.map(e => e + (this.wall.positions.length + this.floor.positions.length) / 3);
-        this.decal.indices = this.decal.indices.map(e => e + (this.wall.positions.length + this.floor.positions.length + this.ceil.positions.length) / 3);
-        this.door.indices = this.door.indices.map(e => e + (
-            this.wall.positions.length +
-            this.floor.positions.length +
-            this.ceil.positions.length +
-            this.decal.positions.length
-        ) / 3);
+        /** items end */
 
-        //
-        this.positions = [
-            ...this.wall.positions,
-            ...this.floor.positions,
-            ...this.ceil.positions,
-            ...this.decal.positions,
-            ...this.door.positions
-        ];
-        this.indices = [
-            ...this.wall.indices,
-            ...this.floor.indices,
-            ...this.ceil.indices,
-            ...this.decal.indices,
-            ...this.door.indices
-        ];
-        this.textureCoordinates = [
-            ...this.wall.textureCoordinates,
-            ...this.floor.textureCoordinates,
-            ...this.ceil.textureCoordinates,
-            ...this.decal.textureCoordinates,
-            ...this.door.textureCoordinates
-        ];
-        this.vertexNormals = [
-            ...this.wall.vertexNormals,
-            ...this.floor.vertexNormals,
-            ...this.ceil.vertexNormals,
-            ...this.decal.vertexNormals,
-            ...this.door.vertexNormals
-        ];
+        /** map indices */
+        {
+            let L = 0;
+            for (let type of this.objectTypes) {
+                this[type].indices = this[type].indices.map(e => e + L);
+                L += this[type].positions.length / 3;
+            }
+        }
 
-        const offset = {
-            wall_start: 0,
-            wall_count: this.wall.indices.length,
-            floor_start: this.wall.indices.length,
-            floor_count: this.floor.indices.length,
-            ceil_start: this.wall.indices.length + this.floor.indices.length,
-            ceil_count: this.ceil.indices.length,
-            decal_start: this.wall.indices.length + this.floor.indices.length + this.ceil.indices.length,
-            decal_count: this.decal.indices.length,
-            door_start:
-                this.wall.indices.length +
-                this.floor.indices.length +
-                this.ceil.indices.length +
-                this.decal.indices.length,
-            door_count: this.door.indices.length,
-        };
+        /** globalize */
+        for (let BT of this.bufferTypes) {
+            this[BT] = [];
+            for (let OT of this.objectTypes) {
+                this[BT] = this[BT].concat(this[OT][BT]);
+            }
+        }
 
-        const positionOffset = {
-            wall_start: 0,
-            wall_count: this.wall.positions.length,
-            floor_start: this.wall.positions.length,
-            floor_count: this.floor.positions.length,
-            ceil_start: this.wall.positions.length + this.floor.positions.length,
-            ceil_count: this.ceil.positions.length,
-            decal_start: this.wall.positions.length + this.floor.positions.length + this.ceil.positions.length,
-            decal_count: this.decal.positions.length,
-            door_start:
-                this.wall.positions.length +
-                this.floor.positions.length +
-                this.ceil.positions.length +
-                this.decal.positions.length,
-            door_count: this.door.positions.length,
-        };
+        const offset = this.create_offset('indices');
+        const positionOffset = this.create_offset('positions');
 
         console.timeEnd("WorldBuilding");
         return new World(this.positions, this.indices, this.textureCoordinates, this.vertexNormals, offset, positionOffset);
     },
+    create_offset(BT) {
+        let offset = {};
+        let L = 0;
+        for (let OT of this.objectTypes) {
+            offset[`${OT}_count`] = this[OT][BT].length;
+            offset[`${OT}_start`] = L;
+            L += this[OT][BT].length;
+        }
+
+        return offset;
+    }
 };
 
 /** Classes */
@@ -1034,6 +1008,24 @@ class LiftingGate {
         this.IAM.remove(this.id);
     }
 }
+class FloorItem3D {
+    constructor(name, element, transpose, scale, texture, IAM) {
+        this.name = name;
+        this.element = element;
+        this.transpose = transpose;
+        this.scale = scale;
+        this.byte_length = this.element.indices.length * 2;
+        this.indices = this.element.indices.length;
+        this.texture = texture;
+        this.interactive = true;
+        this.grid = new FP_Grid(transpose[0], transpose[2]);
+        this.Y = transpose[1];
+        this.IAM = IAM;
+    }
+    interact(GA) {
+        console.log(this, "interaction");
+    }
+}
 
 
 /** Utility functions */
@@ -1067,6 +1059,15 @@ const FaceToOffset = function (face, E = 0) {
 /** Elements */
 
 const ELEMENT = {
+    getMinY(element) {
+        let max = Infinity;
+        for (let i = 0; i < element.positions.length; i += 3) {
+            if (element.positions[i + 1] < max) {
+                max = element.positions[i + 1];
+            }
+        }
+        return max;
+    },
     FRONT_FACE: {
         positions: [0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0,],
         indices: [0, 1, 2, 0, 2, 3],
@@ -1144,7 +1145,66 @@ const ELEMENT = {
         ],
         //hidden: new Float32Array(72).fill(-10.0),
         hidden: new Float32Array(72),
-    }
+    },
+    CUBE_CENTERED: {
+        positions: [
+            // Front face
+            -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
+
+            // Back face
+            -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0,
+
+            // Top face
+            -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0,
+
+            // Bottom face
+            -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
+
+            // Right face
+            1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,
+
+            // Left face
+            -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0,
+        ],
+        indices: [
+            0, 1, 2, 0, 2, 3, // front
+            4, 5, 6, 4, 6, 7, // back
+            8, 9, 10, 8, 10, 11, // top
+            12, 13, 14, 12, 14, 15, // bottom
+            16, 17, 18, 16, 18, 19, // right
+            20, 21, 22, 20, 22, 23, // left
+        ],
+        textureCoordinates: [
+            // Front
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            // Back
+            0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,
+            // Top
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            // Bottom
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            // Right
+            0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,
+            // Left
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+        ],
+        vertexNormals: [
+            // Front
+            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+            // Back
+            0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,
+            // Top
+            0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+            // Bottom
+            0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,
+            // Right
+            1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+            // Left
+            -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
+        ],
+    },
+    hidden: new Float32Array(72),
+    //hidden: new Float32Array(72).fill(-10.0),
 };
 
 //END

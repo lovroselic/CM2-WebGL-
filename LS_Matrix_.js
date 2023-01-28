@@ -23,6 +23,18 @@ class Vector3 {
         this.array = glMatrix.vec3.fromValues(x, y, z);
         this.refresh();
     }
+    static from_array(arr) {
+        return new Vector3(arr[0], arr[1], arr[2]);
+    }
+    static from_2D_dir(dir, y = 0) {
+        return new Vector3(dir.x, y, dir.y);
+    }
+    static to_FP_Grid(v) {
+        return new FP_Grid(v.x, v.z);
+    }
+    static to_FP_Vector(v) {
+        return new FP_Vector(v.x, v.z);
+    }
     refresh() {
         this.x = this.array[0];
         this.y = this.array[1];
@@ -31,29 +43,20 @@ class Vector3 {
     toArray() {
         this.array = new Float32Array([this.x, this.y, this.z]);
     }
-    clone(){
+    clone() {
         return new Vector3(this.x, this.y, this.z);
     }
-    set_x(x){
+    set_x(x) {
         this.x = x;
         this.toArray();
     }
-    set_y(y){
+    set_y(y) {
         this.y = y;
         this.toArray();
     }
-    set_z(z){
-        this.y = y;
+    set_z(z) {
+        this.z = z;
         this.toArray();
-    }
-    static from_2D_dir(dir, y = 0) {
-        return new Vector3(dir.x, y, dir.y); //
-    }
-    static to_FP_Grid(v) {
-        return new FP_Grid(v.x, v.z);
-    }
-    static to_FP_Vector(v) {
-        return new FP_Vector(v.x, v.z);
     }
     toPoint() {
         let grid = new FP_Grid(this.x, this.z);
@@ -73,6 +76,12 @@ class Vector3 {
         let x = this.x + length * vector.x || 0;
         let y = this.y + length * vector.y || 0;
         let z = this.z + length * vector.z || 0;
+        return new Vector3(x, y, z);
+    }
+    add(vector) {
+        let x = this.x + vector.x;
+        let y = this.y + vector.y;
+        let z = this.z + vector.z;
         return new Vector3(x, y, z);
     }
 }

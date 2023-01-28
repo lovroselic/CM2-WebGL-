@@ -327,6 +327,7 @@ class Decal3D extends IAM {
         if (this.id_offset != null) {
             return id + this.id_offset;
         }
+        return null;
     }
     manage(lapsedTime) {
         for (const item of this.POOL) {
@@ -548,12 +549,14 @@ const GLOBAL_ID_MANAGER = {
     offset: [0],
     IAM: [],
     getObject(globalId) {
+        console.log("getObject", this.offset, this.IAM);
+        console.log("globalId", globalId);
         if (this.offset.length < 2) return null;
         let idx = 1;
-        while (idx < this.offset.length && globalId < this.offset[idx]) {
+        while (idx < this.offset.length && globalId >= this.offset[idx]) {
             idx++;
         }
-        idx -= 2;
+        idx--;
         let id = globalId - this.offset[idx];
         console.log("..id", id, "idx", idx);
         return this.IAM[idx].POOL[id - 1];
@@ -577,6 +580,7 @@ const DECAL3D = new Decal3D();
 const LIGHTS3D = new Decal3D();
 const VANISHING3D = new Decal3D();
 const GATE3D = new Decal3D(100);
+const ITEM3D = new Decal3D(1000);
 /** *********************************************** */
 
 console.log(`%cIndexArrayManagers (IAM) ${IndexArrayManagers.VERSION} ready.`, "color: #7FFFD4");
