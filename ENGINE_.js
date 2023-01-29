@@ -32,6 +32,7 @@ var LoadFonts = null;
 var LoadRotatedSheetSequences = null;
 var LoadSheetSequences = null;
 var LoadShaders = null;
+var LoadObjects = null;
 
 //vector definitions
 const UP = new Vector(0, -1);
@@ -45,7 +46,7 @@ const DownRight = new Vector(1, 1);
 const DownLeft = new Vector(-1, 1);
 
 const ENGINE = {
-  VERSION: "3.15",
+  VERSION: "3.16",
   CSS: "color: #0FA",
   INI: {
     ANIMATION_INTERVAL: 16,
@@ -79,6 +80,7 @@ const ENGINE = {
   AUDIO_SOURCE: "https://www.c00lsch00l.eu/Mp3/",
   FONT_SOURCE: "https://www.c00lsch00l.eu/Fonts/",
   SHADER_SOURCE: "./Assets/",
+  OBJECT_SOURCE: "./Objects/",
   checkProximity: true, //check proximity before pixel perfect evaluation of collision to background
   LOAD_W: 160,
   LOAD_H: 22,
@@ -841,6 +843,79 @@ const ENGINE = {
   spriteToAsset(obj) {
     ASSET[obj.asset].linear.push(SPRITE[obj.name]);
   },
+  parseObjectFile(text) {
+    if (!ELEMENT) console.error("no ELEMENT object available!");
+    const positions = [[0, 0, 0]];
+    const textureCoordinates = [[0, 0]];
+    const vertexNormals = [[0, 0, 0]];
+
+    const objVertexData = [positions, textureCoordinates, vertexNormals];
+    let webglVertexData = [[], [], [],];
+    let NAME = null;
+
+    const keywords = {
+      o(parts) {
+        NAME = parts[0];
+      },
+      v(parts) {
+        positions.push(parts.map(parseFloat));
+      },
+      vn(parts) {
+        vertexNormals.push(parts.map(parseFloat));
+      },
+      vt(parts) {
+        textureCoordinates.push(parts.map(parseFloat));
+      },
+      s() { },    //not supported
+      mtllib() { }, //not supported
+      usemtl() { }, //not supported
+      f(parts) {
+        const numTriangles = parts.length - 2;
+        for (let tri = 0; tri < numTriangles; ++tri) {
+          addVertex(parts[0]);
+          addVertex(parts[tri + 1]);
+          addVertex(parts[tri + 2]);
+        }
+      }
+    };
+
+    const keywordRE = /(\w*)(?: )*(.*)/;
+    const lines = text.split('\n');
+    for (let lineNo = 0; lineNo < lines.length; ++lineNo) {
+      const line = lines[lineNo].trim();
+      if (line === '' || line.startsWith('#')) continue;
+      const m = keywordRE.exec(line);
+      const [, keyword, _] = m;
+      const parts = line.split(/\s+/).slice(1);
+      const handler = keywords[keyword];
+      if (!handler) {
+        console.warn('unhandled keyword:', keyword);
+        continue;
+      }
+      handler(parts);
+    }
+
+    let indices = [];
+    for (let c = 0; c < webglVertexData[0].length / 3; c++) {
+      indices.push(c);
+    }
+
+    ELEMENT[NAME] = {};
+    ELEMENT[NAME].positions = webglVertexData[0];
+    ELEMENT[NAME].indices = indices;
+    ELEMENT[NAME].textureCoordinates = webglVertexData[1];
+    ELEMENT[NAME].vertexNormals = webglVertexData[2];
+
+    function addVertex(vert) {
+      const ptn = vert.split('/');
+      ptn.forEach((objIndexStr, i) => {
+        const objIndex = parseInt(objIndexStr);
+        const index = objIndex + (objIndex >= 0 ? 0 : objVertexData[i].length);
+        webglVertexData[i].push(...objVertexData[i][index]);
+      });
+    }
+
+  },
   KEY: {
     on() {
       $(document).keydown(ENGINE.GAME.checkKey);
@@ -1108,6 +1183,7 @@ const ENGINE = {
     SheetSequences: 0,
     RotSeq: 0,
     Shaders: 0,
+    Objects: 0,
     HMRotSeq: null,
     HMSheetSequences: null,
     HMFonts: null,
@@ -1120,6 +1196,7 @@ const ENGINE = {
     HMSounds: null,
     HMPacks: null,
     HMShaders: null,
+    HMObjects: null,
     preload() {
       console.time("preloading");
       console.group("preload");
@@ -1136,7 +1213,8 @@ const ENGINE = {
         loadingSounds(),
         loadWASM(),
         loadAllFonts(),
-        loadShaders()
+        loadShaders(),
+        loadObjects()
       ]).then(function () {
         console.log("%cAll assets loaded and ready!", ENGINE.CSS);
         console.log("%c****************************", ENGINE.CSS);
@@ -1369,6 +1447,20 @@ const ENGINE = {
         });
       }
 
+      function loadObjects(arrPath = LoadObjects) {
+        if (!arrPath) return true;
+        console.log(`%c ...loading ${arrPath.length} Objects`, ENGINE.CSS);
+        ENGINE.LOAD.HMObjects = arrPath.length;
+        if (ENGINE.LOAD.HMShaders) appendCanvas("Objects");
+        const temp = Promise.all(
+          arrPath.map(obj => loadObj(obj, 'Objects'))
+        ).then((instance) => {
+          instance.forEach((el) => {
+            ENGINE.parseObjectFile(el);
+          });
+        });
+      }
+
       function loadWASM(arrPath = LoadExtWasm) {
         if (!arrPath) return true;
         var LoadIntWasm = []; //internal hard coded ENGINE requirements
@@ -1501,6 +1593,15 @@ const ENGINE = {
       }
       async function loadShader(fileName, counter) {
         fileName = ENGINE.SHADER_SOURCE + fileName;
+        return fetch(fileName).
+          then((response) => {
+            ENGINE.LOAD[counter]++;
+            ENGINE.drawLoadingGraph(counter);
+            return response.text();
+          });
+      }
+      async function loadObj(fileName, counter) {
+        fileName = ENGINE.OBJECT_SOURCE + fileName;
         return fetch(fileName).
           then((response) => {
             ENGINE.LOAD[counter]++;

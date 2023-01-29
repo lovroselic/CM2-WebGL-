@@ -2,6 +2,7 @@
 /*jshint -W097 */
 /*jshint -W117 */
 /*jshint -W061 */
+/*jshint -W083 */
 "use strict";
 
 ///////////////////////////////////////////////
@@ -43,7 +44,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.13.0",
+    VERSION: "0.13.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -406,11 +407,9 @@ const WebGL = {
                 gl.bindTexture(gl.TEXTURE_2D, item.texture);
                 gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, 2 * this.world.offset.item_start + current_item_index_offset);
 
-
                 // to texture 
                 let id = ITEM3D.globalId(item.id);
                 let id_vec = this.idToVec(id);
-                //let id_vec = [255, 255, 255, 253];
 
                 gl.useProgram(this.pickProgram.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
@@ -701,8 +700,6 @@ const WORLD = {
 
         /** items */
         for (const item of ITEM3D.POOL) {
-            console.log("item", item.name, ITEM3D.globalId(item.id), item);
-            //addElement(E, Y, grid, type, scale = null)
             this.addElement(item.element, item.Y, item.grid, 'item', item.scale);
         }
 
@@ -1024,6 +1021,7 @@ class FloorItem3D {
     }
     interact(GA) {
         console.log(this, "interaction");
+        this.IAM.remove(this.id);
     }
 }
 
@@ -1165,6 +1163,63 @@ const ELEMENT = {
 
             // Left face
             -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0,
+        ],
+        indices: [
+            0, 1, 2, 0, 2, 3, // front
+            4, 5, 6, 4, 6, 7, // back
+            8, 9, 10, 8, 10, 11, // top
+            12, 13, 14, 12, 14, 15, // bottom
+            16, 17, 18, 16, 18, 19, // right
+            20, 21, 22, 20, 22, 23, // left
+        ],
+        textureCoordinates: [
+            // Front
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            // Back
+            0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,
+            // Top
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            // Bottom
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            // Right
+            0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,
+            // Left
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+        ],
+        vertexNormals: [
+            // Front
+            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+            // Back
+            0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,
+            // Top
+            0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+            // Bottom
+            0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,
+            // Right
+            1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+            // Left
+            -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
+        ],
+    },
+    BAR: {
+        positions: [
+            // Front face
+            -1.0, -0.5, 0.5, 1.0, -0.5, 0.5, 0.8, 0.5, 0.4, -0.8, 0.5, 0.4,
+
+            // Back face
+            -1.0, -0.5, -0.5, -0.8, 0.5, -0.4, 0.8, 0.5, -0.4, 1.0, -0.5, -0.5,
+
+            // Top face
+            -0.8, 0.5, -0.4, -0.8, 0.5, 0.4, 0.8, 0.5, 0.4, 0.8, 0.5, -0.4,
+
+            // Bottom face
+            -1.0, -0.5, -0.5, 1.0, -0.5, -0.5, 1.0, -0.5, 0.5, -1.0, -0.5, 0.5,
+
+            // Right face
+            1.0, -0.5, -0.5, 0.8, 0.5, -0.4, 0.8, 0.5, 0.4, 1.0, -0.5, 0.5,
+
+            // Left face
+            -1.0, -0.5, -0.5, -1.0, -0.5, 0.5, -0.8, 0.5, 0.4, -0.8, 0.5, -0.4,
         ],
         indices: [
             0, 1, 2, 0, 2, 3, // front

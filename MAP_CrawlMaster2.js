@@ -7,15 +7,15 @@
 
 const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9", "AMC", "Amberstar", "Apshai", "ArcticShipwreck", "Arena",
     "Aztec", "BFF", "Bagitman", "Barbarian1", "Barbarian5", "BeachHead", "Blackwyche", "BlueMax", "BlueMax2", "BlueMax3", "BoogaBoo1", "BoogaBoo3",
-    "C64", "CH1", "CSB1", "CW1", "CW10", "CW2", "CW3", "CW5", "CW6", "Castle", "CastleTerror", "Choplifter", "Commando2",
+    "C64", "CH1", "CSB1", "CW1", "CW10", "CW2", "CW3", "CW5", "CW6", "Castle", "Choplifter", "Commando2",
     "CrystalCastles", "Cuthbert1", "CyberPunk1", "DDID2", "DK", "DK2", "DM1", "DM11", "DM12", "DM2", "DM3", "DM4", "DM5", "DM6", "DM7",
     "Drelbs", "EOB1", "EOB2", "EOB3", "EOB4", "Eric", "FA2", "FA3", "FF1", "FF2", "FF4",
     "FranticFreddie", "Fred1", "Fred2", "Frogger", "Galaga1", "Galaxian3", "Ghostbusters", "Gods", "Goonies", "GreenBeret", "HL1", "HL2", "HL3",
     "HL4", "HL5", "HOB1", "HOB11", "HOB2", "HOB4", "HOB5", "Hero1", "Hero10", "Hero2", "Hero3", "HoraceSki", "Hunchback",
     "IK1", "IM", "Iceman", "Imhotep", "Impossible_Mission4", "Invaders", "JSW", "JSW2", "JSW3", "JetPac", "Jumpman", "JumpmanJr", "Jupiter_Lander", "KQ1",
-    "Kangaroo", "Karateka", "Killerwat", "Knightlore", "LSL1", "LSL2", "LSL20", "LSL3", "LSL4", "LSL6", "LSL7", "LTUT", "LastNinja1", "Lode",
+    "Kangaroo", "Karateka", "Killerwat", "Knightlore", "LSL1", "LSL20", "LSL3", "LSL4", "LSL6", "LSL7", "LTUT", "LastNinja1", "Lode",
     "Maniac", "ManicMiner", "Miner", "MonkeyIsland", "Montezuma", "Moon", "MrRobot", "Nebulus", "Oblivion", "Oblivion2", "OperationWolf",
-    "OperationWolf2", "PAC2", "Paratroopers", "Penta", "Phara", "Pipeline", "Pitfall", "Pitfall3", "Pitfall4", "Pitstop", "Pooyan",
+    "OperationWolf2", "PAC2", "Penta", "Phara", "Pipeline", "Pitfall", "Pitfall3", "Pitfall4", "Pitstop", "Pooyan",
     "Portal1", "Prince1", "Prince2", "RRR", "RickDangerous", "Robin", "SOF", "SQ1", "ST", "SVS1", "SVS10", "SVS2", "SVS3", "SVS4",
     "SW2", "SW4", "Scramble2", "Scramble3", "Scramble4", "Skyrim", "Soccer", "Sorcery2", "Sorcery3", "TR1", "TR1", "TR10", "TR2", "TR2", "TR3",
     "TheSentinel", "Tut", "Tut2", "UU", "UU2", "Ultima1", "Ultima2", "Under", "VIC20", "Valhalla", "Vixen1", "Vixen2", "WDW", "WG3", "WOW1",
@@ -39,7 +39,9 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9",
     "AntAttack4", "Cauldron10", "DM103", "DM104", "DonkeyKong100", "Elvira1", "Elvira2", "Elvira3", "FalconPatrol8", "FalconPatrol9", "FortApocalypse", "Fred101", "Fred102",
     "GatewayToApshai11", "Grog1", "Hero104", "HungryHorace12", "KQ102", "LSL101", "LSL102", "LSL103", "LadyTut10", "LodeRunner10", "LodeRunner11", "MissileCommand",
     "OlympicSkier6", "Pitfall27", "Popeye2", "PrinceMac", "SVS102", "SabreWulf11", "Scramble7", "Shamus4", "Ski23", "Skyrim3", "Tutankham102", "Unknown3", "Witcher47",
-    "Wolf10", "Zaxxon3", "ZimSalaBim2"
+    "Wolf10", "Zaxxon3", "ZimSalaBim2", "ArticShipwreck2", "BoogaBoo11", "CastleOFTerror11", "Cauldron8", "DM105", "DM106", "DM107", "DefenderOfTheCrown", "EOB11",
+    "FortApocalypse41", "Hobbit101", "LCP", "LadyTut102", "ManicMiner11", "ManicMiner12", "MatchPoint2", "Miner2049_1", "MrRobot11", "Paratroopers2", "PharaohCurse11",
+    "Rambo3", "RobinOfTheWood4", "SP111", "ST2", "SammyLightfoot2", "SirFred4", "Skyrim9", "SkyrimElf", "Tutankham105", "UW27", "WOW104", "WinterGames11"
 ];
 
 //const DECAL_PAINTINGS = [];
@@ -165,23 +167,20 @@ var SPAWN = {
     items(level) {
         console.log("spawning items");
         const itemLocations = [
-            { x: 4.5, y: 2.5, h: 0.0, element: ELEMENT.CUBE_CENTERED, scale: [1 / 2 ** 4, 1 / 2 ** 4, 1 / 2 ** 4], glueToFloor: true, texture: TEXTURE.Gold, name: "GoldCube" },
+            { x: 1.5, y: 8.5, h: 0.0, element: ELEMENT.CUBE_CENTERED, scale: [1 / 2 ** 4, 1 / 2 ** 4, 1 / 2 ** 4], glueToFloor: true, texture: TEXTURE.Gold, name: "GoldCube" },
+            { x: 4.5, y: 2.5, h: 0.0, element: ELEMENT.BAR, scale: [1 / 2 ** 4, 1 / 2 ** 4, 1 / 2 ** 4], glueToFloor: true, texture: TEXTURE.Gold, name: "GoldBar" },
+            { x: 3.5, y: 2.5, h: 0.0, element: ELEMENT.KEY, scale: [1 / 2 ** 3, 1 / 2 ** 3, 1 / 2 ** 3], glueToFloor: true, texture: TEXTURE.Gold, name: "GoldKey" },
         ];
 
         for (let item of itemLocations) {
-            //console.log("item", item);
             let heightTranspose = new Float32Array([0, 0, 0]);
             if (item.glueToFloor) {
                 let max = ELEMENT.getMinY(item.element);
                 heightTranspose[1] -= max * item.scale[1];
-                //console.log("max", max);
             }
-            //console.log("heightTranspose", heightTranspose);
             let transpose = new Vector3(item.x, item.h, item.y);
             transpose = transpose.add(Vector3.from_array(heightTranspose));
-            //console.log("transpose", transpose);
             let Item3D = new FloorItem3D(item.name, item.element, transpose.array, new Float32Array(item.scale), item.texture, ITEM3D);
-            //console.log("Item3D", Item3D);
             ITEM3D.add(Item3D);
         }
 
