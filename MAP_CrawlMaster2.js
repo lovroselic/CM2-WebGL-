@@ -8,7 +8,7 @@
 const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9", "AMC", "Amberstar", "Apshai", "ArcticShipwreck", "Arena",
     "Aztec", "BFF", "Bagitman", "Barbarian1", "Barbarian5", "BeachHead", "Blackwyche", "BlueMax", "BlueMax2", "BlueMax3", "BoogaBoo1", "BoogaBoo3",
     "C64", "CH1", "CSB1", "CW1", "CW10", "CW2", "CW3", "CW5", "CW6", "Castle", "Choplifter", "Commando2",
-    "CrystalCastles", "Cuthbert1", "CyberPunk1", "DDID2", "DK", "DK2", "DM1", "DM11", "DM12", "DM2", "DM3", "DM4", "DM5", "DM6", "DM7",
+    "CrystalCastles", "Cuthbert1", "CyberPunk1", "DDID2", "DK", "DK2", "DM1", "DM11", "DM12", "DM2", "DM3", "DM4", "DM5", "DM6",
     "Drelbs", "EOB1", "EOB2", "EOB3", "EOB4", "Eric", "FA2", "FA3", "FF1", "FF2", "FF4",
     "FranticFreddie", "Fred1", "Fred2", "Frogger", "Galaga1", "Galaxian3", "Ghostbusters", "Gods", "Goonies", "GreenBeret", "HL1", "HL2", "HL3",
     "HL4", "HL5", "HOB1", "HOB11", "HOB2", "HOB4", "HOB5", "Hero1", "Hero10", "Hero2", "Hero3", "HoraceSki", "Hunchback",
@@ -18,7 +18,7 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9",
     "OperationWolf2", "PAC2", "Penta", "Phara", "Pipeline", "Pitfall", "Pitfall3", "Pitfall4", "Pitstop", "Pooyan",
     "Portal1", "Prince1", "Prince2", "RRR", "RickDangerous", "Robin", "SOF", "SQ1", "ST", "SVS1", "SVS10", "SVS2", "SVS3", "SVS4",
     "SW2", "SW4", "Scramble2", "Scramble3", "Scramble4", "Skyrim", "Soccer", "Sorcery2", "Sorcery3", "TR1", "TR1", "TR10", "TR2", "TR2", "TR3",
-    "TheSentinel", "Tut", "Tut2", "UU", "UU2", "Ultima1", "Ultima2", "Under", "VIC20", "Valhalla", "Vixen1", "Vixen2", "WDW", "WG3", "WOW1",
+    "TheSentinel", "Tut", "Tut2", "UU", "UU2", "Ultima1", "Ultima2", "Under", "VIC20", "Valhalla", "Vixen1", "Vixen2", "WDW", "WOW1",
     "WOW2", "Walls", "Wally", "Winter", "Wolf1", "Wolf2", "Zak", "Zaxxon", "ZimSalaBim", "Zong", "galaxian", "sabre2", "trash",
     "zx1", "BlueMax4", "Witcher5", "LSL9", "Shamus1", "PharaohCurse3", "Witcher4", "Witcher3", "TempleOfApshai", "Witcher2", "KnightLore2",
     "Witcher1", "Spelunker", "ShamusCase2", "Ishar2", "Ishar1", "Jungle1", "Pitfall5", "PharaohCurse2", "Frontier", "LSL8", "SP2", "SP1",
@@ -167,20 +167,22 @@ var SPAWN = {
     items(level) {
         console.log("spawning items");
         const itemLocations = [
-            { x: 1.5, y: 8.5, h: 0.0, element: ELEMENT.CUBE_CENTERED, scale: [1 / 2 ** 4, 1 / 2 ** 4, 1 / 2 ** 4], glueToFloor: true, texture: TEXTURE.Gold, name: "GoldCube" },
-            { x: 4.5, y: 2.5, h: 0.0, element: ELEMENT.BAR, scale: [1 / 2 ** 4, 1 / 2 ** 4, 1 / 2 ** 4], glueToFloor: true, texture: TEXTURE.Gold, name: "GoldBar" },
-            { x: 3.5, y: 2.5, h: 0.0, element: ELEMENT.KEY, scale: [1 / 2 ** 3, 1 / 2 ** 3, 1 / 2 ** 3], glueToFloor: true, texture: TEXTURE.Gold, name: "GoldKey" },
+            { x: 1.5, y: 8.5, h: 0.0, element: ELEMENT.CUBE_CENTERED, scale: 1 / 2 ** 4, glueToFloor: true, texture: TEXTURE.Gold, name: "GoldCube" },
+            { x: 4.5, y: 2.5, h: 0.0, element: ELEMENT.BAR, scale: 1 / 2 ** 4, glueToFloor: true, texture: TEXTURE.Gold, name: "GoldBar" },
+            { x: 3.5, y: 2.5, h: 0.0, element: ELEMENT.KEY, scale: 1 / 2 ** 3, glueToFloor: true, texture: TEXTURE.Gold, name: "GoldKey" },
+            { x: 2.5, y: 3.5, h: 0.0, element: ELEMENT.KEY, scale: 1 / 2 ** 3, glueToFloor: true, texture: TEXTURE.Silver, name: "SilverKey" },
+            { x: 5.5, y: 3.5, h: 0.0, element: ELEMENT.KEY, scale: 1 / 2 ** 3, glueToFloor: true, texture: TEXTURE.RedMetal, name: "RedKey" },
         ];
 
         for (let item of itemLocations) {
             let heightTranspose = new Float32Array([0, 0, 0]);
             if (item.glueToFloor) {
                 let max = ELEMENT.getMinY(item.element);
-                heightTranspose[1] -= max * item.scale[1];
+                heightTranspose[1] -= max * item.scale;
             }
             let transpose = new Vector3(item.x, item.h, item.y);
             transpose = transpose.add(Vector3.from_array(heightTranspose));
-            let Item3D = new FloorItem3D(item.name, item.element, transpose.array, new Float32Array(item.scale), item.texture, ITEM3D);
+            let Item3D = new FloorItem3D(item.name, item.element, transpose.array, new Float32Array([item.scale, item.scale, item.scale]), item.texture);
             ITEM3D.add(Item3D);
         }
 

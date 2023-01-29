@@ -44,7 +44,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.13.1",
+    VERSION: "0.13.2",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -403,7 +403,7 @@ const WebGL = {
         //items
         let current_item_index_offset = 0;
         for (const item of ITEM3D.POOL) {
-            if (item) {
+            if (item.active) {
                 gl.bindTexture(gl.TEXTURE_2D, item.texture);
                 gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, 2 * this.world.offset.item_start + current_item_index_offset);
 
@@ -420,8 +420,9 @@ const WebGL = {
                 gl.useProgram(this.program.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-                current_item_index_offset += item.byte_length;
+                //current_item_index_offset += item.byte_length;
             }
+            current_item_index_offset += item.byte_length;
         }
     },
     idToVec(id) {
@@ -472,9 +473,13 @@ const WebGL = {
                         const obj = GLOBAL_ID_MANAGER.getObject(id);
                         if (!obj) return;
                         if (!obj.interactive) return;
-                        console.log("obj", obj);
+                        console.log("obj", obj, obj.grid, obj.constructor.name);
                         let PPos2d = Vector3.to_FP_Grid(HERO.player.pos);
-                        let distance = PPos2d.EuclidianDistance(Grid.toCenter(obj.grid));
+                        let itemGrid = obj.grid;
+                        if (obj.constructor.name === "Gate") {
+                            itemGrid = Grid.toCenter(obj.grid);
+                        }
+                        let distance = PPos2d.EuclidianDistance(itemGrid);
                         console.log("distance", distance);
                         if (distance < WebGL.INI.INTERACT_DISTANCE) {
                             obj.interact(HERO.player.GA);
@@ -1006,7 +1011,7 @@ class LiftingGate {
     }
 }
 class FloorItem3D {
-    constructor(name, element, transpose, scale, texture, IAM) {
+    constructor(name, element, transpose, scale, texture) {
         this.name = name;
         this.element = element;
         this.transpose = transpose;
@@ -1017,11 +1022,13 @@ class FloorItem3D {
         this.interactive = true;
         this.grid = new FP_Grid(transpose[0], transpose[2]);
         this.Y = transpose[1];
-        this.IAM = IAM;
+        //this.IAM = IAM;
+        this.active = true;
     }
     interact(GA) {
         console.log(this, "interaction");
-        this.IAM.remove(this.id);
+        this.active = false;
+        //this.IAM.remove(this.id);
     }
 }
 

@@ -43,6 +43,8 @@ LoadTextures = [
     { srcName: "Wall8.jpg", name: "Wall8" },
     { srcName: "GreyWall.jpg", name: "GreyWall" },
     { srcName: "Gold1.jpg", name: "Gold" },
+    { srcName: "Silver1.jpg", name: "Silver" },
+    { srcName: "RedMetal1.jpg", name: "RedMetal" },
 ];
 LoadAudio = [
     { srcName: "UseScroll.mp3", name: "PickBox" },
@@ -80,7 +82,7 @@ LoadSprites = [
     { srcName: "SVS4.png", name: "SVS3" },
     { srcName: "SpyVsSpyPicture.png", name: "SVS4" },
     { srcName: "DM8.png", name: "DM1" },
-    { srcName: "DM7.png", name: "DM2" },
+    //{ srcName: "DM7.png", name: "DM2" },
     { srcName: "DM5.png", name: "DM3" },
     { srcName: "DM3.png", name: "DM4" },
     { srcName: "DungeonMasterPicture3.png", name: "DM5" },
@@ -251,7 +253,7 @@ LoadSprites = [
     { srcName: "Blackwyche.png", name: "Blackwyche" },
     { srcName: "Zong.png", name: "Zong" },
     { srcName: "GreenBeret.png", name: "GreenBeret" },
-    { srcName: "WG3.png", name: "WG3" },
+    //{ srcName: "WG3.png", name: "WG3" },
     { srcName: "HL5.png", name: "HL5" },
     { srcName: "VIC20-2.png", name: "VIC20" },
     { srcName: "Hero10.png", name: "Hero10" },
