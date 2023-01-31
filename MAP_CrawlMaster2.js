@@ -167,25 +167,70 @@ var SPAWN = {
     items(level) {
         console.log("spawning items");
         const itemLocations = [
-            { x: 1.5, y: 8.5, h: 0.0, element: ELEMENT.CUBE_CENTERED, scale: 1 / 2 ** 4, glueToFloor: true, texture: TEXTURE.Gold, name: "GoldCube" },
-            { x: 4.5, y: 2.5, h: 0.0, element: ELEMENT.BAR, scale: 1 / 2 ** 4, glueToFloor: true, texture: TEXTURE.Gold, name: "GoldBar" },
-            { x: 3.5, y: 2.5, h: 0.0, element: ELEMENT.KEY, scale: 1 / 2 ** 3, glueToFloor: true, texture: TEXTURE.Gold, name: "GoldKey" },
-            { x: 2.5, y: 3.5, h: 0.0, element: ELEMENT.KEY, scale: 1 / 2 ** 3, glueToFloor: true, texture: TEXTURE.Silver, name: "SilverKey" },
-            { x: 5.5, y: 3.5, h: 0.0, element: ELEMENT.KEY, scale: 1 / 2 ** 3, glueToFloor: true, texture: TEXTURE.RedMetal, name: "RedKey" },
-        ];
 
+            { grid: new FP_Grid(1.5, 8.5), type: COMMON_ITEM_TYPE.GoldCube },
+            { grid: new FP_Grid(4.5, 2.5), type: COMMON_ITEM_TYPE.GoldBar },
+
+            { grid: new FP_Grid(3.5, 2.5), type: COMMON_ITEM_TYPE.GoldKey },
+            { grid: new FP_Grid(2.5, 3.5), type: COMMON_ITEM_TYPE.SilverKey },
+            { grid: new FP_Grid(5.5, 3.5), type: COMMON_ITEM_TYPE.RedKey },
+        ];
+   
         for (let item of itemLocations) {
-            let heightTranspose = new Float32Array([0, 0, 0]);
-            if (item.glueToFloor) {
-                let max = ELEMENT.getMinY(item.element);
-                heightTranspose[1] -= max * item.scale;
-            }
-            let transpose = new Vector3(item.x, item.h, item.y);
-            transpose = transpose.add(Vector3.from_array(heightTranspose));
-            let Item3D = new FloorItem3D(item.name, item.element, transpose.array, new Float32Array([item.scale, item.scale, item.scale]), item.texture);
+            console.log("Item", item);
+            let Item3D = new FloorItem3D(item.grid, item.type);
+            console.log("Item3D", Item3D);
             ITEM3D.add(Item3D);
         }
-
     }
 
+};
+
+const COMMON_ITEM_TYPE = {
+    GoldKey: {
+        name: "GoldKey",
+        inventorySprite: "GoldKeyBig",
+        category: "key",
+        color: "Gold",
+        element: "KEY",
+        scale: 1 / 2 ** 3,
+        glueToFloor: true,
+        texture: "Gold",
+    },
+    SilverKey: {
+        name: "SilverKey",
+        inventorySprite: "SilverKeyBig",
+        category: "key",
+        color: "Silver",
+        element: "KEY",
+        scale: 1 / 2 ** 3,
+        glueToFloor: true,
+        texture: "Silver",
+    },
+    RedKey: {
+        name: "RedKey",
+        inventorySprite: "RedKeyBig",
+        category: "key",
+        color: "Red",
+        element: "KEY",
+        scale: 1 / 2 ** 3,
+        glueToFloor: true,
+        texture: "RedMetal",
+    },
+    GoldBar: {
+        name: "GoldBar",
+        category: "gold",
+        element: "BAR",
+        scale: 1 / 2 ** 4,
+        glueToFloor: true,
+        texture: "Gold",
+    },
+    GoldCube: {
+        name: "GoldCube",
+        category: "gold",
+        element: "CUBE_CENTERED",
+        scale: 1 / 2 ** 5,
+        glueToFloor: true,
+        texture: "Gold",
+    }
 };

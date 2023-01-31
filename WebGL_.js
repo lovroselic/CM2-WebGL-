@@ -1010,25 +1010,41 @@ class LiftingGate {
         this.IAM.remove(this.id);
     }
 }
+
 class FloorItem3D {
-    constructor(name, element, transpose, scale, texture) {
-        this.name = name;
-        this.element = element;
-        this.transpose = transpose;
-        this.scale = scale;
+    constructor(grid, type, value = 0, h = 0) {
+        this.grid = grid;
+        this.type = type;
+        this.value = value;
+        this.h = h;
+        this.interactive = true;
+        this.active = true;
+        for (const prop in type) {
+            this[prop] = type[prop];
+        }
+        //unpack
+        this.element = ELEMENT[this.element];
+        this.texture = TEXTURE[this.texture];
+        if (typeof (this.scale) === "number") {
+            this.scale = new Float32Array([this.scale, this.scale, this.scale]);
+        }
         this.byte_length = this.element.indices.length * 2;
         this.indices = this.element.indices.length;
-        this.texture = texture;
-        this.interactive = true;
-        this.grid = new FP_Grid(transpose[0], transpose[2]);
-        this.Y = transpose[1];
-        //this.IAM = IAM;
-        this.active = true;
+        //transpose
+        let heightTranspose = new Float32Array([0, 0, 0]);
+        if (this.glueToFloor) {
+            let max = ELEMENT.getMinY(this.element);
+            heightTranspose[1] -= max * this.scale[1];
+
+        }
+        let transpose = new Vector3(grid.x, h, grid.y);
+        transpose = transpose.add(Vector3.from_array(heightTranspose));
+        this.transpose = transpose.array;
+        this.Y = this.transpose[1];
     }
     interact(GA) {
         console.log(this, "interaction");
         this.active = false;
-        //this.IAM.remove(this.id);
     }
 }
 
