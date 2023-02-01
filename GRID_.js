@@ -1400,10 +1400,11 @@ var MINIMAP = {
     h: null,
     rectWidth: 1
   },
-  init(map, W, H, layer = "minimap") {
+  init(map, W, H, player = PLAYER, layer = "minimap") {
     this.DATA.dungeon = map;
     this.setLayer(layer);
     this.calcSize(W, H);
+    this.player = player;
   },
   setLayer(layer) {
     this.DATA.layer = layer;
@@ -1511,7 +1512,7 @@ var MINIMAP = {
     }
 
     CTX.fillStyle = MINIMAP.LEGEND.HERO;
-    let heroPos = Grid.toClass(PLAYER.pos);
+    let heroPos = Grid.toClass(Vector3.to_FP_Grid(this.player.pos));
 
     CTX.pixelAt(
       this.DATA.drawX + heroPos.x * this.DATA.PIX_SIZE,

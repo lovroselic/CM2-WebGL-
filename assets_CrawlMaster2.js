@@ -59,6 +59,15 @@ LoadSprites = [
     { srcName: "WallLamp256.png", name: "WallLamp" },
     { srcName: "CompassRose.png", name: "CompassRose" },
 
+    //title sprites
+    { srcName: "divLineB_200.png", name: "LineBottom" },
+    { srcName: "divLineT_200.png", name: "LineTop" },
+    { srcName: "RedKey.png", name: "RedKeyBig" },
+    { srcName: "GoldKey.png", name: "GoldKeyBig" },
+    { srcName: "SilverKey.png", name: "SilverKeyBig" },
+    { srcName: "bluePotion24.png", name: "BluePotion24" },
+    { srcName: "RedPotion24.png", name: "RedPotion24" },
+
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
     { srcName: "RedGate1_256.png", name: "RedGate1" },
@@ -173,7 +182,6 @@ LoadSprites = [
     { srcName: "DK.png", name: "DK" },
     { srcName: "PAC2.png", name: "PAC2" },
     { srcName: "galaxian.png", name: "galaxian" },
-    { srcName: "Tut.png", name: "Tut" },
     { srcName: "Apshai.png", name: "Apshai" },
     { srcName: "Under.png", name: "Under" },
     { srcName: "Lode.png", name: "Lode" },

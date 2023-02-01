@@ -23,10 +23,29 @@ var DEBUG = {
     _2D_display: true,
 };
 var INI = {
-
+    MIMIMAP_HEIGHT: 200,
+    MIMIMAP_WIDTH: 200,
+    INFO_TIMER_ID: "info",
+    INFO_TIMER: 3,
+    LAMP_PERSISTENCE: 99,
+    INVISIBILITY_TIME: 60,
+    LUCKY_TIME: 60,
+    INI_BASE_EXP_FONT: 100,
+    LEVEL_FACTOR: 1.5,
+    POTION_INC: 0.4,
+    HEALTH_INC: 4,
+    MANA_INC: 5,
+    MONSTER_ATTACK_TIMEOUT: 2000,
+    MONSTER_SHOOT_TIMEOUT: 4000,
+    HERO_SHOOT_TIMEOUT: 2000,
+    SCROLL_RANGE: 3,
+    CRIPPLE_SPEED: 0.5,
+    BOOST_TIME: 59,
+    MM_reveal_radius: 4,
+    FINAL_LEVEL: 1,
 };
 var PRG = {
-    VERSION: "0.05.05",
+    VERSION: "0.05.06",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -72,7 +91,7 @@ var PRG = {
 
         //boxes
         ENGINE.gameWIDTH = 640;
-        ENGINE.titleWIDTH = 1040;
+        ENGINE.titleWIDTH = 1040 + 64;
         ENGINE.sideWIDTH = (ENGINE.titleWIDTH - ENGINE.gameWIDTH) / 2;
         ENGINE.gameHEIGHT = 480;
         ENGINE.titleHEIGHT = 80;
@@ -107,6 +126,55 @@ var PRG = {
     }
 };
 
+class Missile {
+    constructor(grid, dir, type, magic, casterId = 0) {
+        this.casterId = casterId;
+        this.type = "Missile";
+        this.distance = null;
+        this.vectorToPlayer = null;
+        this.parent = MISSILE;
+        for (const prop in type) {
+            this[prop] = type[prop];
+        }
+        this.base = 0;
+        this.moveState = new _3D_MoveState(grid, dir);
+        this.moveState.start();
+        this.actor = new _3D_ACTOR(this.class, this);
+        this.visible = false;
+        this.setR();
+        this.power = this.calcPower(magic);
+    }
+    static calcMana(magic) {
+        return (magic ** 1.15) | 0;
+    }
+    draw() {
+        ENGINE.VECTOR2D.drawBlock(this);
+    }
+    setR() {
+        let sum = 0;
+        for (const img of this.actor.asset.linear) {
+            sum += img.width;
+            sum += img.height;
+        }
+        this.r = sum / (2 * this.actor.asset.linear.length) / ENGINE.INI.GRIDPIX / 2;
+    }
+    show() {
+        this.visible = true;
+    }
+    hide() {
+        this.visible = false;
+    }
+    calcPower(magic) {
+        return 2 * magic + RND(-2, 2);
+    }
+    calcDamage(magic) {
+        let part1 = (magic / 2) | 0;
+        let part2 = magic - part1;
+        let damage = this.power - part1 - RND(0, part2);
+        return damage;
+    }
+}
+
 var HERO = {
     startInit() {
 
@@ -114,6 +182,169 @@ var HERO = {
 
     init() {
 
+    },
+    construct() {
+        this.resetVision();
+        this.visible();
+        this.unlucky();
+        this.dead = false;
+        this.maxHealth = 15;
+        this.maxMana = 3 * Missile.calcMana(5);
+        this.restore();
+        this.defense = 5;
+        this.reference_defense = this.defense;
+        this.attack = 5;
+        this.reference_attack = this.attack;
+        this.magic = 5;
+        this.reference_magic = this.magic;
+        this.attackExp = 0;
+        this.defenseExp = 0;
+        this.magicExp = 0;
+        this.attackExpGoal = INI.INI_BASE_EXP_FONT;
+        this.defenseExpGoal = INI.INI_BASE_EXP_FONT;
+        this.magicExpGoal = INI.INI_BASE_EXP_FONT;
+        this.canShoot = true;
+        /*const propsToSave = ["health", "maxHealth", "mana", "maxMana", "defense", "reference_defense", "attack",
+          "reference_attack", "magic", "attackExp", "defenseExp", "magicExp", "attackExpGoal", "defenseExpGoal", "magicExpGoal",
+          "inventory.potion.red", "inventory.potion.blue"];*/
+        //this.attributesForSaveGame = [];
+        /*for (const P of propsToSave) {
+          this.attributesForSaveGame.push(`HERO.${P}`);
+        }*/
+        //PLAYER.hitByMissile = HERO.hitByMissile;
+    },
+    resetVision() {
+        this.vision = 1;
+    },
+    visible() {
+        HERO.invisible = false;
+    },
+    lucky() {
+        HERO.luck = 1;
+    },
+    unlucky() {
+        HERO.luck = 0;
+    },
+    cancelLuck() {
+        HERO.removeStatus("Luck");
+        HERO.unlucky();
+        TITLE.keys();
+    },
+    restore() {
+        this.health = this.maxHealth;
+        this.mana = this.maxMana;
+    },
+    raiseStat(which) {
+        this[which]++;
+        this[`reference_${which}`]++;
+        TITLE.stats();
+    },
+    incStat(which) {
+        let factor = RND(1, 3) / 10 + 1;
+        HERO[which] = Math.ceil(HERO[which] * factor);
+        TITLE.stats();
+    },
+    resetStat(which) {
+        HERO[which] = HERO[`reference_${which}`];
+        TITLE.stats();
+    },
+    removeStatus(status) {
+        for (let i = HERO.inventory.status.length - 1; i >= 0; i--) {
+            if (HERO.inventory.status[i].type === status) {
+                HERO.inventory.status.splice(i, 1);
+                break;
+            }
+        }
+    },
+    cancelInvisibility() {
+        HERO.removeStatus("Invisibility");
+        HERO.visible();
+        TITLE.keys();
+    },
+    startInvisibility() {
+        HERO.invisible = true;
+    },
+    improveVision() {
+        this.vision = 2;
+    },
+    extinguishLamp() {
+        HERO.removeStatus("Light");
+        HERO.resetVision();
+        TITLE.keys();
+    },
+    usePotion(type) {
+        let Type = type.capitalize();
+        let max = `max${Type}`;
+        if (HERO[type] === HERO[max]) {
+            return;
+        }
+        const color = { health: "red", mana: "blue" };
+        if (HERO.inventory.potion[color[type]] > 0) {
+            HERO.inventory.potion[color[type]]--;
+            let add = Math.round(INI.POTION_INC * HERO[max]);
+            HERO[type] += add;
+            HERO[type] = Math.min(HERO[type], HERO[max]);
+            TITLE.potion();
+            AUDIO.Swallow.play();
+            TITLE.status();
+        }
+    },
+    incStatus(type) {
+        let Type = type.capitalize();
+        let max = `max${Type}`;
+        if (type === 'mana') {
+            this[max] = Math.max(this[max], 3 * Missile.calcMana(this.reference_magic));
+        }
+        this[max] += INI[`${type.toUpperCase()}_INC`];
+        this[type] = this[max];
+        TITLE.status();
+    },
+    incExp(value, type) {
+        this[`${type}Exp`] += value;
+        if (this[`${type}Exp`] >= this[`${type}ExpGoal`]) {
+            AUDIO.LevelUp.play();
+            this[`${type}Exp`] -= this[`${type}ExpGoal`];
+            this[type]++;
+            this[`reference_${type}`]++;
+            this[`${type}ExpGoal`] = this.nextLevel(this[`${type}ExpGoal`]);
+            switch (type) {
+                case "attack":
+                case "defense":
+                    this.incStatus("health");
+                    break;
+                case "magic":
+                    this.incStatus("mana");
+                    break;
+                default:
+                    throw "exp type error";
+            }
+            TITLE.status();
+        }
+        TITLE.stats();
+    },
+    nextLevel(value) {
+        return Math.round(value * INI.LEVEL_FACTOR);
+    },
+    hitByMissile(missile) {
+        let damage = Math.max(missile.calcDamage(HERO.magic), 1) - HERO.luck;
+        let exp = Math.max((damage ** 0.9) | 0, 1);
+        HERO.applyDamage(damage);
+        let type = "SmallShortExplosion";
+        if (this.dead) type = "LongExplosion";
+        let explosion = new Destruction(missile.moveState.pos, missile.base, DESTRUCTION_TYPE[type]);
+        DESTRUCTION_ANIMATION.add(explosion);
+        MISSILE.remove(missile.id);
+        AUDIO.Explosion.volume = RAYCAST.volume(missile.distance);
+        AUDIO.Explosion.play();
+        HERO.incExp(exp, "magic");
+    },
+    applyDamage(damage) {
+        HERO.health -= damage;
+        HERO.health = Math.max(HERO.health, 0);
+        TITLE.status();
+        if (HERO.health <= 0) {
+            HERO.die();
+        }
     },
 
     die() {
@@ -124,11 +355,32 @@ var HERO = {
         //ENGINE.TEXT.centeredText("Press <ENTER> to try again", ENGINE.gameWIDTH, ENGINE.gameHEIGHT / 2);
         //ENGINE.GAME.ANIMATION.next(ENGINE.KEY.waitFor.bind(null, GAME.levelStart, "enter"));
     },
+    inventory: {
+        key: [],
+        status: [],
+        potion: {
+            red: 0,
+            blue: 0
+        },
+        scroll: new Inventory()
+    },
 
 };
 
 
 var GAME = {
+    clearInfo() {
+        ENGINE.clearLayer("info");
+    },
+    infoTimer() {
+        let T;
+        if (ENGINE.TIMERS.exists(INI.INFO_TIMER_ID)) {
+            T = ENGINE.TIMERS.access(INI.INFO_TIMER_ID);
+            T.set(INI.INFO_TIMER);
+        } else {
+            T = new CountDown(INI.INFO_TIMER_ID, INI.INFO_TIMER, GAME.clearInfo);
+        }
+    },
     start() {
         console.log("GAME started");
         if (AUDIO.Title) {
@@ -148,13 +400,16 @@ var GAME = {
         ENGINE.TEXT.setRD(GameRD);
         ENGINE.watchVisibility(GAME.lostFocus);
         ENGINE.GAME.start(16);
+        MINIMAP.setOffset(TITLE.stack.minimapX, TITLE.stack.minimapY);
         GAME.completed = false;
         GAME.won = false;
         GAME.level = 1;
+        GAME.gold = 0;
 
-        HERO.startInit();
+        HERO.construct();
         ENGINE.VECTOR2D.configure("player");
         GAME.fps = new FPS_short_term_measurement(300);
+        GAME.time = new Timer("Main");
         GAME.levelStart();
     },
     levelStart() {
@@ -188,7 +443,7 @@ var GAME = {
         //
         WebGL.updateShaders();
         WebGL.init('webgl', MAP[level].world, textureData, HERO.player);
-
+        MINIMAP.init(MAP[level].map, INI.MIMIMAP_WIDTH, INI.MIMIMAP_HEIGHT, HERO.player);
     },
     continueLevel(level) {
         console.log("game continues on level", level);
@@ -207,9 +462,11 @@ var GAME = {
         if (ENGINE.GAME.stopAnimation) return;
         GAME.respond(lapsedTime);
         VANISHING3D.manage(lapsedTime);
+        MINIMAP.unveil(Vector3.to_FP_Grid(HERO.player.pos), HERO.vision);
 
         //HERO.manage();
-        let checkMouse = WebGL.MOUSE.click();
+        //let checkMouse = WebGL.MOUSE.click();
+        WebGL.MOUSE.click();
 
         GAME.frameDraw(lapsedTime);
 
@@ -229,7 +486,9 @@ var GAME = {
         }
         WebGL.renderScene();
 
+        MINIMAP.draw();
         TITLE.compassNeedle();
+        TITLE.time();
 
         if (DEBUG.FPS) {
             GAME.FPS(lapsedTime);
@@ -383,13 +642,29 @@ var GAME = {
     }
 };
 var TITLE = {
-    stack: {},
+    stack: {
+        delta2: 48,
+        delta3: 48,
+        keyDelta: 56,
+        minimapX: 20,
+        minimapY: 262,
+        p1: null,
+        p2: null,
+        PY: null,
+        scrollIndex: 0,
+        scrollInRow: 3,
+        scrollDelta: 72,
+        statusY: null,
+        YL4: 180,
+        YL5: 400, //280
+    },
     firstFrame() {
         TITLE.clearAllLayers();
         TITLE.blackBackgrounds();
         TITLE.titlePlot();
         TITLE.bottom();
         TITLE.compass();
+        TITLE.sidebackground_static();
     },
     startTitle() {
         $("#pause").prop("disabled", true);
@@ -414,6 +689,263 @@ var TITLE = {
         this.bottomBackground();
         this.sideBackground();
         ENGINE.fillLayer("background", "#666");
+    },
+    sidebackground_static() {
+        //lines
+        let x = ((ENGINE.sideWIDTH - SPRITE.LineTop.width) / 2) | 0;
+        let y = 0;
+        ENGINE.draw("Lsideback", x, y, SPRITE.LineTop);
+        ENGINE.draw("sideback", x, y, SPRITE.LineTop);
+
+        //2nd tier
+        y += TITLE.stack.delta2;
+        ENGINE.draw("Lsideback", x, y, SPRITE.LineBottom);
+        ENGINE.draw("sideback", x, y, SPRITE.LineBottom);
+        TITLE.stack.SY = (y + TITLE.stack.delta3 / 2) | 0;
+
+        //3rd tier left
+        y += TITLE.stack.delta3;
+        ENGINE.draw("Lsideback", x, y, SPRITE.LineTop);
+        TITLE.stack.statusY = y + SPRITE.LineTop.height;
+
+        //4rd tier left
+        ENGINE.draw("Lsideback", x, TITLE.stack.YL4, SPRITE.LineBottom);
+
+        //5rd tier left
+        ENGINE.draw("Lsideback", x, TITLE.stack.YL5, SPRITE.LineTop);
+
+        //potion background
+        let delta = 80;
+        y -= TITLE.stack.delta3 / 2 - 6;
+        TITLE.stack.PY = (y + SPRITE.RedPotion24.height / 4) | 0;
+        let xS = ENGINE.spreadAroundCenter(2, ENGINE.sideWIDTH / 2, delta);
+        let x1 = xS.shift();
+        TITLE.stack.p1 = x1 + SPRITE.RedPotion24.width + 6;
+        ENGINE.spriteDraw("Lsideback", x1, y, SPRITE.RedPotion24);
+        let x2 = xS.shift();
+        TITLE.stack.p2 = x2 + SPRITE.BluePotion24.width + 6;
+        ENGINE.spriteDraw("Lsideback", x2, y, SPRITE.BluePotion24);
+
+        //final lines
+        y = (ENGINE.gameHEIGHT - SPRITE.LineBottom.height) | 0;
+
+        ENGINE.draw("Lsideback", x, y, SPRITE.LineBottom);
+        ENGINE.draw("sideback", x, y, SPRITE.LineBottom);
+
+        y -= 224; // comment this, put in stack
+        console.log("minimapY", y);
+        ENGINE.draw("sideback", x, y, SPRITE.LineTop);
+
+        //initial draws
+        this.potion();
+        this.status();
+        this.stats();
+        this.gold();
+        this.keys();
+        this.scrolls();
+    },
+    scrolls() {
+        let INV = HERO.inventory.scroll;
+        ENGINE.clearLayer("scrolls");
+        let CTX = LAYER.scrolls;
+
+        TITLE.stack.scrollIndex = Math.min(TITLE.stack.scrollIndex, INV.size() - 1);
+        let scrollSpread = ENGINE.spreadAroundCenter(
+            TITLE.stack.scrollInRow,
+            ((ENGINE.sideWIDTH / 2) | 0) - 16,
+            TITLE.stack.scrollDelta
+        );
+
+        let LN = INV.size();
+        let startIndex = Math.min((TITLE.stack.scrollIndex - TITLE.stack.scrollInRow / 2) | 0, LN - TITLE.stack.scrollInRow);
+        startIndex = Math.max(0, startIndex);
+        let max = startIndex + Math.min(TITLE.stack.scrollInRow, LN);
+        let y = TITLE.stack.SY;
+        for (let q = startIndex; q < max; q++) {
+            let scroll = INV.list[q];
+            let x = scrollSpread.shift();
+
+            if (q === TITLE.stack.scrollIndex) {
+                CTX.globalAlpha = 1;
+            } else {
+                CTX.globalAlpha = 0.75;
+            }
+
+            ENGINE.draw("scrolls", x, y, scroll.object.sprite);
+
+            CTX.font = "10px Consolas";
+            CTX.fillStyle = "#FFF";
+            CTX.fillText(scroll.count.toString().padStart(2, "0"), x + 32, y + 18 + 4);
+
+            if (q === TITLE.stack.scrollIndex) {
+                CTX.strokeStyle = "#FFF";
+                CTX.globalAlpha = 0.5;
+                CTX.lineWidth = "1";
+                CTX.beginPath();
+                CTX.rect(x - 14, y - 3, 60, 44);
+                CTX.closePath();
+                CTX.stroke();
+            }
+        }
+    },
+    keys() {
+        ENGINE.clearLayer("keys");
+        let y = (SPRITE.LineTop.height / 2 + TITLE.stack.delta2 / 2) | 0;
+        let list = [...HERO.inventory.key, ...HERO.inventory.status];
+        let NUM = list.length;
+        let spread = ENGINE.spreadAroundCenter(
+            NUM,
+            ENGINE.sideWIDTH / 2,
+            TITLE.stack.keyDelta
+        );
+        for (const item of list) {
+            let x = spread.shift();
+            ENGINE.spriteDraw("keys", x, y, SPRITE[item.spriteClass]);
+        }
+    },
+    gold() {
+        ENGINE.clearLayer("gold");
+        let y = TITLE.stack.YL5 + SPRITE.LineTop.height + 30;
+        let x = ((ENGINE.sideWIDTH - SPRITE.LineTop.width) / 2) | 0;
+        let fs = 18;
+        var CTX = LAYER.gold;
+        CTX.font = fs + "px Consolas";
+        CTX.fillStyle = "#AB8D3F";
+        CTX.shadowColor = "#6E5A28";
+        CTX.shadowOffsetX = 1;
+        CTX.shadowOffsetY = 1;
+        CTX.shadowBlur = 1;
+        CTX.fillText(`Gold: `, x, y);
+        CTX.fillText(`${GAME.gold.toString().padStart(6, "0")}`, 100, y);
+    },
+    stats() {
+        ENGINE.clearLayer("stat");
+        let y = TITLE.stack.YL4 + SPRITE.LineTop.height + 16;
+        let x = ((ENGINE.sideWIDTH - SPRITE.LineTop.width) / 2) | 0;
+        let fs = 16;
+        var CTX = LAYER.stat;
+        CTX.font = fs + "px Consolas";
+        CTX.fillStyle = "#AAA";
+        CTX.shadowColor = "#666";
+        CTX.shadowOffsetX = 1;
+        CTX.shadowOffsetY = 1;
+        CTX.shadowBlur = 1;
+
+        const padX = 110;
+
+        y += fs * 1.0;
+        CTX.fillText(`Attack: `, x, y);
+        CTX.save();
+        if (HERO.attack > HERO.reference_attack) {
+            CTX.fillStyle = "#0E0";
+        }
+        CTX.fillText(HERO.attack.toString().padStart(2, "0"), padX, y);
+        CTX.restore();
+        y += fs * 1.0; //
+        TITLE.attackBar(x, y);
+
+        y += fs * 3.0;
+        CTX.fillText(`Defense: `, x, y);
+        CTX.save();
+        if (HERO.defense > HERO.reference_defense) {
+            CTX.fillStyle = "#0E0";
+        }
+        CTX.fillText(HERO.defense.toString().padStart(2, "0"), padX, y);
+        CTX.restore();
+        y += fs * 1.0; //
+        TITLE.defenseBar(x, y);
+
+        y += fs * 3.0;
+        CTX.fillText(`Magic: `, x, y);
+        CTX.save();
+        if (HERO.magic > HERO.reference_magic) {
+            CTX.fillStyle = "#0E0";
+        }
+        CTX.fillText(HERO.magic.toString().padStart(2, "0"), padX, y);
+        CTX.restore();
+
+        y += fs * 1.0; //
+
+        TITLE.magicBar(x, y);
+
+
+    },
+    statBar(x, y, value, max, color) {
+        var CTX = LAYER.stat;
+        CTX.save();
+        ENGINE.resetShadow(CTX);
+        let h = 18;
+        let w = 200;
+        ENGINE.statusBar(CTX, x, y, w, h, value, max, color);
+        CTX.restore();
+    },
+    attackBar(x, y) {
+        TITLE.statBar(x, y, HERO.attackExp, HERO.attackExpGoal, "#FF8C00");
+    },
+    defenseBar(x, y) {
+        TITLE.statBar(x, y, HERO.defenseExp, HERO.defenseExpGoal, "#666600");
+    },
+    magicBar(x, y) {
+        TITLE.statBar(x, y, HERO.magicExp, HERO.magicExpGoal, "#800080");
+    },
+    status() {
+        ENGINE.clearLayer("statusBars");
+        let fs = 16;
+        var CTX = LAYER.statusBars;
+        CTX.font = fs + "px Times";
+        CTX.fillStyle = "#AAA";
+        CTX.shadowColor = "#666";
+        CTX.shadowOffsetX = 1;
+        CTX.shadowOffsetY = 1;
+        CTX.shadowBlur = 1;
+        let y = TITLE.stack.statusY;
+        let x = ((ENGINE.sideWIDTH - SPRITE.LineTop.width) / 2) | 0;
+
+        var bx, by;
+        y += fs * 1.5 + 4;
+        CTX.fillText("Health:", x, y);
+        inc();
+        TITLE.healthBar(bx, by);
+
+        y += fs * 1.5;
+        CTX.fillText("Mana:", x, y);
+        inc();
+        TITLE.manaBar(bx, by);
+        y += 1 * fs;
+
+        function inc() {
+            const pad = 3;
+            bx = x + 58;
+            by = y - fs + pad;
+        }
+    },
+    statusBar(x, y, value, max, color) {
+        var CTX = LAYER.statusBars;
+        CTX.save();
+        ENGINE.resetShadow(CTX);
+        let h = 16;
+        let w = 142;
+        ENGINE.statusBar(CTX, x, y, w, h, value, max, color);
+        CTX.restore();
+    },
+    healthBar(x, y) {
+        TITLE.statusBar(x, y, HERO.health, HERO.maxHealth, "#F00");
+    },
+    manaBar(x, y) {
+        TITLE.statusBar(x, y, HERO.mana, HERO.maxMana, "#00F");
+    },
+    potion() {
+        ENGINE.clearLayer("potion");
+        let CTX = LAYER.potion;
+        CTX.fillStyle = "#AAA";
+        CTX.shadowColor = "#666";
+        CTX.shadowOffsetX = 1;
+        CTX.shadowOffsetY = 1;
+        CTX.shadowBlur = 1;
+        let fs = 16;
+        CTX.font = fs + "px Times";
+        CTX.fillText(HERO.inventory.potion.red, TITLE.stack.p1, TITLE.stack.PY);
+        CTX.fillText(HERO.inventory.potion.blue, TITLE.stack.p2, TITLE.stack.PY);
     },
     compass() {
         let x = ((ENGINE.titleWIDTH - ENGINE.sideWIDTH) + ENGINE.sideWIDTH / 2) | 0;
@@ -519,6 +1051,21 @@ var TITLE = {
     },
     music() {
         AUDIO.Title.play();
+    },
+
+    time() {
+        let fs = 14;
+        let y = ((TITLE.stack.delta2 + SPRITE.LineTop.height) / 2 + fs / 4) | 0;
+        let x = ((ENGINE.sideWIDTH - SPRITE.LineTop.width) / 2) | 0;
+        var CTX = LAYER.time;
+        ENGINE.clearLayer("time");
+        CTX.font = fs + "px Consolas";
+        CTX.fillStyle = "#0D0";
+        CTX.fillText(`Depth: ${GAME.level.toString().padStart(2, "0")}`, x, y);
+        let time = `Time: ${GAME.time.timeString()}`;
+        let timeMeasure = CTX.measureText(time);
+        x = (ENGINE.sideWIDTH - x - timeMeasure.width) | 0;
+        CTX.fillText(time, x, y);
     },
 
     _grad(CTX, txt, fs, x, y) {

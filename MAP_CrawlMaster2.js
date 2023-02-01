@@ -18,7 +18,7 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9",
     "OperationWolf2", "PAC2", "Penta", "Phara", "Pipeline", "Pitfall", "Pitfall3", "Pitfall4", "Pitstop", "Pooyan",
     "Portal1", "Prince1", "Prince2", "RRR", "RickDangerous", "Robin", "SOF", "SQ1", "ST", "SVS1", "SVS10", "SVS2", "SVS3", "SVS4",
     "SW2", "SW4", "Scramble2", "Scramble3", "Scramble4", "Skyrim", "Soccer", "Sorcery2", "Sorcery3", "TR1", "TR1", "TR10", "TR2", "TR2", "TR3",
-    "TheSentinel", "Tut", "Tut2", "UU", "UU2", "Ultima1", "Ultima2", "Under", "VIC20", "Valhalla", "Vixen1", "Vixen2", "WDW", "WOW1",
+    "TheSentinel", "Tut2", "UU", "UU2", "Ultima1", "Ultima2", "Under", "VIC20", "Valhalla", "Vixen1", "Vixen2", "WDW", "WOW1",
     "WOW2", "Walls", "Wally", "Winter", "Wolf1", "Wolf2", "Zak", "Zaxxon", "ZimSalaBim", "Zong", "galaxian", "sabre2", "trash",
     "zx1", "BlueMax4", "Witcher5", "LSL9", "Shamus1", "PharaohCurse3", "Witcher4", "Witcher3", "TempleOfApshai", "Witcher2", "KnightLore2",
     "Witcher1", "Spelunker", "ShamusCase2", "Ishar2", "Ishar1", "Jungle1", "Pitfall5", "PharaohCurse2", "Frontier", "LSL8", "SP2", "SP1",
@@ -167,19 +167,17 @@ var SPAWN = {
     items(level) {
         console.log("spawning items");
         const itemLocations = [
-
             { grid: new FP_Grid(1.5, 8.5), type: COMMON_ITEM_TYPE.GoldCube },
             { grid: new FP_Grid(4.5, 2.5), type: COMMON_ITEM_TYPE.GoldBar },
-
             { grid: new FP_Grid(3.5, 2.5), type: COMMON_ITEM_TYPE.GoldKey },
             { grid: new FP_Grid(2.5, 3.5), type: COMMON_ITEM_TYPE.SilverKey },
             { grid: new FP_Grid(5.5, 3.5), type: COMMON_ITEM_TYPE.RedKey },
         ];
-   
+
         for (let item of itemLocations) {
-            console.log("Item", item);
+            //console.log("Item", item);
             let Item3D = new FloorItem3D(item.grid, item.type);
-            console.log("Item3D", Item3D);
+            //console.log("Item3D", Item3D);
             ITEM3D.add(Item3D);
         }
     }
@@ -224,6 +222,8 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 4,
         glueToFloor: true,
         texture: "Gold",
+        minVal: 50,
+        maxVal: 100,
     },
     GoldCube: {
         name: "GoldCube",
@@ -232,5 +232,7 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 5,
         glueToFloor: true,
         texture: "Gold",
+        minVal: 10,
+        maxVal: 50
     }
 };

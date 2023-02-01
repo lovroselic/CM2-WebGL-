@@ -44,7 +44,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.13.2",
+    VERSION: "0.13.3",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1012,10 +1012,9 @@ class LiftingGate {
 }
 
 class FloorItem3D {
-    constructor(grid, type, value = 0, h = 0) {
+    constructor(grid, type, h = 0) {
         this.grid = grid;
         this.type = type;
-        this.value = value;
         this.h = h;
         this.interactive = true;
         this.active = true;
@@ -1041,6 +1040,10 @@ class FloorItem3D {
         transpose = transpose.add(Vector3.from_array(heightTranspose));
         this.transpose = transpose.array;
         this.Y = this.transpose[1];
+        //value
+        if (this.category === "gold") {
+            this.value = RND(this.minVal, this.maxVal);
+        }
     }
     interact(GA) {
         console.log(this, "interaction");
