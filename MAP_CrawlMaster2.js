@@ -41,7 +41,11 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9",
     "OlympicSkier6", "Pitfall27", "Popeye2", "PrinceMac", "SVS102", "SabreWulf11", "Scramble7", "Shamus4", "Ski23", "Skyrim3", "Tutankham102", "Unknown3", "Witcher47",
     "Wolf10", "Zaxxon3", "ZimSalaBim2", "ArticShipwreck2", "BoogaBoo11", "CastleOFTerror11", "Cauldron8", "DM105", "DM106", "DM107", "DefenderOfTheCrown", "EOB11",
     "FortApocalypse41", "Hobbit101", "LCP", "LadyTut102", "ManicMiner11", "ManicMiner12", "MatchPoint2", "Miner2049_1", "MrRobot11", "Paratroopers2", "PharaohCurse11",
-    "Rambo3", "RobinOfTheWood4", "SP111", "ST2", "SammyLightfoot2", "SirFred4", "Skyrim9", "SkyrimElf", "Tutankham105", "UW27", "WOW104", "WinterGames11"
+    "Rambo3", "RobinOfTheWood4", "SP111", "ST2", "SammyLightfoot2", "SirFred4", "Skyrim9", "SkyrimElf", "Tutankham105", "UW27", "WOW104", "WinterGames11",
+    "Arena2", "Barbarian13", "BoogaBoo4", "BrianBloodaxe11", "CastleOfTerror3", "CastleOfTerror4", "CrystalCastles2", "Daggerfall3", "Daggerfall4", "EnigmaForce2",
+    "EveryoneIsAWally2", "GI_Joe2", "Gauntlet", "Gods2", "ImpossibleMission11", "JungleHunt2", "LaraCroft102", "ManicMiner14", "Miranda1", "Montezuma's revenge2",
+    "Nebulus2", "Neptune's daughters", "RobinHood3", "SammyLightfoot4", "Scramble23", "Skullkeep", "Soccer3", "SpaceQuest103", "TheHobbit13", "TheHobbit14",
+    "TheHobbit15", "Trashman2", "Triss", "Tutankham104", "Yennefer", "ZX Spectrum"
 ];
 
 //const DECAL_PAINTINGS = [];
@@ -169,16 +173,16 @@ var SPAWN = {
         const itemLocations = [
             { grid: new FP_Grid(1.5, 8.5), type: COMMON_ITEM_TYPE.GoldCube },
             { grid: new FP_Grid(4.5, 2.5), type: COMMON_ITEM_TYPE.GoldBar },
+            { grid: new FP_Grid(1.5, 9.5), type: COMMON_ITEM_TYPE.SilverBar },
+
+
             { grid: new FP_Grid(3.5, 2.5), type: COMMON_ITEM_TYPE.GoldKey },
             { grid: new FP_Grid(2.5, 3.5), type: COMMON_ITEM_TYPE.SilverKey },
             { grid: new FP_Grid(5.5, 3.5), type: COMMON_ITEM_TYPE.RedKey },
         ];
 
         for (let item of itemLocations) {
-            //console.log("Item", item);
-            let Item3D = new FloorItem3D(item.grid, item.type);
-            //console.log("Item3D", Item3D);
-            ITEM3D.add(Item3D);
+            ITEM3D.add(new FloorItem3D(item.grid, item.type));
         }
     }
 
@@ -225,6 +229,16 @@ const COMMON_ITEM_TYPE = {
         minVal: 50,
         maxVal: 100,
     },
+    SilverBar: {
+        name: "SilverBar",
+        category: "gold",
+        element: "BAR",
+        scale: 1 / 2 ** 4,
+        glueToFloor: true,
+        texture: "Silver",
+        minVal: 25,
+        maxVal: 50,
+    },
     GoldCube: {
         name: "GoldCube",
         category: "gold",
@@ -233,6 +247,6 @@ const COMMON_ITEM_TYPE = {
         glueToFloor: true,
         texture: "Gold",
         minVal: 10,
-        maxVal: 50
+        maxVal: 25
     }
 };

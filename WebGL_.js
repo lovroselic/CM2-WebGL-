@@ -482,7 +482,7 @@ const WebGL = {
                         let distance = PPos2d.EuclidianDistance(itemGrid);
                         console.log("distance", distance);
                         if (distance < WebGL.INI.INTERACT_DISTANCE) {
-                            obj.interact(HERO.player.GA);
+                            return obj.interact(HERO.player.GA);
                         }
                     }
                 }
@@ -977,6 +977,7 @@ class Gate {
         this.lift();
         GA.openDoor(this.grid);
         AUDIO.OpenGate.play();
+        return null;
     }
 }
 class LiftingGate {
@@ -1046,11 +1047,16 @@ class FloorItem3D {
         }
     }
     interact(GA) {
-        console.log(this, "interaction");
+        console.log(this, "interaction", this.category);
         this.active = false;
+        return {
+            category: this.category,
+            value: this.value,
+            color: this.color,
+            inventorySprite: this.inventorySprite
+        };
     }
 }
-
 
 /** Utility functions */
 

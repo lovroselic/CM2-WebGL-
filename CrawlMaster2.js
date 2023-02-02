@@ -15,14 +15,14 @@ known bugs:
  */
 ////////////////////////////////////////////////////
 
-var DEBUG = {
+const DEBUG = {
     FPS: true,
     BUTTONS: false,
     SETTING: true,
     VERBOSE: true,
     _2D_display: true,
 };
-var INI = {
+const INI = {
     MIMIMAP_HEIGHT: 200,
     MIMIMAP_WIDTH: 200,
     INFO_TIMER_ID: "info",
@@ -44,8 +44,8 @@ var INI = {
     MM_reveal_radius: 4,
     FINAL_LEVEL: 1,
 };
-var PRG = {
-    VERSION: "0.05.06",
+const PRG = {
+    VERSION: "0.05.07",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -125,6 +125,14 @@ var PRG = {
         TITLE.startTitle();
     }
 };
+class Key {
+    constructor(color, spriteClass) {
+        this.category = "Key";
+        this.type = "Key";
+        this.color = color;
+        this.spriteClass = spriteClass;
+    }
+}
 
 class Missile {
     constructor(grid, dir, type, magic, casterId = 0) {
@@ -175,7 +183,7 @@ class Missile {
     }
 }
 
-var HERO = {
+const HERO = {
     startInit() {
 
     },
@@ -368,7 +376,7 @@ var HERO = {
 };
 
 
-var GAME = {
+const GAME = {
     clearInfo() {
         ENGINE.clearLayer("info");
     },
@@ -463,14 +471,41 @@ var GAME = {
         GAME.respond(lapsedTime);
         VANISHING3D.manage(lapsedTime);
         MINIMAP.unveil(Vector3.to_FP_Grid(HERO.player.pos), HERO.vision);
+        ENGINE.TIMERS.update();
 
         //HERO.manage();
-        //let checkMouse = WebGL.MOUSE.click();
-        WebGL.MOUSE.click();
+        let interaction = WebGL.MOUSE.click();
+        if (interaction) GAME.processInteraction(interaction);
 
         GAME.frameDraw(lapsedTime);
 
         if (HERO.dead) GAME.checkIfProcessesComplete();
+    },
+    processInteraction(interaction) {
+        console.log("Processing interaction", interaction);
+        switch (interaction.category) {
+            case 'gold':
+                GAME.gold += interaction.value;
+                TITLE.gold();
+                AUDIO.Pick.play();
+                TURN.display(interaction.value, "#AB8D3F");
+                break;
+            case 'key':
+                let key = new Key(interaction.color, interaction.inventorySprite);
+                HERO.inventory.key.push(key);
+                TITLE.keys();
+                AUDIO.Keys.play();
+                display(interaction.inventorySprite);
+                break;
+            default:
+                console.error("interaction category error", interaction);
+        }
+
+        function display(inventorySprite) {
+            ENGINE.clearLayer("info");
+            ENGINE.draw("info", 7, 7, SPRITE[inventorySprite]);
+            GAME.infoTimer();
+        }
     },
     checkIfProcessesComplete() {
         //if (DESTRUCTION_ANIMATION.POOL.length !== 0) return;
@@ -641,7 +676,7 @@ var GAME = {
         ENGINE.GAME.ANIMATION.next(ENGINE.KEY.waitFor.bind(null, TITLE.startTitle, "enter"));
     }
 };
-var TITLE = {
+const TITLE = {
     stack: {
         delta2: 48,
         delta3: 48,
@@ -1168,6 +1203,33 @@ var TITLE = {
         CTX.shadowBlur = 3;
         CTX.fillText("GAME OVER", x, y);
     },
+};
+
+const TURN = {
+    damage(attacker, defender) {
+        if (attacker.attack === 0) return 0;
+        let delta = attacker.attack - defender.defense;
+        let damage = RND(Math.min(-1, (delta / 2) | 0), Math.max(delta, 1));
+        return damage;
+    },
+    magicDamage(attacker, defender) {
+        if (attacker.magic === 0) return 0;
+    },
+    display(value, color = "#0F0") {
+        ENGINE.clearLayer("info");
+        let CTX = LAYER.info;
+        let fs = 16;
+        CTX.font = fs + "px Times";
+        CTX.shadowColor = "#666";
+        CTX.shadowOffsetX = 1;
+        CTX.shadowOffsetY = 1;
+        CTX.shadowBlur = 0;
+        CTX.fillStyle = color;
+        CTX.textAlign = "center";
+        CTX.fillText(value, ENGINE.gameWIDTH / 2, ENGINE.gameHEIGHT / 2);
+
+        GAME.infoTimer();
+    }
 };
 
 // -- main --
