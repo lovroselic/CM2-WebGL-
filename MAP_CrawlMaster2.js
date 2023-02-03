@@ -12,7 +12,7 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9",
     "Drelbs", "EOB1", "EOB2", "EOB3", "EOB4", "Eric", "FA2", "FA3", "FF1", "FF2", "FF4",
     "FranticFreddie", "Fred1", "Fred2", "Frogger", "Galaga1", "Galaxian3", "Ghostbusters", "Gods", "Goonies", "GreenBeret", "HL1", "HL2", "HL3",
     "HL4", "HL5", "HOB1", "HOB11", "HOB2", "HOB4", "HOB5", "Hero1", "Hero10", "Hero2", "Hero3", "HoraceSki", "Hunchback",
-    "IK1", "IM", "Iceman", "Imhotep", "Impossible_Mission4", "Invaders", "JSW", "JSW2", "JSW3", "JetPac", "Jumpman", "JumpmanJr", "Jupiter_Lander", "KQ1",
+    "IK1", "IM", "Iceman", "Imhotep", "Impossible_Mission4", "Invaders", "JSW", "JSW2", "JSW3", "Jumpman", "JumpmanJr", "Jupiter_Lander", "KQ1",
     "Kangaroo", "Karateka", "Killerwat", "Knightlore", "LSL1", "LSL20", "LSL3", "LSL4", "LSL6", "LSL7", "LTUT", "LastNinja1", "Lode",
     "Maniac", "ManicMiner", "Miner", "MonkeyIsland", "Montezuma", "Moon", "MrRobot", "Nebulus", "Oblivion", "Oblivion2", "OperationWolf",
     "OperationWolf2", "PAC2", "Penta", "Phara", "Pipeline", "Pitfall", "Pitfall3", "Pitfall4", "Pitstop", "Pooyan",
@@ -57,10 +57,7 @@ const DECAL_CRESTS = ["LS", "Skull4", "Skull3", "Skull2", "Skull1", "Crack4", "C
 //const DECAL_CRESTS = [];
 console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
 
-const COMMON_GATES = ["WoodenGate1"];
-const RED_GATES = ["RedGate1"];
-const SILVER_GATES = ["SilverGate1"];
-const GOLD_GATES = ["GoldGate1"];
+
 
 console.log("%cMAP for CrawlMaster2 loaded.", "color: #888");
 var MAP = {
@@ -139,33 +136,19 @@ var SPAWN = {
     },
     gates(level) {
         let GA = MAP[level].map.GA;
-        const gateLocations = [{ x: 6, y: 7, type: 'common' }, { x: 7, y: 8, type: 'common' }, { x: 10, y: 1, type: 'red' }, { x: 10, y: 6, type: 'silver' },
-        { x: 13, y: 6, type: 'gold' }];
+        const gateLocations = [
+            { grid: new Grid(6, 7), type: GATE_TYPE.Common },
+            { grid: new Grid(7, 8), type: GATE_TYPE.Common },
 
+            { grid: new Grid(10, 1), type: GATE_TYPE.Red },
+            { grid: new Grid(10, 6), type: GATE_TYPE.Silver },
+            { grid: new Grid(13, 6), type: GATE_TYPE.Gold },
+        ];
 
-        for (let L of gateLocations) {
-            let gatePic = null;
-            let grid = new Grid(L.x, L.y);
-            GA.addDoor(grid); //needs to be removed if door set properly in the map!!
-            switch (L.type) {
-                case "common":
-                    gatePic = COMMON_GATES.chooseRandom();
-                    break;
-                case "red":
-                    gatePic = RED_GATES.chooseRandom();
-                    break;
-                case "silver":
-                    gatePic = SILVER_GATES.chooseRandom();
-                    break;
-                case "gold":
-                    gatePic = GOLD_GATES.chooseRandom();
-                    break;
-                default:
-                    console.error("spawning gate, gate type error", type);
-                    break;
-            }
-            GATE3D.add(new Gate(grid, SPRITE[gatePic], gatePic, L.type, GATE3D));
-            GA.closeDoor(grid);
+        for (let G of gateLocations) {
+            GA.addDoor(G.grid); //needs to be removed if door set properly in the map!!
+            GATE3D.add(new Gate(G.grid, G.type));
+            GA.closeDoor(G.grid);
         }
     },
     items(level) {
@@ -176,16 +159,42 @@ var SPAWN = {
             { grid: new FP_Grid(1.5, 9.5), type: COMMON_ITEM_TYPE.SilverBar },
 
 
-            { grid: new FP_Grid(3.5, 2.5), type: COMMON_ITEM_TYPE.GoldKey },
-            { grid: new FP_Grid(2.5, 3.5), type: COMMON_ITEM_TYPE.SilverKey },
-            { grid: new FP_Grid(5.5, 3.5), type: COMMON_ITEM_TYPE.RedKey },
+            { grid: new FP_Grid(12.5, 2.5), type: COMMON_ITEM_TYPE.GoldKey },
+            { grid: new FP_Grid(13.5, 2.5), type: COMMON_ITEM_TYPE.SilverKey },
+            { grid: new FP_Grid(14.5, 2.5), type: COMMON_ITEM_TYPE.RedKey },
         ];
 
         for (let item of itemLocations) {
             ITEM3D.add(new FloorItem3D(item.grid, item.type));
         }
     }
+};
 
+const GATE_TYPE = {
+    Common: {
+        name: "Common",
+        color: null,
+        locked: false,
+        texture: "WoodenGate1"
+    },
+    Red: {
+        name: "Red",
+        color: "Red",
+        locked: true,
+        texture: "RedGate1"
+    },
+    Silver: {
+        name: "Silver",
+        color: "Silver",
+        locked: true,
+        texture: "SilverGate1"
+    },
+    Gold: {
+        name: "Gold",
+        color: "Gold",
+        locked: true,
+        texture: "GoldGate1"
+    },
 };
 
 const COMMON_ITEM_TYPE = {

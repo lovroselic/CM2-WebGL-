@@ -633,7 +633,7 @@ class GridArray {
     if (this.isOutOfBounds(grid)) return false;
     return this.map[this.gridToIndex(grid)] & (MAPDICT.WALL === MAPDICT.WALL);
   }
-  addDoor(grid){
+  addDoor(grid) {
     this.set(grid, MAPDICT.DOOR);
   }
   toDoor(grid) {
@@ -1424,7 +1424,7 @@ var MINIMAP = {
     this.DATA.w = newW;
     this.DATA.h = newH;
   },
-  draw() {
+  draw(player) {
     ENGINE.clearLayer(this.DATA.layer);
     let CTX = LAYER[this.DATA.layer];
     CTX.fillStyle = MINIMAP.LEGEND.FOG;
@@ -1512,7 +1512,13 @@ var MINIMAP = {
     }
 
     CTX.fillStyle = MINIMAP.LEGEND.HERO;
-    let heroPos = Grid.toClass(Vector3.to_FP_Grid(this.player.pos));
+
+    let heroPos;
+    if (player) {
+      heroPos = player.pos;
+    } else {
+      heroPos = Grid.toClass(Vector3.to_FP_Grid(this.player.pos));
+    }
 
     CTX.pixelAt(
       this.DATA.drawX + heroPos.x * this.DATA.PIX_SIZE,

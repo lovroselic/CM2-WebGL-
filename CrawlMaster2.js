@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.05.07",
+    VERSION: "0.05.08",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -474,7 +474,7 @@ const GAME = {
         ENGINE.TIMERS.update();
 
         //HERO.manage();
-        let interaction = WebGL.MOUSE.click();
+        let interaction = WebGL.MOUSE.click(HERO);
         if (interaction) GAME.processInteraction(interaction);
 
         GAME.frameDraw(lapsedTime);

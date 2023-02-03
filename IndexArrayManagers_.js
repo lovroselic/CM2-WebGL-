@@ -323,6 +323,11 @@ class Decal3D extends IAM {
             GLOBAL_ID_MANAGER.IAM.push(this);
         }
     }
+    add(obj) {
+        this.POOL.push(obj);
+        obj.id = this.POOL.length;
+        obj.IAM = this;
+    }
     globalId(id) {
         if (this.id_offset != null) {
             return id + this.id_offset;

@@ -45,6 +45,12 @@ LoadTextures = [
     { srcName: "Gold1.jpg", name: "Gold" },
     { srcName: "Silver1.jpg", name: "Silver" },
     { srcName: "RedMetal1.jpg", name: "RedMetal" },
+
+    //decal-gates
+    { srcName: "GoldGate1_256.png", name: "GoldGate1" },
+    { srcName: "RedGate1_256.png", name: "RedGate1" },
+    { srcName: "SilverGate1_256.png", name: "SilverGate1" },
+    { srcName: "WoodeGate1_256.png", name: "WoodenGate1" },
 ];
 LoadAudio = [
     { srcName: "UseScroll.mp3", name: "PickBox" },
@@ -83,11 +89,7 @@ LoadSprites = [
     { srcName: "bluePotion24.png", name: "BluePotion24" },
     { srcName: "RedPotion24.png", name: "RedPotion24" },
 
-    //decal-gates
-    { srcName: "GoldGate1_256.png", name: "GoldGate1" },
-    { srcName: "RedGate1_256.png", name: "RedGate1" },
-    { srcName: "SilverGate1_256.png", name: "SilverGate1" },
-    { srcName: "WoodeGate1_256.png", name: "WoodenGate1" },
+    
 
     //decal-other
     { srcName: "LS.png", name: "LS" },
@@ -243,7 +245,6 @@ LoadSprites = [
     { srcName: "DM11.png", name: "DM11" },
     { srcName: "DDID2.png", name: "DDID2" },
     { srcName: "Gods.png", name: "Gods" },
-    { srcName: "JetPac.png", name: "JetPac" },
     { srcName: "JumpmanJr.png", name: "JumpmanJr" },
     { srcName: "CyberPunk1.png", name: "CyberPunk1" },
     { srcName: "KQ1.png", name: "KQ1" },

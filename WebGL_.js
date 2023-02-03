@@ -44,7 +44,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.13.3",
+    VERSION: "0.13.4",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -459,7 +459,7 @@ const WebGL = {
             );
             console.log(`%cWebGL.MOUSE -> window ${WebGL.DATA.window}, layer: ${WebGL.DATA.layer}`, WebGL.CSS);
         },
-        click() {
+        click(hero) {
             if (ENGINE.mouseOverId(WebGL.DATA.window)) {
                 if (ENGINE.mouseClickId(WebGL.DATA.window)) {
                     const gl = WebGL.CTX;
@@ -482,7 +482,7 @@ const WebGL = {
                         let distance = PPos2d.EuclidianDistance(itemGrid);
                         console.log("distance", distance);
                         if (distance < WebGL.INI.INTERACT_DISTANCE) {
-                            return obj.interact(HERO.player.GA);
+                            return obj.interact(hero.player.GA, hero.inventory);
                         }
                     }
                 }
@@ -957,6 +957,17 @@ class LightDecal extends Decal {
     }
 }
 class Gate {
+    constructor(grid, type) {
+        this.grid = grid;
+        this.type = type;
+        this.interactive = true;
+        for (const prop in type) {
+            this[prop] = type[prop];
+        }
+        //unpack
+        this.texture = TEXTURE[this.texture];
+    }
+    /*
     constructor(grid, texture, name, type, IAM) {
         this.grid = grid;
         this.texture = texture;
@@ -965,6 +976,7 @@ class Gate {
         this.IAM = IAM;
         this.interactive = true;
     }
+    */
     hide() {
         WebGL.hideCube(this.id, "door");
     }
@@ -972,7 +984,7 @@ class Gate {
         let gate = new LiftingGate(this, this.grid, this.texture, this.name, this.vertice_data, VANISHING3D);
         VANISHING3D.add(gate);
     }
-    interact(GA) {
+    interact(GA, inventory) {
         this.interactive = false;
         this.lift();
         GA.openDoor(this.grid);
@@ -1046,7 +1058,7 @@ class FloorItem3D {
             this.value = RND(this.minVal, this.maxVal);
         }
     }
-    interact(GA) {
+    interact(GA, inventory) {
         console.log(this, "interaction", this.category);
         this.active = false;
         return {
