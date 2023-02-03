@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.05.09",
+    VERSION: "0.05.10",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -433,6 +433,8 @@ const GAME = {
         MAP[level].map = FREE_MAP.import(JSON.parse(MAP[level].data));
         MAP[level].pw = MAP[level].map.width * ENGINE.INI.GRIDPIX;
         MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
+        MAP[level].map.GA.massSet(MAPDICT.FOG);
+
         HERO.player = new $3D_player(new Vector3(3.5, 0.5, 4.5), Vector3.from_2D_dir(UP), MAP[level].map);
         console.log("HERO", HERO);
 
@@ -499,6 +501,11 @@ const GAME = {
                 TITLE.keys();
                 AUDIO.Keys.play();
                 display(interaction.inventorySprite);
+                break;
+            case 'potion':
+                HERO.inventory.potion[interaction.color]++;
+                TITLE.potion();
+                AUDIO.Potion.play();
                 break;
             default:
                 console.error("interaction category error", interaction);

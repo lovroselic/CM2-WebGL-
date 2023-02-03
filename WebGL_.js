@@ -44,7 +44,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.13.5",
+    VERSION: "0.13.6",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -665,6 +665,7 @@ const WORLD = {
 
         for (let [index, value] of GA.map.entries()) {
             let grid = GA.indexToGrid(index);
+            value &= (2 ** GA.gridSizeBit - 1 - (MAPDICT.FOG));
             switch (value) {
                 case MAPDICT.EMPTY:
                 case MAPDICT.WALL + MAPDICT.DOOR + MAPDICT.RESERVED:

@@ -12,7 +12,7 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9",
     "Drelbs", "EOB1", "EOB2", "EOB3", "EOB4", "Eric", "FA2", "FA3", "FF1", "FF2", "FF4",
     "FranticFreddie", "Fred1", "Fred2", "Frogger", "Galaga1", "Galaxian3", "Ghostbusters", "Gods", "Goonies", "GreenBeret", "HL1", "HL2", "HL3",
     "HL4", "HL5", "HOB1", "HOB11", "HOB2", "HOB4", "HOB5", "Hero1", "Hero10", "Hero2", "Hero3", "HoraceSki", "Hunchback",
-    "IK1", "IM", "Iceman", "Imhotep", "Impossible_Mission4", "Invaders", "JSW", "JSW2", "JSW3", "Jumpman", "JumpmanJr", "Jupiter_Lander", "KQ1",
+    "IM", "Iceman", "Imhotep", "Impossible_Mission4", "Invaders", "JSW", "JSW2", "JSW3", "Jumpman", "JumpmanJr", "Jupiter_Lander", "KQ1",
     "Kangaroo", "Karateka", "Killerwat", "Knightlore", "LSL1", "LSL20", "LSL3", "LSL4", "LSL6", "LSL7", "LTUT", "LastNinja1", "Lode",
     "Maniac", "ManicMiner", "Miner", "MonkeyIsland", "Montezuma", "Moon", "MrRobot", "Nebulus", "Oblivion", "Oblivion2", "OperationWolf",
     "OperationWolf2", "PAC2", "Penta", "Phara", "Pipeline", "Pitfall", "Pitfall3", "Pitfall4", "Pitstop", "Pooyan",
@@ -162,6 +162,9 @@ var SPAWN = {
             { grid: new FP_Grid(12.5, 2.5), type: COMMON_ITEM_TYPE.GoldKey },
             { grid: new FP_Grid(13.5, 2.5), type: COMMON_ITEM_TYPE.SilverKey },
             { grid: new FP_Grid(14.5, 2.5), type: COMMON_ITEM_TYPE.RedKey },
+
+            { grid: new FP_Grid(3.5, 2.5), type: COMMON_ITEM_TYPE.RedPotion },
+            { grid: new FP_Grid(3.8, 2.0), type: COMMON_ITEM_TYPE.BluePotion },
         ];
 
         for (let item of itemLocations) {
@@ -198,6 +201,24 @@ const GATE_TYPE = {
 };
 
 const COMMON_ITEM_TYPE = {
+    RedPotion: {
+        name: "RedPotion",
+        category: "potion",
+        color: "red",
+        element: "FLASK",
+        scale: 1 / 2 ** 5,
+        glueToFloor: true,
+        texture: "RedLiquid",
+    },
+    BluePotion: {
+        name: "BluePotion",
+        category: "potion",
+        color: "blue",
+        element: "FLASK",
+        scale: 1 / 2 ** 5,
+        glueToFloor: true,
+        texture: "BlueLiquid",
+    },
     GoldKey: {
         name: "GoldKey",
         inventorySprite: "GoldKeyBig",

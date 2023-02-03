@@ -45,6 +45,8 @@ LoadTextures = [
     { srcName: "Gold1.jpg", name: "Gold" },
     { srcName: "Silver1.jpg", name: "Silver" },
     { srcName: "RedMetal1.jpg", name: "RedMetal" },
+    { srcName: "RedLiquid1.jpg", name: "RedLiquid" },
+    { srcName: "BlueLiquid1.jpg", name: "BlueLiquid" },
 
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
@@ -74,7 +76,7 @@ LoadAudio = [
 ];
 LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
 LoadShaders = ['vShader.glsl', 'fShader.glsl', 'pick_vShader.glsl', 'pick_fShader.glsl'];
-LoadObjects = ["key.obj"];
+LoadObjects = ["key.obj", "flask.obj"];
 
 LoadSprites = [
     { srcName: "WallLamp256.png", name: "WallLamp" },
@@ -89,7 +91,7 @@ LoadSprites = [
     { srcName: "bluePotion24.png", name: "BluePotion24" },
     { srcName: "RedPotion24.png", name: "RedPotion24" },
 
-    
+
 
     //decal-other
     { srcName: "LS.png", name: "LS" },
@@ -296,7 +298,7 @@ LoadSprites = [
     { srcName: "BlueMax2.png", name: "BlueMax2" },
     { srcName: "Oblivion.png", name: "Oblivion" },
     { srcName: "Skyrim.png", name: "Skyrim" },
-    { srcName: "IK1.png", name: "IK1" },
+    //{ srcName: "IK1.png", name: "IK1" },
     { srcName: "BlueMax4.png", name: "BlueMax4" },
     { srcName: "Witcher5.png", name: "Witcher5" },
     { srcName: "LSL9.png", name: "LSL9" },
