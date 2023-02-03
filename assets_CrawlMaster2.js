@@ -289,7 +289,7 @@ LoadSprites = [
     { srcName: "OperationWolf2.png", name: "OperationWolf2" },
     { srcName: "OperationWolf.png", name: "OperationWolf" },
     { srcName: "Imhotep.png", name: "Imhotep" },
-    { srcName: "Scramble2.png", name: "Scramble2" },
+    //{ srcName: "Scramble2.png", name: "Scramble2" },
     { srcName: "UU2.png", name: "UU2" },
     { srcName: "CW10.png", name: "CW10" },
     { srcName: "BlueMax3.png", name: "BlueMax3" },

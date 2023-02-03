@@ -44,7 +44,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.13.4",
+    VERSION: "0.13.5",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -964,19 +964,8 @@ class Gate {
         for (const prop in type) {
             this[prop] = type[prop];
         }
-        //unpack
         this.texture = TEXTURE[this.texture];
     }
-    /*
-    constructor(grid, texture, name, type, IAM) {
-        this.grid = grid;
-        this.texture = texture;
-        this.name = name;
-        this.type = type;
-        this.IAM = IAM;
-        this.interactive = true;
-    }
-    */
     hide() {
         WebGL.hideCube(this.id, "door");
     }
@@ -985,11 +974,25 @@ class Gate {
         VANISHING3D.add(gate);
     }
     interact(GA, inventory) {
-        this.interactive = false;
-        this.lift();
-        GA.openDoor(this.grid);
-        AUDIO.OpenGate.play();
-        return null;
+        console.log("Open gate", this.color, this.name);
+        if (this.locked) {
+            const checkKey = (key, value) => inventory.key.some((o) => o[key] === value);
+            console.log("checkKey", checkKey("color", this.color));
+            if (checkKey("color", this.color)) {
+                this.locked = false;
+                inventory.key = inventory.key.filter((el) => el.color !== this.color);
+            }
+        }
+
+        if (!this.locked) {
+            this.interactive = false;
+            this.lift();
+            GA.openDoor(this.grid);
+            AUDIO.OpenGate.play();
+            return { category: "title", section: "keys" };
+        } else {
+            AUDIO.ClosedDoor.play();
+        }
     }
 }
 class LiftingGate {

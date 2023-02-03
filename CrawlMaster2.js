@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.05.08",
+    VERSION: "0.05.09",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -484,6 +484,9 @@ const GAME = {
     processInteraction(interaction) {
         console.log("Processing interaction", interaction);
         switch (interaction.category) {
+            case 'title':
+                TITLE[interaction.section]();
+                break;
             case 'gold':
                 GAME.gold += interaction.value;
                 TITLE.gold();
