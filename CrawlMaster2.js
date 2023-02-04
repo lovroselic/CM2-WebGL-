@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.05.10",
+    VERSION: "0.05.11",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -131,6 +131,204 @@ class Key {
         this.type = "Key";
         this.color = color;
         this.spriteClass = spriteClass;
+    }
+}
+class Status {
+    constructor(type, spriteClass) {
+        this.type = type;
+        this.spriteClass = spriteClass;
+    }
+}
+class Scroll {
+    constructor(type) {
+        this.type = type;
+        this.id = this.type;
+        this.sprite = SPRITE["SCR_" + type];
+        this.class = "Scroll";
+        this.saveDefinition = ['class', 'type'];
+    }
+    action() {
+        let T;
+        let map = MAP[GAME.level].map;
+        switch (this.type) {
+            case "Light":
+                HERO.improveVision();
+                const visionTimerId = "visionTimer";
+                if (ENGINE.TIMERS.exists(visionTimerId)) {
+                    T = ENGINE.TIMERS.access(visionTimerId);
+                    T.extend(INI.LAMP_PERSISTENCE);
+                } else {
+                    T = new CountDown(visionTimerId, INI.LAMP_PERSISTENCE, HERO.extinguishLamp);
+                    let status = new Status("Light", "Lantern");
+                    HERO.inventory.status.push(status);
+                    TITLE.keys();
+                }
+                break;
+            case "Invisibility":
+                HERO.startInvisibility();
+                const invisibilityTimerId = "invisibilityTimer";
+                if (ENGINE.TIMERS.exists(invisibilityTimerId)) {
+                    T = ENGINE.TIMERS.access(invisibilityTimerId);
+                    T.extend(INI.INVISIBILITY_TIME);
+                } else {
+                    T = new CountDown(invisibilityTimerId, INI.INVISIBILITY_TIME, HERO.cancelInvisibility);
+                    let status = new Status("Invisibility", "Invisible");
+                    HERO.inventory.status.push(status);
+                    TITLE.keys();
+                }
+                break;
+            case "Map":
+                if (1 === 1){
+                    console.warn("not yet implmented");
+                    break;
+                }
+                let pointers = map.map_pointers;
+                let origin;
+                if (pointers.length > 0) {
+                    origin = pointers.shift();
+                } else {
+                    origin = new Grid(RND(map.minX, map.maxX), RND(map.minY, map.maxY));
+                }
+                MINIMAP.reveal(origin, INI.MM_reveal_radius);
+                break;
+            case "DrainMana":
+                if (1 === 1){
+                    console.warn("not yet implmented");
+                    break;
+                }
+                for (let enemy of ENEMY_RC.POOL) {
+                    if (enemy === null) continue;
+                    if (enemy.distance === null) continue;
+                    if (enemy.distance <= INI.SCROLL_RANGE) {
+                        enemy.mana = 0;
+                    }
+                }
+                HERO.mana = 0;
+                TITLE.status();
+                break;
+            case "Cripple":
+                if (1 === 1){
+                    console.warn("not yet implmented");
+                    break;
+                }
+                for (let enemy of ENEMY_RC.POOL) {
+                    if (enemy === null) continue;
+                    if (enemy.distance === null) continue;
+                    if (enemy.distance <= INI.SCROLL_RANGE) {
+                        enemy.moveSpeed = INI.CRIPPLE_SPEED;
+                    }
+                }
+                break;
+            case "BoostWeapon":
+                Scroll.boost("attack");
+                break;
+            case "BoostArmor":
+                Scroll.boost("defense");
+                break;
+            case "DestroyArmor":
+                if (1 === 1){
+                    console.warn("not yet implmented");
+                    break;
+                }
+                for (let enemy of ENEMY_RC.POOL) {
+                    if (enemy === null) continue;
+                    if (enemy.distance === null) continue;
+                    if (enemy.distance <= INI.SCROLL_RANGE) {
+                        let factor = RND(25, 50) / 100;
+                        enemy.defense -= Math.ceil(enemy.defense * factor);
+                    }
+                }
+                break;
+            case "DestroyWeapon":
+                if (1 === 1){
+                    console.warn("not yet implmented");
+                    break;
+                }
+                for (let enemy of ENEMY_RC.POOL) {
+                    if (enemy === null) continue;
+                    if (enemy.distance === null) continue;
+                    if (enemy.distance <= INI.SCROLL_RANGE) {
+                        let factor = RND(25, 50) / 100;
+                        enemy.attack -= Math.ceil(enemy.attack * factor);
+                    }
+                }
+                break;
+            case "Petrify":
+                if (1 === 1){
+                    console.warn("not yet implmented");
+                    break;
+                }
+                for (let enemy of ENEMY_RC.POOL) {
+                    if (enemy === null) continue;
+                    if (enemy.distance === null) continue;
+                    if (enemy.distance <= INI.SCROLL_RANGE) {
+                        enemy.petrify();
+                    }
+                }
+                break;
+            case "MagicBoost":
+                Scroll.boost("magic");
+                break;
+            case "TeleportTemple":
+                if (1 === 1){
+                    console.warn("not yet implmented");
+                    break;
+                }
+                let temple = map.findRoom("temple");
+                let target = map.findMiddleSpaceUnreserved(temple.area);
+                PLAYER.pos = Grid.toCenter(target);
+                break;
+            case "Luck":
+                HERO.lucky();
+                const luckyTimerId = "luckyTimer";
+                if (ENGINE.TIMERS.exists(luckyTimerId)) {
+                    T = ENGINE.TIMERS.access(luckyTimerId);
+                    T.extend(INI.LUCKY_TIME);
+                } else {
+                    T = new CountDown(luckyTimerId, INI.LUCKY_TIME, HERO.cancelLuck);
+                    let status = new Status("Luck", "Clover");
+                    HERO.inventory.status.push(status);
+                    TITLE.keys();
+                }
+                break;
+            case "HalfLife":
+                if (1 === 1){
+                    console.warn("not yet implmented");
+                    break;
+                }
+                for (let enemy of ENEMY_RC.POOL) {
+                    if (enemy === null) continue;
+                    if (enemy.distance === null) continue;
+                    if (enemy.distance <= INI.SCROLL_RANGE) {
+                        enemy.health = Math.max(1, Math.floor(enemy.health / 2));
+                    }
+                }
+                break;
+            default:
+                console.error("ERROR scroll action", this);
+                break;
+        }
+        AUDIO.UseScroll.play();
+    }
+    display() {
+        ENGINE.clearLayer("info");
+        ENGINE.draw("info", 7, 7, this.sprite);
+        GAME.infoTimer();
+    }
+    static boost(type) {
+        let T;
+        HERO.incStat(type);
+        const TimerId = `${type}_timer`;
+        if (ENGINE.TIMERS.exists(TimerId)) {
+            T = ENGINE.TIMERS.access(TimerId);
+            T.reset();
+        } else {
+            T = new CountDown(
+                TimerId,
+                INI.BOOST_TIME,
+                HERO.resetStat.bind(null, type)
+            );
+        }
     }
 }
 
@@ -507,6 +705,18 @@ const GAME = {
                 TITLE.potion();
                 AUDIO.Potion.play();
                 break;
+            case 'scroll':
+                let type = weightedRnd(SCROLL_TYPE);
+                if (GAME.level === INI.FINAL_LEVEL && type === 'TeleportTemple') {
+                    type = 'HalfLife';
+                }
+                let scroll = new Scroll(type);
+                scroll.display();
+                HERO.inventory.scroll.add(scroll);
+                TITLE.stack.scrollIndex = Math.max(TITLE.stack.scrollIndex, 0);
+                TITLE.scrolls();
+                AUDIO.Scroll.play();
+                break;
             default:
                 console.error("interaction category error", interaction);
         }
@@ -640,12 +850,41 @@ const GAME = {
             console.log("F9");
         }
         if (map[ENGINE.KEY.map.left]) {
-
-
+            TITLE.stack.scrollIndex--;
+            TITLE.stack.scrollIndex = Math.max(0, TITLE.stack.scrollIndex);
+            TITLE.scrolls();
+            ENGINE.GAME.keymap[ENGINE.KEY.map.left] = false;
+            return;
         }
         if (map[ENGINE.KEY.map.right]) {
-
+            TITLE.stack.scrollIndex++;
+            TITLE.stack.scrollIndex = Math.min(
+                HERO.inventory.scroll.size() - 1,
+                TITLE.stack.scrollIndex
+            );
+            TITLE.scrolls();
+            ENGINE.GAME.keymap[ENGINE.KEY.map.right] = false;
+            return;
         }
+        if (map[ENGINE.KEY.map.enter]) {
+            if (HERO.inventory.scroll.size() === 0) {
+                return;
+            }
+            let scroll = HERO.inventory.scroll.remove(TITLE.stack.scrollIndex);
+            scroll.action();
+            TITLE.scrolls();
+            ENGINE.GAME.keymap[ENGINE.KEY.map.enter] = false;
+        }
+        if (map[ENGINE.KEY.map.H]) {
+            if (GAME.completed) return;
+            HERO.usePotion("health");
+            ENGINE.GAME.keymap[ENGINE.KEY.map.H] = false; //NO repeat
+          }
+          if (map[ENGINE.KEY.map.M]) {
+            if (GAME.completed) return;
+            HERO.usePotion("mana");
+            ENGINE.GAME.keymap[ENGINE.KEY.map.M] = false; //NO repeat
+          }
         if (map[ENGINE.KEY.map.ctrl]) {
 
         }

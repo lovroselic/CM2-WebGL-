@@ -5,11 +5,11 @@
 
 "use strict";
 
-const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9", "AMC", "Amberstar", "Apshai", "ArcticShipwreck", "Arena",
+const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9", "AMC", "Amberstar", "Apshai", "Arena",
     "Aztec", "BFF", "Bagitman", "Barbarian1", "Barbarian5", "BeachHead", "Blackwyche", "BlueMax", "BlueMax2", "BlueMax3", "BoogaBoo1", "BoogaBoo3",
     "C64", "CH1", "CSB1", "CW1", "CW10", "CW2", "CW3", "CW5", "CW6", "Castle", "Choplifter", "Commando2",
     "CrystalCastles", "Cuthbert1", "CyberPunk1", "DDID2", "DK", "DK2", "DM1", "DM11", "DM12", "DM2", "DM3", "DM4", "DM5", "DM6",
-    "Drelbs", "EOB1", "EOB2", "EOB3", "EOB4", "Eric", "FA2", "FA3", "FF1", "FF2", "FF4",
+    "Drelbs", "EOB1", "EOB2", "EOB3", "EOB4", "Eric", "FA3", "FF1", "FF2", "FF4",
     "FranticFreddie", "Fred1", "Fred2", "Frogger", "Galaga1", "Galaxian3", "Ghostbusters", "Gods", "Goonies", "GreenBeret", "HL1", "HL2", "HL3",
     "HL4", "HL5", "HOB1", "HOB11", "HOB2", "HOB4", "HOB5", "Hero1", "Hero10", "Hero2", "Hero3", "HoraceSki", "Hunchback",
     "IM", "Iceman", "Imhotep", "Impossible_Mission4", "Invaders", "JSW", "JSW2", "JSW3", "Jumpman", "JumpmanJr", "Jupiter_Lander", "KQ1",
@@ -19,11 +19,11 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9",
     "Portal1", "Prince1", "Prince2", "RRR", "RickDangerous", "Robin", "SOF", "SQ1", "ST", "SVS1", "SVS10", "SVS2", "SVS3", "SVS4",
     "SW2", "SW4", "Scramble3", "Scramble4", "Skyrim", "Soccer", "Sorcery2", "Sorcery3", "TR1", "TR1", "TR10", "TR2", "TR2", "TR3",
     "TheSentinel", "Tut2", "UU", "UU2", "Ultima1", "Ultima2", "Under", "VIC20", "Valhalla", "Vixen1", "Vixen2", "WDW", "WOW1",
-    "WOW2", "Walls", "Wally", "Winter", "Wolf1", "Wolf2", "Zak", "Zaxxon", "ZimSalaBim", "Zong", "galaxian", "sabre2", "trash",
+    "WOW2", "Walls", "Wally", "Winter", "Wolf1", "Zak", "Zaxxon", "ZimSalaBim", "Zong", "galaxian", "sabre2", "trash",
     "zx1", "BlueMax4", "Witcher5", "LSL9", "Shamus1", "PharaohCurse3", "Witcher4", "Witcher3", "TempleOfApshai", "Witcher2", "KnightLore2",
     "Witcher1", "Spelunker", "ShamusCase2", "Ishar2", "Ishar1", "Jungle1", "Pitfall5", "PharaohCurse2", "Frontier", "LSL8", "SP2", "SP1",
     "SVS24", "SVS23", "KQ10", "Shamus20", "Pitfall21", "Apshai6", "Apshai5", "MontyMole", "PacClose", "PacGhost", "Pitfall20", "SVS22", "SVS21",
-    "Apshai4", "Apshai3", "Paperboy", "JungleStory", "RobinOfTheWood2", "Pyjamarama", "SammyLightfoot", "ThePawn", "KokotoniWilf", "Cauldron1",
+    "Apshai4", "Apshai3", "Paperboy", "RobinOfTheWood2", "Pyjamarama", "ThePawn", "KokotoniWilf", "Cauldron1",
     "Zeppelin2", "TimeTunnel", "SP3", "AC2", "Hero30", "SVS30", "AirWolf", "AA41", "AA40", "SeaWolf", "GIJoe10",
     "Hobbit1", "Hobbit3", "Ghostbusters2", "Commando3", "EOB20", "Hobbit6", "Hobbit7", "Hobbit8", "Hobbit9", "AticAtac1", "Infiltrator1", "ManicMiner2",
     "ManicMiner3", "Prince3", "Infiltrator2", "1942_2", "Arnie1", "BTF1", "BeachHead5", "Biggles1", "BlueThunder1", "BrianBloodaxe1", "BrideOfFrakenstein1",
@@ -165,6 +165,10 @@ var SPAWN = {
 
             { grid: new FP_Grid(3.5, 2.5), type: COMMON_ITEM_TYPE.RedPotion },
             { grid: new FP_Grid(3.8, 2.0), type: COMMON_ITEM_TYPE.BluePotion },
+
+            { grid: new FP_Grid(2.1, 3.5), type: COMMON_ITEM_TYPE.Scroll },
+            { grid: new FP_Grid(1.1, 4.5), type: COMMON_ITEM_TYPE.Scroll },
+            { grid: new FP_Grid(1.5, 5.5), type: COMMON_ITEM_TYPE.Scroll },
         ];
 
         for (let item of itemLocations) {
@@ -201,6 +205,14 @@ const GATE_TYPE = {
 };
 
 const COMMON_ITEM_TYPE = {
+    Scroll: {
+        name: "Scroll",
+        category: "scroll",
+        element: "SCROLL",
+        scale: 1 / 2 ** 4,
+        glueToFloor: true,
+        texture: "ScrollTexture",
+    },
     RedPotion: {
         name: "RedPotion",
         category: "potion",
@@ -279,4 +291,21 @@ const COMMON_ITEM_TYPE = {
         minVal: 10,
         maxVal: 25
     }
+};
+
+const SCROLL_TYPE = {
+    Light: 130,
+    Invisibility: 100,
+    Map: 100,
+    DrainMana: 90,
+    Cripple: 90,
+    BoostWeapon: 100,
+    BoostArmor: 100,
+    DestroyArmor: 80,
+    DestroyWeapon: 80,
+    Petrify: 20,
+    MagicBoost: 100,
+    TeleportTemple: 100,
+    Luck: 100,
+    HalfLife: 50
 };

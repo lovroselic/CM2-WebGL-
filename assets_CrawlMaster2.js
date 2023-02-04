@@ -47,6 +47,8 @@ LoadTextures = [
     { srcName: "RedMetal1.jpg", name: "RedMetal" },
     { srcName: "RedLiquid1.jpg", name: "RedLiquid" },
     { srcName: "BlueLiquid1.jpg", name: "BlueLiquid" },
+    { srcName: "ScrollTexture1.jpg", name: "ScrollTexture" },
+    { srcName: "Fireball2.jpg", name: "FireballTexture" },
 
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
@@ -76,11 +78,32 @@ LoadAudio = [
 ];
 LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
 LoadShaders = ['vShader.glsl', 'fShader.glsl', 'pick_vShader.glsl', 'pick_fShader.glsl'];
-LoadObjects = ["key.obj", "flask.obj"];
+LoadObjects = ["key.obj", "flask.obj", "scroll.obj"];
 
 LoadSprites = [
     { srcName: "WallLamp256.png", name: "WallLamp" },
     { srcName: "CompassRose.png", name: "CompassRose" },
+
+    //scrolls
+    { srcName: "Invisibility.png", name: "SCR_Invisibility" },
+    { srcName: "DestroyArmor.png", name: "SCR_DestroyArmor" },
+    { srcName: "DestroyWeapon.png", name: "SCR_DestroyWeapon" },
+    { srcName: "BoostArmor.png", name: "SCR_BoostArmor" },
+    { srcName: "BoostWeapon.png", name: "SCR_BoostWeapon" },
+    { srcName: "Map.png", name: "SCR_Map" },
+    { srcName: "TeleportTemple.png", name: "SCR_TeleportTemple" },
+    { srcName: "HalfLife.png", name: "SCR_HalfLife" },
+    { srcName: "Cripple.png", name: "SCR_Cripple" },
+    { srcName: "Light.png", name: "SCR_Light" },
+    { srcName: "MagicBoost.png", name: "SCR_MagicBoost" },
+    { srcName: "Luck.png", name: "SCR_Luck" },
+    { srcName: "DrainMana.png", name: "SCR_DrainMana" },
+    { srcName: "Petrify.png", name: "SCR_Petrify" },
+
+    //status
+    { srcName: "Invisible24.png", name: "Invisible" },
+    { srcName: "Clover24.png", name: "Clover" },
+    { srcName: "Lantern24.png", name: "Lantern" },
 
     //title sprites
     { srcName: "divLineB_200.png", name: "LineBottom" },
@@ -90,8 +113,6 @@ LoadSprites = [
     { srcName: "SilverKey.png", name: "SilverKeyBig" },
     { srcName: "bluePotion24.png", name: "BluePotion24" },
     { srcName: "RedPotion24.png", name: "RedPotion24" },
-
-
 
     //decal-other
     { srcName: "LS.png", name: "LS" },
@@ -210,7 +231,7 @@ LoadSprites = [
     { srcName: "Galaga1.png", name: "Galaga1" },
     { srcName: "BoogaBoo3.png", name: "BoogaBoo3" },
     { srcName: "BoogaBoo1.png", name: "BoogaBoo1" },
-    { srcName: "ArcticShipwreck.png", name: "ArcticShipwreck" },
+    //{ srcName: "ArcticShipwreck.png", name: "ArcticShipwreck" },
     { srcName: "Jupiter_Lander.png", name: "Jupiter_Lander" },
     { srcName: "CrystalCastles.png", name: "CrystalCastles" },
     { srcName: "SVS10.png", name: "SVS10" },
@@ -222,7 +243,7 @@ LoadSprites = [
     { srcName: "Impossible_Mission4.png", name: "Impossible_Mission4" },
     { srcName: "Drelbs.png", name: "Drelbs" },
     { srcName: "Wolf1.png", name: "Wolf1" },
-    { srcName: "Wolf2.png", name: "Wolf2" },
+    //{ srcName: "Wolf2.png", name: "Wolf2" },
     { srcName: "Zaxxon.png", name: "Zaxxon" },
     { srcName: "HL1.png", name: "HL1" },
     { srcName: "HL2.png", name: "HL2" },
@@ -269,7 +290,7 @@ LoadSprites = [
     { srcName: "SW4.png", name: "SW4" },
     { srcName: "LastNinja1.png", name: "LastNinja1" },
     { srcName: "FA3.png", name: "FA3" },
-    { srcName: "FA2.png", name: "FA2" },
+    //{ srcName: "FA2.png", name: "FA2" },
     { srcName: "TR10.png", name: "TR10" },
     { srcName: "Portal1.png", name: "Portal1" },
     { srcName: "LSL20.png", name: "LSL20" },
@@ -337,10 +358,10 @@ LoadSprites = [
     { srcName: "Apshai4.png", name: "Apshai4" },
     { srcName: "Apshai3.png", name: "Apshai3" },
     { srcName: "Paperboy.png", name: "Paperboy" },
-    { srcName: "JungleStory.png", name: "JungleStory" },
+    //{ srcName: "JungleStory.png", name: "JungleStory" },
     { srcName: "RobinOfTheWood2.png", name: "RobinOfTheWood2" },
     { srcName: "Pyjamarama.png", name: "Pyjamarama" },
-    { srcName: "SammyLightfoot.png", name: "SammyLightfoot" },
+    //{ srcName: "SammyLightfoot.png", name: "SammyLightfoot" },
     { srcName: "ThePawn.png", name: "ThePawn" },
     { srcName: "KokotoniWilf.png", name: "KokotoniWilf" },
     { srcName: "Cauldron1.png", name: "Cauldron1" },
