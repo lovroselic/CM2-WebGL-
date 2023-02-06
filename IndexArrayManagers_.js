@@ -315,7 +315,8 @@ class Missile_RC extends IAM {
 class Decal3D extends IAM {
     constructor(len = null) {
         super();
-        this.IA = "Decal3D";
+        //this.IA = "Decal3D";
+        this.IA = null;
         this.len = len;
         if (this.len) {
             this.id_offset = GLOBAL_ID_MANAGER.offset.last();
@@ -549,6 +550,51 @@ class Enemy_RC extends IAM {
     }
 }
 
+class Limited extends IAM {
+    constructor(limit) {
+        super();
+        this.IA = null;
+        this.limit = limit;
+    }
+    init(map, allocation_template) {
+        this.POOL = [];
+        this.linkMap(map);
+        //...
+        console.assert(this.limit >= allocation_template.texture_list.length, "texture list leng needs to be shorter that IAM limit, error");
+        this.allocation_template = allocation_template;
+    }
+    add(obj) {
+        if (this.POOL.length >= this.limit) throw (`${constructor.name}: allocation exceeded limit!`);
+        this.POOL.push(obj);
+        obj.id = this.POOL.length;
+        obj.IAM = this;
+        obj.constructor_name = obj.constructor.name;
+    }
+    getFree() {
+        for (let i = 0; i < this.POOL.length; i++) {
+            let obj = this.POOL[i];
+            if (!obj.active) return i;
+        }
+        return null;
+    }
+    locate(obj) {
+        const free = this.getFree();
+        if (free === null) {
+            console.error(`${constructor.name}: out of allocation space!`);
+            throw (`${constructor.name}: out of allocation space!`);
+            //return;
+        }
+        obj.active = true; //redundant assertion
+        this.POOL[free] = obj;
+        console.log("*** located:", obj);
+    }
+    draw() {
+        for (let obj of this.POOL) {
+            if (obj.active) obj.draw(this.map);
+        }
+    }
+}
+
 /** GLOBAL ID */
 const GLOBAL_ID_MANAGER = {
     offset: [0],
@@ -586,6 +632,7 @@ const LIGHTS3D = new Decal3D();
 const VANISHING3D = new Decal3D();
 const GATE3D = new Decal3D(100);
 const ITEM3D = new Decal3D(1000);
+const MISSILE3D = new Limited(4);
 /** *********************************************** */
 
 console.log(`%cIndexArrayManagers (IAM) ${IndexArrayManagers.VERSION} ready.`, "color: #7FFFD4");

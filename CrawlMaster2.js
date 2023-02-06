@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.05.11",
+    VERSION: "0.06.00",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -178,7 +178,7 @@ class Scroll {
                 }
                 break;
             case "Map":
-                if (1 === 1){
+                if (1 === 1) {
                     console.warn("not yet implmented");
                     break;
                 }
@@ -192,7 +192,7 @@ class Scroll {
                 MINIMAP.reveal(origin, INI.MM_reveal_radius);
                 break;
             case "DrainMana":
-                if (1 === 1){
+                if (1 === 1) {
                     console.warn("not yet implmented");
                     break;
                 }
@@ -207,7 +207,7 @@ class Scroll {
                 TITLE.status();
                 break;
             case "Cripple":
-                if (1 === 1){
+                if (1 === 1) {
                     console.warn("not yet implmented");
                     break;
                 }
@@ -226,7 +226,7 @@ class Scroll {
                 Scroll.boost("defense");
                 break;
             case "DestroyArmor":
-                if (1 === 1){
+                if (1 === 1) {
                     console.warn("not yet implmented");
                     break;
                 }
@@ -240,7 +240,7 @@ class Scroll {
                 }
                 break;
             case "DestroyWeapon":
-                if (1 === 1){
+                if (1 === 1) {
                     console.warn("not yet implmented");
                     break;
                 }
@@ -254,7 +254,7 @@ class Scroll {
                 }
                 break;
             case "Petrify":
-                if (1 === 1){
+                if (1 === 1) {
                     console.warn("not yet implmented");
                     break;
                 }
@@ -270,7 +270,7 @@ class Scroll {
                 Scroll.boost("magic");
                 break;
             case "TeleportTemple":
-                if (1 === 1){
+                if (1 === 1) {
                     console.warn("not yet implmented");
                     break;
                 }
@@ -292,7 +292,7 @@ class Scroll {
                 }
                 break;
             case "HalfLife":
-                if (1 === 1){
+                if (1 === 1) {
                     console.warn("not yet implmented");
                     break;
                 }
@@ -333,36 +333,32 @@ class Scroll {
 }
 
 class Missile {
-    constructor(grid, dir, type, magic, casterId = 0) {
+    constructor(position, direction, type, magic, casterId = 0) {
+        this.name = "Missile";
+        this.pos = position;
+        this.dir = direction;
+        this.magic = magic;
         this.casterId = casterId;
-        this.type = "Missile";
-        this.distance = null;
-        this.vectorToPlayer = null;
-        this.parent = MISSILE;
         for (const prop in type) {
             this[prop] = type[prop];
         }
-        this.base = 0;
-        this.moveState = new _3D_MoveState(grid, dir);
-        this.moveState.start();
-        this.actor = new _3D_ACTOR(this.class, this);
-        this.visible = false;
-        this.setR();
+        this.texture = TEXTURE[this.texture];
+        this.element = ELEMENT[this.element];
+
+        if (typeof (this.scale) === "number") {
+            this.scale = new Float32Array([this.scale, this.scale, this.scale]);
+        }
+        this.r = Math.max(...this.scale);
+        this.byte_length = this.element.indices.length * 2;
+        this.indices = this.element.indices.length;
         this.power = this.calcPower(magic);
+        this.grid = Vector3.to_FP_Grid(this.pos);
     }
     static calcMana(magic) {
         return (magic ** 1.15) | 0;
     }
     draw() {
-        ENGINE.VECTOR2D.drawBlock(this);
-    }
-    setR() {
-        let sum = 0;
-        for (const img of this.actor.asset.linear) {
-            sum += img.width;
-            sum += img.height;
-        }
-        this.r = sum / (2 * this.actor.asset.linear.length) / ENGINE.INI.GRIDPIX / 2;
+        ENGINE.VECTOR2D.drawPerspective(this,"#F00");
     }
     show() {
         this.visible = true;
@@ -636,7 +632,7 @@ const GAME = {
         HERO.player = new $3D_player(new Vector3(3.5, 0.5, 4.5), Vector3.from_2D_dir(UP), MAP[level].map);
         console.log("HERO", HERO);
 
-        WebGL.init_required_IAM(MAP[level].map);
+        WebGL.init_required_IAM(MAP[level].map, ALLOCATION_TYPE.Fireball);
         WebGL.MOUSE.initialize("ROOM");
         SPAWN.spawn(level);
         MAP[level].world = WORLD.build(MAP[level].map);
@@ -750,6 +746,7 @@ const GAME = {
         }
         if (DEBUG._2D_display) {
             ENGINE.BLOCKGRID.draw(MAP[GAME.level].map);
+            MISSILE3D.draw();
         }
     },
 
@@ -879,14 +876,35 @@ const GAME = {
             if (GAME.completed) return;
             HERO.usePotion("health");
             ENGINE.GAME.keymap[ENGINE.KEY.map.H] = false; //NO repeat
-          }
-          if (map[ENGINE.KEY.map.M]) {
+        }
+        if (map[ENGINE.KEY.map.M]) {
             if (GAME.completed) return;
             HERO.usePotion("mana");
             ENGINE.GAME.keymap[ENGINE.KEY.map.M] = false; //NO repeat
-          }
+        }
         if (map[ENGINE.KEY.map.ctrl]) {
+            let cost = Missile.calcMana(HERO.reference_magic);
+            //console.log("mana cost", cost);
+            if (cost > HERO.mana) {
+                AUDIO.MagicFail.play();
+                return;
+            }
+            if (!HERO.canShoot) return;
+            HERO.canShoot = false;
+            HERO.mana -= cost;
+            let exp = (HERO.magic / 5) | 0;
+            HERO.incExp(exp, "magic");
+            TITLE.status();
+            //position, direction, type, magic
+            let position = HERO.player.pos.translate(HERO.player.dir, HERO.player.r);
+            //console.log("position", position);
+            const missile = new Missile(position, HERO.player.dir, COMMON_ITEM_TYPE.Fireball, HERO.magic);
+            console.log("missile", missile);
+            MISSILE3D.locate(missile);
 
+            ENGINE.GAME.keymap[ENGINE.KEY.map.ctrl] = false; //NO repeat
+            setTimeout(() => (HERO.canShoot = true), INI.HERO_SHOOT_TIMEOUT);
+            return;
         }
         if (map[ENGINE.KEY.map.up]) {
 

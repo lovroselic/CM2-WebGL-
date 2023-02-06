@@ -13,6 +13,7 @@
 
 /**
  * https://glmatrix.net/docs/
+ * https://webglfundamentals.org/webgl/lessons/resources/webgl-state-diagram.html
  * https://blogs.oregonstate.edu/learnfromscratch/2021/10/05/understanding-various-coordinate-systems-in-opengl/
  * https://learnopengl.com/Getting-started/Transformations
  * https://learnopengl.com/Getting-started/Coordinate-Systems
@@ -44,7 +45,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.13.6",
+    VERSION: "0.14.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -71,7 +72,7 @@ const WebGL = {
     depthBuffer: null,
     frameBuffer: null,
     staticDecalList: [DECAL3D, LIGHTS3D],
-    dynamicDecalList: [GATE3D, ITEM3D],
+    dynamicDecalList: [GATE3D, ITEM3D, MISSILE3D],
     setContext(layer) {
         this.CTX = LAYER[layer];
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
@@ -101,12 +102,13 @@ const WebGL = {
             console.log(`%cWebGL:`, this.CSS, this);
         }
     },
-    init_required_IAM(map) {
+    init_required_IAM(map, missile_allocation) {
         DECAL3D.init(map);
         LIGHTS3D.init(map);
         GATE3D.init(map);
         VANISHING3D.init(map);
         ITEM3D.init(map);
+        MISSILE3D.init(map, missile_allocation);
 
         if (this.VERBOSE) {
             console.log("DECAL3D", DECAL3D);
@@ -277,7 +279,9 @@ const WebGL = {
                 modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
                 uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
                 cameraPos: gl.getUniformLocation(shaderProgram, "uCameraPos"),
-                lights: gl.getUniformLocation(shaderProgram, "uPointLights")
+                lights: gl.getUniformLocation(shaderProgram, "uPointLights"),
+                uScale: gl.getUniformLocation(shaderProgram, "uScale"),
+                uTranslate: gl.getUniformLocation(shaderProgram, "uTranslate"),
             },
         };
 
@@ -297,11 +301,18 @@ const WebGL = {
         const cameratarget = this.camera.pos.translate(this.camera.dir);
         glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, cameratarget.array, [0.0, 1.0, 0.0]);
 
+        // identity placeholders
+        const translationMatrix = glMatrix.mat4.create();
+        const scaleMatrix = glMatrix.mat4.create();
+        //
+
         gl.useProgram(this.program.program);
         // Set the uniform matrices
         gl.uniformMatrix4fv(this.program.uniformLocations.projectionMatrix, false, this.projectionMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.modelViewMatrix, false, viewMatrix);
         gl.uniform3fv(this.program.uniformLocations.cameraPos, this.camera.pos.array);
+        gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, scaleMatrix);
+        gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, translationMatrix);
 
         //light uniforms
         let lights = [];
@@ -419,11 +430,17 @@ const WebGL = {
                 //back to canvas
                 gl.useProgram(this.program.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-                //current_item_index_offset += item.byte_length;
             }
             current_item_index_offset += item.byte_length;
         }
+
+        //missile
+        /*
+        gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, scaleMatrix);
+        gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, translationMatrix);
+        */
+
+
     },
     idToVec(id) {
         return [((id >> 0) & 0xFF) / 0xFF, ((id >> 8) & 0xFF) / 0xFF, ((id >> 16) & 0xFF) / 0xFF, ((id >> 24) & 0xFF) / 0xFF];
@@ -493,7 +510,7 @@ const WebGL = {
 
 const WORLD = {
     bufferTypes: ["positions", 'indices', "textureCoordinates", "vertexNormals"],
-    objectTypes: ["wall", "floor", "ceil", "decal", "door", "item"],
+    objectTypes: ["wall", "floor", "ceil", "decal", "door", "item", "missile"],
     init() {
         for (let BT of this.bufferTypes) {
             this[BT] = [];
@@ -656,7 +673,20 @@ const WORLD = {
         this[type].indices = this[type].indices.concat(indices);
         this[type].textureCoordinates = this[type].textureCoordinates.concat(textureCoordinates);
         this[type].vertexNormals = this[type].vertexNormals.concat(vertexNormals);
+    },
+    reserveObject(E, type) {
+        let positions = [...E.positions];
+        let indices = [...E.indices];
+        let textureCoordinates = [...E.textureCoordinates];
+        let vertexNormals = [...E.vertexNormals];
 
+        //indices
+        indices = indices.map(e => e + (this[type].positions.length / 3));
+
+        this[type].positions = this[type].positions.concat(positions);
+        this[type].indices = this[type].indices.concat(indices);
+        this[type].textureCoordinates = this[type].textureCoordinates.concat(textureCoordinates);
+        this[type].vertexNormals = this[type].vertexNormals.concat(vertexNormals);
     },
     build(map, Y = 0) {
         const GA = map.GA;
@@ -708,11 +738,23 @@ const WORLD = {
         for (const item of ITEM3D.POOL) {
             this.addElement(item.element, item.Y, item.grid, 'item', item.scale);
         }
-
         /** items end */
 
-        /** map indices */
+        /** missile placeholders */
         {
+            const maxT = MISSILE3D.allocation_template.texture_list.length;
+            for (let i = 0; i < MISSILE3D.limit; i++) {
+                let texture_name = MISSILE3D.allocation_template.texture_list[i % maxT];
+                console.log("texture_name", texture_name);
+                let alloc = new Allocate(MISSILE3D.allocation_template, texture_name);
+                MISSILE3D.add(alloc);
+
+            }
+        }
+
+        /** missile end */
+
+        /** map indices */ {
             let L = 0;
             for (let type of this.objectTypes) {
                 this[type].indices = this[type].indices.map(e => e + L);
@@ -1071,6 +1113,21 @@ class FloorItem3D {
             color: this.color,
             inventorySprite: this.inventorySprite
         };
+    }
+}
+
+class Allocate {
+    constructor(type, texture) {
+        this.active = false;
+        this.interactive = false;
+
+        for (const prop in type) {
+            this[prop] = type[prop];
+        }
+        this.element = ELEMENT[this.element];
+        this.texture = TEXTURE[texture];
+        this.byte_length = this.element.indices.length * 2;
+        this.indices = this.element.indices.length;
     }
 }
 

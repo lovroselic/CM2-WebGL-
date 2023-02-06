@@ -2040,16 +2040,24 @@ const ENGINE = {
       CTX.lineWidth = 1;
       CTX.miterLimit = 1;
       CTX.lineJoin = "round";
-      //let point = player.pos.toPoint();
-      let point = Vector3.to_FP_Grid(player.pos).toPoint();
+      this._circle(CTX, Vector3.to_FP_Grid(player.pos), player.r, Vector3.to_FP_Grid(player.dir));
+    },
+    _circle(CTX, grid, R, dir) {
+      let point = grid.toPoint();
       CTX.pixelAtPoint(point);
-      let r = Math.round(ENGINE.INI.GRIDPIX * player.r);
+      let r = Math.round(ENGINE.INI.GRIDPIX * R);
       CTX.beginPath();
       CTX.arc(point.x, point.y, r, 0, 2 * Math.PI);
       CTX.moveTo(point.x, point.y);
-      let end = point.translate(Vector3.to_FP_Grid(player.dir), r);
+      let end = point.translate(dir, r);
       CTX.lineTo(end.x, end.y);
       CTX.stroke();
+    },
+    drawPerspective(entity, color = "#000") {
+      let CTX = ENGINE.VECTOR2D.layer;
+      CTX.strokeStyle = color;
+      CTX.lineWidth = 1;
+      this._circle(CTX, entity.grid, entity.r, Vector3.to_FP_Grid(entity.dir));
     },
     drawBlock(monster) {
       monster.actor.updateOrientationWidths();
