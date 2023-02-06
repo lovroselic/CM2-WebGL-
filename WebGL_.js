@@ -45,7 +45,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.14.0",
+    VERSION: "0.14.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -72,7 +72,7 @@ const WebGL = {
     depthBuffer: null,
     frameBuffer: null,
     staticDecalList: [DECAL3D, LIGHTS3D],
-    dynamicDecalList: [GATE3D, ITEM3D, MISSILE3D],
+    dynamicDecalList: [GATE3D, ITEM3D],
     setContext(layer) {
         this.CTX = LAYER[layer];
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
@@ -508,6 +508,21 @@ const WebGL = {
     }
 };
 
+const RAY = {
+    /*
+        raycast related utilitz functions
+    */
+    INI: {
+        NO_SOUND: 8,
+        NORMAL_SOUND: 2
+    },
+    volume(distance) {
+        let ratio = (RAY.INI.NO_SOUND - RAY.INI.NORMAL_SOUND - (distance - RAY.INI.NORMAL_SOUND)) / (RAY.INI.NO_SOUND - RAY.INI.NORMAL_SOUND);
+        ratio = Math.min(Math.max(0, ratio), 1);
+        return ratio;
+    }
+};
+
 const WORLD = {
     bufferTypes: ["positions", 'indices', "textureCoordinates", "vertexNormals"],
     objectTypes: ["wall", "floor", "ceil", "decal", "door", "item", "missile"],
@@ -742,12 +757,12 @@ const WORLD = {
 
         /** missile placeholders */
         {
-            const maxT = MISSILE3D.allocation_template.texture_list.length;
+            //const maxT = MISSILE3D.allocation_template.texture_list.length;
             for (let i = 0; i < MISSILE3D.limit; i++) {
-                let texture_name = MISSILE3D.allocation_template.texture_list[i % maxT];
-                console.log("texture_name", texture_name);
-                let alloc = new Allocate(MISSILE3D.allocation_template, texture_name);
-                MISSILE3D.add(alloc);
+                //let texture_name = MISSILE3D.allocation_template.texture_list[i % maxT];
+                //console.log("texture_name", texture_name);
+                //let alloc = new Allocate(MISSILE3D.allocation_template);
+                MISSILE3D.add(new Allocate(MISSILE3D.allocation_template));
 
             }
         }

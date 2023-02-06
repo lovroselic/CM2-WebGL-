@@ -559,8 +559,6 @@ class Limited extends IAM {
     init(map, allocation_template) {
         this.POOL = [];
         this.linkMap(map);
-        //...
-        console.assert(this.limit >= allocation_template.texture_list.length, "texture list leng needs to be shorter that IAM limit, error");
         this.allocation_template = allocation_template;
     }
     add(obj) {
@@ -591,6 +589,22 @@ class Limited extends IAM {
     draw() {
         for (let obj of this.POOL) {
             if (obj.active) obj.draw(this.map);
+        }
+    }
+    manage(lapsedTime) {
+        for (let obj of this.POOL) {
+            if (obj.active) {
+                obj.move(lapsedTime);
+                let wallHit = !this.map.GA.entityNotInWall(Vector3.to_FP_Grid(obj.pos), Vector3.to_FP_Vector(obj.dir), obj.r);
+                if (wallHit) {
+                    obj.active = false;
+                    //add explosion
+
+                    //
+                    AUDIO.Explosion.volume = RAY.volume(obj.distance);
+                    AUDIO.Explosion.play();
+                }
+            }
         }
     }
 }

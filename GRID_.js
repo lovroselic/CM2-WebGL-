@@ -1110,7 +1110,7 @@ class GridArray {
     return !check;
   }
   entityNotInWall(pos, dir, r, resolution = 8) {
-    let checks = this.pointsAroundEntity(pos, dir, r, resolution = 9);
+    let checks = this.pointsAroundEntity(pos, dir, r, resolution);
     for (const point of checks) {
       let notWall = this.positionIsNotWall(point);
       if (!notWall) return false;
@@ -1129,7 +1129,7 @@ class GridArray {
     return checks;
   }
   gridsAroundEntity(pos, dir, r, resolution = 4) {
-    let checks = this.pointsAroundEntity(pos, dir, r, resolution = 4);
+    let checks = this.pointsAroundEntity(pos, dir, r, resolution);
     checks = checks.filter(this.positionIsNotWall, this);
     return checks.map(Grid.toClass);
   }

@@ -175,7 +175,7 @@ var SPAWN = {
             { grid: new FP_Grid(1.1, 4.5), type: COMMON_ITEM_TYPE.Scroll },
             { grid: new FP_Grid(1.5, 5.5), type: COMMON_ITEM_TYPE.Scroll },
 
-            { grid: new FP_Grid(4.5, 1.5), type: COMMON_ITEM_TYPE.Fireball },
+            //{ grid: new FP_Grid(4.5, 1.5), type: COMMON_ITEM_TYPE.Fireball },
         ];
 
         for (let item of itemLocations) {
@@ -217,8 +217,9 @@ const COMMON_ITEM_TYPE = {
         category: 'missile',
         element: "BALL",
         scale: 1 / 2 ** 4,
-        glueToFloor: true, //redundant
+        //glueToFloor: true, //redundant
         texture: "FireballTexture",
+        moveSpeed: 5.0
     },
     Scroll: {
         name: "Scroll",
@@ -328,6 +329,5 @@ const SCROLL_TYPE = {
 const ALLOCATION_TYPE = {
     Fireball: {
         element: "BALL",
-        texture_list: ["FireballTexture"],
     }
 };

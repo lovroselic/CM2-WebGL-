@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.06.00",
+    VERSION: "0.06.01",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -339,10 +339,11 @@ class Missile {
         this.dir = direction;
         this.magic = magic;
         this.casterId = casterId;
+        this.distance = null;
         for (const prop in type) {
             this[prop] = type[prop];
         }
-        this.texture = TEXTURE[this.texture];
+        this.texture = WebGL.createTexture(TEXTURE[this.texture]);
         this.element = ELEMENT[this.element];
 
         if (typeof (this.scale) === "number") {
@@ -352,19 +353,18 @@ class Missile {
         this.byte_length = this.element.indices.length * 2;
         this.indices = this.element.indices.length;
         this.power = this.calcPower(magic);
-        this.grid = Vector3.to_FP_Grid(this.pos);
+        this.pos = this.pos.translate(this.dir, 1.2 * this.r);
     }
     static calcMana(magic) {
         return (magic ** 1.15) | 0;
     }
     draw() {
-        ENGINE.VECTOR2D.drawPerspective(this,"#F00");
+        ENGINE.VECTOR2D.drawPerspective(this, "#F00");
     }
-    show() {
-        this.visible = true;
-    }
-    hide() {
-        this.visible = false;
+    move(lapsedTime) {
+        let length = (lapsedTime / 1000) * this.moveSpeed;
+        this.pos = this.pos.translate(this.dir, length);
+        this.distance = glMatrix.vec3.distance(HERO.player.pos.array, this.pos.array);
     }
     calcPower(magic) {
         return 2 * magic + RND(-2, 2);
@@ -666,6 +666,7 @@ const GAME = {
         if (ENGINE.GAME.stopAnimation) return;
         GAME.respond(lapsedTime);
         VANISHING3D.manage(lapsedTime);
+        MISSILE3D.manage(lapsedTime);
         MINIMAP.unveil(Vector3.to_FP_Grid(HERO.player.pos), HERO.vision);
         ENGINE.TIMERS.update();
 
@@ -895,9 +896,7 @@ const GAME = {
             let exp = (HERO.magic / 5) | 0;
             HERO.incExp(exp, "magic");
             TITLE.status();
-            //position, direction, type, magic
             let position = HERO.player.pos.translate(HERO.player.dir, HERO.player.r);
-            //console.log("position", position);
             const missile = new Missile(position, HERO.player.dir, COMMON_ITEM_TYPE.Fireball, HERO.magic);
             console.log("missile", missile);
             MISSILE3D.locate(missile);

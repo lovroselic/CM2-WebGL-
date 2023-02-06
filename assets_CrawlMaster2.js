@@ -74,6 +74,7 @@ LoadAudio = [
     { srcName: "Level up.mp3", name: "LevelUp" },
     { srcName: "Pick up gold.mp3", name: "Pick" },
     { srcName: "Evil laughter.mp3", name: "EvilLaughter" },
+    { srcName: "Explosion1.mp3", name: "Explosion" },
 
 ];
 LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];

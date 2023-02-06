@@ -2057,7 +2057,7 @@ const ENGINE = {
       let CTX = ENGINE.VECTOR2D.layer;
       CTX.strokeStyle = color;
       CTX.lineWidth = 1;
-      this._circle(CTX, entity.grid, entity.r, Vector3.to_FP_Grid(entity.dir));
+      this._circle(CTX, Vector3.to_FP_Grid(entity.pos), entity.r, Vector3.to_FP_Grid(entity.dir));
     },
     drawBlock(monster) {
       monster.actor.updateOrientationWidths();
