@@ -263,7 +263,7 @@ LoadSprites = [
     { srcName: "Killerwat.png", name: "Killerwat" },
     { srcName: "DM11.png", name: "DM11" },
     { srcName: "DDID2.png", name: "DDID2" },
-    { srcName: "Gods.png", name: "Gods" },
+    //{ srcName: "Gods.png", name: "Gods" },
     { srcName: "JumpmanJr.png", name: "JumpmanJr" },
     { srcName: "CyberPunk1.png", name: "CyberPunk1" },
     { srcName: "KQ1.png", name: "KQ1" },

@@ -45,7 +45,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.14.2",
+    VERSION: "0.14.3",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -251,6 +251,8 @@ const WebGL = {
                 projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
                 modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
                 id: gl.getUniformLocation(shaderProgram, "u_id"),
+                uScale: gl.getUniformLocation(shaderProgram, "uScale"),
+                uTranslate: gl.getUniformLocation(shaderProgram, "uTranslate"),
             },
         };
 
@@ -325,6 +327,8 @@ const WebGL = {
         gl.useProgram(this.pickProgram.program);
         gl.uniformMatrix4fv(this.pickProgram.uniformLocations.projectionMatrix, false, this.projectionMatrix);
         gl.uniformMatrix4fv(this.pickProgram.uniformLocations.modelViewMatrix, false, viewMatrix);
+        gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, scaleMatrix);
+        gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, translationMatrix);
 
         this.renderDungeon();
     },
@@ -412,11 +416,18 @@ const WebGL = {
         }
 
         //items
-        let current_item_index_offset = 0;
+        //let current_item_index_offset = 0;
         for (const item of ITEM3D.POOL) {
             if (item.active) {
+                const mScaleMatrix = glMatrix.mat4.create();
+                glMatrix.mat4.fromScaling(mScaleMatrix, item.scale);
+                const mTranslationmatrix = glMatrix.mat4.create();
+                glMatrix.mat4.fromTranslation(mTranslationmatrix, item.translate);
+                gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, mScaleMatrix);
+                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, mTranslationmatrix);
+
                 gl.bindTexture(gl.TEXTURE_2D, item.texture);
-                gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, 2 * this.world.offset.item_start + current_item_index_offset);
+                gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, this.world.offset[item.start] * 2);
 
                 // to texture 
                 let id = ITEM3D.globalId(item.id);
@@ -425,13 +436,15 @@ const WebGL = {
                 gl.useProgram(this.pickProgram.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
                 gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
-                gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, 2 * this.world.offset.item_start + current_item_index_offset);
+                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uScale, false, mScaleMatrix);
+                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, mTranslationmatrix);
+                gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, this.world.offset[item.start] * 2);
 
                 //back to canvas
                 gl.useProgram(this.program.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, null);
             }
-            current_item_index_offset += item.byte_length;
+            //current_item_index_offset += item.byte_length;
         }
 
         //missile
@@ -493,6 +506,7 @@ const WebGL = {
                     const data = new Uint8Array(4);
                     gl.readPixels(pixelX, pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data);
                     const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
+                    //console.warn("id", id)
                     if (id > 0) {
                         const obj = GLOBAL_ID_MANAGER.getObject(id);
                         if (!obj) return;
@@ -758,13 +772,6 @@ const WORLD = {
             }
         }
         /** gates end */
-
-        /** items */
-        for (const item of ITEM3D.POOL) {
-            this.addElement(item.element, item.Y, item.grid, 'item', item.scale);
-        }
-        /** items end */
-
 
         /** object map */
         for (let element of object_map) {
@@ -1100,6 +1107,7 @@ class FloorItem3D {
         for (const prop in type) {
             this[prop] = type[prop];
         }
+        this.start = `${this.element}_start`;
         //unpack
         this.element = ELEMENT[this.element];
         this.texture = TEXTURE[this.texture];
@@ -1108,17 +1116,17 @@ class FloorItem3D {
         }
         this.byte_length = this.element.indices.length * 2;
         this.indices = this.element.indices.length;
-        //transpose
-        let heightTranspose = new Float32Array([0, 0, 0]);
+        //translate
+        let heightTranslate = new Float32Array([0, 0, 0]);
         if (this.glueToFloor) {
             let max = ELEMENT.getMinY(this.element);
-            heightTranspose[1] -= max * this.scale[1];
+            heightTranslate[1] -= max * this.scale[1];
 
         }
-        let transpose = new Vector3(grid.x, h, grid.y);
-        transpose = transpose.add(Vector3.from_array(heightTranspose));
-        this.transpose = transpose.array;
-        this.Y = this.transpose[1];
+        let translate = new Vector3(grid.x, h, grid.y);
+        translate = translate.add(Vector3.from_array(heightTranslate));
+        this.translate = translate.array;
+        this.Y = this.translate[1];
         //value
         if (this.category === "gold") {
             this.value = RND(this.minVal, this.maxVal);
