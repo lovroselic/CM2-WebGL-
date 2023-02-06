@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.06.01",
+    VERSION: "0.06.02",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -334,6 +334,7 @@ class Scroll {
 
 class Missile {
     constructor(position, direction, type, magic, casterId = 0) {
+        this.active = true;
         this.name = "Missile";
         this.pos = position;
         this.dir = direction;
@@ -344,13 +345,13 @@ class Missile {
             this[prop] = type[prop];
         }
         this.texture = WebGL.createTexture(TEXTURE[this.texture]);
+        this.start = `${this.element}_start`;
         this.element = ELEMENT[this.element];
 
         if (typeof (this.scale) === "number") {
             this.scale = new Float32Array([this.scale, this.scale, this.scale]);
         }
         this.r = Math.max(...this.scale);
-        this.byte_length = this.element.indices.length * 2;
         this.indices = this.element.indices.length;
         this.power = this.calcPower(magic);
         this.pos = this.pos.translate(this.dir, 1.2 * this.r);
@@ -632,10 +633,11 @@ const GAME = {
         HERO.player = new $3D_player(new Vector3(3.5, 0.5, 4.5), Vector3.from_2D_dir(UP), MAP[level].map);
         console.log("HERO", HERO);
 
-        WebGL.init_required_IAM(MAP[level].map, ALLOCATION_TYPE.Fireball);
+        WebGL.init_required_IAM(MAP[level].map);
         WebGL.MOUSE.initialize("ROOM");
         SPAWN.spawn(level);
-        MAP[level].world = WORLD.build(MAP[level].map);
+        const object_map = ["BALL"];
+        MAP[level].world = WORLD.build(MAP[level].map, object_map);
         console.log("world", MAP[level].world);
 
         const textureData = {
@@ -885,7 +887,6 @@ const GAME = {
         }
         if (map[ENGINE.KEY.map.ctrl]) {
             let cost = Missile.calcMana(HERO.reference_magic);
-            //console.log("mana cost", cost);
             if (cost > HERO.mana) {
                 AUDIO.MagicFail.play();
                 return;
@@ -898,8 +899,8 @@ const GAME = {
             TITLE.status();
             let position = HERO.player.pos.translate(HERO.player.dir, HERO.player.r);
             const missile = new Missile(position, HERO.player.dir, COMMON_ITEM_TYPE.Fireball, HERO.magic);
-            console.log("missile", missile);
-            MISSILE3D.locate(missile);
+            //console.log("missile", missile);
+            MISSILE3D.add(missile);
 
             ENGINE.GAME.keymap[ENGINE.KEY.map.ctrl] = false; //NO repeat
             setTimeout(() => (HERO.canShoot = true), INI.HERO_SHOOT_TIMEOUT);

@@ -12,7 +12,7 @@ TODO:
 */
 
 const IndexArrayManagers = {
-    VERSION: "2.04",
+    VERSION: "2.05",
 };
 
 class IAM {
@@ -36,6 +36,7 @@ class IAM {
     add(obj) {
         this.POOL.push(obj);
         obj.id = this.POOL.length;
+        obj.IAM = this;
     }
     remove(id) {
         this.POOL[id - 1] = null;
@@ -312,37 +313,7 @@ class Missile_RC extends IAM {
     }
 }
 
-class Decal3D extends IAM {
-    constructor(len = null) {
-        super();
-        //this.IA = "Decal3D";
-        this.IA = null;
-        this.len = len;
-        if (this.len) {
-            this.id_offset = GLOBAL_ID_MANAGER.offset.last();
-            GLOBAL_ID_MANAGER.offset.push(this.id_offset + this.len);
-            GLOBAL_ID_MANAGER.IAM.push(this);
-        }
-    }
-    add(obj) {
-        this.POOL.push(obj);
-        obj.id = this.POOL.length;
-        obj.IAM = this;
-    }
-    globalId(id) {
-        if (this.id_offset != null) {
-            return id + this.id_offset;
-        }
-        return null;
-    }
-    manage(lapsedTime) {
-        for (const item of this.POOL) {
-            if (item) {
-                item.manage(lapsedTime);
-            }
-        }
-    }
-}
+
 
 class Decal_IA extends IAM {
     constructor() {
@@ -583,6 +554,7 @@ class Limited extends IAM {
             //return;
         }
         obj.active = true; //redundant assertion
+        obj.id = free + 1;
         this.POOL[free] = obj;
         console.log("*** located:", obj);
     }
@@ -609,7 +581,65 @@ class Limited extends IAM {
     }
 }
 
+/** 3D */
+
+class Decal3D extends IAM {
+    constructor(len = null) {
+        super();
+        this.IA = null;
+        this.len = len;
+        if (this.len) {
+            this.id_offset = GLOBAL_ID_MANAGER.offset.last();
+            GLOBAL_ID_MANAGER.offset.push(this.id_offset + this.len);
+            GLOBAL_ID_MANAGER.IAM.push(this);
+        }
+    }
+    globalId(id) {
+        if (this.id_offset != null) {
+            return id + this.id_offset;
+        }
+        return null;
+    }
+    manage(lapsedTime) {
+        for (const item of this.POOL) {
+            if (item) {
+                item.manage(lapsedTime);
+            }
+        }
+    }
+}
+
+class Missile3D extends IAM {
+    constructor() {
+        super();
+        this.IA = null;
+    }
+    draw() {
+        for (let obj of this.POOL) {
+            if (obj) obj.draw(this.map);
+        }
+    }
+    manage(lapsedTime) {
+        this.reIndex();
+        for (let obj of this.POOL) {
+            if (obj) {
+                obj.move(lapsedTime);
+                let wallHit = !this.map.GA.entityNotInWall(Vector3.to_FP_Grid(obj.pos), Vector3.to_FP_Vector(obj.dir), obj.r);
+                if (wallHit) {
+                    this.remove(obj.id);
+                    //add explosion
+
+                    //
+                    AUDIO.Explosion.volume = RAY.volume(obj.distance);
+                    AUDIO.Explosion.play();
+                }
+            }
+        }
+    }
+}
+
 /** GLOBAL ID */
+
 const GLOBAL_ID_MANAGER = {
     offset: [0],
     IAM: [],
@@ -646,7 +676,7 @@ const LIGHTS3D = new Decal3D();
 const VANISHING3D = new Decal3D();
 const GATE3D = new Decal3D(100);
 const ITEM3D = new Decal3D(1000);
-const MISSILE3D = new Limited(4);
+const MISSILE3D = new Missile3D();
 /** *********************************************** */
 
 console.log(`%cIndexArrayManagers (IAM) ${IndexArrayManagers.VERSION} ready.`, "color: #7FFFD4");

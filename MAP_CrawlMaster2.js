@@ -7,7 +7,7 @@
 
 const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA4", "AA5", "AA7", "AA8", "AA9", "AMC", "Amberstar", "Apshai", "Arena",
     "Aztec", "BFF", "Bagitman", "Barbarian1", "Barbarian5", "BeachHead", "BlueMax", "BlueMax2", "BlueMax3", "BoogaBoo1", "BoogaBoo3",
-    "C64", "CH1", "CSB1", "CW1", "CW10", "CW2", "CW3", "CW5", "CW6", "Castle", "Choplifter", "Commando2",
+    "C64", "CH1", "CSB1", "CW1", "CW10", "CW2", "CW3", "CW5", "CW6", "Castle", "Commando2",
     "CrystalCastles", "CyberPunk1", "DDID2", "DK", "DK2", "DM1", "DM11", "DM12", "DM4", "DM5", "DM6",
     "Drelbs", "EOB1", "EOB2", "EOB3", "EOB4", "Eric", "FA3", "FF1", "FF2", "FF4",
     "FranticFreddie", "Fred1", "Fred2", "Frogger", "Galaga1", "Galaxian3", "Ghostbusters", "Gods", "Goonies", "GreenBeret", "HL1", "HL2", "HL3",
@@ -175,7 +175,6 @@ var SPAWN = {
             { grid: new FP_Grid(1.1, 4.5), type: COMMON_ITEM_TYPE.Scroll },
             { grid: new FP_Grid(1.5, 5.5), type: COMMON_ITEM_TYPE.Scroll },
 
-            //{ grid: new FP_Grid(4.5, 1.5), type: COMMON_ITEM_TYPE.Fireball },
         ];
 
         for (let item of itemLocations) {
@@ -217,9 +216,8 @@ const COMMON_ITEM_TYPE = {
         category: 'missile',
         element: "BALL",
         scale: 1 / 2 ** 4,
-        //glueToFloor: true, //redundant
         texture: "FireballTexture",
-        moveSpeed: 5.0
+        moveSpeed: 6.0
     },
     Scroll: {
         name: "Scroll",
@@ -324,10 +322,4 @@ const SCROLL_TYPE = {
     TeleportTemple: 100,
     Luck: 100,
     HalfLife: 50
-};
-
-const ALLOCATION_TYPE = {
-    Fireball: {
-        element: "BALL",
-    }
 };

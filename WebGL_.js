@@ -45,7 +45,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.14.1",
+    VERSION: "0.14.2",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -102,13 +102,13 @@ const WebGL = {
             console.log(`%cWebGL:`, this.CSS, this);
         }
     },
-    init_required_IAM(map, missile_allocation) {
+    init_required_IAM(map) {
         DECAL3D.init(map);
         LIGHTS3D.init(map);
         GATE3D.init(map);
         VANISHING3D.init(map);
         ITEM3D.init(map);
-        MISSILE3D.init(map, missile_allocation);
+        MISSILE3D.init(map);
 
         if (this.VERBOSE) {
             console.log("DECAL3D", DECAL3D);
@@ -291,8 +291,8 @@ const WebGL = {
         const gl = this.CTX;
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clearDepth(1.0);
-        gl.enable(gl.DEPTH_TEST); // Enable depth testing
-        gl.depthFunc(gl.LEQUAL); // Near things obscure far things
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(gl.LEQUAL);
         gl.enable(gl.CULL_FACE);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -407,7 +407,7 @@ const WebGL = {
 
                 //back to canvas
                 gl.useProgram(this.program.program);
-                gl.bindFramebuffer(gl.FRAMEBUFFER, null); //
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
             }
         }
 
@@ -435,11 +435,18 @@ const WebGL = {
         }
 
         //missile
-        /*
-        gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, scaleMatrix);
-        gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, translationMatrix);
-        */
-
+        for (const missile of MISSILE3D.POOL) {
+            if (missile) {
+                const mScaleMatrix = glMatrix.mat4.create();
+                glMatrix.mat4.fromScaling(mScaleMatrix, missile.scale);
+                const mTranslationmatrix = glMatrix.mat4.create();
+                glMatrix.mat4.fromTranslation(mTranslationmatrix, missile.pos.array);
+                gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, mScaleMatrix);
+                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, mTranslationmatrix);
+                gl.bindTexture(gl.TEXTURE_2D, missile.texture);
+                gl.drawElements(gl.TRIANGLES, missile.indices, gl.UNSIGNED_SHORT, this.world.offset[missile.start] * 2);
+            }
+        }
 
     },
     idToVec(id) {
@@ -526,7 +533,10 @@ const RAY = {
 const WORLD = {
     bufferTypes: ["positions", 'indices', "textureCoordinates", "vertexNormals"],
     objectTypes: ["wall", "floor", "ceil", "decal", "door", "item", "missile"],
-    init() {
+    init(object_types) {
+        for (let O of object_types) {
+            this.objectTypes.push(O);
+        }
         for (let BT of this.bufferTypes) {
             this[BT] = [];
         }
@@ -703,10 +713,10 @@ const WORLD = {
         this[type].textureCoordinates = this[type].textureCoordinates.concat(textureCoordinates);
         this[type].vertexNormals = this[type].vertexNormals.concat(vertexNormals);
     },
-    build(map, Y = 0) {
+    build(map, object_map, Y = 0) {
         const GA = map.GA;
         console.time("WorldBuilding");
-        this.init();
+        this.init(object_map);
 
         for (let [index, value] of GA.map.entries()) {
             let grid = GA.indexToGrid(index);
@@ -755,21 +765,16 @@ const WORLD = {
         }
         /** items end */
 
-        /** missile placeholders */
-        {
-            //const maxT = MISSILE3D.allocation_template.texture_list.length;
-            for (let i = 0; i < MISSILE3D.limit; i++) {
-                //let texture_name = MISSILE3D.allocation_template.texture_list[i % maxT];
-                //console.log("texture_name", texture_name);
-                //let alloc = new Allocate(MISSILE3D.allocation_template);
-                MISSILE3D.add(new Allocate(MISSILE3D.allocation_template));
 
-            }
+        /** object map */
+        for (let element of object_map) {
+            this.reserveObject(ELEMENT[element], element);
         }
 
-        /** missile end */
+        /** object map end*/
 
-        /** map indices */ {
+        /** map indices */
+        {
             let L = 0;
             for (let type of this.objectTypes) {
                 this[type].indices = this[type].indices.map(e => e + L);
@@ -1140,7 +1145,7 @@ class Allocate {
             this[prop] = type[prop];
         }
         this.element = ELEMENT[this.element];
-        this.texture = TEXTURE[texture];
+        //this.texture = TEXTURE[texture];
         this.byte_length = this.element.indices.length * 2;
         this.indices = this.element.indices.length;
     }
