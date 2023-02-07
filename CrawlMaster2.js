@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.06.04",
+    VERSION: "0.06.05",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -636,7 +636,7 @@ const GAME = {
         WebGL.init_required_IAM(MAP[level].map);
         WebGL.MOUSE.initialize("ROOM");
         SPAWN.spawn(level);
-        const object_map = ["BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED"];
+        const object_map = ["BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM"];
         MAP[level].world = WORLD.build(MAP[level].map, object_map);
         console.log("world", MAP[level].world);
 
@@ -1035,7 +1035,7 @@ const TITLE = {
         ENGINE.draw("sideback", x, y, SPRITE.LineBottom);
 
         y -= 224; // comment this, put in stack
-        console.log("minimapY", y);
+        //console.log("minimapY", y);
         ENGINE.draw("sideback", x, y, SPRITE.LineTop);
 
         //initial draws

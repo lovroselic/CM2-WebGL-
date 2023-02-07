@@ -11,7 +11,6 @@ attribute vec2 aTextureCoord;
 
 uniform mat4 uModelViewMatrix;
 uniform mat4 uProjectionMatrix;
-
 uniform mat4 uScale;
 uniform mat4 uTranslate;
 

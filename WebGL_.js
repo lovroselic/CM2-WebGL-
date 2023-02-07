@@ -45,10 +45,13 @@
  * 
  * https://www.3dgep.com/simulating-particle-effects-using-opengl/
  * http://nehe.gamedev.net/tutorial/particle_engine_using_triangle_strips/21001/
+ * https://webglfundamentals.org/webgl/lessons/webgl-qna-efficient-particle-system-in-javascript---webgl-.html
+ * https://registry.khronos.org/webgl/sdk/demos/google/resources/o3djs/particles.js
+ * https://registry.khronos.org/webgl/sdk/demos/google/particles/index.html
  */
 
 const WebGL = {
-    VERSION: "0.14.4",
+    VERSION: "0.14.5",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -377,7 +380,7 @@ const WebGL = {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
         //draw separated
-        
+
         //wall
         gl.drawElements(gl.TRIANGLES, this.world.offset.wall_count, gl.UNSIGNED_SHORT, this.world.offset.wall_start * 2);
 
@@ -388,7 +391,6 @@ const WebGL = {
         //ceil
         gl.bindTexture(gl.TEXTURE_2D, this.texture.ceil);
         gl.drawElements(gl.TRIANGLES, this.world.offset.ceil_count, gl.UNSIGNED_SHORT, this.world.offset.ceil_start * 2);
-        
 
         //static decals
         let decalCount = 0;
@@ -399,14 +401,15 @@ const WebGL = {
                 decalCount++;
             }
         }
-        
-
 
         //existing doors
         for (const door of GATE3D.POOL) {
             if (door) {
+                const mTranslationmatrix = glMatrix.mat4.create();
+                glMatrix.mat4.fromTranslation(mTranslationmatrix, door.pos.array);
+                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, mTranslationmatrix); //
                 gl.bindTexture(gl.TEXTURE_2D, door.texture);
-                gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, (this.world.offset.door_start + ((door.id - 1) * 36)) * 2);
+                gl.drawElements(gl.TRIANGLES, door.indices, gl.UNSIGNED_SHORT, this.world.offset[door.start] * 2);
 
                 // to texture 
                 let id = GATE3D.globalId(door.id);
@@ -414,14 +417,14 @@ const WebGL = {
                 gl.useProgram(this.pickProgram.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
                 gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
-                gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, (this.world.offset.door_start + ((door.id - 1) * 36)) * 2);
+                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, mTranslationmatrix); //
+                gl.drawElements(gl.TRIANGLES, door.indices, gl.UNSIGNED_SHORT, this.world.offset[door.start] * 2);
 
                 //back to canvas
                 gl.useProgram(this.program.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, null);
             }
         }
-
 
         //items
         for (const item of ITEM3D.POOL) {
@@ -473,6 +476,7 @@ const WebGL = {
     },
 
     /** buffer manipulation */
+
     hideCube(id, type) {
         let offset = (this.world.positionOffset[`${type}_start`] + ((id - 1) * 72)) * 4;
         let data = ELEMENT.CUBE.hidden;
@@ -552,7 +556,7 @@ const RAY = {
 
 const WORLD = {
     bufferTypes: ["positions", 'indices', "textureCoordinates", "vertexNormals"],
-    objectTypes: ["wall", "floor", "ceil", "decal", "door"],
+    objectTypes: ["wall", "floor", "ceil", "decal"],
     init(object_types) {
         for (let O of object_types) {
             this.objectTypes.push(O);
@@ -762,22 +766,6 @@ const WORLD = {
             }
         }
         /** static decal end */
-
-        /** build gates */
-        for (const door of GATE3D.POOL) {
-            let door_vertice_offset = this.door.positions.length;
-            this.addCube(Y, door.grid, "door");
-            door.vertice_data = this.door.positions.slice(door_vertice_offset, door_vertice_offset + 72);
-
-            //smudge bottom
-            let door_texture_offset = this.door.textureCoordinates.length - 48 + 24;
-            for (let i = 0; i < 8; i++) {
-                if (this.door.textureCoordinates[door_texture_offset + i] === 1.0) {
-                    this.door.textureCoordinates[door_texture_offset + i] = 0.1;
-                }
-            }
-        }
-        /** gates end */
 
         /** object map */
         for (let element of object_map) {
@@ -1035,18 +1023,19 @@ class LightDecal extends Decal {
 class Gate {
     constructor(grid, type) {
         this.grid = grid;
+        this.pos = Vector3.from_Grid(grid);
         this.type = type;
         this.interactive = true;
         for (const prop in type) {
             this[prop] = type[prop];
         }
+        this.start = `${this.element}_start`;
         this.texture = TEXTURE[this.texture];
-    }
-    hide() {
-        WebGL.hideCube(this.id, "door");
+        this.element = ELEMENT[this.element];
+        this.indices = this.element.indices.length;
     }
     lift() {
-        let gate = new LiftingGate(this, this.grid, this.texture, this.name, this.vertice_data, VANISHING3D);
+        let gate = new LiftingGate(this);
         VANISHING3D.add(gate);
     }
     interact(GA, inventory) {
@@ -1072,32 +1061,23 @@ class Gate {
     }
 }
 class LiftingGate {
-    constructor(gate, grid, texture, name, data, IAM) {
+    constructor(gate) {
         this.gate = gate;
-        this.grid = grid;
-        this.texture = texture;
-        this.name = name;
-        this.vertice_data = new Float32Array(data);
-        this.IAM = IAM;
     }
     manage(lapsedTime) {
         const DOOR_LIFTING_SPEED = 0.60;
         const dY = DOOR_LIFTING_SPEED * lapsedTime / 1000;
         this.lift(dY);
-        let offset = (WebGL.world.positionOffset.door_start + ((this.gate.id - 1) * 72)) * 4;
-        WebGL.updateVertices(offset, this.vertice_data);
         if (this.done()) this.remove();
     }
     lift(dY) {
-        for (let i = 0; i < this.vertice_data.length; i += 3) {
-            this.vertice_data[i + 1] += dY;
-        }
+        this.gate.pos = this.gate.pos.add(new Vector3(0, dY, 0));
     }
     done() {
-        return this.vertice_data[1] > 1.0;
+
+        return this.gate.pos.y > 1.0;
     }
     remove() {
-        //this.gate.hide();
         this.gate.IAM.remove(this.gate.id);
         this.IAM.remove(this.id);
     }
@@ -1120,7 +1100,7 @@ class FloorItem3D {
         if (typeof (this.scale) === "number") {
             this.scale = new Float32Array([this.scale, this.scale, this.scale]);
         }
-        this.byte_length = this.element.indices.length * 2;
+        //this.byte_length = this.element.indices.length * 2; //redundant?
         this.indices = this.element.indices.length;
         //translate
         let heightTranslate = new Float32Array([0, 0, 0]);
@@ -1147,21 +1127,6 @@ class FloorItem3D {
             color: this.color,
             inventorySprite: this.inventorySprite
         };
-    }
-}
-
-class Allocate {
-    constructor(type, texture) {
-        this.active = false;
-        this.interactive = false;
-
-        for (const prop in type) {
-            this[prop] = type[prop];
-        }
-        this.element = ELEMENT[this.element];
-        //this.texture = TEXTURE[texture];
-        this.byte_length = this.element.indices.length * 2;
-        this.indices = this.element.indices.length;
     }
 }
 
@@ -1280,8 +1245,58 @@ const ELEMENT = {
             // Left
             -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
         ],
-        //hidden: new Float32Array(72).fill(-10.0),
-        hidden: new Float32Array(72),
+    },
+    CUBE_SM: {
+        positions: [
+            // Front face
+            0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0,
+            // Back face
+            0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,
+            // Top face
+            0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0,
+            // Bottom face
+            0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+            // Right face
+            1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0,
+            // Left face
+            0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0,
+        ],
+        indices: [
+            0, 1, 2, 0, 2, 3, // front
+            4, 5, 6, 4, 6, 7, // back
+            8, 9, 10, 8, 10, 11, // top
+            12, 13, 14, 12, 14, 15, // bottom
+            16, 17, 18, 16, 18, 19, // right
+            20, 21, 22, 20, 22, 23, // left
+        ],
+        textureCoordinates: [
+            // Front
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            // Back
+            0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,
+            // Top
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+            // Bottom
+            0.0, 0.0, 0.1, 0.0, 0.1, 0.1, 0.0, 0.1, ///////////////////
+            // Right
+            0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,
+            // Left
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+        ],
+        vertexNormals: [
+            // Front
+            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+            // Back
+            0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,
+            // Top
+            0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+            // Bottom
+            0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,
+            // Right
+            1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+            // Left
+            -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
+        ],
     },
     CUBE_CENTERED: {
         positions: [
@@ -1397,7 +1412,7 @@ const ELEMENT = {
             -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
         ],
     },
-    hidden: new Float32Array(72),
+    //hidden: new Float32Array(72),
     //hidden: new Float32Array(72).fill(-10.0),
 };
 
