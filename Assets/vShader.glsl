@@ -21,7 +21,6 @@ varying vec3 v_normal;
 
 void main(void) {
     gl_Position = uProjectionMatrix * uModelViewMatrix * uTranslate * uScale * aVertexPosition;
-    //gl_Position = uProjectionMatrix  * uTranslate * uScale * aVertexPosition;
     vTextureCoord = aTextureCoord;
     FragPos = vec3(aVertexPosition);
     v_normal = aVertexNormal;

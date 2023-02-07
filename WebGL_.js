@@ -42,10 +42,13 @@
  * https://en.wikipedia.org/wiki/Wavefront_.obj_file
  * http://learnwebgl.brown37.net/rendering/obj_to_buffers.html
  * http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
+ * 
+ * https://www.3dgep.com/simulating-particle-effects-using-opengl/
+ * http://nehe.gamedev.net/tutorial/particle_engine_using_triangle_strips/21001/
  */
 
 const WebGL = {
-    VERSION: "0.14.3",
+    VERSION: "0.14.4",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -327,8 +330,8 @@ const WebGL = {
         gl.useProgram(this.pickProgram.program);
         gl.uniformMatrix4fv(this.pickProgram.uniformLocations.projectionMatrix, false, this.projectionMatrix);
         gl.uniformMatrix4fv(this.pickProgram.uniformLocations.modelViewMatrix, false, viewMatrix);
-        gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, scaleMatrix);
-        gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, translationMatrix);
+        gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uScale, false, scaleMatrix);
+        gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, translationMatrix);
 
         this.renderDungeon();
     },
@@ -371,8 +374,10 @@ const WebGL = {
 
         //start draw
         gl.useProgram(this.program.program);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null); //
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
         //draw separated
+        
         //wall
         gl.drawElements(gl.TRIANGLES, this.world.offset.wall_count, gl.UNSIGNED_SHORT, this.world.offset.wall_start * 2);
 
@@ -383,6 +388,7 @@ const WebGL = {
         //ceil
         gl.bindTexture(gl.TEXTURE_2D, this.texture.ceil);
         gl.drawElements(gl.TRIANGLES, this.world.offset.ceil_count, gl.UNSIGNED_SHORT, this.world.offset.ceil_start * 2);
+        
 
         //static decals
         let decalCount = 0;
@@ -393,6 +399,8 @@ const WebGL = {
                 decalCount++;
             }
         }
+        
+
 
         //existing doors
         for (const door of GATE3D.POOL) {
@@ -403,7 +411,6 @@ const WebGL = {
                 // to texture 
                 let id = GATE3D.globalId(door.id);
                 let id_vec = this.idToVec(id);
-
                 gl.useProgram(this.pickProgram.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
                 gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
@@ -415,8 +422,8 @@ const WebGL = {
             }
         }
 
+
         //items
-        //let current_item_index_offset = 0;
         for (const item of ITEM3D.POOL) {
             if (item.active) {
                 const mScaleMatrix = glMatrix.mat4.create();
@@ -425,14 +432,12 @@ const WebGL = {
                 glMatrix.mat4.fromTranslation(mTranslationmatrix, item.translate);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, mScaleMatrix);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, mTranslationmatrix);
-
                 gl.bindTexture(gl.TEXTURE_2D, item.texture);
                 gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, this.world.offset[item.start] * 2);
 
                 // to texture 
                 let id = ITEM3D.globalId(item.id);
                 let id_vec = this.idToVec(id);
-
                 gl.useProgram(this.pickProgram.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
                 gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
@@ -444,10 +449,11 @@ const WebGL = {
                 gl.useProgram(this.program.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, null);
             }
-            //current_item_index_offset += item.byte_length;
         }
 
+
         //missile
+
         for (const missile of MISSILE3D.POOL) {
             if (missile) {
                 const mScaleMatrix = glMatrix.mat4.create();
@@ -506,7 +512,7 @@ const WebGL = {
                     const data = new Uint8Array(4);
                     gl.readPixels(pixelX, pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data);
                     const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
-                    //console.warn("id", id)
+                    //console.warn("id", id);
                     if (id > 0) {
                         const obj = GLOBAL_ID_MANAGER.getObject(id);
                         if (!obj) return;
@@ -546,7 +552,7 @@ const RAY = {
 
 const WORLD = {
     bufferTypes: ["positions", 'indices', "textureCoordinates", "vertexNormals"],
-    objectTypes: ["wall", "floor", "ceil", "decal", "door", "item", "missile"],
+    objectTypes: ["wall", "floor", "ceil", "decal", "door"],
     init(object_types) {
         for (let O of object_types) {
             this.objectTypes.push(O);
