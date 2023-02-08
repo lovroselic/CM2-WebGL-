@@ -6,7 +6,7 @@
 console.clear();
 
 var LIB = {
-  VERSION: "3.06",
+  VERSION: "3.07",
   CSS: "color: #EFE",
   log: function () {
     console.log(`%cPrototype LIB ${LIB.VERSION} loaded`, LIB.CSS);
@@ -78,6 +78,14 @@ changelog:
       }
     }
   }
+  function colorStringToVector(str) {
+    let vec = new Float32Array(3);
+    vec[0] = parseInt(str.substring(1, 3), 16) / 255;
+    vec[1] = parseInt(str.substring(3, 5), 16) / 255;
+    vec[2] = parseInt(str.substring(5, 7), 16) / 255;
+
+    return vec;
+  }
 
   window.RND = RND;
   window.RNDF = RNDF;
@@ -88,6 +96,7 @@ changelog:
   window.round5 = round5;
   window.randomSign = randomSign;
   window.weightedRnd = weightedRnd;
+  window.colorStringToVector = colorStringToVector;
 })();
 
 // Converts from degrees to radians.

@@ -116,27 +116,41 @@ var SPAWN = {
         this.items(level);
     },
     decals(level) {
-        const decalsLocations = [{ x: 2, y: 2, f: 'FRONT' }, { x: 5, y: 2, f: 'FRONT' }, { x: 3, y: 5, f: 'BACK' }, { x: 0, y: 3, f: 'RIGHT' }, { x: 7, y: 3, f: 'LEFT' },
-        { x: 2, y: 7, f: 'BACK' }, { x: 3, y: 0, f: 'FRONT' }];
+        const decalsLocations = [
+            { grid: new Grid(2, 2), face: 'FRONT' },
+            { grid: new Grid(5, 2), face: 'FRONT' },
+            { grid: new Grid(3, 5), face: 'BACK' },
+            { grid: new Grid(0, 3), face: 'RIGHT' },
+            { grid: new Grid(7, 3), face: 'LEFT' },
+            { grid: new Grid(2, 7), face: 'BACK' },
+            { grid: new Grid(3, 0), face: 'FRONT' },
+            { grid: new Grid(3, 15), face: 'BACK' },
+        ];
 
         for (let D of decalsLocations) {
             const picture = DECAL_PAINTINGS.chooseRandom();
             console.log("picture", picture);
-            DECAL3D.add(new StaticDecal(new Grid(D.x, D.y), D.f, SPRITE[picture], "picture", picture));
+            DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[picture], "picture", picture));
         }
 
-        const crestLocations = [{ x: 0, y: 5, f: 'RIGHT' }];
+        const crestLocations = [{ grid: new Grid(0, 5), face: 'RIGHT' }];
         for (let D of crestLocations) {
             const crest = DECAL_CRESTS.chooseRandom();
             console.log("crest", crest);
-            DECAL3D.add(new StaticDecal(new Grid(D.x, D.y), D.f, SPRITE[crest], "crest", crest));
+            DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[crest], "crest", crest));
         }
     },
     lights(level) {
-        const lightLocations = [{ x: 1, y: 0, f: 'FRONT' }, { x: 6, y: 0, f: 'FRONT' }, { x: 11, y: 15, f: 'BACK' }, { x: 15, y: 9, f: 'LEFT' }];
+        const standardLightColor = new Float32Array([0.95, 0.95, 0.85]); //should be string
+        const lightLocations = [
+            { grid: new Grid(1, 0), face: 'FRONT' },
+            { grid: new Grid(6, 0), face: 'FRONT' },
+            { grid: new Grid(11, 15), face: 'BACK' },
+            { grid: new Grid(15, 9), face: 'LEFT' },
+        ];
         for (let L of lightLocations) {
             const light = LIGHT_DECALS.chooseRandom();
-            LIGHTS3D.add(new LightDecal(new Grid(L.x, L.y), L.f, SPRITE[light], "light", light));
+            LIGHTS3D.add(new LightDecal(L.grid, L.face, SPRITE[light], "light", light));
         }
     },
     gates(level) {
@@ -162,6 +176,7 @@ var SPAWN = {
             { grid: new FP_Grid(1.5, 8.5), type: COMMON_ITEM_TYPE.GoldCube },
             { grid: new FP_Grid(4.5, 2.5), type: COMMON_ITEM_TYPE.GoldBar },
             { grid: new FP_Grid(1.5, 9.5), type: COMMON_ITEM_TYPE.SilverBar },
+            { grid: new FP_Grid(1.5, 1.5), type: COMMON_ITEM_TYPE.GoldBar },
 
 
             { grid: new FP_Grid(12.5, 2.5), type: COMMON_ITEM_TYPE.GoldKey },
@@ -174,6 +189,13 @@ var SPAWN = {
             { grid: new FP_Grid(2.1, 3.5), type: COMMON_ITEM_TYPE.Scroll },
             { grid: new FP_Grid(1.1, 4.5), type: COMMON_ITEM_TYPE.Scroll },
             { grid: new FP_Grid(1.5, 5.5), type: COMMON_ITEM_TYPE.Scroll },
+
+            { grid: new FP_Grid(5.5, 3.5), type: COMMON_ITEM_TYPE.Sword },
+            { grid: new FP_Grid(6.5, 1.5), type: COMMON_ITEM_TYPE.Heart },
+            { grid: new FP_Grid(6.5, 14.5), type: COMMON_ITEM_TYPE.Sword },
+            { grid: new FP_Grid(1.5, 14.5), type: COMMON_ITEM_TYPE.Heart },
+
+
 
         ];
 
@@ -215,6 +237,28 @@ const GATE_TYPE = {
 };
 
 const COMMON_ITEM_TYPE = {
+    Sword: {
+        name: "Sword",
+        category: "skill",
+        which: "attack",
+        element: "SWORD",
+        scale: 1.5 / 2 ** 5,
+        glueToFloor: true,
+        texture: "BloodFireSilver",
+        shine: 128.0 * 0.99,
+        inventorySprite: "SwordSkill",
+    },
+    Heart: {
+        name: "Heart",
+        category: "status",
+        which: "health",
+        element: "HEART",
+        scale: 1 / 2 ** 5,
+        glueToFloor: true,
+        texture: "Red",
+        shine: 128.0 * 0.99,
+        inventorySprite: "Health",
+    },
     Fireball: {
         name: "Fireball",
         category: 'missile',
@@ -223,6 +267,7 @@ const COMMON_ITEM_TYPE = {
         texture: "FireballTexture",
         moveSpeed: 6.0,
         shine: 128.0 * 0.90,
+        lightColor: "#FFD700",
     },
     Scroll: {
         name: "Scroll",

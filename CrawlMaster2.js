@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.07.00",
+    VERSION: "0.07.01",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -347,6 +347,7 @@ class Missile {
         this.texture = WebGL.createTexture(TEXTURE[this.texture]);
         this.start = `${this.element}_start`;
         this.element = ELEMENT[this.element];
+        this.lightColor = colorStringToVector(this.lightColor);
 
         if (typeof (this.scale) === "number") {
             this.scale = new Float32Array([this.scale, this.scale, this.scale]);
@@ -636,7 +637,7 @@ const GAME = {
         WebGL.init_required_IAM(MAP[level].map);
         WebGL.MOUSE.initialize("ROOM");
         SPAWN.spawn(level);
-        const object_map = ["BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM"];
+        const object_map = ["BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM", "SWORD", "HEART"];
         MAP[level].world = WORLD.build(MAP[level].map, object_map);
         console.log("world", MAP[level].world);
 
@@ -715,6 +716,16 @@ const GAME = {
                 TITLE.stack.scrollIndex = Math.max(TITLE.stack.scrollIndex, 0);
                 TITLE.scrolls();
                 AUDIO.Scroll.play();
+                break;
+            case 'skill':
+                HERO.raiseStat(interaction.which);
+                display(interaction.inventorySprite);
+                AUDIO.LevelUp.play();
+                break;
+            case 'status':
+                HERO.incStatus(interaction.which);
+                display(interaction.inventorySprite);
+                AUDIO.PowerUp.play();
                 break;
             default:
                 console.error("interaction category error", interaction);
@@ -887,6 +898,7 @@ const GAME = {
         }
         if (map[ENGINE.KEY.map.ctrl]) {
             let cost = Missile.calcMana(HERO.reference_magic);
+            cost = 0; //debug
             if (cost > HERO.mana) {
                 AUDIO.MagicFail.play();
                 return;

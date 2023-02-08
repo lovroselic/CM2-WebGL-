@@ -5,23 +5,20 @@ precision highp float;
 precision mediump float;
 #endif
 
-varying vec2 vTextureCoord;
+const int N_LIGHTS = 1; //replaced before compiling
+uniform vec3 uPointLights[N_LIGHTS];
 uniform sampler2D uSampler;
 uniform vec3 uCameraPos;
-
 uniform float uShine;
 
 varying vec3 FragPos;
 varying vec3 v_normal;
-
-const int N_LIGHTS = 1; //replaced before compiling
-uniform vec3 uPointLights[N_LIGHTS];
+varying vec2 vTextureCoord;
 
 vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal);
 vec3 CalcPointLight(vec3 PL_position, vec3 FragPos, vec3 viewDir, vec3 normal, float shininess);
 
 void main(void) {
-    //float shininess = 128.0 * 0.12;
     vec3 norm = normalize(v_normal);
     vec3 viewDir = normalize(uCameraPos - FragPos);
     vec3 light = InnerLight(uCameraPos, FragPos, viewDir, norm);
@@ -68,7 +65,6 @@ vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal) {
 }
 
 vec3 CalcPointLight(vec3 PL_position, vec3 FragPos, vec3 viewDir, vec3 normal, float shininess) {
-    //float shininess = 128.0 * 0.12;
     vec3 pointLightColor = vec3(0.95, 0.95, 0.85);
     vec3 lightDir = normalize(PL_position - FragPos);
 

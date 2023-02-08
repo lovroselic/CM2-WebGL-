@@ -51,7 +51,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.15.0",
+    VERSION: "0.15.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -291,6 +291,9 @@ const WebGL = {
                 uScale: gl.getUniformLocation(shaderProgram, "uScale"),
                 uTranslate: gl.getUniformLocation(shaderProgram, "uTranslate"),
                 uShine: gl.getUniformLocation(shaderProgram, "uShine"),
+                uLS: gl.getUniformLocation(shaderProgram, "uLS"),
+                uLightColor: gl.getUniformLocation(shaderProgram, "uLightColor"),
+                uItemPosition: gl.getUniformLocation(shaderProgram, "uItemPosition"),
             },
         };
 
@@ -311,11 +314,9 @@ const WebGL = {
         glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, cameratarget.array, [0.0, 1.0, 0.0]);
 
         // identity placeholders & and defaults
-        //const defaultShininess = 128.0 * 0.12;
         const defaultShininess = 128.0 * 0.10;
         const translationMatrix = glMatrix.mat4.create();
         const scaleMatrix = glMatrix.mat4.create();
-        //
 
         gl.useProgram(this.program.program);
         // Set the uniform matrices
@@ -459,9 +460,7 @@ const WebGL = {
             }
         }
 
-
         //missile
-
         for (const missile of MISSILE3D.POOL) {
             if (missile) {
                 const mScaleMatrix = glMatrix.mat4.create();
@@ -768,6 +767,7 @@ const WORLD = {
         /** build static decals */
         for (const iam of WebGL.staticDecalList) {
             for (const decal of iam.POOL) {
+                console.log("decal", decal);
                 this.addPic(Y, decal, "decal");
             }
         }
@@ -1131,7 +1131,8 @@ class FloorItem3D {
             category: this.category,
             value: this.value,
             color: this.color,
-            inventorySprite: this.inventorySprite
+            inventorySprite: this.inventorySprite,
+            which: this.which
         };
     }
 }
