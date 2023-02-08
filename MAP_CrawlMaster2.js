@@ -221,7 +221,8 @@ const COMMON_ITEM_TYPE = {
         element: "BALL",
         scale: 1 / 2 ** 4,
         texture: "FireballTexture",
-        moveSpeed: 6.0
+        moveSpeed: 6.0,
+        shine: 128.0 * 0.90,
     },
     Scroll: {
         name: "Scroll",
@@ -230,6 +231,7 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 4,
         glueToFloor: true,
         texture: "ScrollTexture",
+        shine: 128.0 * 0.15,
     },
     RedPotion: {
         name: "RedPotion",
@@ -239,6 +241,7 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 5,
         glueToFloor: true,
         texture: "RedLiquid",
+        shine: 128.0 * 0.25,
     },
     BluePotion: {
         name: "BluePotion",
@@ -248,6 +251,7 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 5,
         glueToFloor: true,
         texture: "BlueLiquid",
+        shine: 128.0 * 0.25,
     },
     GoldKey: {
         name: "GoldKey",
@@ -258,6 +262,7 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 3,
         glueToFloor: true,
         texture: "Gold",
+        shine: 128.0 * 0.99,
     },
     SilverKey: {
         name: "SilverKey",
@@ -268,6 +273,7 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 3,
         glueToFloor: true,
         texture: "Silver",
+        shine: 128.0 * 0.80,
     },
     RedKey: {
         name: "RedKey",
@@ -278,6 +284,7 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 3,
         glueToFloor: true,
         texture: "RedMetal",
+        shine: 128.0 * 0.50,
     },
     GoldBar: {
         name: "GoldBar",
@@ -288,6 +295,7 @@ const COMMON_ITEM_TYPE = {
         texture: "Gold",
         minVal: 50,
         maxVal: 100,
+        shine: 128.0 * 0.99,
     },
     SilverBar: {
         name: "SilverBar",
@@ -298,6 +306,7 @@ const COMMON_ITEM_TYPE = {
         texture: "Silver",
         minVal: 25,
         maxVal: 50,
+        shine: 128.0 * 0.80,
     },
     GoldCube: {
         name: "GoldCube",
@@ -307,7 +316,8 @@ const COMMON_ITEM_TYPE = {
         glueToFloor: true,
         texture: "Gold",
         minVal: 10,
-        maxVal: 25
+        maxVal: 25,
+        shine: 128.0 * 0.99,
     }
 };
 

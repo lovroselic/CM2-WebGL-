@@ -51,7 +51,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.14.5",
+    VERSION: "0.15.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -290,6 +290,7 @@ const WebGL = {
                 lights: gl.getUniformLocation(shaderProgram, "uPointLights"),
                 uScale: gl.getUniformLocation(shaderProgram, "uScale"),
                 uTranslate: gl.getUniformLocation(shaderProgram, "uTranslate"),
+                uShine: gl.getUniformLocation(shaderProgram, "uShine"),
             },
         };
 
@@ -309,7 +310,9 @@ const WebGL = {
         const cameratarget = this.camera.pos.translate(this.camera.dir);
         glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, cameratarget.array, [0.0, 1.0, 0.0]);
 
-        // identity placeholders
+        // identity placeholders & and defaults
+        //const defaultShininess = 128.0 * 0.12;
+        const defaultShininess = 128.0 * 0.10;
         const translationMatrix = glMatrix.mat4.create();
         const scaleMatrix = glMatrix.mat4.create();
         //
@@ -321,6 +324,7 @@ const WebGL = {
         gl.uniform3fv(this.program.uniformLocations.cameraPos, this.camera.pos.array);
         gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, scaleMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, translationMatrix);
+        gl.uniform1f(this.program.uniformLocations.uShine, defaultShininess);
 
         //light uniforms
         let lights = [];
@@ -435,6 +439,7 @@ const WebGL = {
                 glMatrix.mat4.fromTranslation(mTranslationmatrix, item.translate);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, mScaleMatrix);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, mTranslationmatrix);
+                gl.uniform1f(this.program.uniformLocations.uShine, item.shine);
                 gl.bindTexture(gl.TEXTURE_2D, item.texture);
                 gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, this.world.offset[item.start] * 2);
 
@@ -465,6 +470,7 @@ const WebGL = {
                 glMatrix.mat4.fromTranslation(mTranslationmatrix, missile.pos.array);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, mScaleMatrix);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, mTranslationmatrix);
+                gl.uniform1f(this.program.uniformLocations.uShine, missile.shine);
                 gl.bindTexture(gl.TEXTURE_2D, missile.texture);
                 gl.drawElements(gl.TRIANGLES, missile.indices, gl.UNSIGNED_SHORT, this.world.offset[missile.start] * 2);
             }
