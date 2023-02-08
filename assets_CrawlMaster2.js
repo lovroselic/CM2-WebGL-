@@ -53,6 +53,7 @@ LoadTextures = [
     //{ srcName: "Red.jpg", name: "Red" },
     { srcName: "Red3.jpg", name: "Red" },
     //{ srcName: "Red4.jpg", name: "Red" },
+    { srcName: "ScrapedMetal1.jpg", name: "ScrapedMetal" },
 
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
@@ -83,7 +84,7 @@ LoadAudio = [
 ];
 LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
 LoadShaders = ['vShader.glsl', 'fShader.glsl', 'pick_vShader.glsl', 'pick_fShader.glsl'];
-LoadObjects = ["key.obj", "flask.obj", "scroll.obj", "ball.obj", "sword.obj", "heart.obj"];
+LoadObjects = ["key.obj", "flask.obj", "scroll.obj", "ball.obj", "sword.obj", "heart.obj", "shield.obj"];
 
 LoadSprites = [
     { srcName: "WallLamp256.png", name: "WallLamp" },

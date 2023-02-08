@@ -195,6 +195,9 @@ var SPAWN = {
             { grid: new FP_Grid(6.5, 14.5), type: COMMON_ITEM_TYPE.Sword },
             { grid: new FP_Grid(1.5, 14.5), type: COMMON_ITEM_TYPE.Heart },
 
+            { grid: new FP_Grid(6.5, 3.5), type: COMMON_ITEM_TYPE.Shield },
+            { grid: new FP_Grid(3.5, 14.5), type: COMMON_ITEM_TYPE.Shield },
+
 
 
         ];
@@ -247,6 +250,17 @@ const COMMON_ITEM_TYPE = {
         texture: "BloodFireSilver",
         shine: 128.0 * 0.99,
         inventorySprite: "SwordSkill",
+    },
+    Shield: {
+        name: "Shield",
+        category: "skill",
+        which: "defense",
+        element: "SHIELD",
+        scale: 1 / 2 ** 5,
+        glueToFloor: true,
+        texture: "ScrapedMetal",
+        shine: 128.0 * 0.80,
+        inventorySprite: "ShieldSkill",
     },
     Heart: {
         name: "Heart",

@@ -51,7 +51,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.15.1",
+    VERSION: "0.15.2",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -767,7 +767,7 @@ const WORLD = {
         /** build static decals */
         for (const iam of WebGL.staticDecalList) {
             for (const decal of iam.POOL) {
-                console.log("decal", decal);
+                //console.log("decal", decal);
                 this.addPic(Y, decal, "decal");
             }
         }
