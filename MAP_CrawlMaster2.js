@@ -143,11 +143,13 @@ var SPAWN = {
     lights(level) {
         const standardLightColor = new Float32Array([0.95, 0.95, 0.85]); //should be string?
         const redColor = new Float32Array([0.95, 0.0, 0.0]);
+        const greenColor = new Float32Array([0.15, 0.9, 0.15]);
         const lightLocations = [
             { grid: new Grid(1, 0), face: 'FRONT', color: standardLightColor },
             { grid: new Grid(6, 0), face: 'FRONT', color: standardLightColor },
             { grid: new Grid(11, 15), face: 'BACK', color: standardLightColor },
             { grid: new Grid(15, 9), face: 'LEFT', color: redColor },
+            { grid: new Grid(15, 1), face: 'LEFT', color: standardLightColor },
         ];
         for (let L of lightLocations) {
             const light = LIGHT_DECALS.chooseRandom();
@@ -177,7 +179,7 @@ var SPAWN = {
             { grid: new FP_Grid(1.5, 8.5), type: COMMON_ITEM_TYPE.GoldCube },
             { grid: new FP_Grid(4.5, 2.5), type: COMMON_ITEM_TYPE.GoldBar },
             { grid: new FP_Grid(1.5, 9.5), type: COMMON_ITEM_TYPE.SilverBar },
-            { grid: new FP_Grid(1.5, 1.5), type: COMMON_ITEM_TYPE.GoldBar },
+            { grid: new FP_Grid(1.5, 2.5), type: COMMON_ITEM_TYPE.GoldBar },
 
 
             { grid: new FP_Grid(12.5, 2.5), type: COMMON_ITEM_TYPE.GoldKey },
@@ -204,6 +206,10 @@ var SPAWN = {
 
             { grid: new FP_Grid(6.5, 4.5), type: COMMON_ITEM_TYPE.Magic },
             { grid: new FP_Grid(1.5, 10.5), type: COMMON_ITEM_TYPE.Magic },
+
+            { grid: new FP_Grid(1.5, 1.5), type: COMMON_ITEM_TYPE.Chest },
+            { grid: new FP_Grid(4.5, 4.5), type: COMMON_ITEM_TYPE.Chest },
+
 
         ];
 
@@ -245,6 +251,15 @@ const GATE_TYPE = {
 };
 
 const COMMON_ITEM_TYPE = {
+    Chest: {
+        name: "Chest",
+        category: "chest",
+        element: "CHEST",
+        scale: 1 / 2 ** 2,
+        glueToFloor: true,
+        texture: "Wood1",
+        shine: 128.0 * 0.1,
+    },
     Sword: {
         name: "Sword",
         category: "skill",
@@ -328,6 +343,7 @@ const COMMON_ITEM_TYPE = {
         glueToFloor: true,
         texture: "RedLiquid",
         shine: 128.0 * 0.25,
+        inventorySprite: "RedPotion24"
     },
     BluePotion: {
         name: "BluePotion",
@@ -338,6 +354,7 @@ const COMMON_ITEM_TYPE = {
         glueToFloor: true,
         texture: "BlueLiquid",
         shine: 128.0 * 0.25,
+        inventorySprite: "BluePotion24"
     },
     GoldKey: {
         name: "GoldKey",

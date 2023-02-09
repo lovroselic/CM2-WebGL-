@@ -50,11 +50,12 @@ LoadTextures = [
     { srcName: "ScrollTexture1.jpg", name: "ScrollTexture" },
     { srcName: "Fireball2.jpg", name: "FireballTexture" },
     { srcName: "BloodFireSilver.png", name: "BloodFireSilver" },
-    //{ srcName: "Red.jpg", name: "Red" },
+    
     { srcName: "Red3.jpg", name: "Red" },
     { srcName: "Red2.jpg", name: "Red2" },
     { srcName: "ScrapedMetal1.jpg", name: "ScrapedMetal" },
     { srcName: "Magic4.jpg", name: "Magic" },
+    { srcName: "Wood2.jpg", name: "Wood1" },
 
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
@@ -81,11 +82,12 @@ LoadAudio = [
     { srcName: "Pick up gold.mp3", name: "Pick" },
     { srcName: "Evil laughter.mp3", name: "EvilLaughter" },
     { srcName: "Explosion1.mp3", name: "Explosion" },
+    { srcName: "OpenChest.mp3", name: "OpenChest" },
 
 ];
 LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
 LoadShaders = ['vShader.glsl', 'fShader.glsl', 'pick_vShader.glsl', 'pick_fShader.glsl'];
-LoadObjects = ["key.obj", "flask.obj", "scroll.obj", "ball.obj", "sword.obj", "heart.obj", "shield.obj", "pentagram.obj"];
+LoadObjects = ["key.obj", "flask.obj", "scroll.obj", "ball.obj", "sword.obj", "heart.obj", "shield.obj", "pentagram.obj", "chest.obj"];
 
 LoadSprites = [
     { srcName: "WallLamp256.png", name: "WallLamp" },

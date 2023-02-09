@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.07.04",
+    VERSION: "0.07.05",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -637,7 +637,7 @@ const GAME = {
         WebGL.init_required_IAM(MAP[level].map);
         WebGL.MOUSE.initialize("ROOM");
         SPAWN.spawn(level);
-        const object_map = ["BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM", "SWORD", "HEART", "SHIELD", "PENTAGRAM"];
+        const object_map = ["BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM", "SWORD", "HEART", "SHIELD", "PENTAGRAM", "CHEST"];
         MAP[level].world = WORLD.build(MAP[level].map, object_map);
         console.log("world", MAP[level].world);
 
@@ -702,6 +702,7 @@ const GAME = {
                 break;
             case 'potion':
                 HERO.inventory.potion[interaction.color]++;
+                display(interaction.inventorySprite);
                 TITLE.potion();
                 AUDIO.Potion.play();
                 break;
@@ -727,6 +728,30 @@ const GAME = {
                 display(interaction.inventorySprite);
                 AUDIO.PowerUp.play();
                 break;
+            case 'chest':
+                AUDIO.OpenChest.play();
+                let choices = {
+                    RedPotion: 100,
+                    BluePotion: 100,
+                    Scroll: 100,
+                    GoldBar: 50,
+                    Sword: 10,
+                    Shield: 10,
+                    Magic: 10,
+                    Heart: 20,
+                    Mana: 20
+                };
+                let choice = weightedRnd(choices);
+                let value;
+                if (choice === "GoldBar") {
+                    value = 250;
+                } else {
+                    value = 0;
+                }
+                console.warn("CHEST INTERACTION", choice, value);
+                let interatcionObj = $.extend(true, {}, COMMON_ITEM_TYPE[choice]);
+                interatcionObj.value = value;
+                return this.processInteraction(interatcionObj);
             default:
                 console.error("interaction category error", interaction);
         }
