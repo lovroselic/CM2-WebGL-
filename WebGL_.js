@@ -51,7 +51,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.15.5",
+    VERSION: "0.16.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -64,6 +64,7 @@ const WebGL = {
         DEFAULT_RESOLUTION: 256,
         MIN_RESOLUTION: 128,
         INTERACT_DISTANCE: 1.3,
+        DYNAMIC_LIGHTS_RESERVATION: 8,
     },
     program: null,
     pickProgram: null,
@@ -79,6 +80,7 @@ const WebGL = {
     frameBuffer: null,
     staticDecalList: [DECAL3D, LIGHTS3D],
     dynamicDecalList: [GATE3D, ITEM3D],
+    dynamicLightSources: [MISSILE3D],
     setContext(layer) {
         this.CTX = LAYER[layer];
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
@@ -235,7 +237,8 @@ const WebGL = {
         return shader;
     },
     updateShaders() {
-        SHADER.fShader = SHADER.fShader.replace("N_LIGHTS = 1", `N_LIGHTS = ${LIGHTS3D.POOL.length}`);
+        //SHADER.fShader = SHADER.fShader.replace("N_LIGHTS = 1", `N_LIGHTS = ${LIGHTS3D.POOL.length}`);
+        SHADER.fShader = SHADER.fShader.replace("N_LIGHTS = 1", `N_LIGHTS = ${LIGHTS3D.POOL.length + this.INI.DYNAMIC_LIGHTS_RESERVATION}`);
     },
     initPickProgram(gl, vsSource, fsSource) {
         const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vsSource);
@@ -335,6 +338,29 @@ const WebGL = {
             lights = [...lights, ...LIGHTS3D.POOL[L].position.array];
             lightColors = [...lightColors, ...LIGHTS3D.POOL[L].lightColor];
         }
+
+        
+        let dynLights = [];
+        let dynLightColors = [];
+        let dynCount = 0;
+        for (let iam of this.dynamicLightSources) {
+            for (let LS of iam.POOL) {
+                if (!LS) continue;
+                dynLights = [...dynLights, ...LS.pos.array];
+                dynLightColors = [...dynLightColors, ...LS.lightColor];
+                dynCount++;
+                if (dynCount > this.INI.DYNAMIC_LIGHTS_RESERVATION) {
+                    console.error("Dynamic light sources exceed reserved memory!");
+                }
+            }
+        }
+        for (let i = 0; i < this.INI.DYNAMIC_LIGHTS_RESERVATION - dynCount; i++) {
+            dynLights = [...dynLights, ...[-1, -1, -1]];
+            dynLightColors = [...dynLightColors, ...[0, 0, 0]];
+        }
+        lights = [...lights, ...dynLights];
+        lightColors = [...lightColors, ...dynLightColors];
+
         //console.log(lightColors);
         gl.uniform3fv(this.program.uniformLocations.lights, new Float32Array(lights));
         gl.uniform3fv(this.program.uniformLocations.lightColors, new Float32Array(lightColors));

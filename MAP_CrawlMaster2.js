@@ -323,7 +323,7 @@ const COMMON_ITEM_TYPE = {
         texture: "FireballTexture",
         moveSpeed: 6.0,
         shine: 128.0 * 0.90,
-        lightColor: "#FFD700",
+        lightColor: "#FF7700",
     },
     Scroll: {
         name: "Scroll",

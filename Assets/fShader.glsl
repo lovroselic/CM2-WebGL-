@@ -17,7 +17,6 @@ varying vec3 v_normal;
 varying vec2 vTextureCoord;
 
 vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal);
-//vec3 CalcPointLight(vec3 PL_position, vec3 FragPos, vec3 viewDir, vec3 normal, float shininess);
 vec3 CalcPointLight(vec3 PL_position, vec3 FragPos, vec3 viewDir, vec3 normal, float shininess, vec3 pointLightColor);
 
 void main(void) {
@@ -29,6 +28,9 @@ void main(void) {
     vec3 PL_output = vec3(0.0);
 
     for(int i = 0; i < N_LIGHTS; i++) {
+        if(uPointLights[i].x < 0.0) {
+            continue;
+        }
         PL_output += CalcPointLight(uPointLights[i], FragPos, viewDir, norm, uShine, uLightColors[i]);
     }
 
@@ -67,7 +69,6 @@ vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal) {
 }
 
 vec3 CalcPointLight(vec3 PL_position, vec3 FragPos, vec3 viewDir, vec3 normal, float shininess, vec3 pointLightColor) {
-    //vec3 pointLightColor = vec3(0.95, 0.95, 0.85);
     vec3 lightDir = normalize(PL_position - FragPos);
 
     // diffuse shading
