@@ -198,7 +198,11 @@ var SPAWN = {
             { grid: new FP_Grid(6.5, 3.5), type: COMMON_ITEM_TYPE.Shield },
             { grid: new FP_Grid(3.5, 14.5), type: COMMON_ITEM_TYPE.Shield },
 
+            { grid: new FP_Grid(1.5, 6.5), type: COMMON_ITEM_TYPE.Mana },
+            { grid: new FP_Grid(1.5, 11.5), type: COMMON_ITEM_TYPE.Mana },
 
+            { grid: new FP_Grid(6.5, 4.5), type: COMMON_ITEM_TYPE.Magic },
+            { grid: new FP_Grid(1.5, 10.5), type: COMMON_ITEM_TYPE.Magic },
 
         ];
 
@@ -262,6 +266,17 @@ const COMMON_ITEM_TYPE = {
         shine: 128.0 * 0.80,
         inventorySprite: "ShieldSkill",
     },
+    Magic: {
+        name: "Magic",
+        category: "skill",
+        which: "magic",
+        element: "PENTAGRAM",
+        scale: 1 / 2 ** 1,
+        glueToFloor: true,
+        texture: "Red2",
+        shine: 128.0 * 0.80,
+        inventorySprite: "MagicSkill",
+    },
     Heart: {
         name: "Heart",
         category: "status",
@@ -272,6 +287,17 @@ const COMMON_ITEM_TYPE = {
         texture: "Red",
         shine: 128.0 * 0.99,
         inventorySprite: "Health",
+    },
+    Mana: {
+        name: "ManaSkill",
+        category: "status",
+        which: "mana",
+        element: "BALL",
+        scale: 1 / 2 ** 4,
+        glueToFloor: true,
+        texture: "Magic",
+        shine: 128.0 * 0.99,
+        inventorySprite: "Mana",
     },
     Fireball: {
         name: "Fireball",
