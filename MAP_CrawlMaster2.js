@@ -141,16 +141,17 @@ var SPAWN = {
         }
     },
     lights(level) {
-        const standardLightColor = new Float32Array([0.95, 0.95, 0.85]); //should be string
+        const standardLightColor = new Float32Array([0.95, 0.95, 0.85]); //should be string?
+        const redColor = new Float32Array([0.95, 0.0, 0.0]);
         const lightLocations = [
-            { grid: new Grid(1, 0), face: 'FRONT' },
-            { grid: new Grid(6, 0), face: 'FRONT' },
-            { grid: new Grid(11, 15), face: 'BACK' },
-            { grid: new Grid(15, 9), face: 'LEFT' },
+            { grid: new Grid(1, 0), face: 'FRONT', color: standardLightColor },
+            { grid: new Grid(6, 0), face: 'FRONT', color: standardLightColor },
+            { grid: new Grid(11, 15), face: 'BACK', color: standardLightColor },
+            { grid: new Grid(15, 9), face: 'LEFT', color: redColor },
         ];
         for (let L of lightLocations) {
             const light = LIGHT_DECALS.chooseRandom();
-            LIGHTS3D.add(new LightDecal(L.grid, L.face, SPRITE[light], "light", light));
+            LIGHTS3D.add(new LightDecal(L.grid, L.face, SPRITE[light], "light", light, L.color));
         }
     },
     gates(level) {

@@ -51,7 +51,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.15.3",
+    VERSION: "0.15.4",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -294,6 +294,7 @@ const WebGL = {
                 uLS: gl.getUniformLocation(shaderProgram, "uLS"),
                 uLightColor: gl.getUniformLocation(shaderProgram, "uLightColor"),
                 uItemPosition: gl.getUniformLocation(shaderProgram, "uItemPosition"),
+                lightColors: gl.getUniformLocation(shaderProgram, "uLightColors"),
             },
         };
 
@@ -329,10 +330,14 @@ const WebGL = {
 
         //light uniforms
         let lights = [];
+        let lightColors = [];
         for (let L = 0; L < LIGHTS3D.POOL.length; L++) {
             lights = [...lights, ...LIGHTS3D.POOL[L].position.array];
+            lightColors = [...lightColors, ...LIGHTS3D.POOL[L].lightColor];
         }
+        //console.log(lightColors);
         gl.uniform3fv(this.program.uniformLocations.lights, new Float32Array(lights));
+        gl.uniform3fv(this.program.uniformLocations.lightColors, new Float32Array(lightColors));
 
         //and pickProgram
         gl.useProgram(this.pickProgram.program);
@@ -1014,8 +1019,9 @@ class StaticDecal extends Decal {
     }
 }
 class LightDecal extends Decal {
-    constructor(grid, face, texture, category, name) {
+    constructor(grid, face, texture, category, name, lightColor) {
         super(grid, face, texture, category, name);
+        this.lightColor = lightColor;
         this.type = "LightDecal";
         this.interactive = false;
         this.setPosition(grid, face);
