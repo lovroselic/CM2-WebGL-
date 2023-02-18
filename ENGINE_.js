@@ -214,7 +214,7 @@ const ENGINE = {
       $(`#${id}`).append(canvasElement);
 
       if (prop.startsWith("3d_")) {
-        LAYER[prop.substring(3)] = $(`#${id}_canvas_${x}`)[0].getContext("webgl");
+        LAYER[prop.substring(3)] = $(`#${id}_canvas_${x}`)[0].getContext("webgl2");
       } else {
         LAYER[prop] = $(`#${id}_canvas_${x}`)[0].getContext("2d");
       }

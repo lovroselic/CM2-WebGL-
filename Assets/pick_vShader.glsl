@@ -13,6 +13,5 @@ uniform mat4 uScale;
 uniform mat4 uTranslate;
 
 void main(void) {
-    //gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
     gl_Position = uProjectionMatrix * uModelViewMatrix * uTranslate * uScale * aVertexPosition;
 }

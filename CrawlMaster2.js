@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.08.00",
+    VERSION: "0.08.01",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -600,6 +600,8 @@ const GAME = {
         $("#pause").off();
         GAME.paused = false;
 
+        UNIFORM.setup();
+
         let GameRD = new RenderData("DeepDown", 60, "#DC143C", "text", "#F22", 2, 2, 2);
         ENGINE.TEXT.setRD(GameRD);
         ENGINE.watchVisibility(GAME.lostFocus);
@@ -670,6 +672,7 @@ const GAME = {
         GAME.respond(lapsedTime);
         VANISHING3D.manage(lapsedTime);
         MISSILE3D.manage(lapsedTime);
+        EXPLOSION3D.manage(Date.now());
         MINIMAP.unveil(Vector3.to_FP_Grid(HERO.player.pos), HERO.vision);
         ENGINE.TIMERS.update();
 

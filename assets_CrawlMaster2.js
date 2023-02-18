@@ -50,7 +50,7 @@ LoadTextures = [
     { srcName: "ScrollTexture1.jpg", name: "ScrollTexture" },
     { srcName: "Fireball2.jpg", name: "FireballTexture" },
     { srcName: "BloodFireSilver.png", name: "BloodFireSilver" },
-    
+
     { srcName: "Red3.jpg", name: "Red" },
     { srcName: "Red2.jpg", name: "Red2" },
     { srcName: "ScrapedMetal1.jpg", name: "ScrapedMetal" },
@@ -86,7 +86,10 @@ LoadAudio = [
 
 ];
 LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
-LoadShaders = ['vShader.glsl', 'fShader.glsl', 'pick_vShader.glsl', 'pick_fShader.glsl'];
+LoadShaders = [
+    'vShader.glsl', 'fShader.glsl', 'pick_vShader.glsl', 'pick_fShader.glsl',
+    'particle_render_fShader.glsl', 'particle_render_vShader.glsl', 'particle_transform_fShader.glsl', 'particle_transform_vShader.glsl'
+];
 LoadObjects = ["key.obj", "flask.obj", "scroll.obj", "ball.obj", "sword.obj", "heart.obj", "shield.obj", "pentagram.obj", "chest.obj"];
 
 LoadSprites = [
@@ -192,7 +195,7 @@ LoadSprites = [
     { srcName: "EOB2.png", name: "EOB2" },
     { srcName: "EOB1.png", name: "EOB1" },
     { srcName: "HOB5.png", name: "HOB5" },
-    { srcName: "HOB4.png", name: "HOB4" },
+    //{ srcName: "HOB4.png", name: "HOB4" },
     { srcName: "HOB2.png", name: "HOB2" },
     { srcName: "TheHobbitPicture.png", name: "HOB1" },
     { srcName: "Maniac.png", name: "Maniac" },
@@ -224,7 +227,7 @@ LoadSprites = [
     { srcName: "FF5.png", name: "FF5" },
     { srcName: "ForbiddenForest.png", name: "FF1" },
     { srcName: "Phara.png", name: "Phara" },
-    { srcName: "Invaders.png", name: "Invaders" },
+    //{ srcName: "Invaders.png", name: "Invaders" },
     { srcName: "Pitfall.png", name: "Pitfall" },
     { srcName: "Aztec.png", name: "Aztec" },
     { srcName: "Pitfall3.png", name: "Pitfall3" },
@@ -284,7 +287,7 @@ LoadSprites = [
     { srcName: "SQ1.png", name: "SQ1" },
     { srcName: "Galaxian3.png", name: "Galaxian3" },
     { srcName: "CW3.png", name: "CW3" },
-    { srcName: "CW2.png", name: "CW2" },
+    //{ srcName: "CW2.png", name: "CW2" },
     { srcName: "CW1.png", name: "CW1" },
     { srcName: "CW6.png", name: "CW6" },
     { srcName: "HL4.png", name: "HL4" },
@@ -310,7 +313,7 @@ LoadSprites = [
     { srcName: "OperationWolf.png", name: "OperationWolf" },
     { srcName: "Imhotep.png", name: "Imhotep" },
     { srcName: "UU2.png", name: "UU2" },
-    { srcName: "BlueMax3.png", name: "BlueMax3" },
+    //{ srcName: "BlueMax3.png", name: "BlueMax3" },
     { srcName: "BlueMax2.png", name: "BlueMax2" },
     { srcName: "Oblivion.png", name: "Oblivion" },
     { srcName: "Skyrim.png", name: "Skyrim" },
@@ -328,8 +331,8 @@ LoadSprites = [
     { srcName: "Spelunker.png", name: "Spelunker" },
     { srcName: "ShamusCase2.png", name: "ShamusCase2" },
     { srcName: "Ishar2.png", name: "Ishar2" },
-    { srcName: "Ishar1.png", name: "Ishar1" },
-    { srcName: "Jungle1.png", name: "Jungle1" },
+    //{ srcName: "Ishar1.png", name: "Ishar1" },
+    //{ srcName: "Jungle1.png", name: "Jungle1" },
     { srcName: "Pitfall5.png", name: "Pitfall5" },
     { srcName: "PharaohCurse2.png", name: "PharaohCurse2" },
     { srcName: "Frontier.png", name: "Frontier" },
@@ -665,4 +668,44 @@ LoadSprites = [
     { srcName: "Wolfenstein31.png", name: "Wolfenstein31" },
     { srcName: "Yennefer21.png", name: "Yennefer21" },
     { srcName: "Zeppelin4.png", name: "Zeppelin4" },
+
+    { srcName: "AppleLisa.png", name: "AppleLisa" },
+    { srcName: "BC90.png", name: "BC90" },
+    { srcName: "BackToNature1.png", name: "BackToNature1" },
+    { srcName: "Bagitman90.png", name: "Bagitman90" },
+    { srcName: "BeyondForbiddenForest2.png", name: "BeyondForbiddenForest2" },
+    { srcName: "Biggles2.png", name: "Biggles2" },
+    { srcName: "BoogaBoo90.png", name: "BoogaBoo90" },
+    { srcName: "CamelotWarriors.png", name: "CamelotWarriors" },
+    { srcName: "CastleOfTerror91.png", name: "CastleOfTerror91" },
+    { srcName: "Choplifter11.png", name: "Choplifter11" },
+    { srcName: "Choplifter12.png", name: "Choplifter12" },
+    { srcName: "CrystalCastles90.png", name: "CrystalCastles90" },
+    { srcName: "Cuthbert90.png", name: "Cuthbert90" },
+    { srcName: "DM90.png", name: "DM90" },
+    { srcName: "Drelbs2.png", name: "Drelbs2" },
+    { srcName: "DungeonMaster91.png", name: "DungeonMaster91" },
+    { srcName: "DungeonMaster92.png", name: "DungeonMaster92" },
+    { srcName: "ElvenWarrior1.png", name: "ElvenWarrior1" },
+    { srcName: "EyeOfTheBeholder90.png", name: "EyeOfTheBeholder90" },
+    { srcName: "FireAnt21.png", name: "FireAnt21" },
+    { srcName: "ForbiddenForest90.png", name: "ForbiddenForest90" },
+    { srcName: "ForbiddenForest91.png", name: "ForbiddenForest91" },
+    { srcName: "Geos.png", name: "Geos" },
+    { srcName: "HalfLife91.png", name: "HalfLife91" },
+    { srcName: "Imhotep2.png", name: "Imhotep2" },
+    { srcName: "ImpossibleMission90.png", name: "ImpossibleMission90" },
+    { srcName: "JetSetWilly11.png", name: "JetSetWilly11" },
+    { srcName: "LeisureSuitLarry90.png", name: "LeisureSuitLarry90" },
+    { srcName: "LeisureSuitLarry91.png", name: "LeisureSuitLarry91" },
+    { srcName: "MontezumasRevenge90.png", name: "MontezumasRevenge90" },
+    { srcName: "Nebulus90.png", name: "Nebulus90" },
+    { srcName: "Pitfall90.png", name: "Pitfall90" },
+    { srcName: "Pitfall91.png", name: "Pitfall91" },
+    { srcName: "Pitstop3.png", name: "Pitstop3" },
+    { srcName: "Rambo11.png", name: "Rambo11" },
+    { srcName: "SexOlympics1.png", name: "SexOlympics1" },
+    { srcName: "SexOlympics2.png", name: "SexOlympics2" },
+    { srcName: "Shamus91.png", name: "Shamus91" },
+    { srcName: "Tornado1.png", name: "Tornado1" },
 ];

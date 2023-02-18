@@ -54,6 +54,7 @@ class IAM {
         }
     }
     reIndex() {
+        if (this.POOL.length === 0) return;
         this.POOL = this.POOL.filter((el) => el !== null);
         for (const [index, obj] of this.POOL.entries()) {
             obj.id = index + 1;
@@ -521,65 +522,6 @@ class Enemy_RC extends IAM {
     }
 }
 
-class Limited extends IAM {
-    constructor(limit) {
-        super();
-        this.IA = null;
-        this.limit = limit;
-    }
-    init(map, allocation_template) {
-        this.POOL = [];
-        this.linkMap(map);
-        this.allocation_template = allocation_template;
-    }
-    add(obj) {
-        if (this.POOL.length >= this.limit) throw (`${constructor.name}: allocation exceeded limit!`);
-        this.POOL.push(obj);
-        obj.id = this.POOL.length;
-        obj.IAM = this;
-        obj.constructor_name = obj.constructor.name;
-    }
-    getFree() {
-        for (let i = 0; i < this.POOL.length; i++) {
-            let obj = this.POOL[i];
-            if (!obj.active) return i;
-        }
-        return null;
-    }
-    locate(obj) {
-        const free = this.getFree();
-        if (free === null) {
-            console.error(`${constructor.name}: out of allocation space!`);
-            throw (`${constructor.name}: out of allocation space!`);
-            //return;
-        }
-        obj.active = true; //redundant assertion
-        obj.id = free + 1;
-        this.POOL[free] = obj;
-        console.log("*** located:", obj);
-    }
-    draw() {
-        for (let obj of this.POOL) {
-            if (obj.active) obj.draw(this.map);
-        }
-    }
-    manage(lapsedTime) {
-        for (let obj of this.POOL) {
-            if (obj.active) {
-                obj.move(lapsedTime);
-                let wallHit = !this.map.GA.entityNotInWall(Vector3.to_FP_Grid(obj.pos), Vector3.to_FP_Vector(obj.dir), obj.r);
-                if (wallHit) {
-                    obj.active = false;
-                    //add explosion
-
-                    //
-                    AUDIO.Explosion.volume = RAY.volume(obj.distance);
-                    AUDIO.Explosion.play();
-                }
-            }
-        }
-    }
-}
 
 /** 3D */
 
@@ -628,10 +570,30 @@ class Missile3D extends IAM {
                 if (wallHit) {
                     this.remove(obj.id);
                     //add explosion
-
+                    EXPLOSION3D.add(new ParticleExplosion(obj.pos));
                     //
                     AUDIO.Explosion.volume = RAY.volume(obj.distance);
                     AUDIO.Explosion.play();
+                }
+            }
+        }
+    }
+}
+
+class ParticleEmmission3D extends IAM {
+    constructor() {
+        super();
+        this.IA = null;
+        this.POOL = [];
+    }
+    manage(date) {
+        this.reIndex();
+        for (const item of this.POOL) {
+            if (item) {
+                item.update(date);
+                if (item.normalized_age > 1) {
+                    this.remove(item.id);
+                    console.log("explosion finished", item.id);
                 }
             }
         }
@@ -677,6 +639,7 @@ const VANISHING3D = new Decal3D();
 const GATE3D = new Decal3D(100);
 const ITEM3D = new Decal3D(1000);
 const MISSILE3D = new Missile3D();
+const EXPLOSION3D = new ParticleEmmission3D();
 /** *********************************************** */
 
 console.log(`%cIndexArrayManagers (IAM) ${IndexArrayManagers.VERSION} ready.`, "color: #7FFFD4");

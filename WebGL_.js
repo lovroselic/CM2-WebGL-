@@ -48,10 +48,23 @@
  * https://webglfundamentals.org/webgl/lessons/webgl-qna-efficient-particle-system-in-javascript---webgl-.html
  * https://registry.khronos.org/webgl/sdk/demos/google/resources/o3djs/particles.js
  * https://registry.khronos.org/webgl/sdk/demos/google/particles/index.html
+ * 
+ * https://www.chinedufn.com/webgl-particle-effect-billboard-tutorial/
+ * https://gpfault.net/posts/webgl2-particles.txt.html
+ * 
+ * https://www.youtube.com/watch?v=PWjIeJDE7Rc
+ *  https://youtu.be/PWjIeJDE7Rc?t=844
+ * https://youtu.be/PWjIeJDE7Rc?t=1672
+ * https://youtu.be/PWjIeJDE7Rc?t=2340
+ * https://www.youtube.com/watch?v=OYYZQ1yiXO
+ * https://www.youtube.com/watch?v=sMQz3plUUG4
+ * 
+ * https://github.com/sketchpunk/FunWithWebGL2
+ * https://webgl2fundamentals.org/webgl/lessons/webgl-gpgpu.html
  */
 
 const WebGL = {
-    VERSION: "0.16.0",
+    VERSION: "0.16.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -65,6 +78,8 @@ const WebGL = {
         MIN_RESOLUTION: 128,
         INTERACT_DISTANCE: 1.3,
         DYNAMIC_LIGHTS_RESERVATION: 8,
+        EXPLOSION_N_PARTICLES: 10,
+        EXPLOSION_DURATION_MS: 2000,
     },
     program: null,
     pickProgram: null,
@@ -237,7 +252,6 @@ const WebGL = {
         return shader;
     },
     updateShaders() {
-        //SHADER.fShader = SHADER.fShader.replace("N_LIGHTS = 1", `N_LIGHTS = ${LIGHTS3D.POOL.length}`);
         SHADER.fShader = SHADER.fShader.replace("N_LIGHTS = 1", `N_LIGHTS = ${LIGHTS3D.POOL.length + this.INI.DYNAMIC_LIGHTS_RESERVATION}`);
     },
     initPickProgram(gl, vsSource, fsSource) {
@@ -339,10 +353,11 @@ const WebGL = {
             lightColors = [...lightColors, ...LIGHTS3D.POOL[L].lightColor];
         }
 
-        
+
         let dynLights = [];
         let dynLightColors = [];
         let dynCount = 0;
+        let cont = true;
         for (let iam of this.dynamicLightSources) {
             for (let LS of iam.POOL) {
                 if (!LS) continue;
@@ -351,8 +366,11 @@ const WebGL = {
                 dynCount++;
                 if (dynCount > this.INI.DYNAMIC_LIGHTS_RESERVATION) {
                     console.error("Dynamic light sources exceed reserved memory!");
+                    cont = false;
+                    break;
                 }
             }
+            if (!cont) break;
         }
         for (let i = 0; i < this.INI.DYNAMIC_LIGHTS_RESERVATION - dynCount; i++) {
             dynLights = [...dynLights, ...[-1, -1, -1]];
@@ -361,7 +379,6 @@ const WebGL = {
         lights = [...lights, ...dynLights];
         lightColors = [...lightColors, ...dynLightColors];
 
-        //console.log(lightColors);
         gl.uniform3fv(this.program.uniformLocations.lights, new Float32Array(lights));
         gl.uniform3fv(this.program.uniformLocations.lightColors, new Float32Array(lightColors));
 
@@ -443,7 +460,7 @@ const WebGL = {
             if (door) {
                 const mTranslationmatrix = glMatrix.mat4.create();
                 glMatrix.mat4.fromTranslation(mTranslationmatrix, door.pos.array);
-                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, mTranslationmatrix); //
+                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, mTranslationmatrix);
                 gl.bindTexture(gl.TEXTURE_2D, door.texture);
                 gl.drawElements(gl.TRIANGLES, door.indices, gl.UNSIGNED_SHORT, this.world.offset[door.start] * 2);
 
@@ -1138,7 +1155,6 @@ class FloorItem3D {
         if (typeof (this.scale) === "number") {
             this.scale = new Float32Array([this.scale, this.scale, this.scale]);
         }
-        //this.byte_length = this.element.indices.length * 2; //redundant?
         this.indices = this.element.indices.length;
         //translate
         let heightTranslate = new Float32Array([0, 0, 0]);
@@ -1167,6 +1183,193 @@ class FloorItem3D {
             which: this.which
         };
     }
+}
+
+/** */
+class ParticleEmmiter {
+    constructor(position) {
+        this.gl = WebGL.CTX;
+        this.pos = position;
+        this.birth = Date.now();
+        this.age = 0;
+        this.duration = null;
+        this.currentIndex = 0;
+    }
+    update(date) {
+        this.normalized_age = (date - this.birth) / this.duration;
+    }
+    setData(number) {
+        const gl = this.gl;
+        let start_index = RND(0, UNIFORM.INI.MAX_N_PARTICLES - number);
+
+        this.readFeedback = [gl.createVertexArray(), gl.createVertexArray()];
+        this.writeFeedback = [gl.createTransformFeedback(), gl.createTransformFeedback()];
+
+        //location
+        let location_data = UNIFORM.spherical_locations.slice(start_index * 3, (start_index + number) * 3);
+        console.log("location_data", location_data);
+        this.bOffset = [gl.createBuffer(), gl.createBuffer()];
+        let locOffset = 0;
+
+        //velocity
+        let velocity_data = UNIFORM.spherical_directions.slice(start_index * 3, (start_index + number) * 3);
+        console.log("velocity_data", velocity_data);
+        this.bVelocity = [gl.createBuffer(), gl.createBuffer()];
+        const locVelocity = 1;
+
+        //age
+        let age_data = new Float32Array(number);
+        console.log("age_data", age_data);
+        this.bAge = [gl.createBuffer(), gl.createBuffer()];
+        const locAge = 2;
+
+        //ageNorm
+        let age_norm_data = new Float32Array(number);
+        console.log("age_norm_data", age_norm_data);
+        this.bAgeNorm = [gl.createBuffer(), gl.createBuffer()];
+        let locAgeNorm = 3;
+
+        //life
+        let life_data = [];
+        for (let c = 0; c < number; c++) {
+            life_data.push(RND(Math.floor(this.duration * 0.85), this.duration));
+        }
+        console.log("life_data", life_data);
+        this.bLife = [gl.createBuffer(), gl.createBuffer()];
+        const locLife = 4;
+
+
+        for (let i = 0; i < 2; i++) {
+
+            //location offsets
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bOffset[i]);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(location_data), gl.DYNAMIC_COPY);
+            gl.vertexAttribPointer(locOffset, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(locOffset);
+
+            //velocity_offsets
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bVelocity[i]);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(velocity_data), gl.DYNAMIC_COPY);
+            gl.vertexAttribPointer(locVelocity, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(locVelocity);
+
+            //age buffers
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bAge[i]);
+            gl.bufferData(gl.ARRAY_BUFFER, age_data, gl.DYNAMIC_COPY);
+            gl.vertexAttribPointer(locAge, 1, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(locAge);
+
+            //age_norm_buffers
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bAgeNorm[i]);
+            gl.bufferData(gl.ARRAY_BUFFER, age_norm_data, gl.DYNAMIC_COPY);
+            gl.vertexAttribPointer(locAgeNorm, 1, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(locAgeNorm);
+
+            //life buffers
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bLife[i]);
+            gl.bufferData(gl.ARRAY_BUFFER, life_data, gl.STATIC_DRAW);
+            gl.vertexAttribPointer(locLife, 1, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(locLife);
+
+            //clean
+            gl.bindVertexArray(null);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+            //Setup Transform Feedback
+            gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, this.writeFeedback[i]);
+            gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, locOffset, this.bOffset[i]);
+            gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, locVelocity, this.bVelocity[i]);
+            gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, locAge, this.bAge[i]);
+            gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, locAgeNorm, this.bAgeNorm[i]);
+            //gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, locLife, this.bLife[i]); 
+            gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, null);
+        }
+
+        //Render VAO
+        this.vaoRender = [gl.createVertexArray(), gl.createVertexArray()];
+
+        //index
+        this.bIndex = gl.createBuffer();
+        this.aIndex = new Uint16Array([0, 1, 2, 2, 3, 0]);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bIndex);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.aIndex, gl.STATIC_DRAW);
+        this.vaoCount = this.aIndex.length;
+
+        //vertices
+        this.bVertices = gl.createBuffer();
+        this.aVertices = new Float32Array([
+            -0.5, -0.5, 0.0,
+            0.5, -0.5, 0.0,
+            0.5, 0.5, 0.0,
+            -0.5, 0.5, 0.0,
+        ]);
+
+        const locVert = 0;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.bVertices);
+        gl.bufferData(gl.ARRAY_BUFFER, this.aVertices, gl.STATIC_DRAW);
+
+        //UVs
+        this.bUV = gl.createBuffer();
+        this.aUV = new Float32Array([
+            0.0, 0.0,
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 1.0
+        ]);
+        const locUV = 1;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.bUV);
+        gl.bufferData(gl.ARRAY_BUFFER, this.aUV, gl.STATIC_DRAW);
+
+        //Setup VAOs for Rendering
+        locOffset = 2;
+        locAgeNorm = 3;
+        for (let i = 0; i < 2; i++) {
+            gl.bindVertexArray(this.vaoRender[i]);
+
+            //INDEX
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bIndex);
+
+            //VERTICES
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bVertices);
+            gl.vertexAttribPointer(locVert, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(locVert);
+
+            //UVs
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bUV);
+            gl.vertexAttribPointer(locUV, 2, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(locUV);
+
+            //OFFSET
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bOffset[i]);
+            gl.vertexAttribPointer(locOffset, 3, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(locOffset);
+            gl.vertexAttribDivisor(locOffset, 1); //instanced
+
+            //AGE NORM
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.bAgeNorm[i]);
+            gl.vertexAttribPointer(locAgeNorm, 1, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(locAgeNorm);
+            gl.vertexAttribDivisor(locAgeNorm, 1); //instanced
+
+            //CLEANUP
+            gl.bindVertexArray(null);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        }
+
+    }
+}
+
+class ParticleExplosion extends ParticleEmmiter {
+    constructor(position, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
+        super(position);
+        this.number = number;
+        this.duration = WebGL.INI.EXPLOSION_DURATION_MS;
+        this.setData(number);
+        console.log("ParticleEmmiter", this);
+
+    }
+
 }
 
 /** Utility functions */
@@ -1451,8 +1654,48 @@ const ELEMENT = {
             -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
         ],
     },
-    //hidden: new Float32Array(72),
-    //hidden: new Float32Array(72).fill(-10.0),
+};
+
+const UNIFORM = {
+    spherical_locations: null,
+    spherical_directions: null,
+    INI: {
+        MAX_N_PARTICLES: 20,
+        SPHERE_R: 0.25,
+    },
+    setup() {
+        this.spherical_distributed(this.INI.MAX_N_PARTICLES, this.INI.SPHERE_R);
+        if (WebGL.VERBOSE) {
+            console.log(`%c_______________________`, WebGL.CSS);
+            console.log(`%cUNIFORM setup :`, WebGL.CSS);
+            console.log("spherical_locations:", this.spherical_locations);
+            console.log("spherical_directions:", this.spherical_directions);
+
+            console.log(`%c_______________________`, WebGL.CSS);
+        }
+
+    },
+    spherical_distributed(N, R) {
+        this.spherical_locations = [];
+        this.spherical_directions = [];
+        for (let c = 0; c < N; c++) {
+            let vector = glMatrix.vec3.create();
+            for (let v = 0; v < 3; v++) {
+                let coord = RNDF(-1, 1);
+                vector[v] = coord;
+            }
+            glMatrix.vec3.normalize(vector, vector);
+            let velocity = glMatrix.vec3.create();
+            glMatrix.vec3.scale(velocity, vector, RNDF(0.1, 0.6)); //adjust - velocity scale !!! //TODO //FIXME
+            this.spherical_directions = [...this.spherical_directions, ...velocity];
+            let location = glMatrix.vec3.create();
+            glMatrix.vec3.scale(location, vector, RNDF(0.001, R));
+            this.spherical_locations = [...this.spherical_locations, ...location];
+        }
+
+        this.spherical_directions = new Float32Array(this.spherical_directions);
+        this.spherical_locations = new Float32Array(this.spherical_locations);
+    }
 };
 
 //END
