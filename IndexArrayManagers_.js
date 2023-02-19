@@ -569,6 +569,7 @@ class Missile3D extends IAM {
                 let wallHit = !this.map.GA.entityNotInWall(Vector3.to_FP_Grid(obj.pos), Vector3.to_FP_Vector(obj.dir), obj.r);
                 if (wallHit) {
                     this.remove(obj.id);
+                    //console.log("Missile exploded at", obj.pos);
                     //add explosion
                     EXPLOSION3D.add(new ParticleExplosion(obj.pos));
                     //

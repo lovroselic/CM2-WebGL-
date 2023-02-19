@@ -57,6 +57,8 @@ LoadTextures = [
     { srcName: "Magic4.jpg", name: "Magic" },
     { srcName: "Wood2.jpg", name: "Wood1" },
 
+    { srcName: "FireAtlas1.png", name: "FireAtlas" },
+
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
     { srcName: "RedGate1_256.png", name: "RedGate1" },
@@ -197,7 +199,7 @@ LoadSprites = [
     { srcName: "HOB5.png", name: "HOB5" },
     //{ srcName: "HOB4.png", name: "HOB4" },
     { srcName: "HOB2.png", name: "HOB2" },
-    { srcName: "TheHobbitPicture.png", name: "HOB1" },
+    //{ srcName: "TheHobbitPicture.png", name: "HOB1" },
     { srcName: "Maniac.png", name: "Maniac" },
     { srcName: "Kara.png", name: "Karateka" },
     { srcName: "Eric.png", name: "Eric" },
@@ -243,7 +245,7 @@ LoadSprites = [
     { srcName: "Galaga1.png", name: "Galaga1" },
     { srcName: "BoogaBoo3.png", name: "BoogaBoo3" },
     { srcName: "BoogaBoo1.png", name: "BoogaBoo1" },
-    { srcName: "Jupiter_Lander.png", name: "Jupiter_Lander" },
+    //{ srcName: "Jupiter_Lander.png", name: "Jupiter_Lander" },
     { srcName: "CrystalCastles.png", name: "CrystalCastles" },
     { srcName: "SVS10.png", name: "SVS10" },
     { srcName: "ZimSalaBim.png", name: "ZimSalaBim" },

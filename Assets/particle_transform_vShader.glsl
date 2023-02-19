@@ -1,5 +1,5 @@
-///particle_transform_vShader///
 #version 300 es
+///particle_transform_vShader///
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -7,11 +7,11 @@ precision highp float;
 precision mediump float;
 #endif
 
-attribute vec4 aVertexPosition;
+//attribute vec4 aVertexPosition;
 
 uniform float u_time;
-uniform mat4 uModelViewMatrix;
-uniform mat4 uProjectionMatrix;
+//uniform mat4 uModelViewMatrix;
+//uniform mat4 uProjectionMatrix;
 
 layout(location = 0) in vec3 a_offset;
 layout(location = 1) in vec3 a_velocity;
