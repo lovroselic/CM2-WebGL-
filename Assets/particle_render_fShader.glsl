@@ -24,7 +24,7 @@ void main(void) {
 
     //float a = 1.0;
 
-    //a -= v_age;
+    a -= v_age;
     //outColor = vec4(1.0, 0.0, 0.0, a);
     vec4 texelColor = texture(uSampler, v_uv);
     outColor = vec4(texelColor.rgb, a);

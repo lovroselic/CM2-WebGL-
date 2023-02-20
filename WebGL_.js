@@ -68,7 +68,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.16.2",
+    VERSION: "0.16.3",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -82,7 +82,7 @@ const WebGL = {
         MIN_RESOLUTION: 128,
         INTERACT_DISTANCE: 1.3,
         DYNAMIC_LIGHTS_RESERVATION: 8,
-        EXPLOSION_N_PARTICLES: 50,
+        EXPLOSION_N_PARTICLES: 100,
         EXPLOSION_DURATION_MS: 2000,
     },
     program: null,
@@ -1276,7 +1276,7 @@ class ParticleEmmiter {
         let age = Date.now();
         age_data.fill(age);
         console.log("age_data", age_data);
-        console.log("...passed", age - this.birth);
+        //console.log("...passed", age - this.birth);
         this.bAge = [gl.createBuffer(), gl.createBuffer()];
         const locAge = 2;
 
@@ -1297,6 +1297,8 @@ class ParticleEmmiter {
 
         for (let i = 0; i < 2; i++) {
 
+            gl.bindVertexArray(this.readFeedback[i]);
+
             //location offsets
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bOffset[i]);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(location_data), gl.DYNAMIC_COPY);
@@ -1311,19 +1313,19 @@ class ParticleEmmiter {
 
             //age buffers
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bAge[i]);
-            gl.bufferData(gl.ARRAY_BUFFER, age_data, gl.DYNAMIC_COPY);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(age_data), gl.DYNAMIC_COPY);
             gl.vertexAttribPointer(locAge, 1, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(locAge);
 
             //age_norm_buffers
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bAgeNorm[i]);
-            gl.bufferData(gl.ARRAY_BUFFER, age_norm_data, gl.DYNAMIC_COPY);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(age_norm_data), gl.DYNAMIC_COPY);
             gl.vertexAttribPointer(locAgeNorm, 1, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(locAgeNorm);
 
             //life buffers
             gl.bindBuffer(gl.ARRAY_BUFFER, this.bLife[i]);
-            gl.bufferData(gl.ARRAY_BUFFER, life_data, gl.STATIC_DRAW);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(life_data), gl.STATIC_DRAW);
             gl.vertexAttribPointer(locLife, 1, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(locLife);
 
@@ -1337,7 +1339,6 @@ class ParticleEmmiter {
             gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, locVelocity, this.bVelocity[i]);
             gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, locAge, this.bAge[i]);
             gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, locAgeNorm, this.bAgeNorm[i]);
-            //gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, locLife, this.bLife[i]); 
             gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, null);
         }
 
@@ -1380,6 +1381,7 @@ class ParticleEmmiter {
         locOffset = 2;
         locAgeNorm = 3;
         for (let i = 0; i < 2; i++) {
+
             gl.bindVertexArray(this.vaoRender[i]);
 
             //INDEX
@@ -1418,7 +1420,8 @@ class ParticleEmmiter {
         const transform_program = WebGL.explosion_program.transform.program;
         gl.useProgram(transform_program);
         let u_time = gl.getUniformLocation(transform_program, "u_time");
-        gl.uniform1f(u_time, Date.now());
+        gl.uniform1f(u_time, Date.now()); //
+        //gl.uniform1f(u_time,this.birth); //
 
         //Calculate this frame's Data
         const nextIndex = (this.currentIndex + 1) % 2;
@@ -1777,7 +1780,7 @@ const UNIFORM = {
     spherical_directions: null,
     INI: {
         MAX_N_PARTICLES: 200,
-        SPHERE_R: 0.99,
+        SPHERE_R: 0.20,
     },
     setup() {
         this.spherical_distributed(this.INI.MAX_N_PARTICLES, this.INI.SPHERE_R);
@@ -1802,10 +1805,10 @@ const UNIFORM = {
             }
             glMatrix.vec3.normalize(vector, vector);
             let velocity = glMatrix.vec3.create();
-            glMatrix.vec3.scale(velocity, vector, RNDF(0.1, 0.6)); //adjust - velocity scale !!! //TODO //FIXME
+            glMatrix.vec3.scale(velocity, vector, RNDF(0.01, 0.5)); //adjust - velocity scale !!! //TODO //FIXME
             this.spherical_directions = [...this.spherical_directions, ...velocity];
             let location = glMatrix.vec3.create();
-            glMatrix.vec3.scale(location, vector, RNDF(0.005, R));
+            glMatrix.vec3.scale(location, vector, RNDF(0.001, R));
             this.spherical_locations = [...this.spherical_locations, ...location];
         }
 
