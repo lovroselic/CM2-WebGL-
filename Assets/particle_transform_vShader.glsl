@@ -22,13 +22,8 @@ out float o_ageNorm;
 
 void main(void) {
     float age = u_time - a_age;
-    //o_velocity = a_velocity;
-    o_velocity = a_velocity - vec3(0.0,0.0075,0.0); //Apply Gravity to Velocity;
-    //o_offset = a_offset;
+    o_velocity = a_velocity - vec3(0.0, 0.0075, 0.0); //Apply Gravity to Velocity;
     o_offset = a_offset + 0.025 * o_velocity;
-    
     o_age = a_age;
     o_ageNorm = age / a_life;
-    //o_ageNorm = 0.5;
-
 }

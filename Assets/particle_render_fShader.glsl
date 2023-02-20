@@ -15,17 +15,18 @@ in float v_age;
 out vec4 outColor;
 
 void main(void) {
-    vec2 delta = v_uv - vec2(0.5, 0.5);                       //Distance from center
-    float lenSqr = abs(dot(delta, delta));		              //Length Squared (avoiding square roots)
-    float a = smoothstep(0.25, 0.23, lenSqr);	  //Center, so 0.5*0.5 = 0.25, the squared len from center, avoid roots.
+    vec2 delta = v_uv - vec2(0.5, 0.5);                       
+    float lenSqr = abs(dot(delta, delta));		              
+    float a = smoothstep(0.25, 0.23, lenSqr);
+
+    a -= v_age;
+    if(a < 0.0) {
+        a = 0.0;
+    }
     if(a < 0.1) {
         discard;
     }
 
-    //float a = 1.0;
-
-    a -= v_age;
-    //outColor = vec4(1.0, 0.0, 0.0, a);
     vec4 texelColor = texture(uSampler, v_uv);
     outColor = vec4(texelColor.rgb, a);
 }

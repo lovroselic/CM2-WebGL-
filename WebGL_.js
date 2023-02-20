@@ -68,7 +68,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.16.3",
+    VERSION: "0.16.4",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1273,9 +1273,9 @@ class ParticleEmmiter {
 
         //age
         let age_data = new Float32Array(number);
-        let age = Date.now();
+        let age = Date.now() - this.birth;
         age_data.fill(age);
-        console.log("age_data", age_data);
+        console.log(age, "age_data", age_data);
         //console.log("...passed", age - this.birth);
         this.bAge = [gl.createBuffer(), gl.createBuffer()];
         const locAge = 2;
@@ -1294,6 +1294,12 @@ class ParticleEmmiter {
         console.log("life_data", life_data);
         this.bLife = [gl.createBuffer(), gl.createBuffer()];
         const locLife = 4;
+
+        //debug
+        this.age_data = age_data;
+        this.life_data = life_data;
+
+        //debug end
 
         for (let i = 0; i < 2; i++) {
 
@@ -1420,7 +1426,9 @@ class ParticleEmmiter {
         const transform_program = WebGL.explosion_program.transform.program;
         gl.useProgram(transform_program);
         let u_time = gl.getUniformLocation(transform_program, "u_time");
-        gl.uniform1f(u_time, Date.now()); //
+        let time_now = Date.now() - this.birth;
+        gl.uniform1f(u_time, time_now); //
+        console.log("drawing", time_now, this.age_data[0], time_now > this.age_data[0], time_now - this.age_data[0], (time_now - this.age_data[0]) / this.life_data[0]);
         //gl.uniform1f(u_time,this.birth); //
 
         //Calculate this frame's Data
@@ -1452,7 +1460,7 @@ class ParticleEmmiter {
         const render_program = WebGL.explosion_program.render.program;
         gl.useProgram(render_program);
         gl.disable(gl.CULL_FACE);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);	
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
         //render uniforms
         const projection_matrix = gl.getUniformLocation(render_program, "uProjectionMatrix");
@@ -1464,11 +1472,11 @@ class ParticleEmmiter {
 
         // uniform end
 
-        gl.bindVertexArray(this.vaoRender[nextIndex]);  
+        gl.bindVertexArray(this.vaoRender[nextIndex]);
 
         gl.activeTexture(gl.TEXTURE0);
         const u_sampler = gl.getUniformLocation(render_program, "uSampler");
-        gl.uniform1i(u_sampler, 0);                            
+        gl.uniform1i(u_sampler, 0);
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
         gl.drawElementsInstanced(gl.TRIANGLES, this.vaoCount, gl.UNSIGNED_SHORT, 0, this.number);

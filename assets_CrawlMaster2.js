@@ -57,7 +57,7 @@ LoadTextures = [
     { srcName: "Magic4.jpg", name: "Magic" },
     { srcName: "Wood2.jpg", name: "Wood1" },
 
-    { srcName: "FireAtlas1.png", name: "FireAtlas" },
+    //{ srcName: "FireAtlas1.png", name: "FireAtlas" },
 
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
