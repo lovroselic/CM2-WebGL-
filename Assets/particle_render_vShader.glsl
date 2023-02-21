@@ -1,7 +1,6 @@
 #version 300 es
 ///particle_render_vShader///
 
-
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -25,6 +24,5 @@ void main(void) {
     v_uv = a_uv;
     v_age = a_ageNorm;
 
-    //gl_Position = uProjectionMatrix * uModelViewMatrix * vec4( a_position + uExpCenter, 1);
-    gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(a_offset + a_position + uExpCenter, 1);
+    gl_Position = uProjectionMatrix * uModelViewMatrix * vec4((a_position * (1.0 - v_age * v_age)) + a_offset + uExpCenter, 1);
 }
