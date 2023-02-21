@@ -68,7 +68,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.16.5",
+    VERSION: "0.16.6",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -99,7 +99,7 @@ const WebGL = {
     frameBuffer: null,
     staticDecalList: [DECAL3D, LIGHTS3D],
     dynamicDecalList: [GATE3D, ITEM3D],
-    dynamicLightSources: [MISSILE3D],
+    dynamicLightSources: [MISSILE3D, EXPLOSION3D],
     explosion_program: {
         transform: {
             vSource: "particle_transform_vShader",
@@ -1466,6 +1466,7 @@ class ParticleExplosion extends ParticleEmmiter {
         this.duration = WebGL.INI.EXPLOSION_DURATION_MS;
         this.build(number);
         this.texture = this.texture = WebGL.createTexture(TEXTURE.FireballTexture);
+        this.lightColor = colorStringToVector("#FF3300");
         console.log("ParticleEmmiter", this);
     }
 }
