@@ -68,7 +68,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.16.4",
+    VERSION: "0.16.5",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
