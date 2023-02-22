@@ -8,6 +8,8 @@ precision mediump float;
 #endif
 
 uniform float u_time;
+uniform float uVelocityFactor;
+uniform vec3 uGravity;
 
 layout(location = 0) in vec3 a_offset;
 layout(location = 1) in vec3 a_velocity;
@@ -22,9 +24,8 @@ out float o_ageNorm;
 
 void main(void) {
     float age = u_time - a_age;
-    o_velocity = a_velocity - vec3(0.0, 0.0075, 0.0); //Apply Gravity to Velocity;
-    //o_offset = a_offset + 0.025 * o_velocity;
-    o_offset = a_offset + 0.03 * o_velocity;
+    o_velocity = a_velocity - uGravity;
+    o_offset = a_offset + uVelocityFactor * o_velocity;
     o_age = a_age;
     o_ageNorm = age / a_life;
 }

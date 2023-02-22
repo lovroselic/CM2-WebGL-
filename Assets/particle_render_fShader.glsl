@@ -8,6 +8,7 @@ precision mediump float;
 #endif
 
 uniform sampler2D uSampler;
+uniform int uRounded;
 
 in vec2 v_uv;
 in float v_age;
@@ -17,9 +18,14 @@ out vec4 outColor;
 float random(float seed);
 
 void main(void) {
-    vec2 delta = v_uv - vec2(0.5, 0.5);
-    float lenSqr = abs(dot(delta, delta));
-    float a = smoothstep(0.25, 0.23, lenSqr);
+    float a = 1.0;
+
+    if(uRounded == 1) {
+        vec2 delta = v_uv - vec2(0.5, 0.5);
+        float lenSqr = abs(dot(delta, delta));
+        a = smoothstep(0.25, 0.23, lenSqr);
+    }
+
     a -= v_age * v_age;
     if(a < 0.1) {
         discard;
@@ -30,7 +36,7 @@ void main(void) {
     float L = max(r * (1.0 / F), 0.0); // 0.25
     float H = min((r / F) + (1.0 - 1.0 / F), 1.0); // 0.25 + 0.75
     vec2 texture_uv = vec2((1.0 - v_uv.x) * L + v_uv.x * H, (1.0 - v_uv.y) * L + v_uv.y * H);
-    
+
     vec4 texelColor = texture(uSampler, texture_uv);
     outColor = vec4(texelColor.rgb, a);
 }

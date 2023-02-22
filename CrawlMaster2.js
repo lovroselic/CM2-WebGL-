@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.08.07",
+    VERSION: "0.09.00",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -380,13 +380,8 @@ class Missile {
 }
 
 const HERO = {
-    startInit() {
-
-    },
-
-    init() {
-
-    },
+    //startInit() { },
+    //init() { },
     construct() {
         this.resetVision();
         this.visible();
@@ -568,9 +563,7 @@ const HERO = {
         },
         scroll: new Inventory()
     },
-
 };
-
 
 const GAME = {
     clearInfo() {
@@ -599,8 +592,6 @@ const GAME = {
         $("#pause").prop("disabled", false);
         $("#pause").off();
         GAME.paused = false;
-
-        UNIFORM.setup();
 
         let GameRD = new RenderData("DeepDown", 60, "#DC143C", "text", "#F22", 2, 2, 2);
         ENGINE.TEXT.setRD(GameRD);
@@ -649,14 +640,12 @@ const GAME = {
             ceil: TEXTURE[MAP[level].ceil]
         };
 
-        //
         WebGL.updateShaders();
         WebGL.init('webgl', MAP[level].world, textureData, HERO.player);
         MINIMAP.init(MAP[level].map, INI.MIMIMAP_WIDTH, INI.MIMIMAP_HEIGHT, HERO.player);
     },
     continueLevel(level) {
         console.log("game continues on level", level);
-        HERO.init();
         GAME.levelExecute();
     },
     levelExecute() {
@@ -733,6 +722,7 @@ const GAME = {
                 break;
             case 'chest':
                 AUDIO.OpenChest.play();
+                EXPLOSION3D.add(new WoodExplosion(Vector3.from_array(interaction.pos)));
                 let choices = {
                     RedPotion: 100,
                     BluePotion: 100,
@@ -939,7 +929,6 @@ const GAME = {
             TITLE.status();
             let position = HERO.player.pos.translate(HERO.player.dir, HERO.player.r);
             const missile = new Missile(position, HERO.player.dir, COMMON_ITEM_TYPE.Fireball, HERO.magic);
-            //console.log("missile", missile);
             MISSILE3D.add(missile);
 
             ENGINE.GAME.keymap[ENGINE.KEY.map.ctrl] = false; //NO repeat
@@ -1075,7 +1064,6 @@ const TITLE = {
         ENGINE.draw("sideback", x, y, SPRITE.LineBottom);
 
         y -= 224; // comment this, put in stack
-        //console.log("minimapY", y);
         ENGINE.draw("sideback", x, y, SPRITE.LineTop);
 
         //initial draws
@@ -1207,10 +1195,7 @@ const TITLE = {
         CTX.restore();
 
         y += fs * 1.0; //
-
         TITLE.magicBar(x, y);
-
-
     },
     statBar(x, y, value, max, color) {
         var CTX = LAYER.stat;
@@ -1394,7 +1379,6 @@ const TITLE = {
     music() {
         AUDIO.Title.play();
     },
-
     time() {
         let fs = 14;
         let y = ((TITLE.stack.delta2 + SPRITE.LineTop.height) / 2 + fs / 4) | 0;
@@ -1409,7 +1393,6 @@ const TITLE = {
         x = (ENGINE.sideWIDTH - x - timeMeasure.width) | 0;
         CTX.fillText(time, x, y);
     },
-
     _grad(CTX, txt, fs, x, y) {
         let txtm = CTX.measureText(txt);
         let gx = x - txtm.width / 2;
@@ -1479,7 +1462,6 @@ const TITLE = {
             TITLE.lives();
         }
     },
-
     gameOver() {
         ENGINE.clearLayer("text");
         var CTX = LAYER.text;
@@ -1545,6 +1527,8 @@ $(function () {
     //SPEECH.init(0.6);
     PRG.setup();
     ENGINE.LOAD.preload();
+    //takes a long time, use during preloading
+    UNIFORM.setup();
     //SCORE.init("SC", "RUN", 10, 2500);
     //SCORE.loadHS();
     //SCORE.hiScore();

@@ -68,7 +68,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.16.6",
+    VERSION: "0.17.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -82,7 +82,7 @@ const WebGL = {
         MIN_RESOLUTION: 128,
         INTERACT_DISTANCE: 1.3,
         DYNAMIC_LIGHTS_RESERVATION: 8,
-        EXPLOSION_N_PARTICLES: 2000,
+        EXPLOSION_N_PARTICLES: 10000,
         EXPLOSION_DURATION_MS: 2000,
     },
     program: null,
@@ -206,22 +206,18 @@ const WebGL = {
         const positionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.positions), gl.STATIC_DRAW);
-        //gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.positions), gl.DYNAMIC_DRAW);
 
         const indexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(world.indices), gl.STATIC_DRAW);
-        //gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(world.indices), gl.DYNAMIC_DRAW);
 
         const textureCoordBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.textureCoordinates), gl.STATIC_DRAW);
-        //gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.textureCoordinates), gl.DYNAMIC_DRAW);
 
         const normalBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.vertexNormals), gl.STATIC_DRAW);
-        //gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(world.vertexNormals), gl.DYNAMIC_DRAW);
 
         this.buffer = {
             position: positionBuffer,
@@ -577,12 +573,14 @@ const WebGL = {
             }
         }
 
+        //remember: last draw was on particle renderer!!!
+
     },
     idToVec(id) {
         return [((id >> 0) & 0xFF) / 0xFF, ((id >> 8) & 0xFF) / 0xFF, ((id >> 16) & 0xFF) / 0xFF, ((id >> 24) & 0xFF) / 0xFF];
     },
 
-    /** buffer manipulation */
+    /** buffer manipulation, unused, keep for information */
 
     hideCube(id, type) {
         let offset = (this.world.positionOffset[`${type}_start`] + ((id - 1) * 72)) * 4;
@@ -648,7 +646,7 @@ const WebGL = {
 
 const RAY = {
     /*
-        raycast related utilitz functions
+        raycast related utility functions
     */
     INI: {
         NO_SOUND: 8,
@@ -869,7 +867,6 @@ const WORLD = {
         /** build static decals */
         for (const iam of WebGL.staticDecalList) {
             for (const decal of iam.POOL) {
-                //console.log("decal", decal);
                 this.addPic(Y, decal, "decal");
             }
         }
@@ -1234,20 +1231,22 @@ class FloorItem3D {
             value: this.value,
             color: this.color,
             inventorySprite: this.inventorySprite,
-            which: this.which
+            which: this.which,
+            pos: this.translate,
         };
     }
 }
 
 /** */
 class ParticleEmmiter {
-    constructor(position) {
+    constructor(position, texture) {
         this.gl = WebGL.CTX;
         this.pos = position;
         this.birth = Date.now();
         this.age = 0;
         this.duration = null;
         this.currentIndex = 0;
+        this.texture = WebGL.createTexture(texture);
     }
     update(date) {
         this.normalized_age = (date - this.birth) / this.duration;
@@ -1412,10 +1411,17 @@ class ParticleEmmiter {
     draw(gl) {
         const transform_program = WebGL.explosion_program.transform.program;
         gl.useProgram(transform_program);
+
+        //uniforms
         let u_time = gl.getUniformLocation(transform_program, "u_time");
         let time_now = Date.now() - this.birth;
-        gl.uniform1f(u_time, time_now); //
-  
+        gl.uniform1f(u_time, time_now);
+        const u_velocity_factor = gl.getUniformLocation(transform_program, "uVelocityFactor");
+        gl.uniform1f(u_velocity_factor, this.velocity);
+        const u_gravity = gl.getUniformLocation(transform_program, "uGravity");
+        gl.uniform3fv(u_gravity, this.gravity);
+        //
+
         const nextIndex = (this.currentIndex + 1) % 2;
         let vaoTFRead = this.readFeedback[this.currentIndex];
         let vaoTFWrite = this.writeFeedback[nextIndex];
@@ -1444,6 +1450,10 @@ class ParticleEmmiter {
         gl.uniformMatrix4fv(modelViewMatrix, false, WebGL.viewMatrix);
         const expCenter = gl.getUniformLocation(render_program, "uExpCenter");
         gl.uniform3fv(expCenter, this.pos.array);
+        const u_scale = gl.getUniformLocation(render_program, "uScale");
+        gl.uniform1f(u_scale, this.scale);
+        const u_rounded = gl.getUniformLocation(render_program, "uRounded");
+        gl.uniform1i(u_rounded, this.rounded);
         // uniform end
 
         gl.bindVertexArray(this.vaoRender[nextIndex]);
@@ -1460,13 +1470,61 @@ class ParticleEmmiter {
 }
 
 class ParticleExplosion extends ParticleEmmiter {
-    constructor(position, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
-        super(position);
+    constructor(position, texture = TEXTURE.Explosion, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
+        super(position, texture);
         this.number = number;
         this.duration = WebGL.INI.EXPLOSION_DURATION_MS;
         this.build(number);
-        this.texture = this.texture = WebGL.createTexture(TEXTURE.FireballTexture);
         this.lightColor = colorStringToVector("#FF3300");
+        this.scale = 0.5;
+        this.gravity = new Float32Array([0, 0.0075, 0]);
+        this.velocity = 0.03;
+        this.rounded = 1;
+        console.log("ParticleEmmiter", this);
+    }
+}
+
+class BloodExplosion extends ParticleEmmiter {
+    constructor(position, texture = TEXTURE.RedLiquid, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
+        super(position, texture);
+        this.number = number;
+        this.duration = WebGL.INI.EXPLOSION_DURATION_MS;
+        this.build(number);
+        this.lightColor = colorStringToVector("#111111");
+        this.scale = 0.25;
+        this.gravity = new Float32Array([0, 0.0025, 0]);
+        this.velocity = 0.0075;
+        this.rounded = 1;
+        console.log("ParticleEmmiter", this);
+    }
+}
+
+class SmokeExplosion extends ParticleEmmiter {
+    constructor(position, texture = TEXTURE.ScrapedMetal, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
+        super(position, texture);
+        this.number = number;
+        this.duration = WebGL.INI.EXPLOSION_DURATION_MS;
+        this.build(number);
+        this.lightColor = colorStringToVector("#111111");
+        this.scale = 0.20;
+        this.gravity = new Float32Array([0, -0.0025, 0]);
+        this.velocity = 0.005;
+        this.rounded = 1;
+        console.log("ParticleEmmiter", this);
+    }
+}
+
+class WoodExplosion extends ParticleEmmiter {
+    constructor(position, texture = TEXTURE.Wood1, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
+        super(position, texture);
+        this.number = number;
+        this.duration = WebGL.INI.EXPLOSION_DURATION_MS;
+        this.build(number);
+        this.lightColor = colorStringToVector("#111111");
+        this.scale = 0.50;
+        this.gravity = new Float32Array([0, 0.0005, 0]);
+        this.velocity = 0.0025;
+        this.rounded = 0;
         console.log("ParticleEmmiter", this);
     }
 }
@@ -1759,11 +1817,14 @@ const UNIFORM = {
     spherical_locations: null,
     spherical_directions: null,
     INI: {
-        MAX_N_PARTICLES: 2000,
+        MAX_N_PARTICLES: 10000,
         SPHERE_R: 0.20,
+        MIN_VELOCITY_FACTOR: 0.01,
+        MAX_VELOCITY_FACTOR: 0.6
     },
     setup() {
         this.spherical_distributed(this.INI.MAX_N_PARTICLES, this.INI.SPHERE_R);
+        console.log(`%cUNIFORM created ${this.INI.MAX_N_PARTICLES} spherical particles.`, WebGL.CSS);
     },
     spherical_distributed(N, R) {
         this.spherical_locations = [];
@@ -1776,7 +1837,7 @@ const UNIFORM = {
             }
             glMatrix.vec3.normalize(vector, vector);
             let velocity = glMatrix.vec3.create();
-            glMatrix.vec3.scale(velocity, vector, RNDF(0.01, 0.6)); //adjust - velocity scale !!! //TODO //FIXME
+            glMatrix.vec3.scale(velocity, vector, RNDF(this.INI.MIN_VELOCITY_FACTOR, this.INI.MAX_VELOCITY_FACTOR)); 
             this.spherical_directions = [...this.spherical_directions, ...velocity];
             let location = glMatrix.vec3.create();
             glMatrix.vec3.scale(location, vector, RNDF(0.001, R));

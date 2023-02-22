@@ -569,10 +569,9 @@ class Missile3D extends IAM {
                 let wallHit = !this.map.GA.entityNotInWall(Vector3.to_FP_Grid(obj.pos), Vector3.to_FP_Vector(obj.dir), obj.r);
                 if (wallHit) {
                     this.remove(obj.id);
-                    //console.log("Missile exploded at", obj.pos);
-                    //add explosion
                     EXPLOSION3D.add(new ParticleExplosion(obj.pos));
-                    //
+                    //EXPLOSION3D.add(new BloodExplosion(obj.pos));
+                    //EXPLOSION3D.add(new SmokeExplosion(obj.pos));
                     AUDIO.Explosion.volume = RAY.volume(obj.distance);
                     AUDIO.Explosion.play();
                 }
@@ -594,7 +593,6 @@ class ParticleEmmission3D extends IAM {
                 item.update(date);
                 if (item.normalized_age > 1) {
                     this.remove(item.id);
-                    console.log("explosion finished", item.id);
                 }
             }
         }
