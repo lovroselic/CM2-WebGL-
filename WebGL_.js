@@ -68,7 +68,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.17.0",
+    VERSION: "0.17.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -354,6 +354,7 @@ const WebGL = {
                 uLightColor: gl.getUniformLocation(shaderProgram, "uLightColor"),
                 uItemPosition: gl.getUniformLocation(shaderProgram, "uItemPosition"),
                 lightColors: gl.getUniformLocation(shaderProgram, "uLightColors"),
+                uRotY: gl.getUniformLocation(shaderProgram, "uRotateY"),
             },
         };
 
@@ -378,6 +379,7 @@ const WebGL = {
         const defaultShininess = 128.0 * 0.10;
         const translationMatrix = glMatrix.mat4.create();
         const scaleMatrix = glMatrix.mat4.create();
+        const rotateY = glMatrix.mat4.create();
 
         gl.useProgram(this.program.program);
         // Set the uniform matrices
@@ -387,6 +389,7 @@ const WebGL = {
         gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, scaleMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, translationMatrix);
         gl.uniform1f(this.program.uniformLocations.uShine, defaultShininess);
+        gl.uniformMatrix4fv(this.program.uniformLocations.uRotY, false, rotateY);
 
         //light uniforms
         let lights = [];
@@ -532,6 +535,7 @@ const WebGL = {
                 gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, mScaleMatrix);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, mTranslationmatrix);
                 gl.uniform1f(this.program.uniformLocations.uShine, item.shine);
+                gl.uniformMatrix4fv(this.program.uniformLocations.uRotY, false, item.rotationY);
                 gl.bindTexture(gl.TEXTURE_2D, item.texture);
                 gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, this.world.offset[item.start] * 2);
 
@@ -1222,6 +1226,12 @@ class FloorItem3D {
         if (this.category === "gold") {
             this.value = RND(this.minVal, this.maxVal);
         }
+        //random rotation
+        let randomRotation = RND(0, 359);
+        randomRotation = Math.radians(randomRotation);
+        let identity = glMatrix.mat4.create();
+        glMatrix.mat4.rotate(identity, identity, randomRotation, [0, 1, 0]);
+        this.rotationY = identity;
     }
     interact(GA, inventory) {
         console.log(this, "interaction", this.category);
@@ -1837,7 +1847,7 @@ const UNIFORM = {
             }
             glMatrix.vec3.normalize(vector, vector);
             let velocity = glMatrix.vec3.create();
-            glMatrix.vec3.scale(velocity, vector, RNDF(this.INI.MIN_VELOCITY_FACTOR, this.INI.MAX_VELOCITY_FACTOR)); 
+            glMatrix.vec3.scale(velocity, vector, RNDF(this.INI.MIN_VELOCITY_FACTOR, this.INI.MAX_VELOCITY_FACTOR));
             this.spherical_directions = [...this.spherical_directions, ...velocity];
             let location = glMatrix.vec3.create();
             glMatrix.vec3.scale(location, vector, RNDF(0.001, R));
