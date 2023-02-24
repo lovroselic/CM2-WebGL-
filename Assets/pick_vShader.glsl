@@ -11,7 +11,8 @@ uniform mat4 uProjectionMatrix;
 
 uniform mat4 uScale;
 uniform mat4 uTranslate;
+uniform mat4 uRotateY;
 
 void main(void) {
-    gl_Position = uProjectionMatrix * uModelViewMatrix * uTranslate * uScale * aVertexPosition;
+    gl_Position = uProjectionMatrix * uModelViewMatrix * uTranslate * uRotateY * uScale * aVertexPosition;
 }

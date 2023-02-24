@@ -11,7 +11,7 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA5", "AA7", "AA8", "AA9", "AMC",
     "CrystalCastles", "CyberPunk1", "DDID2", "DK", "DK2", "DM1", "DM11", "DM12", "DM4", "DM5", "DM6",
     "Drelbs", "EOB1", "EOB2", "EOB3", "EOB4", "Eric", "FA3", "FF1", "FF2", "FF4",
     "Fred1", "Fred2", "Frogger", "Galaga1", "Galaxian3", "Ghostbusters", "Goonies", "GreenBeret", "HL1", "HL2", "HL3",
-    "HL4", "HL5", "HOB11", "HOB2", "HOB5", "Hero1", "Hero10", "Hero2", "Hero3", "HoraceSki", "Hunchback",
+    "HL4", "HL5", "HOB11", "HOB2", "HOB5", "Hero1", "Hero10", "Hero2", "Hero3", "HoraceSki",
     "IM", "Iceman", "Imhotep", "Impossible_Mission4", "JSW", "JSW2", "JSW3", "Jumpman", "JumpmanJr", "KQ1",
     "Kangaroo", "Karateka", "Killerwat", "Knightlore", "LSL1", "LSL20", "LSL4", "LSL6", "LSL7", "LTUT", "LastNinja1", "Lode",
     "Maniac", "ManicMiner", "Miner", "MonkeyIsland", "Montezuma", "Moon", "Oblivion", "Oblivion2", "OperationWolf",
@@ -26,7 +26,7 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA5", "AA7", "AA8", "AA9", "AMC",
     "Apshai4", "Apshai3", "Paperboy", "RobinOfTheWood2", "Pyjamarama", "ThePawn", "KokotoniWilf", "Cauldron1",
     "Zeppelin2", "TimeTunnel", "SP3", "AC2", "Hero30", "SVS30", "AirWolf", "AA41", "AA40", "SeaWolf", "GIJoe10",
     "Hobbit1", "Hobbit3", "Ghostbusters2", "Commando3", "EOB20", "Hobbit6", "Hobbit7", "Hobbit8", "Hobbit9", "AticAtac1", "Infiltrator1", "ManicMiner2",
-    "ManicMiner3", "Prince3", "Infiltrator2", "1942_2", "Arnie1", "BTF1", "Biggles1", "BlueThunder1", "BrianBloodaxe1", "BrideOfFrakenstein1",
+    "ManicMiner3", "Prince3", "Infiltrator2", "1942_2", "Arnie1", "BTF1", "BlueThunder1", "BrianBloodaxe1", "BrideOfFrakenstein1",
     "BruceLee1", "Captive", "Fred3", "Fred4", "JSW4", "ManiacMansion2", "PQ1", "Pengo", "Pirates", "PolePosition", "Silkworm1", "SirFred1",
     "SirFred2", "SirFred3", "Unknown1", "BattleThroughTime", "BOF3", "Chopper2", "Cliffhanger", "F1", "IM10", "MoonPatrol", "SummerGames10",
     "FF5", "LaraCroft1", "LaraCroft2", "IM13", "FF101", "FF100", "AA100", "UW10", "KL10", "SVS100", "SVS101", "SP4", "JSW10", "Vixen3", "WOW10", "ESB", "Galaxians10", "BC10",
@@ -72,10 +72,11 @@ console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
 
 
 console.log("%cMAP for CrawlMaster2 loaded.", "color: #888");
+//{"width":"16","height":"16","map":"BB9ABB10AA26BAA10BAA20BAA9BAA8BB2AA2BAA6BAA9BAA6BB3ABAA2BB6AA2BAA10BABAA2BB2AA8BB9ABB2ABAA2BAA2BB2AA2BAA7BB2AA5BABABB2AA4BB6ABB2ABAA2BB9ABB18A$"}
 var MAP = {
     1: {
         data: `
-        {"width":"16","height":"16","map":"BB9ABB10AA26BAA10BAA20BAA9BAA8BB2AA2BAA6BAA9BAA6BB3ABAA2BB6AA2BAA10BABAA2BB2AA8BB9ABB2ABAA2BAA2BB2AA2BAA7BB2AA5BABABB2AA4BB6ABB2ABAA2BB9ABB18A$"}
+        {"width":"16","height":"16","map":"BB5ABB7AA2BABAA12BAA2BB4AA5BAA2BAA19BAA11BAA5BAA2BAA2BAA5BAA12BAA3BB6ABAA2BABB4AA11BB2AA2BAA3BB2AA3BB9AA6BB2ABAA2BAA2BABB2AA2BAA7BB3ABAA2BABABB2AA3BABB8ABB3AA4BAA2BB9ABB18A$"}
         `,
         //floor: "RockFloor",
         //floor: "StoneFloor3",
@@ -118,9 +119,12 @@ var SPAWN = {
     spawn(level) {
         console.log("spawning ... level", level);
         this.decals(level);
+        this.stairs(level);
         this.lights(level);
         this.gates(level);
         this.items(level);
+        //GATE3D.display();
+        //ITEM3D.display();
     },
     decals(level) {
         const decalsLocations = [
@@ -133,6 +137,7 @@ var SPAWN = {
             { grid: new Grid(3, 0), face: 'FRONT' },
             { grid: new Grid(3, 15), face: 'BACK' },
             { grid: new Grid(3, 7), face: 'FRONT' },
+            { grid: new Grid(12, 0), face: 'FRONT' },
         ];
 
         for (let D of decalsLocations) {
@@ -147,6 +152,12 @@ var SPAWN = {
             console.log("crest", crest);
             DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[crest], "crest", crest));
         }
+    },
+    stairs(level){
+        //entrance gate
+        let entranceLocation = { grid: new Grid(0, 4), face: 'RIGHT' };
+        let entranceSprite = "EntranceGate";
+        DECAL3D.add(new StaticDecal(entranceLocation.grid, entranceLocation.face, SPRITE[entranceSprite], "crest", entranceSprite));
     },
     lights(level) {
         const standardLightColor = new Float32Array([0.95, 0.95, 0.85]); //should be string?
@@ -274,9 +285,9 @@ const COMMON_ITEM_TYPE = {
         category: "skill",
         which: "attack",
         element: "SWORD",
-        scale: 1.5 / 2 ** 5,
+        scale: 1 / 2 ** 4,
         glueToFloor: true,
-        texture: "BloodFireSilver",
+        texture: "Sword",
         shine: 128.0 * 0.99,
         inventorySprite: "SwordSkill",
     },

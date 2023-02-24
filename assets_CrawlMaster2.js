@@ -50,13 +50,12 @@ LoadTextures = [
     { srcName: "ScrollTexture1.jpg", name: "ScrollTexture" },
     { srcName: "Fireball2.jpg", name: "FireballTexture" },
     { srcName: "BloodFireSilver.png", name: "BloodFireSilver" },
-
+    { srcName: "Sword1.png", name: "Sword" },
     { srcName: "Red3.jpg", name: "Red" },
     { srcName: "Red2.jpg", name: "Red2" },
     { srcName: "ScrapedMetal1.jpg", name: "ScrapedMetal" },
     { srcName: "Magic4.jpg", name: "Magic" },
     { srcName: "Wood2.jpg", name: "Wood1" },
-
     { srcName: "Explosion1.jpg", name: "Explosion" },
 
     //decal-gates
@@ -64,6 +63,8 @@ LoadTextures = [
     { srcName: "RedGate1_256.png", name: "RedGate1" },
     { srcName: "SilverGate1_256.png", name: "SilverGate1" },
     { srcName: "WoodeGate1_256.png", name: "WoodenGate1" },
+
+
 ];
 LoadAudio = [
     { srcName: "UseScroll.mp3", name: "PickBox" },
@@ -98,6 +99,11 @@ LoadSprites = [
     { srcName: "WallLamp256.png", name: "WallLamp" },
     { srcName: "CompassRose.png", name: "CompassRose" },
 
+    //stairs
+    { srcName: "StairsUp.jpg", name: "StairsUp" },
+    { srcName: "StairsDown.jpg", name: "StairsDown" },
+    //entrance_gate
+    { srcName: "DungeonDoor.png", name: "EntranceGate" },
     //scrolls
     { srcName: "Invisibility.png", name: "SCR_Invisibility" },
     { srcName: "DestroyArmor.png", name: "SCR_DestroyArmor" },
@@ -169,7 +175,6 @@ LoadSprites = [
     { srcName: "AA8.png", name: "AA8" },
     { srcName: "AA7.png", name: "AA7" },
     { srcName: "AA5.png", name: "AA5" },
-    //{ srcName: "AA4.png", name: "AA4" },
     { srcName: "AA3.png", name: "AA3" },
     { srcName: "AA2.png", name: "AA2" },
     { srcName: "AticAtacPicture.png", name: "AA1" },
@@ -179,7 +184,7 @@ LoadSprites = [
     { srcName: "Bagitman.png", name: "Bagitman" },
     { srcName: "AMC.png", name: "AMC" },
     { srcName: "Walls.png", name: "Walls" },
-    { srcName: "Hunch.png", name: "Hunchback" },
+    //{ srcName: "Hunch.png", name: "Hunchback" },
     { srcName: "Amber.png", name: "Amberstar" },
     { srcName: "Soc.png", name: "Soccer" },
     { srcName: "LSL7.png", name: "LSL7" },
@@ -382,7 +387,7 @@ LoadSprites = [
     { srcName: "1942_2.png", name: "1942_2" },
     { srcName: "Arnie1.png", name: "Arnie1" },
     { srcName: "BTF1.png", name: "BTF1" },
-    { srcName: "Biggles1.png", name: "Biggles1" },
+    //{ srcName: "Biggles1.png", name: "Biggles1" },
     { srcName: "BlueThunder1.png", name: "BlueThunder1" },
     { srcName: "BrianBloodaxe1.png", name: "BrianBloodaxe1" },
     { srcName: "BrideOfFrakenstein1.png", name: "BrideOfFrakenstein1" },

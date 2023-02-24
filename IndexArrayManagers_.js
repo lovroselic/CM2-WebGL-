@@ -524,17 +524,49 @@ class Enemy_RC extends IAM {
 
 
 /** 3D */
+class Decal_IA_3D extends IAM {
+    constructor() {
+        super();
+        this.IA = "decalIA3D";
+    }
+    init(map) {
+        this.POOL = [];
+        this.linkMap(map);
+        this.manage();
+    }
+    poolToIA(IA) {
+        for (const decal of this.POOL) {
+            if (decal === null) continue;
+            IA.next(decal.grid, decal.id);
+        }
+    }
+    manage() {
+        let map = this.map;
+        map[this.IA] = new IndexArray(map.width, map.height, 2, 1); //1 bank, 16bit
+        this.poolToIA(map[this.IA]);
+    }
+    update(map) {
+        this.manage(map);
+    }
+}
 
 class Decal3D extends IAM {
     constructor(len = null) {
         super();
         this.IA = null;
+        this.id_offset = null;
         this.len = len;
         if (this.len) {
             this.id_offset = GLOBAL_ID_MANAGER.offset.last();
             GLOBAL_ID_MANAGER.offset.push(this.id_offset + this.len);
             GLOBAL_ID_MANAGER.IAM.push(this);
         }
+    }
+    add(obj) {
+        this.POOL.push(obj);
+        obj.id = this.POOL.length;
+        obj.IAM = this;
+        obj.global_id = this.globalId(obj.id);
     }
     globalId(id) {
         if (this.id_offset != null) {
@@ -549,6 +581,13 @@ class Decal3D extends IAM {
             }
         }
     }
+    display() {
+        console.log("------------------------------------------");
+        console.log("Overview:", this.constructor.name, this.name);
+        console.table(this.POOL, ['name', 'id', 'global_id', 'grid']);
+        console.log("------------------------------------------");
+    }
+
 }
 
 class Missile3D extends IAM {
@@ -639,7 +678,9 @@ const GATE3D = new Decal3D(100);
 const ITEM3D = new Decal3D(1000);
 const MISSILE3D = new Missile3D();
 const EXPLOSION3D = new ParticleEmmission3D();
+const INTERACTIVE_DECAL3D = new Decal3D(1000);
+const BUMP3D = new Decal_IA_3D();
 /** *********************************************** */
 
 console.log(`%cIndexArrayManagers (IAM) ${IndexArrayManagers.VERSION} ready.`, "color: #7FFFD4");
-console.log("GLOBAL_ID_MANAGER", GLOBAL_ID_MANAGER);
+//console.log("GLOBAL_ID_MANAGER", GLOBAL_ID_MANAGER);

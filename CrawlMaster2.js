@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.09.01",
+    VERSION: "0.09.02",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -805,6 +805,7 @@ const GAME = {
         console.log("GAME SETUP started");
         $("#buttons").prepend("<input type='button' id='startGame' value='Start Game'>");
         $("#startGame").prop("disabled", true);
+        $("#conv").remove();
     },
     setTitle() {
         const text = GAME.generateTitleText();

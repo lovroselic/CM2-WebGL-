@@ -68,7 +68,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.17.1",
+    VERSION: "0.17.2",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -97,7 +97,7 @@ const WebGL = {
     targetTexture: null,
     depthBuffer: null,
     frameBuffer: null,
-    staticDecalList: [DECAL3D, LIGHTS3D],
+    staticDecalList: [DECAL3D, LIGHTS3D, BUMP3D],
     dynamicDecalList: [GATE3D, ITEM3D],
     dynamicLightSources: [MISSILE3D, EXPLOSION3D],
     explosion_program: {
@@ -151,6 +151,8 @@ const WebGL = {
         VANISHING3D.init(map);
         ITEM3D.init(map);
         MISSILE3D.init(map);
+        INTERACTIVE_DECAL3D.init(map);
+        BUMP3D.init(map);
 
         if (this.VERBOSE) {
             console.log("DECAL3D", DECAL3D);
@@ -318,6 +320,7 @@ const WebGL = {
                 id: gl.getUniformLocation(shaderProgram, "u_id"),
                 uScale: gl.getUniformLocation(shaderProgram, "uScale"),
                 uTranslate: gl.getUniformLocation(shaderProgram, "uTranslate"),
+                uRotY: gl.getUniformLocation(shaderProgram, "uRotateY"),
             },
         };
 
@@ -428,12 +431,13 @@ const WebGL = {
         gl.uniform3fv(this.program.uniformLocations.lights, new Float32Array(lights));
         gl.uniform3fv(this.program.uniformLocations.lightColors, new Float32Array(lightColors));
 
-        //and pickProgram
+        //pickProgram uniforms and defaults
         gl.useProgram(this.pickProgram.program);
         gl.uniformMatrix4fv(this.pickProgram.uniformLocations.projectionMatrix, false, this.projectionMatrix);
         gl.uniformMatrix4fv(this.pickProgram.uniformLocations.modelViewMatrix, false, viewMatrix);
         gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uScale, false, scaleMatrix);
         gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, translationMatrix);
+        gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uRotY, false, rotateY);
 
         this.renderDungeon();
     },
@@ -511,8 +515,7 @@ const WebGL = {
                 gl.drawElements(gl.TRIANGLES, door.indices, gl.UNSIGNED_SHORT, this.world.offset[door.start] * 2);
 
                 // to texture 
-                let id = GATE3D.globalId(door.id);
-                let id_vec = this.idToVec(id);
+                let id_vec = this.idToVec(door.global_id);
                 gl.useProgram(this.pickProgram.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
                 gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
@@ -540,13 +543,13 @@ const WebGL = {
                 gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, this.world.offset[item.start] * 2);
 
                 // to texture 
-                let id = ITEM3D.globalId(item.id);
-                let id_vec = this.idToVec(id);
+                let id_vec = this.idToVec(item.global_id);
                 gl.useProgram(this.pickProgram.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
                 gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
                 gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uScale, false, mScaleMatrix);
                 gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, mTranslationmatrix);
+                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uRotY, false, item.rotationY);
                 gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, this.world.offset[item.start] * 2);
 
                 //back to canvas
@@ -1109,6 +1112,7 @@ class Decal {
         this.name = name;
     }
 }
+
 class StaticDecal extends Decal {
     constructor(grid, face, texture, category, name) {
         super(grid, face, texture, category, name);
@@ -1116,6 +1120,7 @@ class StaticDecal extends Decal {
         this.interactive = false;
     }
 }
+
 class LightDecal extends Decal {
     constructor(grid, face, texture, category, name, lightColor) {
         super(grid, face, texture, category, name);
@@ -1130,6 +1135,15 @@ class LightDecal extends Decal {
         this.position = new Vector3(pos.x, WebGL.INI.LIGHT_TOP, pos.y);
     }
 }
+
+class Portal extends Decal {
+    constructor(grid, face, texture, category, name) {
+        super(grid, face, texture, category, name);
+        this.type = "Portal";
+        this.interactive = false;
+    }
+}
+
 class Gate {
     constructor(grid, type) {
         this.grid = grid;
