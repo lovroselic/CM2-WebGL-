@@ -68,7 +68,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.17.2",
+    VERSION: "0.17.3",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -702,6 +702,7 @@ const WORLD = {
                 bottomY = 1.0 - ((WebGL.INI.LIGHT_WIDTH / R) + WebGL.INI.LIGHT_TOP);
                 break;
             case "crest":
+            case "portal":
                 dW = (1.0 - W / resolution) / 2;
                 dH = (1.0 - H / resolution) / 2;
                 leftX = dW;
@@ -1137,10 +1138,20 @@ class LightDecal extends Decal {
 }
 
 class Portal extends Decal {
-    constructor(grid, face, texture, category, name) {
+    constructor(grid, face, texture, category, name, destination) {
         super(grid, face, texture, category, name);
         this.type = "Portal";
         this.interactive = false;
+        this.destination = destination;
+        this.texture = texture;
+    }
+}
+
+class Destination {
+    constructor(grid, face, level) {
+        this.grid = Grid.toClass(grid);
+        this.face = face;
+        this.level = level;
     }
 }
 
@@ -1221,6 +1232,7 @@ class FloorItem3D {
         //unpack
         this.element = ELEMENT[this.element];
         this.texture = TEXTURE[this.texture];
+        //this.texture = WebGL.createTexture(this.texture);
         if (typeof (this.scale) === "number") {
             this.scale = new Float32Array([this.scale, this.scale, this.scale]);
         }
@@ -1545,7 +1557,7 @@ class WoodExplosion extends ParticleEmmiter {
         this.duration = WebGL.INI.EXPLOSION_DURATION_MS;
         this.build(number);
         this.lightColor = colorStringToVector("#111111");
-        this.scale = 0.50;
+        this.scale = 0.1;
         this.gravity = new Float32Array([0, 0.0005, 0]);
         this.velocity = 0.0025;
         this.rounded = 0;
@@ -1575,10 +1587,26 @@ const FaceToOffset = function (face, E = 0) {
             y = 0.5;
             break;
         default:
-            console.error("FaceToVector, invalid face", face);
+            console.error("FaceToOffset, invalid face", face);
             break;
     }
     return new FP_Grid(x, y);
+};
+
+const FaceToDirection = function (face) {
+    switch (face) {
+        case "FRONT":
+            return DOWN;
+        case "BACK":
+            return UP;
+        case "LEFT":
+            return LEFT;
+        case "RIGHT":
+            return RIGHT;
+        default:
+            console.error("FaceToDirection, invalid face", face);
+            break;
+    }
 };
 
 /** Elements */

@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.09.02",
+    VERSION: "0.09.03",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -566,6 +566,7 @@ const HERO = {
 };
 
 const GAME = {
+    upperLimit: null,
     clearInfo() {
         ENGINE.clearLayer("info");
     },
@@ -599,8 +600,10 @@ const GAME = {
         ENGINE.GAME.start(16);
         MINIMAP.setOffset(TITLE.stack.minimapX, TITLE.stack.minimapY);
         GAME.completed = false;
+        GAME.upperLimit = 1;
         GAME.won = false;
         GAME.level = 1;
+        //GAME.level = 2;
         GAME.gold = 0;
 
         HERO.construct();
@@ -624,8 +627,11 @@ const GAME = {
         MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
         MAP[level].map.GA.massSet(MAPDICT.FOG);
 
-        HERO.player = new $3D_player(new Vector3(3.5, 0.5, 4.5), Vector3.from_2D_dir(UP), MAP[level].map);
-        console.log("HERO", HERO);
+        //HERO.pos from entrance
+        let start_dir = FaceToDirection(MAP[GAME.level].entrance.face);
+        let start_grid = Grid.toClass(MAP[GAME.level].entrance.grid).add(start_dir);
+        start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
+        HERO.player = new $3D_player(start_grid, Vector3.from_2D_dir(start_dir), MAP[level].map);
 
         WebGL.init_required_IAM(MAP[level].map);
         WebGL.MOUSE.initialize("ROOM");
@@ -643,6 +649,7 @@ const GAME = {
         WebGL.updateShaders();
         WebGL.init('webgl', MAP[level].world, textureData, HERO.player);
         MINIMAP.init(MAP[level].map, INI.MIMIMAP_WIDTH, INI.MIMIMAP_HEIGHT, HERO.player);
+        //SPAWN.spawn(level);
     },
     continueLevel(level) {
         console.log("game continues on level", level);

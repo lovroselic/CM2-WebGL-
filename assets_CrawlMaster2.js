@@ -232,7 +232,7 @@ LoadSprites = [
     { srcName: "ForbiddenForest.png", name: "FF1" },
     { srcName: "Phara.png", name: "Phara" },
     { srcName: "Pitfall.png", name: "Pitfall" },
-    { srcName: "Aztec.png", name: "Aztec" },
+    //{ srcName: "Aztec.png", name: "Aztec" },
     { srcName: "Pitfall3.png", name: "Pitfall3" },
     { srcName: "DK.png", name: "DK" },
     { srcName: "PAC2.png", name: "PAC2" },

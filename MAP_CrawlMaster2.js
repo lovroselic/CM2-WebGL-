@@ -6,7 +6,7 @@
 "use strict";
 
 const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA5", "AA7", "AA8", "AA9", "AMC", "Amberstar", "Apshai", "Arena",
-    "Aztec", "BFF", "Bagitman", "Barbarian1", "Barbarian5", "BeachHead", "BlueMax", "BlueMax2", "BoogaBoo1", "BoogaBoo3",
+    "BFF", "Bagitman", "Barbarian1", "Barbarian5", "BeachHead", "BlueMax", "BlueMax2", "BoogaBoo1", "BoogaBoo3",
     "C64", "CH1", "CSB1", "CW1", "CW3", "CW6", "Castle", "Commando2",
     "CrystalCastles", "CyberPunk1", "DDID2", "DK", "DK2", "DM1", "DM11", "DM12", "DM4", "DM5", "DM6",
     "Drelbs", "EOB1", "EOB2", "EOB3", "EOB4", "Eric", "FA3", "FF1", "FF2", "FF4",
@@ -111,6 +111,16 @@ var MAP = {
         //wall: "RockWall", // not very good
         //wall: "StoneWall2",
         //wall: "DungeonWall4",
+        entrance: { grid: new Grid(0, 4), face: 'RIGHT' },
+        exit: { grid: new Grid(15, 4), face: 'LEFT' },
+    },
+    2: {
+        data: `
+        {"width":"16","height":"16","map":"BB3ABAA6BB45ABB4ABB43$BB150A"}
+        `,
+        floor: "GreyDungeonFloor",
+        ceil: "ThatchFloor",
+        wall: "CastleWall",
     },
 
 };
@@ -153,11 +163,32 @@ var SPAWN = {
             DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[crest], "crest", crest));
         }
     },
-    stairs(level){
+    stairs(level) {
+        GAME.upperLimit = -1; //DEBUG; DESIGN
+        let entranceLocation = MAP[level].entrance;
+        let exitLocation = MAP[level].exit;
+
         //entrance gate
-        let entranceLocation = { grid: new Grid(0, 4), face: 'RIGHT' };
-        let entranceSprite = "EntranceGate";
-        DECAL3D.add(new StaticDecal(entranceLocation.grid, entranceLocation.face, SPRITE[entranceSprite], "crest", entranceSprite));
+        let entranceSprite = null;
+        if (level > GAME.upperLimit) {
+            entranceSprite = "StairsUp";
+            let entrance_destination_level = GAME.level; //DEBUG; DESIGN
+            const destination = new Destination(exitLocation.grid, exitLocation.face, entrance_destination_level);
+            //console.log("destination", destination);
+            const entrance = new Portal(entranceLocation.grid, entranceLocation.face, SPRITE[entranceSprite], 'portal', entranceSprite, destination);
+            //console.log("entrance", entrance);
+            BUMP3D.add(entrance);
+        } else {
+            entranceSprite = "EntranceGate";
+            DECAL3D.add(new StaticDecal(entranceLocation.grid, entranceLocation.face, SPRITE[entranceSprite], "crest", entranceSprite));
+        }
+
+        //exit gate
+        let exitSprite = "StairsDown";
+        let exit_destination_level = GAME.level; //DEBUG; DESIGN
+        const destination = new Destination(entranceLocation.grid, entranceLocation.face, exit_destination_level);
+        const exit = new Portal(exitLocation.grid, exitLocation.face, SPRITE[exitSprite], 'portal', exitSprite, destination);
+        BUMP3D.add(exit);
     },
     lights(level) {
         const standardLightColor = new Float32Array([0.95, 0.95, 0.85]); //should be string?
