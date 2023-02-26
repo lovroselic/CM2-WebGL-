@@ -68,7 +68,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.17.4",
+    VERSION: "0.18.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -98,6 +98,7 @@ const WebGL = {
     depthBuffer: null,
     frameBuffer: null,
     staticDecalList: [DECAL3D, LIGHTS3D, BUMP3D],
+    interactiveDecalList: [INTERACTIVE_DECAL3D],
     dynamicDecalList: [GATE3D, ITEM3D],
     dynamicLightSources: [MISSILE3D, EXPLOSION3D],
     explosion_program: {
@@ -153,6 +154,7 @@ const WebGL = {
         MISSILE3D.init(map);
         INTERACTIVE_DECAL3D.init(map);
         BUMP3D.init(map);
+        INTERACTIVE_DECAL3D.init(map);
 
         if (this.VERBOSE) {
             console.log("DECAL3D", DECAL3D);
@@ -160,6 +162,7 @@ const WebGL = {
             console.log("GATE3D", GATE3D);
             console.log("VANISHING3D", VANISHING3D);
             console.log("ITEM3D", ITEM3D);
+            console.log("INTERACTIVE_DECAL3D", INTERACTIVE_DECAL3D);
         }
     },
     setCamera(camera) {
@@ -198,7 +201,7 @@ const WebGL = {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     },
     setDecalTextures() {
-        for (const iam of [...WebGL.staticDecalList, ...WebGL.dynamicDecalList]) {
+        for (const iam of [...WebGL.staticDecalList, ...WebGL.dynamicDecalList, ...WebGL.interactiveDecalList]) {
             for (const decal of iam.POOL) {
                 decal.texture = this.createTexture(decal.texture);
             }
@@ -505,6 +508,27 @@ const WebGL = {
             }
         }
 
+        //interactive decals
+        for (const iam of WebGL.interactiveDecalList) {
+            for (const decal of iam.POOL) {
+                gl.bindTexture(gl.TEXTURE_2D, decal.texture);
+                gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, (this.world.offset.decal_start + decalCount * 6) * 2);
+
+                //to texture
+                let id_vec = this.idToVec(decal.global_id);
+                gl.useProgram(this.pickProgram.program);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
+                gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
+                gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, (this.world.offset.decal_start + decalCount * 6) * 2);
+
+                //back to canvas
+                gl.useProgram(this.program.program);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                //end
+                decalCount++;
+            }
+        }
+
         //existing doors
         for (const door of GATE3D.POOL) {
             if (door) {
@@ -519,7 +543,7 @@ const WebGL = {
                 gl.useProgram(this.pickProgram.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
                 gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
-                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, mTranslationmatrix); //
+                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, mTranslationmatrix);
                 gl.drawElements(gl.TRIANGLES, door.indices, gl.UNSIGNED_SHORT, this.world.offset[door.start] * 2);
 
                 //back to canvas
@@ -866,6 +890,7 @@ const WORLD = {
                     break;
                 case MAPDICT.WALL:
                 case MAPDICT.WALL + MAPDICT.STAIR:
+                case MAPDICT.WALL + MAPDICT.SHRINE:
                     this.addCube(Y, grid, "wall");
                     break;
                 default:
@@ -874,7 +899,7 @@ const WORLD = {
         }
 
         /** build static decals */
-        for (const iam of WebGL.staticDecalList) {
+        for (const iam of [...WebGL.staticDecalList, ...WebGL.interactiveDecalList]) {
             for (const decal of iam.POOL) {
                 this.addPic(Y, decal, "decal");
             }
@@ -1247,7 +1272,6 @@ class FloorItem3D {
         //unpack
         this.element = ELEMENT[this.element];
         this.texture = TEXTURE[this.texture];
-        //this.texture = WebGL.createTexture(this.texture);
         if (typeof (this.scale) === "number") {
             this.scale = new Float32Array([this.scale, this.scale, this.scale]);
         }
@@ -1288,7 +1312,21 @@ class FloorItem3D {
     }
 }
 
-/** */
+class WallFeature3D {
+    constructor(grid, face, type) {
+        this.interactive = true;
+        this.active = true;
+        this.grid = grid;
+        this.face = face;
+        for (const prop in type) {
+            this[prop] = type[prop];
+        }
+        this.texture = SPRITE[this.sprite];
+    }
+}
+
+/** Particle classes */
+
 class ParticleEmmiter {
     constructor(position, texture) {
         this.gl = WebGL.CTX;

@@ -99,9 +99,15 @@ LoadSprites = [
     { srcName: "WallLamp256.png", name: "WallLamp" },
     { srcName: "CompassRose.png", name: "CompassRose" },
 
+    //shrine
+    { srcName: "AttackShrine256.png", name: "AttackShrine" },
+    { srcName: "DefenseShrine256.png", name: "DefenseShrine" },
+    { srcName: "MagicShrine256.png", name: "MagicShrine" },
+
     //stairs
     { srcName: "StairsUp.jpg", name: "StairsUp" },
     { srcName: "StairsDown.jpg", name: "StairsDown" },
+
     //entrance_gate
     { srcName: "DungeonDoor.png", name: "EntranceGate" },
     //scrolls

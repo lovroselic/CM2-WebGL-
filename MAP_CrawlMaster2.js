@@ -130,11 +130,28 @@ var SPAWN = {
         console.log("spawning ... level", level);
         this.decals(level);
         this.stairs(level);
+        this.shrines(level);
         this.lights(level);
         this.gates(level);
         this.items(level);
         //GATE3D.display();
         //ITEM3D.display();
+        //INTERACTIVE_DECAL3D.display();
+    },
+    shrines(level) {
+        const GA = MAP[level].map.GA;
+        const shrines = [SHRINE_TYPE.AttackShrine, SHRINE_TYPE.DefenseShrine, SHRINE_TYPE.MagicShrine];
+        const shrine_locations = [
+            { grid: new Grid(1, 15), face: 'BACK' },
+            { grid: new Grid(8, 15), face: 'BACK' },
+            { grid: new Grid(15, 11), face: 'LEFT' },
+        ];
+        for (let s = 0; s < shrines.length; s++) {
+            GA.addShrine(shrine_locations[s].grid);
+            let shrine = new Shrine(shrine_locations[s].grid, shrine_locations[s].face, shrines[s]);
+            //console.log("shrine", shrine);
+            INTERACTIVE_DECAL3D.add(shrine);
+        }
     },
     decals(level) {
         const decalsLocations = [
@@ -198,7 +215,7 @@ var SPAWN = {
         BUMP3D.update();
     },
     lights(level) {
-        const standardLightColor = new Float32Array([0.95, 0.95, 0.85]); //should be string?
+        const standardLightColor = new Float32Array([0.95, 0.95, 0.85]);
         const redColor = new Float32Array([0.95, 0.0, 0.0]);
         const greenColor = new Float32Array([0.15, 0.9, 0.15]);
         const lightLocations = [
@@ -238,7 +255,6 @@ var SPAWN = {
             { grid: new FP_Grid(1.5, 9.5), type: COMMON_ITEM_TYPE.SilverBar },
             { grid: new FP_Grid(1.5, 2.5), type: COMMON_ITEM_TYPE.GoldBar },
 
-
             { grid: new FP_Grid(12.5, 2.5), type: COMMON_ITEM_TYPE.GoldKey },
             { grid: new FP_Grid(13.5, 2.5), type: COMMON_ITEM_TYPE.SilverKey },
             { grid: new FP_Grid(14.5, 2.5), type: COMMON_ITEM_TYPE.RedKey },
@@ -268,13 +284,39 @@ var SPAWN = {
             { grid: new FP_Grid(4.5, 4.5), type: COMMON_ITEM_TYPE.Chest },
             { grid: new FP_Grid(2.8, 12.8), type: COMMON_ITEM_TYPE.Chest },
 
-
         ];
 
         for (let item of itemLocations) {
             ITEM3D.add(new FloorItem3D(item.grid, item.type));
         }
     }
+};
+
+const SHRINE_TYPE = {
+    AttackShrine: {
+        name: "AttackShrine",
+        sprite: "AttackShrine",
+        which: "attack",
+        category: 'crest',
+        interactionCategory: 'shrine',
+        inventorySprite: "SwordSkill",
+    },
+    DefenseShrine: {
+        name: "DefenseShrine",
+        sprite: "DefenseShrine",
+        which: "defense",
+        category: 'crest',
+        interactionCategory: 'shrine',
+        inventorySprite: "ShieldSkill",
+    },
+    MagicShrine: {
+        name: "MagicShrine",
+        sprite: "MagicShrine",
+        which: "magic",
+        category: 'crest',
+        interactionCategory: 'shrine',
+        inventorySprite: "MagicSkill",
+    },
 };
 
 const GATE_TYPE = {

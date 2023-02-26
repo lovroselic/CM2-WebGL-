@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.09.04",
+    VERSION: "0.10.00",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -125,6 +125,32 @@ const PRG = {
         TITLE.startTitle();
     }
 };
+
+/** WebGL extensions */
+
+class Shrine extends WallFeature3D {
+    constructor(grid, face, type) {
+        super(grid, face, type);
+    }
+    interact() {
+        if (GAME.gold >= 1000) {
+            this.interactive = false;
+            GAME.gold -= 1000;
+            TITLE.gold();
+
+            return {
+                category: this.interactionCategory,
+                inventorySprite: this.inventorySprite,
+                which: this.which,
+            };
+        } else {
+            AUDIO.MagicFail.play();
+            return null;
+        }
+    }
+}
+/** ******************************** */
+
 class Key {
     constructor(color, spriteClass) {
         this.category = "Key";
@@ -604,7 +630,8 @@ const GAME = {
         GAME.won = false;
         GAME.level = 1;
         //GAME.level = 2;
-        GAME.gold = 0;
+        //GAME.gold = 0;
+        GAME.gold = 10000;
 
         HERO.construct();
         ENGINE.VECTOR2D.configure("player");
@@ -649,7 +676,6 @@ const GAME = {
         WebGL.updateShaders();
         WebGL.init('webgl', MAP[level].world, textureData, HERO.player);
         MINIMAP.init(MAP[level].map, INI.MIMIMAP_WIDTH, INI.MIMIMAP_HEIGHT, HERO.player);
-        //SPAWN.spawn(level);
     },
     continueLevel(level) {
         console.log("game continues on level", level);
@@ -717,6 +743,13 @@ const GAME = {
                 TITLE.scrolls();
                 AUDIO.Scroll.play();
                 break;
+            case 'shrine':
+                HERO.raiseStat(interaction.which);
+                display(interaction.inventorySprite);
+                AUDIO.LevelUp.play();
+                HERO.restore();
+                TITLE.status();
+                break;
             case 'skill':
                 HERO.raiseStat(interaction.which);
                 display(interaction.inventorySprite);
@@ -748,7 +781,7 @@ const GAME = {
                 } else {
                     value = 0;
                 }
-                console.warn("CHEST INTERACTION", choice, value);
+                //console.warn("CHEST INTERACTION", choice, value);
                 let interatcionObj = $.extend(true, {}, COMMON_ITEM_TYPE[choice]);
                 interatcionObj.value = value;
                 return this.processInteraction(interatcionObj);
