@@ -68,7 +68,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.17.3",
+    VERSION: "0.17.4",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -634,7 +634,7 @@ const WebGL = {
                         if (!obj) return;
                         if (!obj.interactive) return;
                         console.log("obj", obj, obj.grid, obj.constructor.name);
-                        let PPos2d = Vector3.to_FP_Grid(HERO.player.pos);
+                        let PPos2d = Vector3.to_FP_Grid(hero.player.pos);
                         let itemGrid = obj.grid;
                         if (obj.constructor.name === "Gate") {
                             itemGrid = Grid.toCenter(obj.grid);
@@ -857,14 +857,15 @@ const WORLD = {
 
         for (let [index, value] of GA.map.entries()) {
             let grid = GA.indexToGrid(index);
-            value &= (2 ** GA.gridSizeBit - 1 - (MAPDICT.FOG));
+            value &= (2 ** GA.gridSizeBit - 1 - (MAPDICT.FOG + MAPDICT.RESERVED));
             switch (value) {
                 case MAPDICT.EMPTY:
-                case MAPDICT.WALL + MAPDICT.DOOR + MAPDICT.RESERVED:
+                case MAPDICT.WALL + MAPDICT.DOOR:
                     this.addCube(Y - 1, grid, "floor");
                     this.addCube(Y + 1, grid, "ceil");
                     break;
                 case MAPDICT.WALL:
+                case MAPDICT.WALL + MAPDICT.STAIR:
                     this.addCube(Y, grid, "wall");
                     break;
                 default:
@@ -998,10 +999,9 @@ class $3D_player {
         let nextPos = Vector3.to_FP_Grid(nextPos3);
 
         //check if staircase
-        //let bump = this.usingStaircase(nextPos);
-        let bump = null;
+        let bump = this.usingStaircase(nextPos);
         if (bump !== null) {
-            bump.interact();
+            bump.interact(this);
             return;
         }
 
@@ -1012,15 +1012,13 @@ class $3D_player {
         if (check) {
             this.pos = nextPos3;
         }
-        //this.log();
     }
     usingStaircase(nextPos, resolution = 4) {
-        let currentGrid = Grid.toClass(this.pos);
-        if (this.GA.notStair(currentGrid)) return null;
-
+        let currentGrid = Grid.toClass(Vector3.to_FP_Grid(this.pos));
+        let dir = Vector3.to_FP_Vector(this.dir);
         let checks = [];
         for (let theta = 0; theta < 2 * Math.PI; theta += (2 * Math.PI) / resolution) {
-            checks.push(nextPos.translate(this.dir.rotate(theta), this.r));
+            checks.push(nextPos.translate(dir.rotate(theta), this.r));
         }
 
         for (const point of checks) {
@@ -1029,8 +1027,8 @@ class $3D_player {
                 continue;
             } else {
                 if (this.GA.isWall(futureGrid) && this.GA.isStair(futureGrid)) {
-                    let IA = this.map.decalIA;
-                    let item = DECAL.POOL[IA.unroll(futureGrid)[0] - 1];
+                    let IA = this.map.decalIA3D;
+                    let item = BUMP3D.POOL[IA.unroll(futureGrid)[0] - 1];
                     return item;
                 }
             }
@@ -1144,6 +1142,23 @@ class Portal extends Decal {
         this.interactive = false;
         this.destination = destination;
         this.texture = texture;
+    }
+    interact(hero) {
+        let start_dir = FaceToDirection(this.destination.face);
+        let start_grid = this.destination.grid.add(start_dir);
+        start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
+        hero.setPos(start_grid);
+        hero.setDir(Vector3.from_2D_dir(start_dir));
+
+        if (GAME.level !== this.destination.level) {
+            console.error("Moving between levels not yet implemented!!");
+            //TODO, FIXME
+            // bind new map
+            // stores IAMs
+            //... 
+
+            throw "GAME DIES!";
+        }
     }
 }
 

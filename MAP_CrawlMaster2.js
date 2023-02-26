@@ -148,6 +148,8 @@ var SPAWN = {
             { grid: new Grid(3, 15), face: 'BACK' },
             { grid: new Grid(3, 7), face: 'FRONT' },
             { grid: new Grid(12, 0), face: 'FRONT' },
+            { grid: new Grid(7, 4), face: 'LEFT' },
+            { grid: new Grid(7, 4), face: 'RIGHT' },
         ];
 
         for (let D of decalsLocations) {
@@ -164,6 +166,7 @@ var SPAWN = {
         }
     },
     stairs(level) {
+        const GA = MAP[level].map.GA;
         GAME.upperLimit = -1; //DEBUG; DESIGN
         let entranceLocation = MAP[level].entrance;
         let exitLocation = MAP[level].exit;
@@ -174,14 +177,14 @@ var SPAWN = {
             entranceSprite = "StairsUp";
             let entrance_destination_level = GAME.level; //DEBUG; DESIGN
             const destination = new Destination(exitLocation.grid, exitLocation.face, entrance_destination_level);
-            //console.log("destination", destination);
             const entrance = new Portal(entranceLocation.grid, entranceLocation.face, SPRITE[entranceSprite], 'portal', entranceSprite, destination);
-            //console.log("entrance", entrance);
             BUMP3D.add(entrance);
+            GA.addStair(entranceLocation.grid);
         } else {
             entranceSprite = "EntranceGate";
             DECAL3D.add(new StaticDecal(entranceLocation.grid, entranceLocation.face, SPRITE[entranceSprite], "crest", entranceSprite));
         }
+        GA.reserve(entranceLocation.grid);
 
         //exit gate
         let exitSprite = "StairsDown";
@@ -189,6 +192,10 @@ var SPAWN = {
         const destination = new Destination(entranceLocation.grid, entranceLocation.face, exit_destination_level);
         const exit = new Portal(exitLocation.grid, exitLocation.face, SPRITE[exitSprite], 'portal', exitSprite, destination);
         BUMP3D.add(exit);
+        GA.reserve(exitLocation.grid);
+        GA.addStair(exitLocation.grid);
+
+        BUMP3D.update();
     },
     lights(level) {
         const standardLightColor = new Float32Array([0.95, 0.95, 0.85]); //should be string?
@@ -207,7 +214,7 @@ var SPAWN = {
         }
     },
     gates(level) {
-        let GA = MAP[level].map.GA;
+        const GA = MAP[level].map.GA;
         const gateLocations = [
             { grid: new Grid(6, 7), type: GATE_TYPE.Common },
             { grid: new Grid(7, 8), type: GATE_TYPE.Common },

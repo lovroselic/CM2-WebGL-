@@ -1457,14 +1457,18 @@ var MINIMAP = {
           case MAPDICT.DOOR:
             CTX.fillStyle = MINIMAP.LEGEND.DOOR;
             break;
+          /*
           case MAPDICT.STAIR + MAPDICT.ROOM:
           case MAPDICT.STAIR:
             CTX.fillStyle = MINIMAP.LEGEND.STAIR;
             break;
-          case MAPDICT.SHRINE + MAPDICT.ROOM:
-          case MAPDICT.SHRINE:
-            CTX.fillStyle = MINIMAP.LEGEND.SHRINE;
-            break;
+          */
+          /*
+           case MAPDICT.SHRINE + MAPDICT.ROOM:
+           case MAPDICT.SHRINE:
+             CTX.fillStyle = MINIMAP.LEGEND.SHRINE;
+             break;
+           */
           default:
             console.log("ALERT default empty", index, value, clenValue);
             CTX.fillStyle = "#F00";
@@ -1479,7 +1483,7 @@ var MINIMAP = {
             let specificWall = clenValue - MAPDICT.WALL;
             switch (specificWall) {
               case MAPDICT.STAIR:
-                CTX.fillStyle = MINIMAP.LEGEND.WALL;
+                CTX.fillStyle = MINIMAP.LEGEND.STAIR;
                 break;
               case MAPDICT.DOOR:
                 CTX.fillStyle = MINIMAP.LEGEND.LOCKED_DOOR;

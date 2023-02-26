@@ -529,11 +529,6 @@ class Decal_IA_3D extends IAM {
         super();
         this.IA = "decalIA3D";
     }
-    init(map) {
-        this.POOL = [];
-        this.linkMap(map);
-        this.manage();
-    }
     poolToIA(IA) {
         for (const decal of this.POOL) {
             if (decal === null) continue;
@@ -545,8 +540,8 @@ class Decal_IA_3D extends IAM {
         map[this.IA] = new IndexArray(map.width, map.height, 2, 1); //1 bank, 16bit
         this.poolToIA(map[this.IA]);
     }
-    update(map) {
-        this.manage(map);
+    update() {
+        this.manage();
     }
 }
 

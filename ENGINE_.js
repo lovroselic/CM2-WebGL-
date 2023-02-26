@@ -1950,6 +1950,9 @@ const ENGINE = {
           value &= 2 ** maze.GA.gridSizeBit - 1 - MAPDICT.FOG - MAPDICT.RESERVED;
           if (maze.GA.isMazeWall(grid)) {
             value &= 2 ** maze.GA.gridSizeBit - 1 - MAPDICT.WALL;
+            if (value & MAPDICT.STAIR) {
+              value = MAPDICT.STAIR;
+            }
             ENGINE.BLOCKGRID.wall(x, y, CTX, value);
           } else {
             value &= 2 ** maze.GA.gridSizeBit - 1 - MAPDICT.RESERVED - MAPDICT.START_POSITION;
@@ -1966,6 +1969,9 @@ const ENGINE = {
       switch (value) {
         case MAPDICT.DOOR:
           FS = "brown";
+          break;
+        case MAPDICT.STAIR:
+          FS = "#87CEFA";
           break;
         default:
           FS = "#999";
