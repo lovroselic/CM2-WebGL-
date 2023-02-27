@@ -13,7 +13,7 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA5", "AA7", "AA8", "AA9", "AMC",
     "Fred1", "Fred2", "Frogger", "Galaga1", "Galaxian3", "Ghostbusters", "Goonies", "GreenBeret", "HL1", "HL2", "HL3",
     "HL4", "HL5", "HOB11", "HOB2", "HOB5", "Hero1", "Hero10", "Hero2", "Hero3", "HoraceSki",
     "IM", "Iceman", "Imhotep", "Impossible_Mission4", "JSW", "JSW2", "JSW3", "Jumpman", "JumpmanJr", "KQ1",
-    "Kangaroo", "Karateka", "Killerwat", "Knightlore", "LSL1", "LSL20", "LSL4", "LSL6", "LSL7", "LTUT", "LastNinja1", "Lode",
+    "Kangaroo", "Karateka", "Killerwat", "Knightlore", "LSL1", "LSL20", "LSL4", "LSL6", "LTUT", "LastNinja1", "Lode",
     "Maniac", "ManicMiner", "Miner", "MonkeyIsland", "Montezuma", "Moon", "Oblivion", "Oblivion2", "OperationWolf",
     "OperationWolf2", "PAC2", "Penta", "Phara", "Pipeline", "Pitfall", "Pitfall3", "Pitfall4", "Pitstop", "Pooyan",
     "Portal1", "Prince1", "Prince2", "RRR", "RickDangerous", "Robin", "SOF", "SQ1", "SVS1", "SVS10", "SVS2", "SVS3", "SVS4",
@@ -281,7 +281,7 @@ var SPAWN = {
             { grid: new FP_Grid(1.5, 10.5), type: COMMON_ITEM_TYPE.Magic },
 
             { grid: new FP_Grid(1.5, 1.5), type: COMMON_ITEM_TYPE.Chest },
-            { grid: new FP_Grid(4.5, 4.5), type: COMMON_ITEM_TYPE.Chest },
+            { grid: new FP_Grid(4.5, 4.5), type: COMMON_ITEM_TYPE.TreasureChest },
             { grid: new FP_Grid(2.8, 12.8), type: COMMON_ITEM_TYPE.Chest },
 
         ];
@@ -358,6 +358,15 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 3,
         glueToFloor: true,
         texture: "Wood1",
+        shine: 128.0 * 0.1,
+    },
+    TreasureChest: {
+        name: "TreasureChest",
+        category: "treasure_chest",
+        element: "TREASURE_CHEST",
+        scale: 1.5 / 2 ** 3,
+        glueToFloor: true,
+        texture: "TreasureChest",
         shine: 128.0 * 0.1,
     },
     Sword: {

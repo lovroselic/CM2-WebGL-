@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.10.00",
+    VERSION: "0.10.01",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -663,7 +663,10 @@ const GAME = {
         WebGL.init_required_IAM(MAP[level].map);
         WebGL.MOUSE.initialize("ROOM");
         SPAWN.spawn(level);
-        const object_map = ["BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM", "SWORD", "HEART", "SHIELD", "PENTAGRAM", "CHEST"];
+        const object_map = [
+            "BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM", "SWORD", "HEART", "SHIELD", "PENTAGRAM", "CHEST",
+            "TREASURE_CHEST",
+        ];
         MAP[level].world = WORLD.build(MAP[level].map, object_map);
         console.log("world", MAP[level].world);
 
@@ -708,6 +711,7 @@ const GAME = {
     },
     processInteraction(interaction) {
         console.log("Processing interaction", interaction);
+        let choices, choice, value, interatcionObj;
         switch (interaction.category) {
             case 'title':
                 TITLE[interaction.section]();
@@ -763,7 +767,7 @@ const GAME = {
             case 'chest':
                 AUDIO.OpenChest.play();
                 EXPLOSION3D.add(new WoodExplosion(Vector3.from_array(interaction.pos)));
-                let choices = {
+                choices = {
                     RedPotion: 100,
                     BluePotion: 100,
                     Scroll: 100,
@@ -774,17 +778,39 @@ const GAME = {
                     Heart: 20,
                     Mana: 20
                 };
-                let choice = weightedRnd(choices);
-                let value;
+                choice = weightedRnd(choices);
                 if (choice === "GoldBar") {
                     value = 250;
                 } else {
                     value = 0;
                 }
-                //console.warn("CHEST INTERACTION", choice, value);
-                let interatcionObj = $.extend(true, {}, COMMON_ITEM_TYPE[choice]);
+                interatcionObj = $.extend(true, {}, COMMON_ITEM_TYPE[choice]);
                 interatcionObj.value = value;
                 return this.processInteraction(interatcionObj);
+            case 'treasure_chest':
+                AUDIO.OpenChest.play();
+                EXPLOSION3D.add(new WoodExplosion(Vector3.from_array(interaction.pos)));
+                choices = {
+                    RedPotion: 20,
+                    BluePotion: 20,
+                    Scroll: 75,
+                    GoldBar: 100,
+                    Sword: 25,
+                    Shield: 25,
+                    Magic: 25,
+                    Heart: 50,
+                    Mana: 50
+                };
+                choice = weightedRnd(choices);
+                if (choice === "GoldBar") {
+                    value = 500;
+                } else {
+                    value = 0;
+                }
+                interatcionObj = $.extend(true, {}, COMMON_ITEM_TYPE[choice]);
+                interatcionObj.value = value;
+                return this.processInteraction(interatcionObj);
+
             default:
                 console.error("interaction category error", interaction);
         }

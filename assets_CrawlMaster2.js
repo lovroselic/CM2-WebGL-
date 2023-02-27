@@ -58,6 +58,8 @@ LoadTextures = [
     { srcName: "Wood2.jpg", name: "Wood1" },
     { srcName: "Explosion1.jpg", name: "Explosion" },
 
+    { srcName: "treasure_chest.JPG", name: "TreasureChest" },
+
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
     { srcName: "RedGate1_256.png", name: "RedGate1" },
@@ -93,7 +95,10 @@ LoadShaders = [
     'vShader.glsl', 'fShader.glsl', 'pick_vShader.glsl', 'pick_fShader.glsl',
     'particle_render_fShader.glsl', 'particle_render_vShader.glsl', 'particle_transform_fShader.glsl', 'particle_transform_vShader.glsl'
 ];
-LoadObjects = ["key.obj", "flask.obj", "scroll.obj", "ball.obj", "sword.obj", "heart.obj", "shield.obj", "pentagram.obj", "chest.obj"];
+LoadObjects = [
+    "key.obj", "flask.obj", "scroll.obj", "ball.obj", "sword.obj", "heart.obj", "shield.obj", "pentagram.obj", "chest.obj",
+    "treasure_chest.obj"
+];
 
 LoadSprites = [
     { srcName: "WallLamp256.png", name: "WallLamp" },
@@ -193,7 +198,7 @@ LoadSprites = [
     //{ srcName: "Hunch.png", name: "Hunchback" },
     { srcName: "Amber.png", name: "Amberstar" },
     { srcName: "Soc.png", name: "Soccer" },
-    { srcName: "LSL7.png", name: "LSL7" },
+    //{ srcName: "LSL7.png", name: "LSL7" },
     { srcName: "LSL6.png", name: "LSL6" },
     { srcName: "LSL4.png", name: "LSL4" },
     { srcName: "LSL1.png", name: "LSL1" },
