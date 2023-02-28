@@ -57,7 +57,9 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA5", "AA7", "AA8", "AA9", "AMC",
     "LeisureSuitLarry90", "LeisureSuitLarry91", "MontezumasRevenge90", "Nebulus90", "Pitfall90", "Pitfall91", "Pitstop3", "Rambo11", "SexOlympics1", "SexOlympics2", "Shamus91", "Tornado1",
     "BrianBloodaxe20", "CodenameIceman98", "Cuthbert20", "DonkeyKong99", "Drelbs3", "DungeonMaster96", "DungeonMaster97", "F1-1", "ForbiddenForest99", "ForgottenForest1", "FranticFreddie3",
     "Gods99", "Goonies90", "Ishar98", "Ishar99", "JupiterLander99", "LeisureSuitLarry93", "LeisureSuitLarry94", "MontyMole99", "Pitfall96", "RadarRatRace10", "SabreWulf99",
-    "Soccer99", "TheHobbit99", "Unknown30", "Wally99"
+    "Soccer99", "TheHobbit99", "Unknown30", "Wally99", "AMC2", "AMC3", "ArabianNights1", "CrystalsOfZong10", "HalfLife 89", "Hero80", "Hero81", "Hero82", "HeroesOfKarn80",
+    "HunchBack10", "Ishar80", "JetSetWilly88", "JetSetWilly89", "JungleHunt89", "LeisureSuitLarry88", "LeisureSuitLarry89", "Pitfall88", "Pitfall89", "RobinToTheRescue89",
+    "SabreWulf89", "TempleOfApshai89", "TheHobbit89", "Vixen89", "WhoDaresWins10", "WizardOfWor89", "ZX81-89", "ZakMcKraken89", "Zaxxon89", "Zeppelin89"
 ];
 
 //const DECAL_PAINTINGS = [];
@@ -66,6 +68,8 @@ console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 const LIGHT_DECALS = ["WallLamp"];
 
 const DECAL_CRESTS = ["LS", "Skull4", "Skull3", "Skull2", "Skull1", "Crack4", "Crack3", "Skeleton11", "Skeleton12"];
+const TOP_CRESTS = ["LS"];
+const BOTTOM_CRESTS = ["LS"];
 //const DECAL_CRESTS = [];
 console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
 
@@ -175,9 +179,32 @@ var SPAWN = {
             DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[picture], "picture", picture));
         }
 
-        const crestLocations = [{ grid: new Grid(0, 5), face: 'RIGHT' }];
+        const crestLocations = [
+            { grid: new Grid(0, 5), face: 'RIGHT' },
+
+        ];
         for (let D of crestLocations) {
             const crest = DECAL_CRESTS.chooseRandom();
+            console.log("crest", crest);
+            DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[crest], "crest", crest));
+        }
+
+        const bottomCrestLocations = [
+            //TOP
+            { grid: new Grid(2, 5), face: 'TOP' },
+        ];
+        for (let D of bottomCrestLocations) {
+            const crest = BOTTOM_CRESTS.chooseRandom();
+            console.log("crest", crest);
+            DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[crest], "crest", crest));
+        }
+
+        const topCrestLocations = [
+            //BOTTOM
+            { grid: new Grid(2, 5), face: 'BOTTOM' },
+        ];
+        for (let D of topCrestLocations) {
+            const crest = TOP_CRESTS.chooseRandom();
             console.log("crest", crest);
             DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[crest], "crest", crest));
         }

@@ -68,7 +68,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.18.0",
+    VERSION: "0.18.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -811,6 +811,32 @@ const WORLD = {
                     positions[x] -= WebGL.INI.PIC_OUT;
                 }
                 break;
+            case "TOP":
+                positions[0] = leftX;
+                positions[2] = bottomY;
+                positions[3] = rightX;
+                positions[5] = bottomY;
+                positions[6] = rightX;
+                positions[8] = topY;
+                positions[9] = leftX;
+                positions[11] = topY;
+                for (let y of [1, 4, 7, 10]) {
+                    positions[y] += WebGL.INI.PIC_OUT - 1.0;
+                }
+                break;
+            case "BOTTOM":
+                positions[0] = leftX;
+                positions[2] = bottomY;
+                positions[3] = rightX;
+                positions[5] = bottomY;
+                positions[6] = rightX;
+                positions[8] = topY;
+                positions[9] = leftX;
+                positions[11] = topY;
+                for (let y of [1, 4, 7, 10]) {
+                    positions[y] -= WebGL.INI.PIC_OUT - 1.0;
+                }
+                break;
             default:
                 console.error("addPic face error:", decal.face);
                 break;
@@ -901,6 +927,18 @@ const WORLD = {
         /** build static decals */
         for (const iam of [...WebGL.staticDecalList, ...WebGL.interactiveDecalList]) {
             for (const decal of iam.POOL) {
+                console.log("static decal debug", decal);
+                //
+                /*
+                if (decal.face === "TOP") {
+                    Y = -1;
+                } else if (decal.face === "BOTTOM") {
+                    Y = 1;
+                } else {
+                    Y = 0;
+                }
+                */
+                //
                 this.addPic(Y, decal, "decal");
             }
         }
@@ -1675,28 +1713,41 @@ const ELEMENT = {
         return max;
     },
     FRONT_FACE: {
-        positions: [0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0,],
+        positions: [0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0],
         indices: [0, 1, 2, 0, 2, 3],
         textureCoordinates: [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0],
         vertexNormals: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0]
     },
     BACK_FACE: {
-        positions: [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,],
+        positions: [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0],
         indices: [0, 1, 2, 0, 2, 3],
         textureCoordinates: [1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,],
         vertexNormals: [0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0]
     },
     RIGHT_FACE: {
-        positions: [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0,],
+        positions: [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0],
         indices: [0, 1, 2, 0, 2, 3],
-        textureCoordinates: [1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,],
-        vertexNormals: [1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,]
+        textureCoordinates: [1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0],
+        vertexNormals: [1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0]
     },
     LEFT_FACE: {
         positions: [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0],
         indices: [0, 1, 2, 0, 2, 3],
         textureCoordinates: [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0],
-        vertexNormals: [-1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,],
+        vertexNormals: [-1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0],
+    },
+    TOP_FACE: {
+        positions: [0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0],
+        //indices: [0, 1, 2, 0, 2, 3],
+        indices: [0, 2, 1, 0, 3, 2],
+        textureCoordinates: [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0],
+        vertexNormals: [0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0],
+    },
+    BOTTOM_FACE: {
+        positions: [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0],
+        indices: [0, 1, 2, 0, 2, 3],
+        textureCoordinates: [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0],
+        vertexNormals: [0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0]
     },
     CUBE: {
         positions: [
