@@ -68,7 +68,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.18.1",
+    VERSION: "0.18.2",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -747,7 +747,7 @@ const WORLD = {
     },
     addPic(Y, decal, type) {
         let resolution = WebGL.INI.DEFAULT_RESOLUTION;
-        if (decal.category === "crest") {
+        if (decal.category === "crest" && decal.expand) {
             resolution = this.divineResolution(decal.texture);
         }
         const [leftX, rightX, topY, bottomY] = this.getBoundaries(decal.category, decal.texture.width, decal.texture.height, resolution);
@@ -927,18 +927,6 @@ const WORLD = {
         /** build static decals */
         for (const iam of [...WebGL.staticDecalList, ...WebGL.interactiveDecalList]) {
             for (const decal of iam.POOL) {
-                console.log("static decal debug", decal);
-                //
-                /*
-                if (decal.face === "TOP") {
-                    Y = -1;
-                } else if (decal.face === "BOTTOM") {
-                    Y = 1;
-                } else {
-                    Y = 0;
-                }
-                */
-                //
                 this.addPic(Y, decal, "decal");
             }
         }
@@ -1176,8 +1164,9 @@ class Decal {
 }
 
 class StaticDecal extends Decal {
-    constructor(grid, face, texture, category, name) {
+    constructor(grid, face, texture, category, name, expand = false) {
         super(grid, face, texture, category, name);
+        this.expand = expand;
         this.type = "StaticDecal";
         this.interactive = false;
     }

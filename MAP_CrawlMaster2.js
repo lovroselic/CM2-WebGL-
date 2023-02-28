@@ -59,7 +59,9 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA5", "AA7", "AA8", "AA9", "AMC",
     "Gods99", "Goonies90", "Ishar98", "Ishar99", "JupiterLander99", "LeisureSuitLarry93", "LeisureSuitLarry94", "MontyMole99", "Pitfall96", "RadarRatRace10", "SabreWulf99",
     "Soccer99", "TheHobbit99", "Unknown30", "Wally99", "AMC2", "AMC3", "ArabianNights1", "CrystalsOfZong10", "HalfLife 89", "Hero80", "Hero81", "Hero82", "HeroesOfKarn80",
     "HunchBack10", "Ishar80", "JetSetWilly88", "JetSetWilly89", "JungleHunt89", "LeisureSuitLarry88", "LeisureSuitLarry89", "Pitfall88", "Pitfall89", "RobinToTheRescue89",
-    "SabreWulf89", "TempleOfApshai89", "TheHobbit89", "Vixen89", "WhoDaresWins10", "WizardOfWor89", "ZX81-89", "ZakMcKraken89", "Zaxxon89", "Zeppelin89"
+    "SabreWulf89", "TempleOfApshai89", "TheHobbit89", "Vixen89", "WhoDaresWins10", "WizardOfWor89", "ZX81-89", "ZakMcKraken89", "Zaxxon89", "Zeppelin89",
+    "Goonies88", "HalfLife88", "Pipeline88", "Pssst", "RadarRatRace20", "RiverRaid2", "RobinOfTheWood88", "RobinsonsRequiem1", "SabreWulf87", "SeaWolf88", "Sentinel2",
+    "SirFred88", "Sorcery88", "TheHobbit88", "Tornado88", "Tutankhamun88", "Ultima89", "Uridium2", "Valhalla88", "Vixen79", "Wally88", "WhoDaresWins88", "WinterGames79", "Zeppelin88"
 ];
 
 //const DECAL_PAINTINGS = [];
@@ -67,9 +69,10 @@ console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 
 const LIGHT_DECALS = ["WallLamp"];
 
-const DECAL_CRESTS = ["LS", "Skull4", "Skull3", "Skull2", "Skull1", "Crack4", "Crack3", "Skeleton11", "Skeleton12"];
-const TOP_CRESTS = ["LS"];
-const BOTTOM_CRESTS = ["LS"];
+const DECAL_CRESTS = ["LS", "Skull4", "Skull3", "Skull2", "Skull1", "Crack4", "Crack3", "Skeleton11", "Skeleton12", "Crack20", "Crack21", "DancingSkeletons2",
+    "PrayingSkeleton10", "SittingSkeleton2", "Skeleton21", "Skull10", "Skull11"];
+const TOP_CRESTS = ["Grate1_128"];
+const BOTTOM_CRESTS = ["Drain2_96", "Drain64", "Grate1_128", "RoundGrille96"];
 //const DECAL_CRESTS = [];
 console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
 
@@ -153,7 +156,6 @@ var SPAWN = {
         for (let s = 0; s < shrines.length; s++) {
             GA.addShrine(shrine_locations[s].grid);
             let shrine = new Shrine(shrine_locations[s].grid, shrine_locations[s].face, shrines[s]);
-            //console.log("shrine", shrine);
             INTERACTIVE_DECAL3D.add(shrine);
         }
     },
@@ -181,6 +183,10 @@ var SPAWN = {
 
         const crestLocations = [
             { grid: new Grid(0, 5), face: 'RIGHT' },
+            { grid: new Grid(10, 2), face: 'FRONT' },
+            { grid: new Grid(13, 3), face: 'FRONT' },
+            { grid: new Grid(7, 10), face: 'LEFT' },
+            { grid: new Grid(0, 11), face: 'RIGHT' },
 
         ];
         for (let D of crestLocations) {
@@ -192,6 +198,7 @@ var SPAWN = {
         const bottomCrestLocations = [
             //TOP
             { grid: new Grid(2, 5), face: 'TOP' },
+            { grid: new Grid(12, 4), face: 'TOP' }
         ];
         for (let D of bottomCrestLocations) {
             const crest = BOTTOM_CRESTS.chooseRandom();

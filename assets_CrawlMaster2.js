@@ -153,6 +153,12 @@ LoadSprites = [
     { srcName: "bluePotion24.png", name: "BluePotion24" },
     { srcName: "RedPotion24.png", name: "RedPotion24" },
 
+    //decal bottom
+    { srcName: "Drain2_96.png", name: "Drain2_96" },
+    { srcName: "Drain64.png", name: "Drain64" },
+    { srcName: "Grate1_128.png", name: "Grate1_128" },
+    { srcName: "RoundGrille96.png", name: "RoundGrille96" },
+
     //decal-other
     { srcName: "LS.png", name: "LS" },
     { srcName: "Skull4.png", name: "Skull4" },
@@ -163,6 +169,15 @@ LoadSprites = [
     { srcName: "Crack3.png", name: "Crack3" },
     { srcName: "Skeleton11.png", name: "Skeleton11" },
     { srcName: "Skeleton12.png", name: "Skeleton12" },
+
+    { srcName: "Crack20.png", name: "Crack20" },
+    { srcName: "Crack21.png", name: "Crack21" },
+    { srcName: "DancingSkeletons2.png", name: "DancingSkeletons2" },
+    { srcName: "PrayingSkeleton10.png", name: "PrayingSkeleton10" },
+    { srcName: "SittingSkeleton2.png", name: "SittingSkeleton2" },
+    { srcName: "Skeleton21.png", name: "Skeleton21" },
+    { srcName: "Skull10.png", name: "Skull10" },
+    { srcName: "Skull11.png", name: "Skull11" },
 
     //decal-pics
     { srcName: "SVS7.png", name: "SVS1" },
@@ -398,7 +413,6 @@ LoadSprites = [
     { srcName: "1942_2.png", name: "1942_2" },
     { srcName: "Arnie1.png", name: "Arnie1" },
     { srcName: "BTF1.png", name: "BTF1" },
-    //{ srcName: "Biggles1.png", name: "Biggles1" },
     { srcName: "BlueThunder1.png", name: "BlueThunder1" },
     { srcName: "BrianBloodaxe1.png", name: "BrianBloodaxe1" },
     { srcName: "BrideOfFrakenstein1.png", name: "BrideOfFrakenstein1" },
@@ -772,4 +786,29 @@ LoadSprites = [
     { srcName: "ZakMcKraken89.png", name: "ZakMcKraken89" },
     { srcName: "Zaxxon89.png", name: "Zaxxon89" },
     { srcName: "Zeppelin89.png", name: "Zeppelin89" },
+
+    { srcName: "Goonies88.png", name: "Goonies88" },
+    { srcName: "HalfLife88.png", name: "HalfLife88" },
+    { srcName: "Pipeline88.png", name: "Pipeline88" },
+    { srcName: "Pssst.png", name: "Pssst" },
+    { srcName: "RadarRatRace20.png", name: "RadarRatRace20" },
+    { srcName: "RiverRaid2.png", name: "RiverRaid2" },
+    { srcName: "RobinOfTheWood88.png", name: "RobinOfTheWood88" },
+    { srcName: "RobinsonsRequiem1.png", name: "RobinsonsRequiem1" },
+    { srcName: "SabreWulf87.png", name: "SabreWulf87" },
+    { srcName: "SeaWolf88.png", name: "SeaWolf88" },
+    { srcName: "Sentinel2.png", name: "Sentinel2" },
+    { srcName: "SirFred88.png", name: "SirFred88" },
+    { srcName: "Sorcery88.png", name: "Sorcery88" },
+    { srcName: "TheHobbit88.png", name: "TheHobbit88" },
+    { srcName: "Tornado88.png", name: "Tornado88" },
+    { srcName: "Tutankhamun88.png", name: "Tutankhamun88" },
+    { srcName: "Ultima89.png", name: "Ultima89" },
+    { srcName: "Uridium2.png", name: "Uridium2" },
+    { srcName: "Valhalla88.png", name: "Valhalla88" },
+    { srcName: "Vixen79.png", name: "Vixen79" },
+    { srcName: "Wally88.png", name: "Wally88" },
+    { srcName: "WhoDaresWins88.png", name: "WhoDaresWins88" },
+    { srcName: "WinterGames79.png", name: "WinterGames79" },
+    { srcName: "Zeppelin88.png", name: "Zeppelin88" },
 ];
