@@ -32,6 +32,9 @@ changelog:
   function RNDF(start, end) {
     return (Math.random() * (end + 0.01 - start) * 100 + start * 100) / 100;
   }
+  function RandomFloat(start, end) {
+    return Math.random * (end - start) + start;
+  }
 
   function coinFlip() {
     let flip = RND(0, 1);
@@ -56,29 +59,21 @@ changelog:
   function round5(x) {
     return roundN(x, 5);
   }
-  function weightedRnd(_json) {
-    let json = $.extend(true, {}, _json);
-    normalize(json);
-    let rnd = Math.random();
-    for (const c in json) {
-      if (rnd < json[c]) return c;
+  function weightedRnd(weights) {
+    const totalWeight = Object.values(weights).sum();
+    let sum = 0;
+    const rand = Math.random() * totalWeight;
+    for (const key in weights) {
+      sum += weights[key];
+      if (rand < sum) return key;
     }
     return null;
-
-    function normalize(json) {
-      let sum = 0;
-      for (const c in json) {
-        sum += json[c];
-      }
-      let curr = 0;
-      for (const c in json) {
-        json[c] /= sum;
-        json[c] = json[c] + curr;
-        curr = json[c];
-      }
-    }
   }
+
   function colorStringToVector(str) {
+    if (!/^#[0-9A-Fa-f]{6}$/.test(str)) {
+      throw new Error(`Invalid color string: ${str}`);
+    }
     let vec = new Float32Array(3);
     vec[0] = parseInt(str.substring(1, 3), 16) / 255;
     vec[1] = parseInt(str.substring(3, 5), 16) / 255;
@@ -89,6 +84,7 @@ changelog:
 
   window.RND = RND;
   window.RNDF = RNDF;
+  window.RandomFloat = RandomFloat;
   window.coinFlip = coinFlip;
   window.probable = probable;
   window.roundN = roundN;
@@ -260,6 +256,18 @@ Array.prototype.removeRandomPool = function (N) {
 Array.prototype.clone = function () {
   return [].concat(this);
 };
+Array.prototype.deepClone = function () {
+  return this.map((item) => {
+    if (Array.isArray(item)) {
+      return item.deepClone(); // recursively clone nested arrays
+    } else if (typeof item === 'object' && item !== null) {
+      return Object.fromEntries(Object.entries(item).map(([key, val]) => [key, val.deepClone()])); // recursively clone nested objects
+    } else {
+      return item; // return primitive values unchanged
+    }
+  });
+};
+
 Array.prototype.sortByPropAsc = function (prop) {
   this.sort(sort);
 

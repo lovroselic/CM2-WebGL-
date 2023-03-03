@@ -6,7 +6,7 @@
 
 //////////////////engine.js/////////////////////////
 //                                                //
-//      ENGINE version 3.12        by LS          //
+//      ENGINE version 3.20        by LS          //
 //                                                //
 ////////////////////////////////////////////////////
 
@@ -46,7 +46,7 @@ const DownRight = new Vector(1, 1);
 const DownLeft = new Vector(-1, 1);
 
 const ENGINE = {
-  VERSION: "3.16",
+  VERSION: "3.20",
   CSS: "color: #0FA",
   INI: {
     ANIMATION_INTERVAL: 16,
@@ -109,17 +109,7 @@ const ENGINE = {
   dirCircle: [UP, RIGHT, DOWN, LEFT],
   layersToClear: new Set(),
   disableKey(key) {
-    $(document).keydown(function (event) {
-      if (event.which === ENGINE.KEY.map[key]) {
-        event.preventDefault();
-      }
-    });
-    $(document).keyup(function (event) {
-      if (event.which === ENGINE.KEY.map[key]) {
-        event.preventDefault();
-      }
-    });
-    $(document).keypress(function (event) {
+    $(document).on('keydown keyup keypress', function (event) {
       if (event.which === ENGINE.KEY.map[key]) {
         event.preventDefault();
       }
@@ -298,7 +288,6 @@ const ENGINE = {
     );
   },
   drawPool(layer, pool, sprite) {
-    //let CTX = LAYER[layer];
     let PL = pool.length;
     if (PL === 0) return;
     for (let i = 0; i < PL; i++) {
@@ -306,11 +295,12 @@ const ENGINE = {
     }
   },
   trimCanvas(data) {
-    var top = 0,
-      bottom = data.height,
-      left = 0,
-      right = data.width;
-    var width = data.width;
+    let top = 0;
+    let bottom = data.height;
+    let left = 0;
+    let right = data.width;
+    const width = data.width;
+
     while (top < bottom && rowBlank(data, width, top)) ++top;
     while (bottom - 1 > top && rowBlank(data, width, bottom - 1)) --bottom;
     while (left < right && columnBlank(data, width, left, top, bottom)) ++left;
@@ -514,11 +504,7 @@ const ENGINE = {
     CTX.fillRect(1, 1, Math.floor((ENGINE.LOAD_W - 2) * (percent / 100)), ENGINE.LOAD_H - 2);
     CTX.fillStyle = "black";
     CTX.font = "10px Verdana";
-    CTX.fillText(
-      text + ": " + percent + "%",
-      ENGINE.LOAD_W * 0.1,
-      ENGINE.LOAD_H * 0.62
-    );
+    CTX.fillText(`${text}: ${percent}%`, ENGINE.LOAD_W * 0.1, ENGINE.LOAD_H * 0.62);
     return;
   },
   percentBar(percent, y, CTX, panelSize, colors, H) {
@@ -1197,11 +1183,11 @@ const ENGINE = {
     HMPacks: null,
     HMShaders: null,
     HMObjects: null,
-    preload() {
+    async preload() {
       console.time("preloading");
       console.group("preload");
       console.log("%cPreloading ...", ENGINE.CSS);
-      var AllLoaded = Promise.all([
+      const allPromises = [
         loadTextures(),
         loadSprites(),
         loadSequences(),
@@ -1215,301 +1201,315 @@ const ENGINE = {
         loadAllFonts(),
         loadShaders(),
         loadObjects()
-      ]).then(function () {
-        console.log("%cAll assets loaded and ready!", ENGINE.CSS);
-        console.log("%c****************************", ENGINE.CSS);
-        console.groupEnd("preload");
-        console.timeEnd("preloading");
-        ENGINE.ready();
-      });
-      return;
+      ];
+
+      await Promise.allSettled(allPromises);
+      console.log("%cAll assets loaded and ready!", ENGINE.CSS);
+      console.log("%c****************************", ENGINE.CSS);
+      console.groupEnd("preload");
+      console.timeEnd("preloading");
+      ENGINE.ready();
 
       function appendCanvas(name) {
-        let id = "preload_" + name;
+        let id = `preload_${name}`;
         $("#load").append(`<canvas id ='${id}' width='${ENGINE.LOAD_W}' height='${ENGINE.LOAD_H}'></canvas>`);
         LAYER.PRELOAD[name] = $("#" + id)[0].getContext("2d");
       }
-      function loadTextures(arrPath = LoadTextures) {
-        if (!arrPath) return true;
-        console.log(`%c ...loading ${arrPath.length} textures`, ENGINE.CSS);
-        ENGINE.LOAD.HMTextures = arrPath.length;
-        if (ENGINE.LOAD.HMTextures) appendCanvas("Textures");
 
-        const temp = Promise.all(
-          arrPath.map((img) => loadImage(img, "Textures"))
-        ).then(function (obj) {
+      async function loadTextures(arrPath = LoadTextures) {
+        try {
+          if (!arrPath) return true;
+          console.log(`%c ...loading ${arrPath.length} textures`, ENGINE.CSS);
+          ENGINE.LOAD.HMTextures = arrPath.length;
+          if (ENGINE.LOAD.HMTextures) appendCanvas("Textures");
+
+          const obj = await Promise.all(arrPath.map((img) => loadImage(img, "Textures")));
           obj.forEach(function (el) {
             ENGINE.imgToTexture(el);
           });
-        });
-        return temp;
-      }
-      function loadSprites(arrPath = LoadSprites) {
-        if (!arrPath) return true;
-        console.log(`%c ...loading ${arrPath.length} sprites`, ENGINE.CSS);
-        ENGINE.LOAD.HMSprites = arrPath.length;
-        if (ENGINE.LOAD.HMSprites) appendCanvas("Sprites");
 
-        const temp = Promise.all(
-          arrPath.map((img) => loadImage(img, "Sprites"))
-        ).then(function (obj) {
+          return true;
+        } catch (error) {
+          console.error(`Failed to load textures: ${error}`);
+          return false;
+        }
+      }
+
+      async function loadSprites(arrPath = LoadSprites) {
+        try {
+          if (!arrPath) return true;
+          console.log(`%c ...loading ${arrPath.length} sprites`, ENGINE.CSS);
+          ENGINE.LOAD.HMSprites = arrPath.length;
+          if (ENGINE.LOAD.HMSprites) appendCanvas("Sprites");
+          const obj = await Promise.all(arrPath.map((img) => loadImage(img, "Sprites")));
           obj.forEach(function (el) {
             ENGINE.imgToSprite(el);
           });
-        });
-        return temp;
+          return true;
+        } catch (error) {
+          console.error(`Failed to load sprites: ${error}`);
+          return false;
+        }
       }
-      function loadSequences(arrPath = LoadSequences) {
-        if (!arrPath) return true;
-        console.log(`%c ...loading ${arrPath.length} sequences`, ENGINE.CSS);
-        var toLoad = [];
 
-        arrPath.forEach(function (el) {
-          ASSET[el.name] = new LiveSPRITE("1D", []);
-          for (let i = 1; i <= el.count; i++) {
-            toLoad.push({
-              srcName: el.srcName + "_" + i.toString().padStart(2, "0") + "." + el.type,
-              name: el.name + (i - 1).toString().padStart(2, "0"),
-              asset: el.name
-            });
-          }
-        });
+      async function loadSequences(arrPath = LoadSequences) {
+        try {
+          if (!arrPath) return true;
+          console.log(`%c ...loading ${arrPath.length} sequences`, ENGINE.CSS);
+          var toLoad = [];
+          arrPath.forEach(function (el) {
+            ASSET[el.name] = new LiveSPRITE("1D", []);
+            for (let i = 1; i <= el.count; i++) {
+              toLoad.push({
+                srcName: el.srcName + "_" + i.toString().padStart(2, "0") + "." + el.type,
+                name: el.name + (i - 1).toString().padStart(2, "0"),
+                asset: el.name
+              });
+            }
+          });
 
-        ENGINE.LOAD.HMSequences = toLoad.length;
-        if (ENGINE.LOAD.HMSequences) appendCanvas("Sequences");
+          ENGINE.LOAD.HMSequences = toLoad.length;
+          if (ENGINE.LOAD.HMSequences) appendCanvas("Sequences");
+          const obj = await Promise.all(
+            toLoad.map((img) => loadImage(img, "Sequences"))
+          );
 
-        const temp = Promise.all(
-          toLoad.map((img) => loadImage(img, "Sequences"))
-        ).then(function (obj) {
           obj.forEach(function (el) {
             ENGINE.imgToSprite(el);
             ENGINE.spriteToAsset(el);
           });
-        });
-        return temp;
+
+          return true;
+        } catch (error) {
+          console.error(`Failed to load sequences: ${error}`);
+          return false;
+        }
       }
-      function loadPacks(arrPath = LoadPacks) {
-        if (!arrPath) return true;
-        console.log(`%c ...loading ${arrPath.length} packs`, ENGINE.CSS);
-        var toLoad = [];
-        arrPath.forEach(function (el) {
-          if (!el.dimension) {
-            el.dimension = 4;
-          }
-          ASSET[el.name] = new LiveSPRITE(`${el.dimension}D`);
-          toLoad.push({
-            srcName: el.srcName,
-            name: el.name,
-            count: el.count,
-            dimension: el.dimension
+
+      async function loadPacks(arrPath = LoadPacks) {
+        try {
+          if (!arrPath) return true;
+          console.log(`%c ...loading ${arrPath.length} packs`, ENGINE.CSS);
+          var toLoad = [];
+          arrPath.forEach(function (el) {
+            el.dimension = el.dimension || 4;
+            ASSET[el.name] = new LiveSPRITE(`${el.dimension}D`);
+            toLoad.push({ srcName: el.srcName, name: el.name, count: el.count, dimension: el.dimension });
           });
-        });
-        ENGINE.LOAD.HMPacks = toLoad.length;
-        if (ENGINE.LOAD.HMPacks) appendCanvas("Packs");
-        const temp = Promise.all(
-          toLoad.map((img) => loadImage(img, "Packs"))
-        ).then(function (obj) {
+          ENGINE.LOAD.HMPacks = toLoad.length;
+          if (ENGINE.LOAD.HMPacks) appendCanvas("Packs");
+          const obj = await Promise.all(toLoad.map((img) => loadImage(img, "Packs")));
           obj.forEach(function (el) {
             ENGINE.packToSprite(el);
           });
-        });
-        return temp;
+          return true;
+        } catch (error) {
+          console.error(`Failed to load packs: ${error}`);
+          return false;
+        }
       }
-      function loadSheets(arrPath = LoadSheets, addTag = ExtendSheetTag) {
-        if (!arrPath) return true;
-        console.log(`%c ...loading ${arrPath.length} sheets`, ENGINE.CSS);
-        var toLoad = [];
-        var all_tags = ["left", "right", "front", "back", ...addTag];
-        arrPath.forEach(function (el) {
-          if (!el.dimension) {
-            el.dimension = 4;
-          }
-          ASSET[el.name] = new LiveSPRITE(`${el.dimension}D`);
-          let tag = all_tags.slice(0, el.dimension);
-          for (let q = 0, TL = tag.length; q < TL; q++) {
-            toLoad.push({
-              srcName: el.srcName + "_" + tag[q] + "." + el.type,
-              name: el.name + "_" + tag[q],
-              count: el.count,
-              tag: tag[q],
-              parent: el.name
-            });
-          }
-        });
 
-        ENGINE.LOAD.HMSheets = toLoad.length;
-        if (ENGINE.LOAD.HMSheets) appendCanvas("Sheets");
-        const temp = Promise.all(
-          toLoad.map((img) => loadImage(img, "Sheets"))
-        ).then(function (obj) {
-          obj.forEach(function (el) {
-            ENGINE.sheetToSprite(el);
-          });
-        });
-        return temp;
-      }
-      function loadSheetSequences(arrPath = LoadSheetSequences) {
-        if (!arrPath) return true;
-        console.log(`%c ...loading ${arrPath.length} sheet sequences`, ENGINE.CSS);
-        var toLoad = [];
-        arrPath.forEach(function (el) {
-          ASSET[el.name] = new LiveSPRITE("1D");
-          toLoad.push({
-            srcName: el.srcName,
-            name: el.name,
-            count: el.count,
-            trim: el.trim
-          });
-        });
-        ENGINE.LOAD.HMSheetSequences = toLoad.length;
-        if (ENGINE.LOAD.HMSheetSequences) appendCanvas("SheetSequences");
-        const temp = Promise.all(
-          toLoad.map((img) => loadImage(img, "SheetSequences"))
-        ).then(function (obj) {
-          obj.forEach(function (el) {
-            ENGINE.seqToSprite(el);
-          });
-        });
-        return temp;
-      }
-      function loadRotated(arrPath = LoadRotated) {
-        if (!arrPath) return true;
-        console.log(`%c ...loading ${arrPath.length} rotated sprites`, ENGINE.CSS);
-        ENGINE.LOAD.HMRotated = arrPath.length;
-        if (ENGINE.LOAD.HMRotated) appendCanvas("Rotated");
+      async function loadSheets(arrPath = LoadSheets, addTag = ExtendSheetTag) {
+        try {
+          if (!arrPath) return true;
+          console.log(`%c ...loading ${arrPath.length} sheets`, ENGINE.CSS);
 
-        const temp = Promise.all(
-          arrPath.map((img) => loadImage(img, "Rotated"))
-        ).then(function (obj) {
-          obj.forEach(function (el) {
-            for (let q = el.rotate.first; q <= el.rotate.last; q += el.rotate.step) {
-              ENGINE.rotateImage(el.img, q, el.name + "_" + q);
+          const allTags = ["left", "right", "front", "back", ...addTag];
+          const toLoad = [];
+
+          for (const el of arrPath) {
+            const dimension = el.dimension || 4;
+            ASSET[el.name] = new LiveSPRITE(`${dimension}D`);
+            const tags = allTags.slice(0, dimension);
+            for (const tag of tags) {
+              const srcName = `${el.srcName}_${tag}.${el.type}`;
+              const name = `${el.name}_${tag}`;
+              toLoad.push({ srcName, name, count: el.count, tag, parent: el.name });
             }
-          });
-        });
-        return temp;
-      }
-      function loadRotatedSheetSequences(arrPath = LoadRotatedSheetSequences) {
-        if (!arrPath) return true;
-        console.log(`%c ...loading ${arrPath.length} rotated sheet sequences`, ENGINE.CSS);
-        var toLoad = [];
-        arrPath.forEach(function (el) {
-          ASSET[el.name] = new LiveSPRITE("1D", []);
-          toLoad.push({ srcName: el.srcName, name: el.name, count: el.count, rotate: el.rotate });
-        });
-        ENGINE.LOAD.HMRotSeq = toLoad.length;
-        if (ENGINE.LOAD.HMRotSeq) appendCanvas("RotSeq");
-        const temp = Promise.all(
-          toLoad.map((img) => loadImage(img, "RotSeq"))
-        )
-          .then(function (obj) {
-            let ready;
-            obj.forEach(function (el) {
-              let assetNames = ENGINE.seqToSprite(el);
-              let createdSprites = ASSET[el.name].linear;
+          }
 
-              ready = Promise.all(createdSprites.map((sprite) => isReady(sprite)))
-                .then(
-                  (obj) => {
-                    obj.forEach((S, i) => {
-                      for (let angle = el.rotate.first; angle <= el.rotate.last; angle += el.rotate.step) {
-                        let name = `${assetNames[i]}_${angle}`;
-                        ENGINE.rotateImage(S, angle, name);
-                      }
-                    });
-                  }
-                );
-            });
-            return ready;
-          });
-        return temp;
-      }
-      function isReady(sprite) {
-        return new Promise((resolve, reject) => {
-          sprite.onload = () => {
-            resolve(sprite);
-          };
-        });
+          ENGINE.LOAD.HMSheets = toLoad.length;
+          if (ENGINE.LOAD.HMSheets) appendCanvas("Sheets");
+          const sheets = await Promise.all(toLoad.map((img) => loadImage(img, "Sheets")));
+          for (const el of sheets) {
+            ENGINE.sheetToSprite(el);
+          }
+          return true;
+        } catch (error) {
+          console.error(`Failed to load sheets: ${error}`);
+          return false;
+        }
       }
 
-      function loadShaders(arrPath = LoadShaders) {
+      async function loadSheetSequences(arrPath = LoadSheetSequences) {
+        try {
+          if (!arrPath) return true;
+          console.log(`%c ...loading ${arrPath.length} sheet sequences`, ENGINE.CSS);
+          const toLoad = arrPath.map(({ name, srcName, count, trim }) => {
+            ASSET[name] = new LiveSPRITE("1D");
+            return { name, srcName, count, trim };
+          });
+
+          ENGINE.LOAD.HMSheetSequences = toLoad.length;
+          if (ENGINE.LOAD.HMSheetSequences) appendCanvas("SheetSequences");
+          const sequences = await Promise.all(toLoad.map((img) => loadImage(img, "SheetSequences")));
+          sequences.forEach((el) => ENGINE.seqToSprite(el));
+          return true;
+        } catch (error) {
+          console.error(`Failed to load sheet sequences: ${error}`);
+          return false;
+        }
+      }
+
+      async function loadRotated(arrPath = LoadRotated) {
+        try {
+          if (!arrPath) return true;
+          console.log(`%c ...loading ${arrPath.length} rotated sprites`, ENGINE.CSS);
+          ENGINE.LOAD.HMRotated = arrPath.length;
+          if (ENGINE.LOAD.HMRotated) appendCanvas("Rotated");
+          const images = await Promise.all(arrPath.map(img => loadImage(img, "Rotated")));
+
+          for (const { img, rotate, name } of images) {
+            for (let q = rotate.first; q <= rotate.last; q += rotate.step) {
+              ENGINE.rotateImage(img, q, name + "_" + q);
+            }
+          }
+
+          return true;
+        } catch (error) {
+          console.error(`Failed to load rotated sprites: ${error}`);
+          return false;
+        }
+      }
+
+      async function loadRotatedSheetSequences(arrPath = LoadRotatedSheetSequences) {
+        try {
+          if (!arrPath) return true;
+          console.log(`%c ...loading ${arrPath.length} rotated sheet sequences`, ENGINE.CSS);
+
+          const toLoad = arrPath.map(({ name, srcName, count, rotate }) => {
+            ASSET[name] = new LiveSPRITE("1D", []);
+            return { name, srcName, count, rotate };
+          });
+
+          ENGINE.LOAD.HMRotSeq = toLoad.length;
+          if (ENGINE.LOAD.HMRotSeq) appendCanvas("RotSeq");
+          const sequences = await Promise.all(toLoad.map((img) => loadImage(img, "RotSeq")));
+
+          await Promise.all(
+            sequences.map(async (el) => {
+              const assetNames = ENGINE.seqToSprite(el);
+              const createdSprites = ASSET[el.name].linear;
+
+              for (const sprite of createdSprites) {
+                await new Promise((resolve) => {
+                  sprite.onload = () => resolve();
+                });
+              }
+
+              for (let i = 0; i < createdSprites.length; i++) {
+                for (let angle = el.rotate.first; angle <= el.rotate.last; angle += el.rotate.step) {
+                  const name = `${assetNames[i]}_${angle}`;
+                  ENGINE.rotateImage(createdSprites[i], angle, name);
+                }
+              }
+
+            })
+          );
+
+          return true;
+        } catch (error) {
+          console.error(`Failed to load rotated sheet sequences: ${error}`);
+          return false;
+        }
+      }
+
+      async function loadShaders(arrPath = LoadShaders) {
         if (!arrPath) return true;
         console.log(`%c ...loading ${arrPath.length} Shaders`, ENGINE.CSS);
         ENGINE.LOAD.HMShaders = arrPath.length;
         if (ENGINE.LOAD.HMShaders) appendCanvas("Shaders");
-        const temp = Promise.all(
-          arrPath.map(shader => loadShader(shader, 'Shaders'))
-        ).then((instance) => {
-          instance.forEach((el) => {
-            const name = el.split("///")[1];
-            SHADER[name] = el;
+        try {
+          const shaders = await Promise.all(arrPath.map(shader => loadShader(shader, 'Shaders')));
+          shaders.forEach((shader) => {
+            const name = shader.split("///")[1];
+            SHADER[name] = shader;
           });
-        });
+        } catch (error) {
+          console.error(`Failed to load shaders: ${error}`);
+        }
       }
 
-      function loadObjects(arrPath = LoadObjects) {
-        if (!arrPath) return true;
-        console.log(`%c ...loading ${arrPath.length} Objects`, ENGINE.CSS);
+      async function loadObjects(arrPath = LoadObjects) {
+        if (!arrPath) return;
+        console.log(`%c...loading ${arrPath.length} Objects`, ENGINE.CSS);
         ENGINE.LOAD.HMObjects = arrPath.length;
-        if (ENGINE.LOAD.HMShaders) appendCanvas("Objects");
-        const temp = Promise.all(
-          arrPath.map(obj => loadObj(obj, 'Objects'))
-        ).then((instance) => {
-          instance.forEach((el) => {
-            ENGINE.parseObjectFile(el);
+        if (ENGINE.LOAD.HMObjects) appendCanvas("Objects");
+        try {
+          const objects = await Promise.all(arrPath.map(obj => loadObj(obj, 'Objects')));
+          objects.forEach((object) => {
+            ENGINE.parseObjectFile(object);
           });
-        });
+          ENGINE.LOAD.Objects = ENGINE.LOAD.HMObjects;
+          ENGINE.drawLoadingGraph("Objects");
+        } catch (error) {
+          console.error(`Failed to load objects: ${error}`);
+        }
       }
 
-      function loadWASM(arrPath = LoadExtWasm) {
-        if (!arrPath) return true;
-        var LoadIntWasm = []; //internal hard coded ENGINE requirements
-        var toLoad = [...arrPath, ...LoadIntWasm];
+      async function loadWASM(arrPath = LoadExtWasm) {
+        if (!arrPath) return;
+        const LoadIntWasm = []; // internal hard-coded ENGINE requirements, never used
+        const toLoad = [...arrPath, ...LoadIntWasm];
         console.log(`%c ...loading ${toLoad.length} WASM files`, ENGINE.CSS);
         ENGINE.LOAD.HMWASM = toLoad.length;
         if (ENGINE.LOAD.HMWASM) appendCanvas("WASM");
-        const temp = Promise.all(
-          toLoad.map((wasm) => loadWebAssembly(wasm, "WASM"))
-        ).then((instance) => {
-          instance.forEach((el) => {
-            ENGINE.linkToWasm(el);
+        try {
+          const instances = await Promise.all(toLoad.map((wasm) => loadWebAssembly(wasm, "WASM")));
+          instances.forEach((instance) => {
+            ENGINE.linkToWasm(instance);
           });
-        });
-
-        return temp;
+        } catch (error) {
+          console.error(`Error loading wasm: ${error}`);
+        }
       }
-      function loadingSounds(arrPath = LoadAudio) {
+
+      async function loadingSounds(arrPath = LoadAudio) {
         if (!arrPath) return true;
         console.log(`%c ...loading ${arrPath.length} sounds`, ENGINE.CSS);
         ENGINE.LOAD.HMSounds = arrPath.length;
         if (ENGINE.LOAD.HMSounds) appendCanvas("Sounds");
-
-        const temp = Promise.all(
-          arrPath.map((audio) => loadAudio(audio, "Sounds"))
-        ).then(function (obj) {
-          obj.forEach(function (el) {
+        try {
+          const loadedSounds = await Promise.all(
+            arrPath.map((audio) => loadAudio(audio, "Sounds"))
+          );
+          loadedSounds.forEach(function (el) {
             ENGINE.audioToAudio(el);
           });
-        });
-      }
-      function loadAllFonts(arrPath = LoadFonts) {
-        if (!arrPath) return true;
-        console.log(`%c ...loading ${arrPath.length} fonts`, ENGINE.CSS);
-        ENGINE.LOAD.HMFonts = arrPath.length;
-        if (ENGINE.LOAD.HMFonts) {
-          appendCanvas("Fonts");
-          const temp = Promise.all(arrPath.map((font) => loadFont(font))).then(
-            function (obj) {
-              obj.map((x) => document.fonts.add(x));
-              ENGINE.LOAD.Fonts = ENGINE.LOAD.HMFonts;
-              ENGINE.drawLoadingGraph("Fonts");
-            }
-          );
+          return true;
+        } catch (error) {
+          console.error(`Error loading sounds: ${error}`);
+          return false;
         }
       }
 
-      function loadImage(srcData, counter, dir = ENGINE.SOURCE) {
-        var srcName, name, count, tag, parent, rotate, asset, trim, dimension;
+      async function loadAllFonts(fonts = LoadFonts) {
+        if (!fonts) return;
+        console.log(`%c ...loading ${fonts.length} fonts`, ENGINE.CSS);
+        ENGINE.LOAD.HMFonts = fonts.length;
+        if (ENGINE.LOAD.HMFonts) {
+          appendCanvas("Fonts");
+          const fontPromises = fonts.map(font => loadFont(font));
+          const loadedFonts = await Promise.all(fontPromises);
+          loadedFonts.forEach(font => document.fonts.add(font));
+          ENGINE.LOAD.Fonts = ENGINE.LOAD.HMFonts;
+          ENGINE.drawLoadingGraph("Fonts");
+        }
+      }
+
+      async function loadImage(srcData, counter, dir = ENGINE.SOURCE) {
+        let srcName, name, count, tag, parent, rotate, asset, trim, dimension;
+
         switch (typeof srcData) {
           case "string":
             srcName = srcData;
@@ -1528,35 +1528,32 @@ const ENGINE = {
             if (trim === undefined) trim = true;
             break;
           default:
-            console.error(`ENGINE: loadImage srcData ERROR: ${typeof srcData}`);
+            throw new Error(`ENGINE: loadImage srcData ERROR: ${typeof srcData}`);
         }
 
-        var src = dir + srcName;
-        return new Promise((resolve, reject) => {
+        const src = dir + srcName;
+
+        try {
           const img = new Image();
-          var obj = {
-            img: img,
-            name: name,
-            count: count,
-            tag: tag,
-            parent: parent,
-            rotate: rotate,
-            asset: asset,
-            trim: trim,
-            dimension: dimension
-          };
-          img.onload = function () {
-            ENGINE.LOAD[counter]++;
-            ENGINE.drawLoadingGraph(counter);
-            resolve(obj);
-          };
-          img.onerror = (err) => reject(err);
           img.crossOrigin = "Anonymous";
           img.src = src;
-        });
+
+          await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+          });
+
+          ENGINE.LOAD[counter]++;
+          ENGINE.drawLoadingGraph(counter);
+          return { img, name, count, tag, parent, rotate, asset, trim, dimension };
+        } catch (error) {
+          throw new Error(`ENGINE: Failed to load image: ${srcName}`, error);
+        }
       }
-      function loadAudio(srcData, counter, dir = ENGINE.AUDIO_SOURCE) {
-        var srcName, name;
+
+      async function loadAudio(srcData, counter, dir = ENGINE.AUDIO_SOURCE) {
+        let srcName, name;
+
         switch (typeof srcData) {
           case "string":
             srcName = srcData;
@@ -1565,66 +1562,77 @@ const ENGINE = {
           case "object":
             srcName = srcData.srcName;
             name = srcData.name;
-
             break;
           default:
-            console.error(`ENGINE: loadAudio srcData ERROR: ${typeof srcData}`);
+            throw new Error(`ENGINE: loadAudio srcData ERROR: ${typeof srcData}`);
         }
 
-        var src = dir + srcName;
-        return new Promise((resolve, reject) => {
-          const audio = new Audio();
-          var obj = {
-            audio: audio,
-            name: name
-          };
+        const src = dir + srcName;
+        const audio = new Audio(src);
 
-          audio.oncanplaythrough = function () {
-            ENGINE.LOAD[counter]++;
-            ENGINE.drawLoadingGraph(counter);
-            resolve(obj);
-          };
-
-          audio.onerror = (err) => resolve(err);
+        await new Promise((resolve, reject) => {
+          audio.oncanplaythrough = () => resolve();
+          audio.onerror = (err) => reject(err);
           audio.preload = "auto";
-          audio.src = src;
           audio.load();
         });
+
+        ENGINE.LOAD[counter]++;
+        ENGINE.drawLoadingGraph(counter);
+        return { audio, name };
       }
+
       async function loadShader(fileName, counter) {
-        fileName = ENGINE.SHADER_SOURCE + fileName;
-        return fetch(fileName).
-          then((response) => {
-            ENGINE.LOAD[counter]++;
-            ENGINE.drawLoadingGraph(counter);
-            return response.text();
-          });
+        try {
+          fileName = ENGINE.SHADER_SOURCE + fileName;
+          const response = await fetch(fileName);
+          ENGINE.LOAD[counter]++;
+          ENGINE.drawLoadingGraph(counter);
+          const text = await response.text();
+          return text;
+        } catch (err) {
+          console.error(`Error loading shader from file ${fileName}:`, err);
+          return null;
+        }
       }
+
       async function loadObj(fileName, counter) {
-        fileName = ENGINE.OBJECT_SOURCE + fileName;
-        return fetch(fileName).
-          then((response) => {
-            ENGINE.LOAD[counter]++;
-            ENGINE.drawLoadingGraph(counter);
-            return response.text();
-          });
+        try {
+          fileName = ENGINE.OBJECT_SOURCE + fileName;
+          const response = await fetch(fileName);
+          ENGINE.LOAD[counter]++;
+          ENGINE.drawLoadingGraph(counter);
+          const text = await response.text();
+          return text;
+        } catch (err) {
+          throw new Error(`Error loading object from file ${fileName}:`, err);
+        }
       }
+
       async function loadWebAssembly(fileName, counter) {
-        fileName = ENGINE.WASM_SOURCE + fileName;
-        return fetch(fileName)
-          .then((response) => response.arrayBuffer())
-          .then((bits) => WebAssembly.compile(bits))
-          .then((module) => {
-            ENGINE.LOAD[counter]++;
-            ENGINE.drawLoadingGraph(counter);
-            return new WebAssembly.Instance(module);
-          });
+        try {
+          const response = await fetch(ENGINE.WASM_SOURCE + fileName);
+          const buffer = await response.arrayBuffer();
+          const module = await WebAssembly.compile(buffer);
+          ENGINE.LOAD[counter]++;
+          ENGINE.drawLoadingGraph(counter);
+          return new WebAssembly.Instance(module);
+        } catch (error) {
+          throw new Error(`Error loading WebAssembly: ${fileName}`, error);
+        }
       }
-      function loadFont(srcData, dir = ENGINE.FONT_SOURCE) {
-        const fontSource = dir + srcData.srcName;
-        const url = `url(${fontSource})`;
-        const temp = new FontFace(srcData.name, url);
-        return temp.load();
+
+      async function loadFont(srcData, dir = ENGINE.FONT_SOURCE) {
+        try {
+          const fontSource = dir + srcData.srcName;
+          const url = `url(${fontSource})`;
+          const temp = new FontFace(srcData.name, url);
+          const font = await temp.load();
+          //document.fonts.add(font); // cache the loaded font, it's cached later
+          return font;
+        } catch (error) {
+          throw new Error(`Error loading font: ${srcData.srcName}`, error);
+        }
       }
     }
   },
@@ -1979,7 +1987,7 @@ const ENGINE = {
           FS = "#87CEFA";
           break;
         case MAPDICT.SHRINE:
-          FS = "#FF00FF"
+          FS = "#FF00FF";
           break;
         default:
           FS = "#999";
@@ -3110,7 +3118,8 @@ class FancyText {
   }
 }
 class FPS_measurement {
-  constructor() {
+  constructor(len = null) {
+    this.len = len;
     this.reset();
   }
   reset() {
@@ -3126,19 +3135,22 @@ class FPS_measurement {
 }
 class FPS_short_term_measurement extends FPS_measurement {
   constructor(len = 100) {
-    super();
-    this.len = len;
+    super(len);
   }
   reset() {
-    this.data = [];
+    this.data = new Float32Array(this.len);
+    this.data.fill(0);
+    this.ptr = 0;
+    this.total = 0;
     this.average = 0;
+    this.count = 0;
   }
   update(fps) {
-    this.data.push(fps);
-    if (this.data.length > this.len) {
-      this.data.shift();
-    }
-    this.average = this.data.average();
+    if (this.count < this.len) this.count++;
+    this.total += fps - this.data[this.ptr];
+    this.data[this.ptr] = fps;
+    this.ptr = ++this.ptr % this.len;
+    this.average = this.total / this.count;
   }
 }
 var FILTER = {

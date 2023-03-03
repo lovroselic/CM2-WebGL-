@@ -65,10 +65,14 @@
  * https://webgl2fundamentals.org/webgl/lessons/webgl-gpgpu.html
  * 
  * https://www.youtube.com/watch?v=ro4bDXcISms
+ * 
+ * https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#properties-reference
+ * https://github.com/mattdesl/gl-constants/blob/master/1.0/numbers.js
+ * https://youtu.be/cWo-sghCp8Y?t=1815
  */
 
 const WebGL = {
-    VERSION: "0.18.2",
+    VERSION: "0.19.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -82,7 +86,7 @@ const WebGL = {
         MIN_RESOLUTION: 128,
         INTERACT_DISTANCE: 1.3,
         DYNAMIC_LIGHTS_RESERVATION: 8,
-        EXPLOSION_N_PARTICLES: 10000,
+        EXPLOSION_N_PARTICLES: 25000,
         EXPLOSION_DURATION_MS: 2000,
     },
     program: null,
@@ -401,8 +405,8 @@ const WebGL = {
         let lights = [];
         let lightColors = [];
         for (let L = 0; L < LIGHTS3D.POOL.length; L++) {
-            lights = [...lights, ...LIGHTS3D.POOL[L].position.array];
-            lightColors = [...lightColors, ...LIGHTS3D.POOL[L].lightColor];
+            lights.push(...LIGHTS3D.POOL[L].position.array);
+            lightColors.push(...LIGHTS3D.POOL[L].lightColor);
         }
 
 
@@ -413,8 +417,8 @@ const WebGL = {
         for (let iam of this.dynamicLightSources) {
             for (let LS of iam.POOL) {
                 if (!LS) continue;
-                dynLights = [...dynLights, ...LS.pos.array];
-                dynLightColors = [...dynLightColors, ...LS.lightColor];
+                dynLights.push(...LS.pos.array);
+                dynLightColors.push(...LS.lightColor);
                 dynCount++;
                 if (dynCount > this.INI.DYNAMIC_LIGHTS_RESERVATION) {
                     console.error("Dynamic light sources exceed reserved memory!");
@@ -424,12 +428,14 @@ const WebGL = {
             }
             if (!cont) break;
         }
-        for (let i = 0; i < this.INI.DYNAMIC_LIGHTS_RESERVATION - dynCount; i++) {
-            dynLights = [...dynLights, ...[-1, -1, -1]];
-            dynLightColors = [...dynLightColors, ...[0, 0, 0]];
+
+        while (dynLights.length < this.INI.DYNAMIC_LIGHTS_RESERVATION * 3) {
+            dynLights.push(-1, -1, -1);
+            dynLightColors.push(0, 0, 0);
         }
-        lights = [...lights, ...dynLights];
-        lightColors = [...lightColors, ...dynLightColors];
+
+        lights.push(...dynLights);
+        lightColors.push(...dynLightColors);
 
         gl.uniform3fv(this.program.uniformLocations.lights, new Float32Array(lights));
         gl.uniform3fv(this.program.uniformLocations.lightColors, new Float32Array(lightColors));
@@ -752,10 +758,12 @@ const WORLD = {
         }
         const [leftX, rightX, topY, bottomY] = this.getBoundaries(decal.category, decal.texture.width, decal.texture.height, resolution);
         const E = ELEMENT[`${decal.face}_FACE`];
-        let positions = [...E.positions];
-        let indices = [...E.indices];
-        let textureCoordinates = [...E.textureCoordinates];
-        let vertexNormals = [...E.vertexNormals];
+
+        let positions = E.positions.slice();
+        let indices = E.indices.slice();
+        let textureCoordinates = E.textureCoordinates.slice();
+        let vertexNormals = E.vertexNormals.slice();
+
 
         //scale
         switch (decal.face) {
@@ -852,20 +860,21 @@ const WORLD = {
         //indices
         indices = indices.map(e => e + (this[type].positions.length / 3));
 
-        this[type].positions = this[type].positions.concat(positions);
-        this[type].indices = this[type].indices.concat(indices);
-        this[type].textureCoordinates = this[type].textureCoordinates.concat(textureCoordinates);
-        this[type].vertexNormals = this[type].vertexNormals.concat(vertexNormals);
+        this[type].positions.push(...positions);
+        this[type].indices.push(...indices);
+        this[type].textureCoordinates.push(...textureCoordinates);
+        this[type].vertexNormals.push(...vertexNormals);
+
     },
     addCube(Y, grid, type) {
         return this.addElement(ELEMENT.CUBE, Y, grid, type);
     },
     addElement(E, Y, grid, type, scale = null) {
-        let positions = [...E.positions];
-        let indices = [...E.indices];
-        let textureCoordinates = [...E.textureCoordinates];
-        let vertexNormals = [...E.vertexNormals];
-
+        let positions = E.positions.slice();
+        let indices = E.indices.slice();
+        let textureCoordinates = E.textureCoordinates.slice();
+        let vertexNormals = E.vertexNormals.slice();
+        
         //positions
         for (let p = 0; p < positions.length; p += 3) {
             if (scale) {
@@ -881,24 +890,24 @@ const WORLD = {
         //indices
         indices = indices.map(e => e + (this[type].positions.length / 3));
 
-        this[type].positions = this[type].positions.concat(positions);
-        this[type].indices = this[type].indices.concat(indices);
-        this[type].textureCoordinates = this[type].textureCoordinates.concat(textureCoordinates);
-        this[type].vertexNormals = this[type].vertexNormals.concat(vertexNormals);
+        this[type].positions.push(...positions);
+        this[type].indices.push(...indices);
+        this[type].textureCoordinates.push(...textureCoordinates);
+        this[type].vertexNormals.push(...vertexNormals);
     },
     reserveObject(E, type) {
-        let positions = [...E.positions];
-        let indices = [...E.indices];
-        let textureCoordinates = [...E.textureCoordinates];
-        let vertexNormals = [...E.vertexNormals];
+        let positions = E.positions.slice();
+        let indices = E.indices.slice();
+        let textureCoordinates = E.textureCoordinates.slice();
+        let vertexNormals = E.vertexNormals.slice();
 
         //indices
         indices = indices.map(e => e + (this[type].positions.length / 3));
 
-        this[type].positions = this[type].positions.concat(positions);
-        this[type].indices = this[type].indices.concat(indices);
-        this[type].textureCoordinates = this[type].textureCoordinates.concat(textureCoordinates);
-        this[type].vertexNormals = this[type].vertexNormals.concat(vertexNormals);
+        this[type].positions.push(...positions);
+        this[type].indices.push(...indices);
+        this[type].textureCoordinates.push(...textureCoordinates);
+        this[type].vertexNormals.push(...vertexNormals);
     },
     build(map, object_map, Y = 0) {
         const GA = map.GA;
@@ -1727,7 +1736,6 @@ const ELEMENT = {
     },
     TOP_FACE: {
         positions: [0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0],
-        //indices: [0, 1, 2, 0, 2, 3],
         indices: [0, 2, 1, 0, 3, 2],
         textureCoordinates: [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0],
         vertexNormals: [0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0],
@@ -1821,7 +1829,7 @@ const ELEMENT = {
             // Top
             0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
             // Bottom
-            0.0, 0.0, 0.1, 0.0, 0.1, 0.1, 0.0, 0.1, ///////////////////
+            0.0, 0.0, 0.1, 0.0, 0.1, 0.1, 0.0, 0.1, 
             // Right
             0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,
             // Left
@@ -1962,7 +1970,7 @@ const UNIFORM = {
     spherical_locations: null,
     spherical_directions: null,
     INI: {
-        MAX_N_PARTICLES: 10000,
+        MAX_N_PARTICLES: 50000,
         SPHERE_R: 0.20,
         MIN_VELOCITY_FACTOR: 0.01,
         MAX_VELOCITY_FACTOR: 0.6
@@ -1972,8 +1980,10 @@ const UNIFORM = {
         console.log(`%cUNIFORM created ${this.INI.MAX_N_PARTICLES} spherical particles.`, WebGL.CSS);
     },
     spherical_distributed(N, R) {
-        this.spherical_locations = [];
-        this.spherical_directions = [];
+        console.time("particles");
+        this.spherical_directions = new Float32Array(N * 3);
+        this.spherical_locations = new Float32Array(N * 3);
+
         for (let c = 0; c < N; c++) {
             let vector = glMatrix.vec3.create();
             for (let v = 0; v < 3; v++) {
@@ -1983,14 +1993,17 @@ const UNIFORM = {
             glMatrix.vec3.normalize(vector, vector);
             let velocity = glMatrix.vec3.create();
             glMatrix.vec3.scale(velocity, vector, RNDF(this.INI.MIN_VELOCITY_FACTOR, this.INI.MAX_VELOCITY_FACTOR));
-            this.spherical_directions = [...this.spherical_directions, ...velocity];
             let location = glMatrix.vec3.create();
             glMatrix.vec3.scale(location, vector, RNDF(0.001, R));
-            this.spherical_locations = [...this.spherical_locations, ...location];
+            let idx = c * 3;
+            this.spherical_directions[idx] = velocity[0];
+            this.spherical_directions[idx + 1] = velocity[1];
+            this.spherical_directions[idx + 2] = velocity[2];
+            this.spherical_locations[idx] = location[0];
+            this.spherical_locations[idx + 1] = location[1];
+            this.spherical_locations[idx + 2] = location[2];
         }
-
-        this.spherical_directions = new Float32Array(this.spherical_directions);
-        this.spherical_locations = new Float32Array(this.spherical_locations);
+        console.timeEnd("particles");
     }
 };
 
