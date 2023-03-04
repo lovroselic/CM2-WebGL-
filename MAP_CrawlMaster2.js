@@ -5,8 +5,9 @@
 
 "use strict";
 
-const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA5", "AA7", "AA8", "AA9", "AMC", "Amberstar", "Apshai", "Arena",
-    "BFF", "Bagitman", "Barbarian1", "Barbarian5", "BeachHead", "BlueMax", "BlueMax2", "BoogaBoo1", "BoogaBoo3",
+const DECAL_PAINTINGS = [
+    "AA1", "AA2", "AA3", "AA5", "AA7", "AA8", "AA9", "AMC", "Amberstar", "Apshai", "Arena",
+    "BFF", "Bagitman", "Barbarian1", "Barbarian5", "BeachHead", "BlueMax", "BoogaBoo1", "BoogaBoo3",
     "C64", "CH1", "CSB1", "CW1", "CW3", "CW6", "Castle", "Commando2",
     "CrystalCastles", "CyberPunk1", "DDID2", "DK", "DK2", "DM1", "DM11", "DM12", "DM4", "DM5", "DM6",
     "Drelbs", "EOB1", "EOB2", "EOB3", "EOB4", "Eric", "FA3", "FF1", "FF2", "FF4",
@@ -64,7 +65,9 @@ const DECAL_PAINTINGS = ["AA1", "AA2", "AA3", "AA5", "AA7", "AA8", "AA9", "AMC",
     "SirFred88", "Sorcery88", "TheHobbit88", "Tornado88", "Tutankhamun88", "Ultima89", "Uridium2", "Valhalla88", "Vixen79", "Wally88", "WhoDaresWins88", "WinterGames79", "Zeppelin88"
 ];
 
-//const DECAL_PAINTINGS = [];
+/*const DECAL_PAINTINGS = [
+    
+];*/
 console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 
 const LIGHT_DECALS = ["WallLamp"];

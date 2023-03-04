@@ -16,7 +16,7 @@ known bugs:
 */
 
 const GRID = {
-  VERSION: "3.09",
+  VERSION: "3.10",
   CSS: "color: #0AA",
   SETTING: {
     ALLOW_CROSS: false,
@@ -38,8 +38,9 @@ const GRID = {
     return GRID.same(actor1.moveState.homeGrid, actor2.moveState.homeGrid);
   },
   gridToCenterPX(grid) {
-    var x = grid.x * ENGINE.INI.GRIDPIX + Math.floor(ENGINE.INI.GRIDPIX / 2);
-    var y = grid.y * ENGINE.INI.GRIDPIX + Math.floor(ENGINE.INI.GRIDPIX / 2);
+    const half = ENGINE.INI.GRIDPIX >>> 1;
+    let x = grid.x * ENGINE.INI.GRIDPIX + half;
+    let y = grid.y * ENGINE.INI.GRIDPIX + half;
     return new Point(x, y);
   },
   gridToSprite(grid, actor) {
@@ -49,11 +50,13 @@ const GRID = {
     GRID.coordToSpriteBottomCenter(GRID.gridToCoord(grid), actor);
   },
   coordToSprite(coord, actor) {
-    actor.x = coord.x + Math.floor(ENGINE.INI.GRIDPIX / 2);
-    actor.y = coord.y + Math.floor(ENGINE.INI.GRIDPIX / 2);
+    const half = ENGINE.INI.GRIDPIX >>> 1;
+    actor.x = coord.x + half;
+    actor.y = coord.y + half;
   },
   coordToSpriteBottomCenter(coord, actor) {
-    actor.x = coord.x + Math.floor(ENGINE.INI.GRIDPIX / 2);
+    const half = ENGINE.INI.GRIDPIX >>> 1;
+    actor.x = coord.x + half;
     actor.y = coord.y + ENGINE.INI.GRIDPIX;
   },
   gridToCoord(grid) {
@@ -62,8 +65,9 @@ const GRID = {
     return new Point(x, y);
   },
   coordToGrid(x, y) {
-    var tx = Math.floor(x / ENGINE.INI.GRIDPIX);
-    var ty = Math.floor(y / ENGINE.INI.GRIDPIX);
+    const gridPix = ENGINE.INI.GRIDPIX;
+    const tx = x >> gridPix;
+    const ty = y >> gridPix;
     return new Grid(tx, ty);
   },
   coordToFP_Grid(x, y) {
@@ -117,40 +121,31 @@ const GRID = {
     }
   },
   paintText(point, text, layer, color = "#FFF") {
-    var CTX = LAYER[layer];
+    const CTX = LAYER[layer];
     CTX.font = "10px Consolas";
-    var y = point.y + ENGINE.INI.GRIDPIX / 2;
-    var x = point.x + ENGINE.INI.GRIDPIX / 2;
+    const half = ENGINE.INI.GRIDPIX >>> 1;
+    let y = point.y + half;
+    let x = point.x + half;
     CTX.fillStyle = color;
     CTX.textAlign = "center";
     CTX.fillText(text, x, y);
   },
   trueToGrid(actor) {
-    var TX = actor.x - Math.floor(ENGINE.INI.GRIDPIX / 2);
-    var TY = actor.y - Math.floor(ENGINE.INI.GRIDPIX / 2);
-    var GX = Math.floor(TX / ENGINE.INI.GRIDPIX);
-    var GY = Math.floor(TY / ENGINE.INI.GRIDPIX);
-    var MX = TX % ENGINE.INI.GRIDPIX;
-    var MY = TY % ENGINE.INI.GRIDPIX;
-    if (MX || MY) {
-      return null;
-    } else return { x: GX, y: GY };
+    const GRIDPIX = ENGINE.INI.GRIDPIX;
+    const TX = actor.x - (GRIDPIX >> 1);
+    const TY = actor.y - (GRIDPIX >> 1);
+    const [GX, GY] = [TX / GRIDPIX | 0, TY / GRIDPIX | 0];
+    const [MX, MY] = [TX % GRIDPIX, TY % GRIDPIX];
+    if (MX || MY) return null;
+    return { x: GX, y: GY };
   },
   same(grid1, grid2) {
-    if (grid1 === null || grid2 === null) return false;
-    if (grid1 === undefined || grid2 === undefined) return false;
-    if (grid1.x === grid2.x && grid1.y === grid2.y) {
-      return true;
-    } else return false;
+    return (grid1 && grid2 && grid1.x === grid2.x && grid1.y === grid2.y);
   },
   isGridIn(grid, gridArray) {
-    for (var q = 0; q < gridArray.length; q++) {
-      if (grid.x === gridArray[q].x && grid.y === gridArray[q].y) {
-        return q;
-      }
-    }
-    return -1;
+    return gridArray.findIndex(g => g.x === grid.x && g.y === grid.y);
   },
+
   contTranslatePosition(entity, lapsedTime) {
     let length = (lapsedTime / 1000) * entity.moveSpeed;
     entity.moveState.pos = entity.moveState.pos.translate(entity.moveState.dir, length);
@@ -527,25 +522,18 @@ var MAPDICT = {
 };
 class GridArray {
   constructor(sizeX, sizeY, byte = 1, fill = 0) {
-    if (byte !== 1 && byte !== 2 && byte !== 4) {
+    if (![1, 2, 4].includes(byte)) {
       console.error("GridArray set up with wrong size. Reset to default 8 bit!");
       byte = 1;
     }
-    let buffer = new ArrayBuffer(sizeX * sizeY * byte);
-    let GM;
-    switch (byte) {
-      case 1:
-        GM = new Uint8Array(buffer);
-        break;
-      case 2:
-        GM = new Uint16Array(buffer);
-        break;
-      case 4:
-        GM = new Uint32Array(buffer);
-        break;
-    }
-    this.width = parseInt(sizeX, 10);
-    this.height = parseInt(sizeY, 10);
+    const byteToType = {
+      1: Uint8Array,
+      2: Uint16Array,
+      4: Uint32Array
+    };
+    const GM = new byteToType[byte](sizeX * sizeY);
+    this.width = sizeX;
+    this.height = sizeY;
     this.maxX = sizeX - 2;
     this.maxY = sizeY - 2;
     this.minX = 1;
@@ -553,9 +541,7 @@ class GridArray {
     this.map = GM;
     this.nodeMap = null;
     this.gridSizeBit = byte * 8;
-    if (fill !== 0) {
-      this.map.fill(fill);
-    }
+    if (fill !== 0) this.map.fill(fill);
   }
   massSet(bin) {
     for (let i = 0; i < this.map.length; i++) {
@@ -573,30 +559,31 @@ class GridArray {
     }
   }
   indexToGrid(index) {
-    let x = index % this.width;
-    let y = Math.floor(index / this.width);
-    return new Grid(x, y);
+    return new Grid(index % this.width, Math.floor(index / this.width));
+  }
+  assertBounds(grid) {
+    if (this.isOutOfBounds(grid)) throw new Error(`Grid is out of bounds: ${grid}`);
   }
   gridToIndex(grid) {
-    if (this.isOutOfBounds(grid)) throw "Grid is out of bounds - ERROR";
+    this.assertBounds(grid);
     return grid.x + grid.y * this.width;
   }
   iset(index, bin) {
     this.map[index] |= bin;
   }
   set(grid, bin) {
-    if (this.isOutOfBounds(grid)) throw "Grid is out of bounds - ERROR";
+    this.assertBounds(grid);
     this.map[this.gridToIndex(grid)] |= bin;
   }
   setValue(grid, value) {
-    if (this.isOutOfBounds(grid)) throw "Grid is out of bounds - ERROR";
+    this.assertBounds(grid);
     this.map[this.gridToIndex(grid)] = value;
   }
   iclear(index, bin) {
     this.map[index] &= (2 ** this.gridSizeBit - 1 - bin);
   }
   clear(grid, bin) {
-    if (this.isOutOfBounds(grid)) throw "Grid is out of bounds - ERROR";
+    this.assertBounds(grid);
     this.map[this.gridToIndex(grid)] &= (2 ** this.gridSizeBit - 1 - bin);
   }
   icheck(index, bin) {
@@ -772,24 +759,10 @@ class GridArray {
     }
   }
   isOut(grid) {
-    if (
-      grid.x > this.maxX ||
-      grid.x < this.minX ||
-      grid.y > this.maxY ||
-      grid.y < this.minY
-    ) {
-      return true;
-    } else return false;
+    return grid.x > this.maxX || grid.x < this.minX || grid.y > this.maxY || grid.y < this.minY;
   }
   isOutOfBounds(grid) {
-    if (
-      grid.x >= this.width ||
-      grid.x < 0 ||
-      grid.y >= this.height ||
-      grid.y < 0
-    ) {
-      return true;
-    } else return false;
+    return grid.x < 0 || grid.x >= this.width || grid.y < 0 || grid.y >= this.height;
   }
   outside(grid) {
     return this.isOutOfBounds(grid);
@@ -814,38 +787,47 @@ class GridArray {
     return this.value(next, value);
   }
   setNodeMap(where = "nodeMap", path = [0], type = "value", block = [], cls = PathNode) {
-    let map = [];
+    const map = new Array(this.width);
+    const pathSum = path.sum();
+
     for (let x = 0; x < this.width; x++) {
-      map[x] = [];
+      const mapX = map[x] = new Array(this.height);
+
       for (let y = 0; y < this.height; y++) {
+        const grid = new Grid(x, y);
+
         let carve;
         switch (type) {
           case "value":
-            let value = this.map[this.gridToIndex(new Grid(x, y))];
-            carve = path.includes(value);
+            carve = path.includes(this.map[this.gridToIndex(grid)]);
             break;
           case "exclude":
-            carve = !this.check(new Grid(x, y), path.sum());
+            carve = !this.check(grid, pathSum);
             break;
           case "include":
-            carve = this.check(new Grid(x, y), path.sum());
+            carve = this.check(grid, pathSum);
             break;
           default:
-            console.error("nodeMape type error!");
+            console.error("nodeMap type error!");
+            return;
         }
 
         if (carve) {
-          map[x][y] = new cls(x, y);
+          mapX[y] = new cls(x, y);
         } else {
-          map[x][y] = null;
+          mapX[y] = null;
         }
       }
     }
 
-    block.forEach((obj) => (map[obj.x][obj.y] = null));
+    for (const obj of block) {
+      map[obj.x][obj.y] = null;
+    }
+
     this[where] = map;
     return map;
   }
+
   getDirectionsFromNodeMap(grid, nodeMap, leaveOut = null, allowCross = false) {
     var directions = [];
     for (let D = 0; D < ENGINE.directions.length; D++) {
@@ -1119,11 +1101,8 @@ class GridArray {
   }
   pointsAroundEntity(pos, dir, r, resolution = 4) {
     let checks = [];
-    for (
-      let theta = 0;
-      theta < 2 * Math.PI;
-      theta += (2 * Math.PI) / resolution
-    ) {
+    const increment = (2 * Math.PI) / resolution;
+    for (let theta = 0; theta < 2 * Math.PI; theta += increment) {
       checks.push(pos.translate(dir.rotate(theta), r));
     }
     return checks;
@@ -1176,10 +1155,10 @@ class NodeArray {
      */
     this.width = GA.width;
     this.height = GA.height;
-    this.map = Array(this.width * this.height);
-    this.map = this.map.fill(null);
+    this.map = Array.from({ length: this.width * this.height }, () => null);
+    const ignoreSum = 2 ** GA.gridSizeBit - 1 - ignore.sum();
     for (let [index, _] of this.map.entries()) {
-      let check = GA.map[index] & (2 ** GA.gridSizeBit - 1 - ignore.sum());
+      let check = GA.map[index] & ignoreSum;
       let carve;
       switch (type) {
         case 'value':
@@ -1200,31 +1179,22 @@ class NodeArray {
     this.map[index][property] = value;
   }
   indexToGrid(index) {
-    let x = index % this.width;
-    let y = Math.floor(index / this.width);
-    return new Grid(x, y);
+    return new Grid(index % this.width, Math.floor(index / this.width));
+  }
+  assertBounds(grid) {
+    if (this.isOutOfBounds(grid)) throw new Error(`Grid is out of bounds: ${grid}`);
   }
   gridToIndex(grid) {
-    if (this.isOutOfBounds(grid)) {
-      console.error("grid", grid);
-      throw "Grid out of bounds...";
-    }
+    this.assertBounds(grid);
     return grid.x + grid.y * this.width;
   }
   isOutOfBounds(grid) {
-    if (
-      grid.x >= this.width ||
-      grid.x < 0 ||
-      grid.y >= this.height ||
-      grid.y < 0
-    ) {
-      return true;
-    } else return false;
+    return grid.x >= this.width || grid.x < 0 || grid.y >= this.height || grid.y < 0;
   }
 }
 class IndexArray {
   constructor(sizeX = 1, sizeY = 1, byte = 1, banks = 1) {
-    if (byte !== 1 && byte !== 2 && byte !== 4) {
+    if (![1, 2, 4].includes(byte)) {
       console.error("IndexArray set up with wrong size. Reset to default 8 bit!");
       byte = 1;
     }
@@ -1233,25 +1203,18 @@ class IndexArray {
       console.error("Illegal value for banks. Set to default 4!");
       banks = byte * 4;
     }
-    let buffer = new ArrayBuffer(sizeX * sizeY * byte);
-    let GM;
-    switch (byte) {
-      case 1:
-        GM = new Uint8Array(buffer);
-        break;
-      case 2:
-        GM = new Uint16Array(buffer);
-        break;
-      case 4:
-        GM = new Uint32Array(buffer);
-        break;
-    }
-    this.width = parseInt(sizeX, 10);
-    this.height = parseInt(sizeY, 10);
+    const byteToType = {
+      1: Uint8Array,
+      2: Uint16Array,
+      4: Uint32Array
+    };
+    const GM = new byteToType[byte](sizeX * sizeY);
+    this.width = sizeX;
+    this.height = sizeY;
     this.gridSizeBit = byte * 8;
     this.map = GM;
     this.banks = banks;
-    this.bankBitWidth = (this.gridSizeBit / this.banks) >>> 0;
+    this.bankBitWidth = this.gridSizeBit / this.banks;
     this.layerSize = 2 ** this.bankBitWidth - 1;
   }
   indexToGrid(index) {
@@ -1261,29 +1224,19 @@ class IndexArray {
   }
   gridToIndex(grid) {
     if (this.isOutOfBounds(grid)) {
-      console.error("grid", grid);
-      throw "Grid out of bounds...";
+      throw new Error(`Grid (${x}, ${y}) is out of bounds.`);
     }
     return grid.x + grid.y * this.width;
   }
   isOutOfBounds(grid) {
-    if (
-      grid.x >= this.width ||
-      grid.x < 0 ||
-      grid.y >= this.height ||
-      grid.y < 0
-    ) {
-      return true;
-    } else return false;
+    return grid.x < 0 || grid.x >= this.width || grid.y < 0 || grid.y >= this.height;
   }
   validate(bank, indexValue) {
     if (bank >= this.banks || bank < 0) {
-      console.error("bank", bank, "max:", this.banks - 1);
-      throw "Illegal bank value error.";
+      throw new Error(`Illegal bank value. Expected value between 0 and ${this.banks - 1}, but got ${bank}.`);
     }
     if (indexValue > this.layerSize || indexValue <= 0) {
-      console.error("indexValue", indexValue, "max:", this.layerSize);
-      throw "Illegal indexValue error.";
+      throw new Error(`Illegal indexValue. Expected value between 1 and ${this.layerSize}, but got ${indexValue}.`);
     }
   }
   add(grid, indexValue, bank) {
@@ -1301,49 +1254,47 @@ class IndexArray {
     } else return -1;
   }
   nextFreeBank(grid) {
-    let index = this.gridToIndex(grid);
+    const index = this.gridToIndex(grid);
     let layerValue = this.map[index];
     let bank = 0;
+    const bankBitWidth = this.bankBitWidth;
+    const banks = this.banks;
     while (layerValue > 0) {
-      layerValue = layerValue >>> this.bankBitWidth;
+      layerValue = layerValue >>> bankBitWidth;
       bank++;
-      if (bank >= this.banks) {
+      if (bank >= banks) {
         return -1;
       }
     }
     return bank;
   }
   unroll(grid) {
-    let index = this.gridToIndex(grid);
-    let items = [];
+    const index = this.gridToIndex(grid);
+    const items = [];
     let layerValue = this.map[index];
     for (let i = 0; i < this.banks; i++) {
-      let current = layerValue & this.layerSize;
-      if (current !== 0) {
-        items.push(current);
-      }
-      layerValue = layerValue >>> this.bankBitWidth;
+      const current = layerValue & this.layerSize;
+      if (current) items.push(current);
+      layerValue >>>= this.bankBitWidth;
     }
     return items;
   }
   unrollArray(arr) {
     let items = [];
     for (let a of arr) {
-      items = items.concat(this.unroll(a));
+      items.push(...this.unroll(a));
     }
     return new Set(items);
   }
   clear(grid) {
-    let index = this.gridToIndex(grid);
-    this.map[index] = 0;
+    this.map[this.gridToIndex(grid)] = 0;
   }
   empty(grid) {
     return this.map[this.gridToIndex(grid)] === 0;
   }
   set(grid, indexValue, bank) {
     if (bank === undefined) {
-      let index = this.gridToIndex(grid);
-      this.map[index] = indexValue;
+      this.map[this.gridToIndex(grid)] = indexValue;
     } else {
       this.clear(grid);
       this.validate(bank, indexValue);
@@ -1351,8 +1302,7 @@ class IndexArray {
     }
   }
   get(grid) {
-    let index = this.gridToIndex(grid);
-    return this.map[index];
+    return this.map[this.gridToIndex(grid)];
   }
   has(grid, indexValue) {
     let items = this.unroll(grid);
