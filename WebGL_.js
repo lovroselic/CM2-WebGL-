@@ -67,8 +67,13 @@
  * https://www.youtube.com/watch?v=ro4bDXcISms
  * 
  * https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#properties-reference
+ * https://github.com/KhronosGroup/glTF/tree/main/specification/2.0
+ * https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0
+ * https://raw.githubusercontent.com/javagl/JglTF/master/images/gltfOverview-0.2.0.png
  * https://github.com/mattdesl/gl-constants/blob/master/1.0/numbers.js
- * https://youtu.be/cWo-sghCp8Y?t=1815
+ * https://youtu.be/cWo-sghCp8Y?t=4559
+ * https://github.khronos.org/glTF-Tutorials/gltfTutorial/gltfTutorial_001_Introduction.html
+ * https://toji.github.io/webgpu-gltf-case-study/
  */
 
 const WebGL = {
@@ -618,7 +623,7 @@ const WebGL = {
     },
 
     /** buffer manipulation, unused, keep for information */
-
+    /*
     hideCube(id, type) {
         let offset = (this.world.positionOffset[`${type}_start`] + ((id - 1) * 72)) * 4;
         let data = ELEMENT.CUBE.hidden;
@@ -629,6 +634,7 @@ const WebGL = {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.position);
         gl.bufferSubData(gl.ARRAY_BUFFER, offset, data);
     },
+    */
 
     /** end buffer manipulation */
 
@@ -641,11 +647,7 @@ const WebGL = {
             WebGL.DATA.window = id;
             WebGL.DATA.layer = ENGINE.getCanvasName(id);
             ENGINE.topCanvas = WebGL.DATA.layer;
-            $(WebGL.DATA.layer).on(
-                "mousemove",
-                { layer: WebGL.DATA.layer },
-                ENGINE.readMouse
-            );
+            $(WebGL.DATA.layer).on("mousemove", { layer: WebGL.DATA.layer }, ENGINE.readMouse);
             console.log(`%cWebGL.MOUSE -> window ${WebGL.DATA.window}, layer: ${WebGL.DATA.layer}`, WebGL.CSS);
         },
         click(hero) {
@@ -659,21 +661,20 @@ const WebGL = {
                     gl.readPixels(pixelX, pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data);
                     const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
                     //console.warn("id", id);
-                    if (id > 0) {
-                        const obj = GLOBAL_ID_MANAGER.getObject(id);
-                        if (!obj) return;
-                        if (!obj.interactive) return;
-                        console.log("obj", obj, obj.grid, obj.constructor.name);
-                        let PPos2d = Vector3.to_FP_Grid(hero.player.pos);
-                        let itemGrid = obj.grid;
-                        if (obj.constructor.name === "Gate") {
-                            itemGrid = Grid.toCenter(obj.grid);
-                        }
-                        let distance = PPos2d.EuclidianDistance(itemGrid);
-                        console.log("distance", distance);
-                        if (distance < WebGL.INI.INTERACT_DISTANCE) {
-                            return obj.interact(hero.player.GA, hero.inventory);
-                        }
+                    if (id <= 0) return;
+                    const obj = GLOBAL_ID_MANAGER.getObject(id);
+                    if (!obj) return;
+                    if (!obj.interactive) return;
+                    //console.log("obj", obj, obj.grid, obj.constructor.name);
+                    let PPos2d = Vector3.to_FP_Grid(hero.player.pos);
+                    let itemGrid = obj.grid;
+                    if (obj.constructor.name === "Gate") {
+                        itemGrid = Grid.toCenter(obj.grid);
+                    }
+                    let distance = PPos2d.EuclidianDistance(itemGrid);
+                    //console.log("distance", distance);
+                    if (distance < WebGL.INI.INTERACT_DISTANCE) {
+                        return obj.interact(hero.player.GA, hero.inventory);
                     }
                 }
             }
@@ -874,7 +875,7 @@ const WORLD = {
         let indices = E.indices.slice();
         let textureCoordinates = E.textureCoordinates.slice();
         let vertexNormals = E.vertexNormals.slice();
-        
+
         //positions
         for (let p = 0; p < positions.length; p += 3) {
             if (scale) {
@@ -1057,8 +1058,6 @@ class $3D_player {
 
         let nextPos3 = this.pos.translate(dir, length); //3D
         let nextPos = Vector3.to_FP_Grid(nextPos3);
-
-        //check if staircase
         let bump = this.usingStaircase(nextPos);
         if (bump !== null) {
             bump.interact(this);
@@ -1066,9 +1065,25 @@ class $3D_player {
         }
 
         if (this.bumpEnemy(nextPos)) return;
-
         let check = this.GA.entityNotInWall(nextPos, Vector3.to_FP_Vector(dir), this.r);
 
+        if (check) {
+            this.pos = nextPos3;
+        }
+    }
+    strafe(rotDirection, lapsedTime) {
+        let length = (lapsedTime / 1000) * this.moveSpeed;
+        let dir = Vector3.from_2D_dir(this.dir.rotate2D((rotDirection * Math.PI) / 2), this.dir.y);
+        let nextPos3 = this.pos.translate(dir, length);
+        let nextPos = Vector3.to_FP_Grid(nextPos3);
+        let bump = this.usingStaircase(nextPos);
+        if (bump !== null) {
+            bump.interact(this);
+            return;
+        }
+
+        if (this.bumpEnemy(nextPos)) return;
+        let check = this.GA.entityNotInWall(nextPos, Vector3.to_FP_Vector(dir), this.r);
         if (check) {
             this.pos = nextPos3;
         }
@@ -1094,26 +1109,6 @@ class $3D_player {
             }
         }
         return null;
-    }
-    strafe(rotDirection, lapsedTime) {
-        let length = (lapsedTime / 1000) * this.moveSpeed;
-        let dir = Vector3.from_2D_dir(this.dir.rotate2D((rotDirection * Math.PI) / 2), this.dir.y);
-        let nextPos3 = this.pos.translate(dir, length);
-        let nextPos = Vector3.to_FP_Grid(nextPos3);
-        //check if staircase
-        //let bump = this.usingStaircase(nextPos);
-        let bump = null;
-        if (bump !== null) {
-            bump.interact();
-            return;
-        }
-
-        if (this.bumpEnemy(nextPos)) return;
-        let check = this.GA.entityNotInWall(nextPos, Vector3.to_FP_Vector(dir), this.r);
-        if (check) {
-            this.pos = nextPos3;
-        }
-        //this.log();
     }
     log() {
         console.log("pos:", this.pos, "dir", this.dir);
@@ -1285,7 +1280,6 @@ class LiftingGate {
         this.gate.pos = this.gate.pos.add(new Vector3(0, dY, 0));
     }
     done() {
-
         return this.gate.pos.y > 1.0;
     }
     remove() {
@@ -1335,7 +1329,7 @@ class FloorItem3D {
         this.rotationY = identity;
     }
     interact(GA, inventory) {
-        console.log(this, "interaction", this.category);
+        //console.log(this, "interaction", this.category);
         this.active = false;
         return {
             category: this.category,
@@ -1605,7 +1599,7 @@ class ParticleExplosion extends ParticleEmmiter {
         this.gravity = new Float32Array([0, 0.0075, 0]);
         this.velocity = 0.03;
         this.rounded = 1;
-        console.log("ParticleEmmiter", this);
+        //console.log("ParticleEmmiter", this);
     }
 }
 
@@ -1620,7 +1614,7 @@ class BloodExplosion extends ParticleEmmiter {
         this.gravity = new Float32Array([0, 0.0025, 0]);
         this.velocity = 0.0075;
         this.rounded = 1;
-        console.log("ParticleEmmiter", this);
+        //console.log("ParticleEmmiter", this);
     }
 }
 
@@ -1635,7 +1629,7 @@ class SmokeExplosion extends ParticleEmmiter {
         this.gravity = new Float32Array([0, -0.0025, 0]);
         this.velocity = 0.005;
         this.rounded = 1;
-        console.log("ParticleEmmiter", this);
+        //console.log("ParticleEmmiter", this);
     }
 }
 
@@ -1650,36 +1644,25 @@ class WoodExplosion extends ParticleEmmiter {
         this.gravity = new Float32Array([0, 0.0005, 0]);
         this.velocity = 0.0025;
         this.rounded = 0;
-        console.log("ParticleEmmiter", this);
+        //console.log("ParticleEmmiter", this);
     }
 }
 
 /** Utility functions */
 
 const FaceToOffset = function (face, E = 0) {
-    let x, y;
-    switch (face) {
-        case "FRONT":
-            x = 0.5;
-            y = 1.0 + E;
-            break;
-        case "BACK":
-            x = 0.5;
-            y = 0.0 - E;
-            break;
-        case "LEFT":
-            x = 0.0 - E;
-            y = 0.5;
-            break;
-        case "RIGHT":
-            x = 1.0 + E;
-            y = 0.5;
-            break;
-        default:
-            console.error("FaceToOffset, invalid face", face);
-            break;
+    const offsets = {
+        "FRONT": { x: 0.5, y: 1.0 + E },
+        "BACK": { x: 0.5, y: 0.0 - E },
+        "LEFT": { x: 0.0 - E, y: 0.5 },
+        "RIGHT": { x: 1.0 + E, y: 0.5 }
+    };
+    const offset = offsets[face];
+    if (!offset) {
+        console.error("FaceToOffset, invalid face", face);
+        return null;
     }
-    return new FP_Grid(x, y);
+    return new FP_Grid(offset.x, offset.y);
 };
 
 const FaceToDirection = function (face) {
@@ -1694,7 +1677,6 @@ const FaceToDirection = function (face) {
             return RIGHT;
         default:
             console.error("FaceToDirection, invalid face", face);
-            break;
     }
 };
 
@@ -1702,13 +1684,13 @@ const FaceToDirection = function (face) {
 
 const ELEMENT = {
     getMinY(element) {
-        let max = Infinity;
+        let minY = Infinity;
         for (let i = 0; i < element.positions.length; i += 3) {
-            if (element.positions[i + 1] < max) {
-                max = element.positions[i + 1];
+            if (element.positions[i + 1] < minY) {
+                minY = element.positions[i + 1];
             }
         }
-        return max;
+        return minY;
     },
     FRONT_FACE: {
         positions: [0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0],
@@ -1829,7 +1811,7 @@ const ELEMENT = {
             // Top
             0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
             // Bottom
-            0.0, 0.0, 0.1, 0.0, 0.1, 0.1, 0.0, 0.1, 
+            0.0, 0.0, 0.1, 0.0, 0.1, 0.1, 0.0, 0.1,
             // Right
             0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,
             // Left

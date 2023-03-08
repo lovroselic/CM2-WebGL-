@@ -353,6 +353,7 @@ const GRID = {
     return directions;
   }
 };
+
 class PathNode {
   constructor(x, y) {
     this.distance = Infinity;
@@ -367,6 +368,7 @@ class PathNode {
     this.priority = this.path + this.distance;
   }
 }
+
 class BinHeap {
   constructor(prop) {
     this.HEAP = [];
@@ -431,6 +433,7 @@ class BinHeap {
     }
   }
 }
+
 class SearchNode {
   constructor(HG, goal, stack, path, history, iterations) {
     this.grid = HG;
@@ -449,6 +452,7 @@ class SearchNode {
     return new SearchNode(node.grid, goal, stack, path, history);
   }
 }
+
 class BlindNode {
   constructor(HG, stack, path, history, iterations) {
     this.grid = HG;
@@ -459,6 +463,7 @@ class BlindNode {
     this.iterations = iterations || 0;
   }
 }
+
 class NodeQ {
   constructor(prop) {
     this.list = [];
@@ -503,7 +508,8 @@ class NodeQ {
     if (!included) this.list.push(node);
   }
 }
-var MAPDICT = {
+
+const MAPDICT = {
   EMPTY: 0, //0
   WALL: 2 ** 0, //1
   ROOM: 2 ** 1, //2
@@ -520,8 +526,33 @@ var MAPDICT = {
   DEAD_END: 2 ** 6, //64
   WATER: 2 ** 7, //128 - fog,water should remain largest!
 };
-class GridArray {
+
+class ArrayBasedDataStructure {
+  constructor() { };
+  indexToGrid(index) {
+    return new Grid(index % this.width, index / this.width | 0);
+  }
+  assertBounds(grid) {
+    if (this.isOutOfBounds(grid)) throw new Error(`Grid is out of bounds: ${grid}`);
+  }
+  gridToIndex(grid) {
+    this.assertBounds(grid);
+    return grid.x + grid.y * this.width;
+  }
+  isOut(grid) {
+    return grid.x > this.maxX || grid.x < this.minX || grid.y > this.maxY || grid.y < this.minY;
+  }
+  isOutOfBounds(grid) {
+    return grid.x < 0 || grid.x >= this.width || grid.y < 0 || grid.y >= this.height;
+  }
+  outside(grid) {
+    return this.isOutOfBounds(grid);
+  }
+}
+
+class GridArray extends ArrayBasedDataStructure {
   constructor(sizeX, sizeY, byte = 1, fill = 0) {
+    super();
     if (![1, 2, 4].includes(byte)) {
       console.error("GridArray set up with wrong size. Reset to default 8 bit!");
       byte = 1;
@@ -557,16 +588,6 @@ class GridArray {
     for (const entity of entities) {
       entity.moveState.gridArray = this;
     }
-  }
-  indexToGrid(index) {
-    return new Grid(index % this.width, Math.floor(index / this.width));
-  }
-  assertBounds(grid) {
-    if (this.isOutOfBounds(grid)) throw new Error(`Grid is out of bounds: ${grid}`);
-  }
-  gridToIndex(grid) {
-    this.assertBounds(grid);
-    return grid.x + grid.y * this.width;
   }
   iset(index, bin) {
     this.map[index] |= bin;
@@ -758,15 +779,6 @@ class GridArray {
       }
     }
   }
-  isOut(grid) {
-    return grid.x > this.maxX || grid.x < this.minX || grid.y > this.maxY || grid.y < this.minY;
-  }
-  isOutOfBounds(grid) {
-    return grid.x < 0 || grid.x >= this.width || grid.y < 0 || grid.y >= this.height;
-  }
-  outside(grid) {
-    return this.isOutOfBounds(grid);
-  }
   toOtherSide(grid) {
     grid.x = (grid.x + this.width) % this.width;
     grid.y = (grid.y + this.height) % this.height;
@@ -827,7 +839,6 @@ class GridArray {
     this[where] = map;
     return map;
   }
-
   getDirectionsFromNodeMap(grid, nodeMap, leaveOut = null, allowCross = false) {
     var directions = [];
     for (let D = 0; D < ENGINE.directions.length; D++) {
@@ -1148,8 +1159,9 @@ class GridArray {
     return GA;
   }
 }
-class NodeArray {
+class NodeArray extends ArrayBasedDataStructure {
   constructor(GA, CLASS, path = [0], ignore = [], type = 'value') {
+    super();
     /**
      * always constructed from GridArray
      */
@@ -1178,22 +1190,10 @@ class NodeArray {
   I_set(index, property, value) {
     this.map[index][property] = value;
   }
-  indexToGrid(index) {
-    return new Grid(index % this.width, Math.floor(index / this.width));
-  }
-  assertBounds(grid) {
-    if (this.isOutOfBounds(grid)) throw new Error(`Grid is out of bounds: ${grid}`);
-  }
-  gridToIndex(grid) {
-    this.assertBounds(grid);
-    return grid.x + grid.y * this.width;
-  }
-  isOutOfBounds(grid) {
-    return grid.x >= this.width || grid.x < 0 || grid.y >= this.height || grid.y < 0;
-  }
 }
-class IndexArray {
+class IndexArray extends ArrayBasedDataStructure {
   constructor(sizeX = 1, sizeY = 1, byte = 1, banks = 1) {
+    super();
     if (![1, 2, 4].includes(byte)) {
       console.error("IndexArray set up with wrong size. Reset to default 8 bit!");
       byte = 1;
@@ -1216,20 +1216,6 @@ class IndexArray {
     this.banks = banks;
     this.bankBitWidth = this.gridSizeBit / this.banks;
     this.layerSize = 2 ** this.bankBitWidth - 1;
-  }
-  indexToGrid(index) {
-    let x = index % this.width;
-    let y = Math.floor(index / this.width);
-    return new Grid(x, y);
-  }
-  gridToIndex(grid) {
-    if (this.isOutOfBounds(grid)) {
-      throw new Error(`Grid (${x}, ${y}) is out of bounds.`);
-    }
-    return grid.x + grid.y * this.width;
-  }
-  isOutOfBounds(grid) {
-    return grid.x < 0 || grid.x >= this.width || grid.y < 0 || grid.y >= this.height;
   }
   validate(bank, indexValue) {
     if (bank >= this.banks || bank < 0) {
@@ -1325,7 +1311,8 @@ class IndexArray {
     return false;
   }
 }
-var MINIMAP = {
+
+const MINIMAP = {
   LEGEND: {
     FOG: "#BBB",
     BORDER: "#FFF",
@@ -1364,15 +1351,13 @@ var MINIMAP = {
     this.DATA.y = y;
   },
   calcSize(W, H) {
-    let WPS = (W / this.DATA.dungeon.width) | 0;
-    let HPS = (H / this.DATA.dungeon.height) | 0;
-    this.DATA.PIX_SIZE = Math.min(WPS, HPS);
-    let newW = this.DATA.dungeon.width * this.DATA.PIX_SIZE;
-    let newH = this.DATA.dungeon.height * this.DATA.PIX_SIZE;
-    this.DATA.drawX = this.DATA.x + Math.floor((W - newW) / 2);
-    this.DATA.drawY = this.DATA.y + Math.floor((H - newH) / 2);
-    this.DATA.w = newW;
-    this.DATA.h = newH;
+    const widthRatio = W / this.DATA.dungeon.width;
+    const heightRatio = H / this.DATA.dungeon.height;
+    this.DATA.PIX_SIZE = Math.min(widthRatio, heightRatio) | 0;
+    this.DATA.w = this.DATA.dungeon.width * this.DATA.PIX_SIZE;
+    this.DATA.h = this.DATA.dungeon.height * this.DATA.PIX_SIZE;
+    this.DATA.drawX = this.DATA.x + ((W - this.DATA.w) / 2) | 0;
+    this.DATA.drawY = this.DATA.y + ((H - this.DATA.h) / 2) | 0;
   },
   draw(player) {
     ENGINE.clearLayer(this.DATA.layer);

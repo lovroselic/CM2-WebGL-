@@ -7,7 +7,7 @@
 
 const DECAL_PAINTINGS = [
     "AA1", "AA2", "AA3", "AA5", "AA7", "AA8", "AA9", "AMC", "Amberstar", "Apshai", "Arena",
-    "BFF", "Bagitman", "Barbarian1", "Barbarian5", "BeachHead", "BlueMax", "BoogaBoo1", "BoogaBoo3",
+    "BFF", "Bagitman", "Barbarian1", "Barbarian5", "BeachHead", "BoogaBoo1", "BoogaBoo3",
     "C64", "CH1", "CSB1", "CW1", "CW3", "CW6", "Castle", "Commando2",
     "CrystalCastles", "CyberPunk1", "DDID2", "DK", "DK2", "DM1", "DM11", "DM12", "DM4", "DM5", "DM6",
     "Drelbs", "EOB1", "EOB2", "EOB3", "EOB4", "Eric", "FA3", "FF1", "FF2", "FF4",
@@ -78,8 +78,6 @@ const TOP_CRESTS = ["Grate1_128"];
 const BOTTOM_CRESTS = ["Drain2_96", "Drain64", "Grate1_128", "RoundGrille96"];
 //const DECAL_CRESTS = [];
 console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
-
-
 
 console.log("%cMAP for CrawlMaster2 loaded.", "color: #888");
 //{"width":"16","height":"16","map":"BB9ABB10AA26BAA10BAA20BAA9BAA8BB2AA2BAA6BAA9BAA6BB3ABAA2BB6AA2BAA10BABAA2BB2AA8BB9ABB2ABAA2BAA2BB2AA2BAA7BB2AA5BABABB2AA4BB6ABB2ABAA2BB9ABB18A$"}

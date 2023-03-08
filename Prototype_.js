@@ -6,7 +6,7 @@
 console.clear();
 
 var LIB = {
-  VERSION: "3.07",
+  VERSION: "3.10",
   CSS: "color: #EFE",
   log: function () {
     console.log(`%cPrototype LIB ${LIB.VERSION} loaded`, LIB.CSS);
@@ -22,33 +22,27 @@ changelog:
 3.04: updates for Invasion
 3.05: RNDF, updates for RUN, Set prototypes, substr -> substring updates;
 3.06: 3d vectors
+3.10: optimized, binarySearch
 */
 
 (function () {
   function RND(start, end) {
     return Math.floor(Math.random() * (++end - start) + start);
   }
-
   function RNDF(start, end) {
     return (Math.random() * (end + 0.01 - start) * 100 + start * 100) / 100;
   }
   function RandomFloat(start, end) {
     return Math.random * (end - start) + start;
   }
-
   function coinFlip() {
-    let flip = RND(0, 1);
-    if (flip) return true;
-    return false;
+    return RND(0, 1) === 1;
   }
   function randomSign() {
-    if (coinFlip()) return 1;
-    else return -1;
+    return coinFlip() ? 1 : -1;
   }
   function probable(x) {
-    let flip = RND(0, 100);
-    if (flip <= x) return true;
-    return false;
+    return RND(0, 100) <= x;
   }
   function roundN(x, N) {
     return Math.round(x / N) * N;
@@ -69,7 +63,6 @@ changelog:
     }
     return null;
   }
-
   function colorStringToVector(str) {
     if (!/^#[0-9A-Fa-f]{6}$/.test(str)) {
       throw new Error(`Invalid color string: ${str}`);
@@ -80,6 +73,18 @@ changelog:
     vec[2] = parseInt(str.substring(5, 7), 16) / 255;
 
     return vec;
+  }
+  function binarySearch(arr, target) {
+    let low = 0, high = arr.length;
+    while (low < high) {
+      let mid = (low + high) >>> 1;
+      if (arr[mid] < target) {
+        low = mid + 1;
+      } else {
+        high = mid;
+      }
+    }
+    return low;
   }
 
   window.RND = RND;
@@ -93,6 +98,7 @@ changelog:
   window.randomSign = randomSign;
   window.weightedRnd = weightedRnd;
   window.colorStringToVector = colorStringToVector;
+  window.binarySearch = binarySearch;
 })();
 
 // Converts from degrees to radians.
@@ -114,40 +120,23 @@ CanvasRenderingContext2D.prototype.pixelAt = function (x, y, size = 1) {
 CanvasRenderingContext2D.prototype.pixelAtPoint = function (point, size = 1) {
   this.fillRect(point.x, point.y, size, size);
 };
-CanvasRenderingContext2D.prototype.roundRect = function (
-  x,
-  y,
-  width,
-  height,
-  radius,
-  fill,
-  stroke
-) {
-  var cornerRadius = {
+CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, radius, fill = false, stroke = true) {
+  let cornerRadius = {
     upperLeft: 0,
     upperRight: 0,
     lowerLeft: 0,
     lowerRight: 0
   };
-  if (typeof stroke == "undefined") {
-    stroke = true;
-  }
+
   if (typeof radius === "object") {
-    for (let side in radius) {
-      cornerRadius[side] = radius[side];
-    }
+    Object.assign(cornerRadius, radius);
   }
   this.beginPath();
   this.moveTo(x + cornerRadius.upperLeft, y);
   this.lineTo(x + width - cornerRadius.upperRight, y);
   this.quadraticCurveTo(x + width, y, x + width, y + cornerRadius.upperRight);
   this.lineTo(x + width, y + height - cornerRadius.lowerRight);
-  this.quadraticCurveTo(
-    x + width,
-    y + height,
-    x + width - cornerRadius.lowerRight,
-    y + height
-  );
+  this.quadraticCurveTo(x + width, y + height, x + width - cornerRadius.lowerRight, y + height);
   this.lineTo(x + cornerRadius.lowerLeft, y + height);
   this.quadraticCurveTo(x, y + height, x, y + height - cornerRadius.lowerLeft);
   this.lineTo(x, y + cornerRadius.upperLeft);
@@ -164,13 +153,10 @@ CanvasRenderingContext2D.prototype.roundRect = function (
 /* collection of prototypes LS */
 
 Array.prototype.clear = function () {
-  if (!this) return false;
-  this.splice(0, this.length);
+  this.length = 0;
 };
 Array.prototype.swap = function (x, y) {
-  let TMP = this[x];
-  this[x] = this[y];
-  this[y] = TMP;
+  [this[x], this[y]] = [this[y], this[x]];
 };
 Array.prototype.shuffle = function () {
   var i = this.length,
@@ -387,12 +373,7 @@ class Grid {
     return new Grid(this.x + vector.x * mul, this.y + vector.y * mul);
   }
   isInAt(dirArray) {
-    for (let q = 0; q < dirArray.length; q++) {
-      if (this.x === dirArray[q].x && this.y === dirArray[q].y) {
-        return q;
-      }
-    }
-    return -1;
+    return dirArray.findIndex(dir => dir.x === this.x && dir.y === this.y);
   }
   direction(vector) {
     var dx = (vector.x - this.x) / Math.abs(this.x - vector.x) || 0;
@@ -405,18 +386,14 @@ class Grid {
     return new Vector(dx, dy);
   }
   same(vector) {
-    if (this.x === vector.x && this.y === vector.y) {
-      return true;
-    } else return false;
+    return (this.x === vector.x && this.y === vector.y);
   }
   distance(vector) {
-    let distance = Math.abs(this.x - vector.x) + Math.abs(this.y - vector.y);
-    return distance;
+    return Math.abs(this.x - vector.x) + Math.abs(this.y - vector.y);
   }
   distanceDiagonal(vector) {
     let distance = (this.x - vector.x) ** 2 + (this.y - vector.y) ** 2;
-    distance = Math.floor(Math.sqrt(distance));
-    return distance;
+    return Math.sqrt(distance) | 0;
   }
   directionSolutions(grid) {
     let solutions = [];

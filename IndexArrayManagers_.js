@@ -639,8 +639,8 @@ const GLOBAL_ID_MANAGER = {
     offset: [0],
     IAM: [],
     getObject(globalId) {
-        console.log("getObject", this.offset, this.IAM);
-        console.log("globalId", globalId);
+        //console.log("getObject", this.offset, this.IAM);
+        //console.log("globalId", globalId);
         if (this.offset.length < 2) return null;
         let idx = 1;
         while (idx < this.offset.length && globalId >= this.offset[idx]) {
@@ -648,7 +648,7 @@ const GLOBAL_ID_MANAGER = {
         }
         idx--;
         let id = globalId - this.offset[idx];
-        console.log("..id", id, "idx", idx);
+        //console.log("..id", id, "idx", idx);
         return this.IAM[idx].POOL[id - 1];
     }
 };
