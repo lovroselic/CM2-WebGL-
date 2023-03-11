@@ -33,6 +33,7 @@ var LoadRotatedSheetSequences = null;
 var LoadSheetSequences = null;
 var LoadShaders = null;
 var LoadObjects = null;
+var LoadModels = null;
 
 //vector definitions
 const UP = new Vector(0, -1);
@@ -81,6 +82,7 @@ const ENGINE = {
   FONT_SOURCE: "https://www.c00lsch00l.eu/Fonts/",
   SHADER_SOURCE: "./Assets/",
   OBJECT_SOURCE: "./Objects/",
+  MODEL_SOURCE: "./Models/",
   checkProximity: true, //check proximity before pixel perfect evaluation of collision to background
   LOAD_W: 160,
   LOAD_H: 22,
@@ -1170,6 +1172,7 @@ const ENGINE = {
     RotSeq: 0,
     Shaders: 0,
     Objects: 0,
+    Models: 0,
     HMRotSeq: null,
     HMSheetSequences: null,
     HMFonts: null,
@@ -1183,6 +1186,8 @@ const ENGINE = {
     HMPacks: null,
     HMShaders: null,
     HMObjects: null,
+    HMModels: null,
+
     async preload() {
       console.time("preloading");
       console.group("preload");
@@ -1200,7 +1205,8 @@ const ENGINE = {
         loadWASM(),
         loadAllFonts(),
         loadShaders(),
-        loadObjects()
+        loadObjects(),
+        loadGLTF(),
       ];
 
       await Promise.allSettled(allPromises);
@@ -1437,6 +1443,7 @@ const ENGINE = {
           });
         } catch (error) {
           console.error(`Failed to load shaders: ${error}`);
+          return false;
         }
       }
 
@@ -1454,6 +1461,7 @@ const ENGINE = {
           ENGINE.drawLoadingGraph("Objects");
         } catch (error) {
           console.error(`Failed to load objects: ${error}`);
+          return false;
         }
       }
 
@@ -1471,6 +1479,7 @@ const ENGINE = {
           });
         } catch (error) {
           console.error(`Error loading wasm: ${error}`);
+          return false;
         }
       }
 
@@ -1480,10 +1489,8 @@ const ENGINE = {
         ENGINE.LOAD.HMSounds = arrPath.length;
         if (ENGINE.LOAD.HMSounds) appendCanvas("Sounds");
         try {
-          const loadedSounds = await Promise.all(
-            arrPath.map((audio) => loadAudio(audio, "Sounds"))
-          );
-          loadedSounds.forEach(function (el) {
+          const loadedSounds = await Promise.all(arrPath.map((audio) => loadAudio(audio, "Sounds")));
+          loadedSounds.forEach((el) => {
             ENGINE.audioToAudio(el);
           });
           return true;
@@ -1497,15 +1504,97 @@ const ENGINE = {
         if (!fonts) return;
         console.log(`%c ...loading ${fonts.length} fonts`, ENGINE.CSS);
         ENGINE.LOAD.HMFonts = fonts.length;
-        if (ENGINE.LOAD.HMFonts) {
-          appendCanvas("Fonts");
+        if (ENGINE.LOAD.HMFonts) appendCanvas("Fonts");
+        try {
           const fontPromises = fonts.map(font => loadFont(font));
           const loadedFonts = await Promise.all(fontPromises);
           loadedFonts.forEach(font => document.fonts.add(font));
-          ENGINE.LOAD.Fonts = ENGINE.LOAD.HMFonts;
-          ENGINE.drawLoadingGraph("Fonts");
+          //ENGINE.LOAD.Fonts = ENGINE.LOAD.HMFonts;
+          //ENGINE.drawLoadingGraph("Fonts");
+        } catch (error) {
+          console.error(`Error loading fonts: ${error}`);
+          return false;
         }
       }
+
+      async function loadGLTF(arrPath = LoadModels) {
+        if (!arrPath) return;
+        console.log(`%c...loading ${arrPath.length} Models`, ENGINE.CSS);
+        ENGINE.LOAD.HMModels = arrPath.length;
+        if (ENGINE.LOAD.HMObjects) appendCanvas("Models");
+        try {
+          const model_files = await Promise.all(arrPath.map(model => load_glTF_files(model)));
+          console.log("--------------------------------------------");
+          console.log("model_files", model_files);
+
+          model_files.forEach(
+            async (model) => {
+              console.log("model", model);
+              const modelName = model.scenes[0].name;
+              console.log(".name", modelName);
+
+              //assume single buffer!
+              const bin_name = ENGINE.MODEL_SOURCE + model.buffers[0].uri;
+              //console.log(".bin_name", bin_name);
+              const buffer = await loadBinaryFile(bin_name);
+              //console.log(".buffer", buffer);
+
+              //textures
+              const texture_names = model.images.map((uri) => ENGINE.MODEL_SOURCE + uri.uri);
+              //console.log(".texture_names", texture_names);
+              const images = await Promise.all(texture_names.map(img => quickLoadImage(img)));
+              //console.log("images", images);
+
+              //add to models
+              $3D_MODEL[modelName] = new $3D_Model(modelName, buffer, images);
+
+              //finished
+              ENGINE.LOAD.Models++;
+              ENGINE.drawLoadingGraph("Models");
+            }
+          );
+
+          console.log("--------------------------------------------");
+          console.log("$3D_MODEL", $3D_MODEL);
+          console.log("--------------------------------------------");
+
+        } catch (error) {
+          console.error(`Error loading models: ${error}`);
+          return false;
+        }
+      }
+
+      /** simple loaders */
+
+      async function loadBinaryFile(filename) {
+        try {
+          const response = await fetch(filename);
+          const buffer = await response.arrayBuffer();
+          return new Uint8Array(buffer);
+        } catch (error) {
+          throw new Error(`Failed to load binary file: ${filename}: ${error}`);
+        }
+      }
+
+      async function quickLoadImage(filename) {
+        try {
+          const img = new Image();
+          img.crossOrigin = "Anonymous";
+          img.src = filename;
+
+          await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+          });
+          return img;
+
+        } catch (error) {
+          throw new Error(`ENGINE: Failed to quickLoad image: ${filename}: ${error}`);
+        }
+      }
+
+
+      /** loaders */
 
       async function loadImage(srcData, counter, dir = ENGINE.SOURCE) {
         let srcName, name, count, tag, parent, rotate, asset, trim, dimension;
@@ -1582,6 +1671,20 @@ const ENGINE = {
         return { audio, name };
       }
 
+      async function load_glTF_files(fileName) {
+        try {
+          fileName = ENGINE.MODEL_SOURCE + fileName;
+          const response = await fetch(fileName);
+          //ENGINE.LOAD[counter]++;
+          //ENGINE.drawLoadingGraph(counter);
+          const json = await response.json();
+          return json;
+        } catch (error) {
+          console.error(`Error loading shader from file ${fileName}:`, error);
+          return null;
+        }
+      }
+
       async function loadShader(fileName, counter) {
         try {
           fileName = ENGINE.SHADER_SOURCE + fileName;
@@ -1628,7 +1731,8 @@ const ENGINE = {
           const url = `url(${fontSource})`;
           const temp = new FontFace(srcData.name, url);
           const font = await temp.load();
-          //document.fonts.add(font); // cache the loaded font, it's cached later
+          ENGINE.LOAD.Fonts = ENGINE.LOAD.HMFonts;
+          ENGINE.drawLoadingGraph("Fonts");
           return font;
         } catch (error) {
           throw new Error(`Error loading font: ${srcData.srcName}`, error);
@@ -2141,14 +2245,15 @@ const ENGINE = {
     }
   }
 };
-var TEXTURE = {};
-var LAYER = {
+const TEXTURE = {};
+const $3D_MODEL = {};
+const LAYER = {
   PRELOAD: {}
 };
-var SPRITE = {};
-var AUDIO = {};
-var TILE = {};
-var ASSET = {
+const SPRITE = {};
+const AUDIO = {};
+const TILE = {};
+const ASSET = {
   convertToGrayScale(original, target, howmany = 1) {
     ASSET[target] = {};
     ASSET[target].type = ASSET[original].type;
@@ -2167,10 +2272,10 @@ var ASSET = {
     }
   }
 };
-var WASM = {};
+const WASM = {};
 const SHADER = {};
-var MEMORY = {};
-var PATTERN = {
+const MEMORY = {};
+const PATTERN = {
   create(which) {
     var image = TEXTURE[which];
     var CTX = LAYER.temp;

@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.19.0",
+    VERSION: "0.20.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -110,6 +110,7 @@ const WebGL = {
     interactiveDecalList: [INTERACTIVE_DECAL3D],
     dynamicDecalList: [GATE3D, ITEM3D],
     dynamicLightSources: [MISSILE3D, EXPLOSION3D],
+    models: [$3D_MODEL],
     explosion_program: {
         transform: {
             vSource: "particle_transform_vShader",
@@ -213,6 +214,11 @@ const WebGL = {
         for (const iam of [...WebGL.staticDecalList, ...WebGL.dynamicDecalList, ...WebGL.interactiveDecalList]) {
             for (const decal of iam.POOL) {
                 decal.texture = this.createTexture(decal.texture);
+            }
+        }
+        for (const obj of [...WebGL.models]) {
+            for (const [_, O] of Object.entries(obj)) {
+                O.textures = O.textures.map(T => this.createTexture(T));
             }
         }
     },
@@ -1645,6 +1651,16 @@ class WoodExplosion extends ParticleEmmiter {
         this.velocity = 0.0025;
         this.rounded = 0;
         //console.log("ParticleEmmiter", this);
+    }
+}
+
+/** model formats */
+
+class $3D_Model {
+    constructor(name, buffer, textures) {
+        this.name = name;
+        this.buffer = buffer;
+        this.textures = textures;
     }
 }
 

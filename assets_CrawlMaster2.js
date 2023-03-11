@@ -100,6 +100,8 @@ LoadObjects = [
     "treasure_chest.obj"
 ];
 
+LoadModels = ['GhostFace.gltf'];
+
 LoadSprites = [
     { srcName: "WallLamp256.png", name: "WallLamp" },
     { srcName: "CompassRose.png", name: "CompassRose" },
