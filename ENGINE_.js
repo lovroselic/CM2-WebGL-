@@ -1537,7 +1537,7 @@ const ENGINE = {
               const bin_name = ENGINE.MODEL_SOURCE + model.buffers[0].uri;
               //console.log(".bin_name", bin_name);
               const buffer = await loadBinaryFile(bin_name);
-              //console.log(".buffer", buffer);
+              console.log(".buffer", buffer);
 
               //textures
               const texture_names = model.images.map((uri) => ENGINE.MODEL_SOURCE + uri.uri);
@@ -1545,9 +1545,50 @@ const ENGINE = {
               const images = await Promise.all(texture_names.map(img => quickLoadImage(img)));
               //console.log("images", images);
 
-              //add to models
-              $3D_MODEL[modelName] = new $3D_Model(modelName, buffer, images);
+              console.log("*************************************");
+              //meshes
 
+              /**
+               * https://github.com/sketchpunk/FunWithWebGL2/blob/master/lesson_058/fungi/util/GTLFLoader.js
+               * https://github.com/sketchpunk/FunWithWebGL2/blob/master/lesson_058/test.html
+               */
+
+              let meshes = new Array(model.meshes.length);
+              for (let [index, mesh] of model.meshes.entries()) {
+                console.log(".mesh", mesh);
+
+                let primitives = new Array(mesh.primitives.length);
+                for (let [index, primitive] of mesh.primitives.entries()) {
+                  console.log("..primitive", primitive);
+                  console.log(".. --- indices ---");
+                  const indices = processAccessor(model, buffer, primitive.indices);
+                  console.log("..indices", indices);
+                  console.log(".. --- positions ---");
+                  const positions = processAccessor(model, buffer, primitive.attributes.POSITION);
+                  console.log("..positions", positions);
+                  console.log(".. --- normals ---");
+                  const normals = processAccessor(model, buffer, primitive.attributes.NORMAL);
+                  console.log("..normals", normals);
+                  console.log(".. --- textcoord ---");
+                  const textcoord = processAccessor(model, buffer, primitive.attributes.TEXCOORD_0);
+                  console.log("..textcoord", textcoord);
+                  console.log(".. --- joints ---");
+                  const joints = processAccessor(model, buffer, primitive.attributes.JOINTS_0);
+                  console.log("..joints", joints);
+                  console.log(".. --- weights ---");
+                  const weights = processAccessor(model, buffer, primitive.attributes.WEIGHTS_0);
+                  console.log("..weights", weights);
+
+                  primitives[index] = new $Primitive(primitive.material, indices, positions, normals, textcoord, joints, weights);
+                }
+
+                meshes[index] = new $Mesh(mesh.name, primitives);
+
+                //add to models
+                $3D_MODEL[modelName] = new $3D_Model(modelName, buffer, images, meshes);
+              }
+
+              console.log("*************************************");
               //finished
               ENGINE.LOAD.Models++;
               ENGINE.drawLoadingGraph("Models");
@@ -1562,6 +1603,39 @@ const ENGINE = {
           console.error(`Error loading models: ${error}`);
           return false;
         }
+
+
+        function processAccessor(model, buffer, idx) {
+          //console.log("...processing accessor:", idx, "model", model);
+          const accessor = model.accessors[idx];
+          console.log("...accessor", accessor);
+          const bufferView = model.bufferViews[idx];
+          console.log("...bufferView", bufferView);
+
+          const component_type = GL_CONSTANT[accessor.componentType];
+          console.log("...component_type", component_type);
+
+          const TArrLookup = {
+            UNSIGNED_SHORT: Uint16Array,
+            FLOAT: Float32Array,
+            SHORT: Int16Array,
+            UNSIGNED_INT: Uint32Array,
+            UNSIGNED_BYTE: Uint8Array
+          };
+
+          const TArr = TArrLookup[component_type];
+          if (!TArr) throw new Error(`Illegaly component type: ${component_type}`);
+          //const bLen = accessor.count * GL_DATA_LENGTH[accessor.type] * TArr.BYTES_PER_ELEMENT;
+          const aLen = accessor.count * GL_DATA_LENGTH[accessor.type];
+          //console.log("...bLen", bLen);
+          console.log("...aLen", aLen, "offset:", bufferView.byteOffset, "count:", accessor.count, "DL:", GL_DATA_LENGTH[accessor.type]);
+
+          let array = new TArr(buffer, bufferView.byteOffset, aLen);
+          let target = GL_CONSTANT[bufferView.target];
+          const min = accessor.min || null;
+          const max = accessor.max || null;
+          return new $BufferData(array, accessor.count, component_type, target, min, max);
+        }
       }
 
       /** simple loaders */
@@ -1570,7 +1644,8 @@ const ENGINE = {
         try {
           const response = await fetch(filename);
           const buffer = await response.arrayBuffer();
-          return new Uint8Array(buffer);
+          return buffer;
+          //return new Uint8Array(buffer);
         } catch (error) {
           throw new Error(`Failed to load binary file: ${filename}: ${error}`);
         }
