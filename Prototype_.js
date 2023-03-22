@@ -6,7 +6,7 @@
 console.clear();
 
 var LIB = {
-  VERSION: "3.10",
+  VERSION: "3.11",
   CSS: "color: #EFE",
   log: function () {
     console.log(`%cPrototype LIB ${LIB.VERSION} loaded`, LIB.CSS);
@@ -23,17 +23,18 @@ changelog:
 3.05: RNDF, updates for RUN, Set prototypes, substr -> substring updates;
 3.06: 3d vectors
 3.10: optimized, binarySearch
+3.11: date prototypes
 */
 
 (function () {
   function RND(start, end) {
     return Math.floor(Math.random() * (++end - start) + start);
   }
-  function RNDF(start, end) {
-    return (Math.random() * (end + 0.01 - start) * 100 + start * 100) / 100;
+  function RNDF(start, end, p = 2) {
+    return Math.floor(Math.random() * (end + 10 ** -p - start) * 10 ** p + start * 10 ** p) / 100;
   }
   function RandomFloat(start, end) {
-    return Math.random * (end - start) + start;
+    return Math.random() * (end - start) + start;
   }
   function coinFlip() {
     return RND(0, 1) === 1;
@@ -100,6 +101,24 @@ changelog:
   window.colorStringToVector = colorStringToVector;
   window.binarySearch = binarySearch;
 })();
+
+/** Date prototypes */
+Date.prototype.addDays = function (days) {
+  this.setDate(this.getDate() + days);
+};
+Date.prototype.addMonths = function (months) {
+  this.setMonth(this.getMonth() + months);
+};
+Date.prototype.addYears = function (years) {
+  this.setFullYear(this.getFullYear() + years);
+};
+Date.prototype.stringify = function () {
+  const d = String(this.getDate()).padStart(2, '0');
+  const m = String(this.getMonth() + 1).padStart(2, '0');
+  const y = this.getFullYear();
+  return `${d}/${m}/${y}`;
+};
+
 
 // Converts from degrees to radians.
 Math.radians = function (degrees) {

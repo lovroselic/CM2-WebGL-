@@ -1534,6 +1534,7 @@ const ENGINE = {
               console.log(".name", modelName);
 
               //assume single buffer!
+              if (model.buffers.length > 1) throw new Error('Expected single buffer, got ${model.buffers.length}');
               const bin_name = ENGINE.MODEL_SOURCE + model.buffers[0].uri;
               //console.log(".bin_name", bin_name);
               const buffer = await loadBinaryFile(bin_name);

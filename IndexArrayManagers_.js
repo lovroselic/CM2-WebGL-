@@ -633,6 +633,28 @@ class ParticleEmmission3D extends IAM {
     }
 }
 
+class Animated_3d_entity extends IAM {
+    constructor() {
+        super();
+        this.IA = null;
+        this.POOL = [];
+    }
+    manage(date) {
+        this.reIndex();
+        for (const entity of this.POOL) {
+            if (entity) {
+                entity.update(date);
+            }
+        }
+    }
+    display() {
+        console.log("------------------------------------------");
+        console.log("Overview:", this.constructor.name, this.name);
+        console.table(this.POOL, ['name', 'id', 'grid', 'model', 'pos']);
+        console.log("------------------------------------------");
+    }
+}
+
 /** GLOBAL ID */
 
 const GLOBAL_ID_MANAGER = {
@@ -675,6 +697,7 @@ const MISSILE3D = new Missile3D();
 const EXPLOSION3D = new ParticleEmmission3D();
 const INTERACTIVE_DECAL3D = new Decal3D(1000);
 const BUMP3D = new Decal_IA_3D();
+const ENTITY3D = new Animated_3d_entity();
 /** *********************************************** */
 
 console.log(`%cIndexArrayManagers (IAM) ${IndexArrayManagers.VERSION} ready.`, "color: #7FFFD4");

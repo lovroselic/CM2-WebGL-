@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.20.1",
+    VERSION: "0.20.2",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -111,6 +111,14 @@ const WebGL = {
     dynamicDecalList: [GATE3D, ITEM3D],
     dynamicLightSources: [MISSILE3D, EXPLOSION3D],
     models: [$3D_MODEL],
+    main_program: {
+        vSource: "vShader",
+        fSource: "fShader",
+    },
+    pick_program: {
+        vSource: "pick_vShader",
+        fSource: "pick_fShader",
+    },
     explosion_program: {
         transform: {
             vSource: "particle_transform_vShader",
@@ -130,19 +138,13 @@ const WebGL = {
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
         if (this.CTX === null) console.error("Unable to initialize WebGL. Your browser or machine may not support it.");
     },
-    init(layer, world, textureData, camera,
-        vsSource = SHADER.vShader,
-        fsSource = SHADER.fShader,
-        pick_vSource = SHADER.pick_vShader,
-        pick_fSource = SHADER.pick_fShader) {
+    init(layer, world, textureData, camera) {
         this.world = world;
         this.setContext(layer);
         const gl = this.CTX;
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        this.initShaderProgram(gl, vsSource, fsSource);
-        this.initPickProgram(gl, pick_vSource, pick_fSource);
-        this.initParticlePrograms(gl);
+        this.initPrograms(gl);
         this.initBuffers(gl, world);
         this.setTexture(textureData);
         this.setDecalTextures();
@@ -154,6 +156,11 @@ const WebGL = {
             console.log(`%cWorld:`, this.CSS, this.world);
             console.log(`%cWebGL:`, this.CSS, this);
         }
+    },
+    initPrograms(gl){
+        this.initShaderProgram(gl);
+        this.initPickProgram(gl);
+        this.initParticlePrograms(gl);
     },
     init_required_IAM(map) {
         DECAL3D.init(map);
@@ -316,9 +323,11 @@ const WebGL = {
             }
         }
     },
-    initPickProgram(gl, vsSource, fsSource) {
-        const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vsSource);
-        const fragmentShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+    initPickProgram(gl) {
+        const vSource = SHADER[this.pick_program.vSource];
+        const fSource = SHADER[this.pick_program.fSource];
+        const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vSource);
+        const fragmentShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fSource);
         const shaderProgram = gl.createProgram();
         gl.attachShader(shaderProgram, vertexShader);
         gl.attachShader(shaderProgram, fragmentShader);
@@ -344,9 +353,11 @@ const WebGL = {
 
         this.pickProgram = programInfo;
     },
-    initShaderProgram(gl, vsSource, fsSource) {
-        const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vsSource);
-        const fragmentShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+    initShaderProgram(gl) {
+        const vSource = SHADER[this.main_program.vSource];
+        const fSource = SHADER[this.main_program.fSource];
+        const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vSource);
+        const fragmentShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fSource);
         const shaderProgram = gl.createProgram();
         gl.attachShader(shaderProgram, vertexShader);
         gl.attachShader(shaderProgram, fragmentShader);
@@ -1335,7 +1346,6 @@ class FloorItem3D {
         this.rotationY = identity;
     }
     interact(GA, inventory) {
-        //console.log(this, "interaction", this.category);
         this.active = false;
         return {
             category: this.category,
@@ -1651,6 +1661,24 @@ class WoodExplosion extends ParticleEmmiter {
         this.velocity = 0.0025;
         this.rounded = 0;
         //console.log("ParticleEmmiter", this);
+    }
+}
+
+class $3D_Entity {
+    constructor(grid, type) {
+        this.grid = grid;
+        this.type = type;
+        for (const prop in type) {
+            this[prop] = type[prop];
+        }
+
+        //unpack
+        this.model = $3D_MODEL[this.model];
+
+        //position from grid
+        const minY = this.model.meshes[0].primitives[0].positions.min[1];
+        this.pos = Vector3.from_Grid(grid, minY);
+
     }
 }
 
@@ -2044,8 +2072,8 @@ const GL_DATA_LENGTH = {
     MAT2: 4,
     MAT3: 9,
     MAT4: 16,
+};
 
-}
 const GL_CONSTANT = {
     0: 'NONE',
     1: 'ONE',

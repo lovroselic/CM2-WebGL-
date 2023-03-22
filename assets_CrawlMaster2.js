@@ -221,7 +221,6 @@ LoadSprites = [
     { srcName: "Ultima2.png", name: "Ultima2" },
     { srcName: "Ultima1.png", name: "Ultima1" },
     { srcName: "Arena.png", name: "Arena" },
-    { srcName: "Robin.png", name: "Robin" },
     { srcName: "EOB4.png", name: "EOB4" },
     { srcName: "EOB3.png", name: "EOB3" },
     { srcName: "EOB2.png", name: "EOB2" },

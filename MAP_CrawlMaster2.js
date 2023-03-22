@@ -17,7 +17,7 @@ const DECAL_PAINTINGS = [
     "Kangaroo", "Karateka", "Killerwat", "Knightlore", "LSL1", "LSL20", "LSL4", "LSL6", "LTUT", "LastNinja1", "Lode",
     "Maniac", "ManicMiner", "Miner", "MonkeyIsland", "Montezuma", "Moon", "Oblivion", "Oblivion2", "OperationWolf",
     "OperationWolf2", "PAC2", "Penta", "Phara", "Pipeline", "Pitfall", "Pitfall3", "Pitfall4", "Pitstop", "Pooyan",
-    "Portal1", "Prince1", "Prince2", "RRR", "RickDangerous", "Robin", "SOF", "SQ1", "SVS1", "SVS10", "SVS2", "SVS3", "SVS4",
+    "Portal1", "Prince1", "Prince2", "RRR", "RickDangerous", "SOF", "SQ1", "SVS1", "SVS10", "SVS2", "SVS3", "SVS4",
     "SW4", "Scramble3", "Scramble4", "Skyrim", "Soccer", "Sorcery2", "Sorcery3", "TR1", "TR1", "TR10", "TR2", "TR2", "TR3",
     "TheSentinel", "Tut2", "UU", "UU2", "Ultima1", "Ultima2", "Under", "VIC20", "Valhalla", "WOW1",
     "WOW2", "Walls", "Wally", "Winter", "Wolf1", "Zak", "Zaxxon", "ZimSalaBim", "Zong", "galaxian", "sabre2",
@@ -142,9 +142,12 @@ var SPAWN = {
         this.lights(level);
         this.gates(level);
         this.items(level);
+        this.monsters(level);
         //GATE3D.display();
         //ITEM3D.display();
         //INTERACTIVE_DECAL3D.display();
+        console.log("ENTITY3D", ENTITY3D);
+        ENTITY3D.display();
     },
     shrines(level) {
         const GA = MAP[level].map.GA;
@@ -324,6 +327,25 @@ var SPAWN = {
         for (let item of itemLocations) {
             ITEM3D.add(new FloorItem3D(item.grid, item.type));
         }
+    },
+    monsters(level) {
+        console.log("spawning monsters...");
+        const monsterLocations = [
+            { grid: new FP_Grid(2.5, 6.5), type: MONSTER_TYPE.GhostFace },
+        ];
+
+        for (let monster of monsterLocations) {
+            ENTITY3D.add(new $3D_Entity(monster.grid, monster.type));
+        }
+        
+    }
+};
+
+const MONSTER_TYPE = {
+    GhostFace: {
+        name: "GhostFace",
+        model: "GhostFace",
+        scale: 1 / 2 ** 0,
     }
 };
 
