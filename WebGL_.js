@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.20.3",
+    VERSION: "0.20.4",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -196,7 +196,7 @@ const WebGL = {
         glMatrix.mat4.perspective(projectionMatrix, this.camera.fov, this.aspect, this.zNear, this.zFar);
         this.projectionMatrix = projectionMatrix;
     },
-    createTexture(T) {
+    createTexture(T, S = null) {
         const gl = this.CTX;
         const texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -207,6 +207,12 @@ const WebGL = {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        }
+
+        if (S) {
+            for (let filter in S) {
+                gl.texParameteri(gl.TEXTURE_2D, gl[filter], gl[S[filter]]);
+            }
         }
 
         return texture;
@@ -231,9 +237,14 @@ const WebGL = {
                 decal.texture = this.createTexture(decal.texture);
             }
         }
+
+        const gl = this.CTX;
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
         for (const obj of [...WebGL.models]) {
             for (const [_, O] of Object.entries(obj)) {
-                O.textures = O.textures.map(T => this.createTexture(T));
+                for (let [index, texture] of O.textures.entries()) {
+                    O.textures[index] = this.createTexture(texture, O.samplers[index]);
+                }
             }
         }
     },
@@ -515,16 +526,16 @@ const WebGL = {
         const program = WebGL.model_program.program;
         gl.useProgram(program);
         const projection_matrix = gl.getUniformLocation(program, "uProjectionMatrix");
-        gl.uniformMatrix4fv(projection_matrix, false, this.projectionMatrix);
         const modelViewMatrix = gl.getUniformLocation(program, "uModelViewMatrix");
-        gl.uniformMatrix4fv(modelViewMatrix, false, this.viewMatrix);
         const cameraPos = gl.getUniformLocation(program, "uCameraPos");
-        gl.uniform3fv(cameraPos, this.camera.pos.array);
         const uLights = gl.getUniformLocation(program, "uPointLights");
-        gl.uniform3fv(uLights, lights);
         const uLightColors = gl.getUniformLocation(program, "uLightColors");
-        gl.uniform3fv(uLightColors, lightColors);
         const u_sampler = gl.getUniformLocation(program, "uSampler");
+        gl.uniformMatrix4fv(projection_matrix, false, this.projectionMatrix);
+        gl.uniformMatrix4fv(modelViewMatrix, false, this.viewMatrix);
+        gl.uniform3fv(cameraPos, this.camera.pos.array);
+        gl.uniform3fv(uLights, lights);
+        gl.uniform3fv(uLightColors, lightColors);
         gl.uniform1i(u_sampler, 0);
 
         //pickProgram uniforms and defaults
@@ -707,7 +718,7 @@ const WebGL = {
 
         //remember: last draw was on particle renderer!!!
         //gl.enable(gl.CULL_FACE);
-        
+
     },
     idToVec(id) {
         return [((id >> 0) & 0xFF) / 0xFF, ((id >> 8) & 0xFF) / 0xFF, ((id >> 16) & 0xFF) / 0xFF, ((id >> 24) & 0xFF) / 0xFF];
@@ -1755,7 +1766,9 @@ class $3D_Entity {
         //position from grid
         const minY = this.model.meshes[0].primitives[0].positions.min[1] * this.scale[1];
         this.translate = Vector3.from_Grid(grid, minY);
-        this.rotate = glMatrix.mat4.create(); //indentity!
+        this.rotate = glMatrix.mat4.create();
+        this._2D_dir = UP;
+        glMatrix.mat4.rotate(this.rotate, this.rotate, Math.PI, [0, 1, 0]);
     }
     draw(gl) {
         const program = WebGL.model_program.program;
@@ -1776,7 +1789,7 @@ class $3D_Entity {
 
         //rotate
         const uRotatematrix = gl.getUniformLocation(program, 'uRotateY');
-        gl.uniformMatrix4fv(uRotatematrix, false, this.rotate);        
+        gl.uniformMatrix4fv(uRotatematrix, false, this.rotate);
 
         const uShine = gl.getUniformLocation(program, "uShine");
         gl.uniform1f(uShine, this.shine);
@@ -1818,11 +1831,12 @@ class $3D_Entity {
 /** model formats */
 
 class $3D_Model {
-    constructor(name, buffer, textures, meshes) {
+    constructor(name, buffer, textures, meshes, samplers) {
         this.name = name;
         this.buffer = buffer;
         this.textures = textures;
         this.meshes = meshes;
+        this.samplers = samplers;
     }
 }
 
@@ -2199,6 +2213,12 @@ const UNIFORM = {
         }
         console.timeEnd("particles");
     }
+};
+
+/** gltf to gl */
+const GLTF_GL_MAP = {
+    magFilter: "TEXTURE_MAG_FILTER",
+    minFilter: "TEXTURE_MIN_FILTER"
 };
 
 /** GL constants */

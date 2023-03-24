@@ -1541,6 +1541,7 @@ const ENGINE = {
               //textures
               const texture_names = model.images.map((uri) => ENGINE.MODEL_SOURCE + uri.uri);
               const images = await Promise.all(texture_names.map(img => quickLoadImage(img)));
+              const samplers = processSamplers(model.samplers);
 
               console.log("*************************************");
               //meshes
@@ -1552,37 +1553,20 @@ const ENGINE = {
 
               let meshes = new Array(model.meshes.length);
               for (let [index, mesh] of model.meshes.entries()) {
-                //console.log(".mesh", mesh);
-
                 let primitives = new Array(mesh.primitives.length);
                 for (let [index, primitive] of mesh.primitives.entries()) {
-                  //console.log("..primitive", primitive);
-                  //console.log(".. --- indices ---");
                   const indices = processAccessor(model, buffer, primitive.indices);
-                  //console.log("..indices", indices);
-                  //console.log(".. --- positions ---");
                   const positions = processAccessor(model, buffer, primitive.attributes.POSITION);
-                  //console.log("..positions", positions);
-                  //console.log(".. --- normals ---");
                   const normals = processAccessor(model, buffer, primitive.attributes.NORMAL);
-                  //console.log("..normals", normals);
-                  //console.log(".. --- textcoord ---");
                   const textcoord = processAccessor(model, buffer, primitive.attributes.TEXCOORD_0);
-                  //console.log("..textcoord", textcoord);
-                  //console.log(".. --- joints ---");
                   const joints = processAccessor(model, buffer, primitive.attributes.JOINTS_0);
-                  //console.log("..joints", joints);
-                  //console.log(".. --- weights ---");
                   const weights = processAccessor(model, buffer, primitive.attributes.WEIGHTS_0);
-                  //console.log("..weights", weights);
-
                   primitives[index] = new $Primitive(primitive.material, indices, positions, normals, textcoord, joints, weights);
                 }
 
                 meshes[index] = new $Mesh(mesh.name, primitives);
-
                 //add to models
-                $3D_MODEL[modelName] = new $3D_Model(modelName, buffer, images, meshes);
+                $3D_MODEL[modelName] = new $3D_Model(modelName, buffer, images, meshes, samplers);
               }
 
               console.log("*************************************");
@@ -1601,16 +1585,24 @@ const ENGINE = {
           return false;
         }
 
+        function processSamplers(s) {
+          const samplers = [];
+          for (let sampler of s) {
+            let sampler_obj = {};
+            for (let prop in sampler) {
+              const mapped_prop = GLTF_GL_MAP[prop];
+              const mapper_val = GL_CONSTANT[sampler[prop]];
+              sampler_obj[mapped_prop] = mapper_val;
+            }
+            samplers.push(sampler_obj);
+          }
+          return samplers;
+        }
 
         function processAccessor(model, buffer, idx) {
-          //console.log("...processing accessor:", idx, "model", model);
           const accessor = model.accessors[idx];
-          //console.log("...accessor", accessor);
           const bufferView = model.bufferViews[idx];
-          //console.log("...bufferView", bufferView);
-
           const component_type = GL_CONSTANT[accessor.componentType];
-          //console.log("...component_type", component_type);
 
           const TArrLookup = {
             UNSIGNED_SHORT: Uint16Array,
@@ -1622,13 +1614,8 @@ const ENGINE = {
 
           const TArr = TArrLookup[component_type];
           if (!TArr) throw new Error(`Illegal component type: ${component_type}`);
-          //const bLen = accessor.count * GL_DATA_LENGTH[accessor.type] * TArr.BYTES_PER_ELEMENT;
           const aLen = accessor.count * GL_DATA_LENGTH[accessor.type];
-          //console.log("...bLen", bLen);
-          //console.log("...aLen", aLen, "offset:", bufferView.byteOffset, "count:", accessor.count, "DL:", GL_DATA_LENGTH[accessor.type]);
-
           let array = new TArr(buffer, bufferView.byteOffset, aLen);
-          //let array = new TArr(buffer, bufferView.byteOffset, bLen);
           let target = GL_CONSTANT[bufferView.target];
           const min = accessor.min || null;
           const max = accessor.max || null;
