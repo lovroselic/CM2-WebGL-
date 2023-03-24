@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.20.2",
+    VERSION: "0.20.3",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -119,6 +119,11 @@ const WebGL = {
         vSource: "pick_vShader",
         fSource: "pick_fShader",
     },
+    model_program: {
+        vSource: "model_vShader",
+        fSource: "model_fShader",
+        program: null,
+    },
     explosion_program: {
         transform: {
             vSource: "particle_transform_vShader",
@@ -133,6 +138,7 @@ const WebGL = {
             program: null,
         }
     },
+    update_shaders_forLightSources: ['fShader', 'model_fShader'],
     setContext(layer) {
         this.CTX = LAYER[layer];
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
@@ -151,16 +157,18 @@ const WebGL = {
         this.aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
         this.setCamera(camera);
         this.setPickBuffers(gl);
+        this.setModelBuffers(gl);
 
         if (this.VERBOSE) {
             console.log(`%cWorld:`, this.CSS, this.world);
             console.log(`%cWebGL:`, this.CSS, this);
         }
     },
-    initPrograms(gl){
+    initPrograms(gl) {
         this.initShaderProgram(gl);
         this.initPickProgram(gl);
         this.initParticlePrograms(gl);
+        this.initModelPrograms(gl);
     },
     init_required_IAM(map) {
         DECAL3D.init(map);
@@ -294,7 +302,30 @@ const WebGL = {
         return shader;
     },
     updateShaders() {
-        SHADER.fShader = SHADER.fShader.replace("N_LIGHTS = 1", `N_LIGHTS = ${LIGHTS3D.POOL.length + this.INI.DYNAMIC_LIGHTS_RESERVATION}`);
+        const src = "N_LIGHTS = 1";
+        const dest = `N_LIGHTS = ${LIGHTS3D.POOL.length + this.INI.DYNAMIC_LIGHTS_RESERVATION}`;
+        for (let sh of this.update_shaders_forLightSources) {
+            SHADER[sh] = SHADER[sh].replace(src, dest);
+        }
+    },
+    initModelPrograms(gl) {
+        const type = ["model"];
+        for (let T of type) {
+            let prog = `${T}_program`;
+            const vSource = SHADER[this[prog].vSource];
+            const fSource = SHADER[this[prog].fSource];
+            const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vSource);
+            const fragmentShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fSource);
+            const shaderProgram = gl.createProgram();
+            gl.attachShader(shaderProgram, vertexShader);
+            gl.attachShader(shaderProgram, fragmentShader);
+            gl.linkProgram(shaderProgram);
+            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+                console.error(`Unable to initialize the shader program: ${gl.getProgramInfoLog(shaderProgram)}`);
+                return null;
+            }
+            this[prog].program = shaderProgram;
+        }
     },
     initParticlePrograms(gl) {
         const particleType = ["explosion"];
@@ -392,6 +423,20 @@ const WebGL = {
 
         this.program = programInfo;
     },
+    setModelBuffers(gl) {
+        for (let m of this.models) {
+            for (let model in m) {
+                for (let mesh of m[model].meshes) {
+                    for (let primitive of mesh.primitives) {
+                        for (let a in primitive) {
+                            if (typeof (primitive[a]) == 'number') continue;
+                            primitive[a].initBuffer(gl);
+                        }
+                    }
+                }
+            }
+        }
+    },
     renderScene() {
         const gl = this.CTX;
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -416,12 +461,13 @@ const WebGL = {
         gl.useProgram(this.program.program);
         // Set the uniform matrices
         gl.uniformMatrix4fv(this.program.uniformLocations.projectionMatrix, false, this.projectionMatrix);
-        gl.uniformMatrix4fv(this.program.uniformLocations.modelViewMatrix, false, viewMatrix);
+        gl.uniformMatrix4fv(this.program.uniformLocations.modelViewMatrix, false, this.viewMatrix);
         gl.uniform3fv(this.program.uniformLocations.cameraPos, this.camera.pos.array);
         gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, scaleMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, translationMatrix);
         gl.uniform1f(this.program.uniformLocations.uShine, defaultShininess);
         gl.uniformMatrix4fv(this.program.uniformLocations.uRotY, false, rotateY);
+        gl.uniform1i(this.program.uniformLocations.uSampler, 0);
 
         //light uniforms
         let lights = [];
@@ -458,14 +504,33 @@ const WebGL = {
 
         lights.push(...dynLights);
         lightColors.push(...dynLightColors);
+        lights = new Float32Array(lights);
+        lightColors = new Float32Array(lightColors);
 
-        gl.uniform3fv(this.program.uniformLocations.lights, new Float32Array(lights));
-        gl.uniform3fv(this.program.uniformLocations.lightColors, new Float32Array(lightColors));
+        gl.uniform3fv(this.program.uniformLocations.lights, lights);
+        gl.uniform3fv(this.program.uniformLocations.lightColors, lightColors);
+
+        //set global uniforms for model program
+        //optimize: remove getUnifortm calls from game loop!
+        const program = WebGL.model_program.program;
+        gl.useProgram(program);
+        const projection_matrix = gl.getUniformLocation(program, "uProjectionMatrix");
+        gl.uniformMatrix4fv(projection_matrix, false, this.projectionMatrix);
+        const modelViewMatrix = gl.getUniformLocation(program, "uModelViewMatrix");
+        gl.uniformMatrix4fv(modelViewMatrix, false, this.viewMatrix);
+        const cameraPos = gl.getUniformLocation(program, "uCameraPos");
+        gl.uniform3fv(cameraPos, this.camera.pos.array);
+        const uLights = gl.getUniformLocation(program, "uPointLights");
+        gl.uniform3fv(uLights, lights);
+        const uLightColors = gl.getUniformLocation(program, "uLightColors");
+        gl.uniform3fv(uLightColors, lightColors);
+        const u_sampler = gl.getUniformLocation(program, "uSampler");
+        gl.uniform1i(u_sampler, 0);
 
         //pickProgram uniforms and defaults
         gl.useProgram(this.pickProgram.program);
         gl.uniformMatrix4fv(this.pickProgram.uniformLocations.projectionMatrix, false, this.projectionMatrix);
-        gl.uniformMatrix4fv(this.pickProgram.uniformLocations.modelViewMatrix, false, viewMatrix);
+        gl.uniformMatrix4fv(this.pickProgram.uniformLocations.modelViewMatrix, false, this.viewMatrix);
         gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uScale, false, scaleMatrix);
         gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, translationMatrix);
         gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uRotY, false, rotateY);
@@ -500,7 +565,6 @@ const WebGL = {
         // Tell the shader we bound the texture to texture unit 0
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.texture.wall);
-        gl.uniform1i(this.program.uniformLocations.uSampler, 0);
 
         //picking program
         gl.useProgram(this.pickProgram.program);
@@ -512,6 +576,7 @@ const WebGL = {
         //start draw
         gl.useProgram(this.program.program);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        //gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer); //
 
         //draw separated
 
@@ -625,6 +690,14 @@ const WebGL = {
             }
         }
 
+        //entities
+        gl.useProgram(WebGL.model_program.program);
+        for (const entity of ENTITY3D.POOL) {
+            if (entity) {
+                entity.draw(gl);
+            }
+        }
+
         //explosion
         for (const explosion of EXPLOSION3D.POOL) {
             if (explosion) {
@@ -633,7 +706,8 @@ const WebGL = {
         }
 
         //remember: last draw was on particle renderer!!!
-
+        //gl.enable(gl.CULL_FACE);
+        
     },
     idToVec(id) {
         return [((id >> 0) & 0xFF) / 0xFF, ((id >> 8) & 0xFF) / 0xFF, ((id >> 16) & 0xFF) / 0xFF, ((id >> 24) & 0xFF) / 0xFF];
@@ -1593,8 +1667,7 @@ class ParticleEmmiter {
 
         gl.bindVertexArray(this.vaoRender[nextIndex]);
         gl.activeTexture(gl.TEXTURE0);
-        const u_sampler = gl.getUniformLocation(render_program, "uSampler");
-        gl.uniform1i(u_sampler, 0);
+        gl.uniform1i(gl.getUniformLocation(render_program, "uSampler"), 0);
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
         gl.drawElementsInstanced(gl.TRIANGLES, this.vaoCount, gl.UNSIGNED_SHORT, 0, this.number);
 
@@ -1675,10 +1748,70 @@ class $3D_Entity {
         //unpack
         this.model = $3D_MODEL[this.model];
 
-        //position from grid
-        const minY = this.model.meshes[0].primitives[0].positions.min[1];
-        this.pos = Vector3.from_Grid(grid, minY);
+        if (typeof (this.scale) === "number") {
+            this.scale = new Float32Array([this.scale, this.scale, this.scale]);
+        }
 
+        //position from grid
+        const minY = this.model.meshes[0].primitives[0].positions.min[1] * this.scale[1];
+        this.translate = Vector3.from_Grid(grid, minY);
+        this.rotate = glMatrix.mat4.create(); //indentity!
+    }
+    draw(gl) {
+        const program = WebGL.model_program.program;
+        //gl.useProgram(program);
+
+        //uniforms
+        //scale
+        const mScaleMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromScaling(mScaleMatrix, this.scale);
+        const uScaleMatrix = gl.getUniformLocation(program, 'uScale');
+        gl.uniformMatrix4fv(uScaleMatrix, false, mScaleMatrix);
+
+        //translate
+        const mTranslationMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromTranslation(mTranslationMatrix, this.translate.array);
+        const uTranslateMatrix = gl.getUniformLocation(program, 'uTranslate');
+        gl.uniformMatrix4fv(uTranslateMatrix, false, mTranslationMatrix);
+
+        //rotate
+        const uRotatematrix = gl.getUniformLocation(program, 'uRotateY');
+        gl.uniformMatrix4fv(uRotatematrix, false, this.rotate);        
+
+        const uShine = gl.getUniformLocation(program, "uShine");
+        gl.uniform1f(uShine, this.shine);
+
+        for (let mesh of this.model.meshes) {
+            for (let [index, primitive] of mesh.primitives.entries()) {
+
+                //positions
+                gl.bindBuffer(gl.ARRAY_BUFFER, primitive.positions.buffer);
+                const vertexPosition = gl.getAttribLocation(program, "aVertexPosition");
+                gl.vertexAttribPointer(vertexPosition, 3, gl[primitive.positions.type], false, 0, 0);
+                gl.enableVertexAttribArray(vertexPosition);
+
+                //texture
+                gl.bindBuffer(gl.ARRAY_BUFFER, primitive.textcoord.buffer);
+                const textureCoord = gl.getAttribLocation(program, "aTextureCoord");
+                gl.vertexAttribPointer(textureCoord, 2, gl[primitive.textcoord.type], false, 0, 0);
+                gl.enableVertexAttribArray(textureCoord);
+
+                //normals
+                gl.bindBuffer(gl.ARRAY_BUFFER, primitive.normals.buffer);
+                const vertexNormal = gl.getAttribLocation(program, "aVertexNormal");
+                gl.vertexAttribPointer(vertexNormal, 3, gl[primitive.normals.type], false, 0, 0);
+                gl.enableVertexAttribArray(vertexNormal);
+
+                //indices
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, primitive.indices.buffer);
+
+                //binding texture data
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, this.model.textures[index]);
+
+                gl.drawElements(gl.TRIANGLES, primitive.indices.count, gl[primitive.indices.type], 0);
+            }
+        }
     }
 }
 
@@ -1719,6 +1852,11 @@ class $BufferData {
         this.target = target;
         this.min = min;
         this.max = max;
+    }
+    initBuffer(gl) {
+        this.buffer = gl.createBuffer();
+        gl.bindBuffer(gl[this.target], this.buffer);
+        gl.bufferData(gl[this.target], this.data, gl.DYNAMIC_DRAW);
     }
 }
 

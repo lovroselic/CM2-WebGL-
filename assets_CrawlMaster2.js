@@ -93,7 +93,8 @@ LoadAudio = [
 LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
 LoadShaders = [
     'vShader.glsl', 'fShader.glsl', 'pick_vShader.glsl', 'pick_fShader.glsl',
-    'particle_render_fShader.glsl', 'particle_render_vShader.glsl', 'particle_transform_fShader.glsl', 'particle_transform_vShader.glsl'
+    'particle_render_fShader.glsl', 'particle_render_vShader.glsl', 'particle_transform_fShader.glsl', 'particle_transform_vShader.glsl',
+    'model_vShader.glsl', `model_fShader.glsl`
 ];
 LoadObjects = [
     "key.obj", "flask.obj", "scroll.obj", "ball.obj", "sword.obj", "heart.obj", "shield.obj", "pentagram.obj", "chest.obj",
@@ -212,7 +213,7 @@ LoadSprites = [
     { srcName: "AMC.png", name: "AMC" },
     { srcName: "Walls.png", name: "Walls" },
     { srcName: "Amber.png", name: "Amberstar" },
-    { srcName: "Soc.png", name: "Soccer" },
+    //{ srcName: "Soc.png", name: "Soccer" },
     { srcName: "LSL6.png", name: "LSL6" },
     { srcName: "LSL4.png", name: "LSL4" },
     { srcName: "LSL1.png", name: "LSL1" },
@@ -336,7 +337,6 @@ LoadSprites = [
     { srcName: "UU2.png", name: "UU2" },
     { srcName: "Oblivion.png", name: "Oblivion" },
     { srcName: "Skyrim.png", name: "Skyrim" },
-    { srcName: "BlueMax4.png", name: "BlueMax4" },
     { srcName: "Witcher5.png", name: "Witcher5" },
     { srcName: "LSL9.png", name: "LSL9" },
     { srcName: "Shamus1.png", name: "Shamus1" },

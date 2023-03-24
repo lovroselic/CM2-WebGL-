@@ -18,10 +18,10 @@ const DECAL_PAINTINGS = [
     "Maniac", "ManicMiner", "Miner", "MonkeyIsland", "Montezuma", "Moon", "Oblivion", "Oblivion2", "OperationWolf",
     "OperationWolf2", "PAC2", "Penta", "Phara", "Pipeline", "Pitfall", "Pitfall3", "Pitfall4", "Pitstop", "Pooyan",
     "Portal1", "Prince1", "Prince2", "RRR", "RickDangerous", "SOF", "SQ1", "SVS1", "SVS10", "SVS2", "SVS3", "SVS4",
-    "SW4", "Scramble3", "Scramble4", "Skyrim", "Soccer", "Sorcery2", "Sorcery3", "TR1", "TR1", "TR10", "TR2", "TR2", "TR3",
+    "SW4", "Scramble3", "Scramble4", "Skyrim", "Sorcery2", "Sorcery3", "TR1", "TR1", "TR10", "TR2", "TR2", "TR3",
     "TheSentinel", "Tut2", "UU", "UU2", "Ultima1", "Ultima2", "Under", "VIC20", "Valhalla", "WOW1",
     "WOW2", "Walls", "Wally", "Winter", "Wolf1", "Zak", "Zaxxon", "ZimSalaBim", "Zong", "galaxian", "sabre2",
-    "zx1", "BlueMax4", "Witcher5", "LSL9", "Shamus1", "PharaohCurse3", "Witcher4", "Witcher3", "TempleOfApshai", "Witcher2", "KnightLore2",
+    "zx1", "Witcher5", "LSL9", "Shamus1", "PharaohCurse3", "Witcher4", "Witcher3", "TempleOfApshai", "Witcher2", "KnightLore2",
     "Witcher1", "Spelunker", "ShamusCase2", "Ishar2", "Pitfall5", "PharaohCurse2", "Frontier", "LSL8", "SP2", "SP1",
     "SVS24", "SVS23", "KQ10", "Shamus20", "Pitfall21", "Apshai6", "Apshai5", "MontyMole", "PacClose", "PacGhost", "Pitfall20", "SVS22", "SVS21",
     "Apshai4", "Apshai3", "Paperboy", "RobinOfTheWood2", "Pyjamarama", "ThePawn", "KokotoniWilf", "Cauldron1",
@@ -331,13 +331,12 @@ var SPAWN = {
     monsters(level) {
         console.log("spawning monsters...");
         const monsterLocations = [
-            { grid: new FP_Grid(2.5, 6.5), type: MONSTER_TYPE.GhostFace },
+            { grid: new FP_Grid(2.0, 6.0), type: MONSTER_TYPE.GhostFace },
         ];
 
         for (let monster of monsterLocations) {
             ENTITY3D.add(new $3D_Entity(monster.grid, monster.type));
         }
-        
     }
 };
 
@@ -345,7 +344,8 @@ const MONSTER_TYPE = {
     GhostFace: {
         name: "GhostFace",
         model: "GhostFace",
-        scale: 1 / 2 ** 0,
+        scale: 1 / 2 ** 1,
+        shine: 128.0 * 0.5,
     }
 };
 

@@ -578,7 +578,7 @@ class Decal3D extends IAM {
     }
     display() {
         console.log("------------------------------------------");
-        console.log("Overview:", this.constructor.name, this.name);
+        console.log("Overview:", this.constructor.name);
         console.table(this.POOL, ['name', 'id', 'global_id', 'grid']);
         console.log("------------------------------------------");
     }
@@ -649,8 +649,8 @@ class Animated_3d_entity extends IAM {
     }
     display() {
         console.log("------------------------------------------");
-        console.log("Overview:", this.constructor.name, this.name);
-        console.table(this.POOL, ['name', 'id', 'grid', 'model', 'pos']);
+        console.log("Overview:", this.constructor.name);
+        console.table(this.POOL, ['name', 'id', 'grid', 'model', 'translate']);
         console.log("------------------------------------------");
     }
 }
