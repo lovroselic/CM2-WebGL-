@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.20.4",
+    VERSION: "0.20.5",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -180,6 +180,7 @@ const WebGL = {
         INTERACTIVE_DECAL3D.init(map);
         BUMP3D.init(map);
         INTERACTIVE_DECAL3D.init(map);
+        ENTITY3D.init(map);
 
         if (this.VERBOSE) {
             console.log("DECAL3D", DECAL3D);
@@ -336,6 +337,14 @@ const WebGL = {
                 return null;
             }
             this[prog].program = shaderProgram;
+            this[prog].uniforms = {
+                projection_matrix: gl.getUniformLocation(this[prog].program, "uProjectionMatrix"),
+                modelViewMatrix: gl.getUniformLocation(this[prog].program, "uModelViewMatrix"),
+                cameraPos: gl.getUniformLocation(this[prog].program, "uCameraPos"),
+                uLights: gl.getUniformLocation(this[prog].program, "uPointLights"),
+                uLightColors: gl.getUniformLocation(this[prog].program, "uLightColors"),
+                u_sampler: gl.getUniformLocation(this[prog].program, "uSampler"),
+            };
         }
     },
     initParticlePrograms(gl) {
@@ -424,7 +433,6 @@ const WebGL = {
                 uScale: gl.getUniformLocation(shaderProgram, "uScale"),
                 uTranslate: gl.getUniformLocation(shaderProgram, "uTranslate"),
                 uShine: gl.getUniformLocation(shaderProgram, "uShine"),
-                uLS: gl.getUniformLocation(shaderProgram, "uLS"),
                 uLightColor: gl.getUniformLocation(shaderProgram, "uLightColor"),
                 uItemPosition: gl.getUniformLocation(shaderProgram, "uItemPosition"),
                 lightColors: gl.getUniformLocation(shaderProgram, "uLightColors"),
@@ -521,22 +529,14 @@ const WebGL = {
         gl.uniform3fv(this.program.uniformLocations.lights, lights);
         gl.uniform3fv(this.program.uniformLocations.lightColors, lightColors);
 
-        //set global uniforms for model program
-        //optimize: remove getUnifortm calls from game loop!
-        const program = WebGL.model_program.program;
-        gl.useProgram(program);
-        const projection_matrix = gl.getUniformLocation(program, "uProjectionMatrix");
-        const modelViewMatrix = gl.getUniformLocation(program, "uModelViewMatrix");
-        const cameraPos = gl.getUniformLocation(program, "uCameraPos");
-        const uLights = gl.getUniformLocation(program, "uPointLights");
-        const uLightColors = gl.getUniformLocation(program, "uLightColors");
-        const u_sampler = gl.getUniformLocation(program, "uSampler");
-        gl.uniformMatrix4fv(projection_matrix, false, this.projectionMatrix);
-        gl.uniformMatrix4fv(modelViewMatrix, false, this.viewMatrix);
-        gl.uniform3fv(cameraPos, this.camera.pos.array);
-        gl.uniform3fv(uLights, lights);
-        gl.uniform3fv(uLightColors, lightColors);
-        gl.uniform1i(u_sampler, 0);
+        //set global uniforms for model program - could be extendet to loop over more programs if required
+        gl.useProgram(this.model_program.program);
+        gl.uniformMatrix4fv(this.model_program.uniforms.projection_matrix, false, this.projectionMatrix);
+        gl.uniformMatrix4fv(this.model_program.uniforms.modelViewMatrix, false, this.viewMatrix);
+        gl.uniform3fv(this.model_program.uniforms.cameraPos, this.camera.pos.array);
+        gl.uniform3fv(this.model_program.uniforms.uLights, lights);
+        gl.uniform3fv(this.model_program.uniforms.uLightColors, lightColors);
+        gl.uniform1i(this.model_program.uniforms.u_sampler, 0);
 
         //pickProgram uniforms and defaults
         gl.useProgram(this.pickProgram.program);
@@ -1136,9 +1136,15 @@ class $3D_player {
         //this.log();
     }
     bumpEnemy(nextPos) {
+        //console.error("bumpEnemy", nextPos, this.dir, this.r);
         let checkGrids = this.GA.gridsAroundEntity(nextPos, Vector3.to_FP_Vector(this.dir), this.r); //grid check is 2D!
-        if (!this.map.enemyIA) return;
+        //console.log("checkGrids", checkGrids);
+        //console.log("this.map.enemyIA", this.map.enemyIA);
+        //if (!this.map.enemyIA) return;
         let enemies = this.map.enemyIA.unrollArray(checkGrids);
+        console.log("enemies", enemies);
+
+        /** this will not work, to be changed!! */
         if (enemies.size > 0) {
             for (const e of enemies) {
                 if (ENEMY_RC.POOL[e - 1].base !== 1) continue;
@@ -1456,6 +1462,16 @@ class WallFeature3D {
     }
 }
 
+class BoundingBox {
+    constructor(max, min, scale) {
+        console.log(max, min, scale);
+        this.max = Vector3.from_array(max);
+        this.max = this.max.scaleVec3(scale);
+        this.min = Vector3.from_array(min);
+        this.min = this.min.scaleVec3(scale);
+    }
+}
+
 /** Particle classes */
 
 class ParticleEmmiter {
@@ -1750,6 +1766,7 @@ class WoodExplosion extends ParticleEmmiter {
 
 class $3D_Entity {
     constructor(grid, type) {
+        this.birth = Date.now();
         this.grid = grid;
         this.type = type;
         for (const prop in type) {
@@ -1769,6 +1786,11 @@ class $3D_Entity {
         this.rotate = glMatrix.mat4.create();
         this._2D_dir = UP;
         glMatrix.mat4.rotate(this.rotate, this.rotate, Math.PI, [0, 1, 0]);
+        this.boundingBox = new BoundingBox(this.model.meshes[0].primitives[0].positions.max, this.model.meshes[0].primitives[0].positions.min, this.scale);
+        console.log("boundingBox", this.boundingBox);
+
+        this.actor = new $3D_ACTOR();
+        this.moveState = new $3D_MoveState();
     }
     draw(gl) {
         const program = WebGL.model_program.program;
@@ -1826,6 +1848,7 @@ class $3D_Entity {
             }
         }
     }
+    update(date){}
 }
 
 /** model formats */

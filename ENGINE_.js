@@ -2632,6 +2632,18 @@ class _3D_ACTOR {
     return ENGINE.getImgData(img);
   }
 }
+
+class $3D_ACTOR {
+  constructor() {
+
+  }
+}
+class $3D_MoveState {
+  constructor() {
+
+  }
+}
+
 class _1D_MoveState {
   constructor(x, dir) {
     this.x = x;

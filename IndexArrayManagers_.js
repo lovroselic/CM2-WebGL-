@@ -636,11 +636,22 @@ class ParticleEmmission3D extends IAM {
 class Animated_3d_entity extends IAM {
     constructor() {
         super();
-        this.IA = null;
+        //this.IA = null;
         this.POOL = [];
+        this.IA = "enemyIA";
+    }
+    poolToIA(IA){
+        for (const enemy of this.POOL){
+            if (enemy === null) continue;
+            //
+        }
     }
     manage(date) {
         this.reIndex();
+        let map = this.map;
+        map[this.IA] = new IndexArray(map.width, map.height, 4, 4);
+        this.poolToIA(map[this.IA]);
+
         for (const entity of this.POOL) {
             if (entity) {
                 entity.update(date);

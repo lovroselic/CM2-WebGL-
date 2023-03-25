@@ -87,6 +87,12 @@ class Vector3 {
         let z = this.z + vector.z;
         return new Vector3(x, y, z);
     }
+    scaleVec3(vec3) {
+        let x = this.x * vec3[0];
+        let y = this.y * vec3[1];
+        let z = this.z * vec3[2];
+        return new Vector3(x, y, z);
+    }
 }
 
 //END

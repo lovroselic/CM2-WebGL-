@@ -265,7 +265,7 @@ LoadSprites = [
     { srcName: "JSW.png", name: "JSW" },
     { srcName: "Frogger.png", name: "Frogger" },
     { srcName: "Knightlore.png", name: "Knightlore" },
-    { srcName: "Galaga1.png", name: "Galaga1" },
+    //{ srcName: "Galaga1.png", name: "Galaga1" },
     { srcName: "BoogaBoo3.png", name: "BoogaBoo3" },
     { srcName: "BoogaBoo1.png", name: "BoogaBoo1" },
     { srcName: "CrystalCastles.png", name: "CrystalCastles" },
