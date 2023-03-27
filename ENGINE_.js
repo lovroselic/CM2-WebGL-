@@ -2245,31 +2245,34 @@ const ENGINE = {
       this._circle(CTX, Vector3.to_FP_Grid(entity.pos), entity.r, Vector3.to_FP_Grid(entity.dir));
     },
     drawBlock(monster) {
-      monster.actor.updateOrientationWidths();
-      let CTX = ENGINE.VECTOR2D.layer;
-      CTX.fillStyle = "#000";
+      const CTX = ENGINE.VECTOR2D.layer;
       CTX.strokeStyle = "#000";
-      if (monster.type === "Missile") {
-        CTX.strokeStyle = "#F00";
-      }
       CTX.lineWidth = 1;
-      let point = monster.moveState.pos.toPoint();
-      let dir = monster.moveState.dir;
-      let x = point.x - (monster.actor.frontWidth / 2) * Math.abs(dir.y) - (monster.actor.sideWidth / 2) * Math.abs(dir.x);
-      let y = point.y - (monster.actor.frontWidth / 2) * Math.abs(dir.x) - (monster.actor.sideWidth / 2) * Math.abs(dir.y);
-
+      const point = monster.moveState.pos.toPoint();
+      const dir = monster.moveState.dir;
+      const corners = this.calcCornersFromBB(point, monster.moveState.boundingBox);
       CTX.beginPath();
-      CTX.rect(x, y, monster.actor.orientationW, monster.actor.orientationH);
-      if (monster.actor.orientationW + monster.actor.orientationH === 0) {
-        CTX.strokeStyle = "#F00";
-        CTX.rect(x, y, 5, 5);
+      CTX.moveTo(corners[3].x, corners[3].y);
+      for (let i = 0; i < 4; i++) {
+        CTX.lineTo(corners[i].x, corners[i].y);
       }
       CTX.moveTo(point.x, point.y);
-      //let r = (monster.actor.orientationH / 2) * Math.abs(dir.y) + (monster.actor.orientationW / 2) * Math.abs(dir.x);
-      let end = point.translate(dir, monster.r * ENGINE.INI.GRIDPIX);
-      CTX.lineTo(end.x, end.y);
+      let len = (monster.boundingBox.max.z - monster.boundingBox.min.z) * ENGINE.INI.GRIDPIX / 2;
+      const endPoint = point.translate(dir, len);
+      CTX.lineTo(endPoint.x, endPoint.y);
       CTX.stroke();
-    }
+    },
+    calcCornersFromBB(point, BB) {
+      const gridpix = ENGINE.INI.GRIDPIX;
+      const corners = [
+        point.add(new Vector(BB.min.x * gridpix, BB.min.z * gridpix)), //top left
+        point.add(new Vector(BB.max.x * gridpix, BB.min.z * gridpix)), //top right
+        point.add(new Vector(BB.max.x * gridpix, BB.max.z * gridpix)), //bottom right
+        point.add(new Vector(BB.min.x * gridpix, BB.max.z * gridpix)), //bottom left
+
+      ];
+      return corners;
+    },
   },
   RAYCAST_DRAW: {
     configure(floor, ceiling, wall) {
@@ -2594,10 +2597,8 @@ class _3D_ACTOR {
       return;
     }
     let dir = this.parent.moveState.dir;
-    this.orientationW =
-      Math.abs(dir.y) * this.frontWidth + Math.abs(dir.x) * this.sideWidth;
-    this.orientationH =
-      Math.abs(dir.x) * this.frontWidth + Math.abs(dir.y) * this.sideWidth;
+    this.orientationW = Math.abs(dir.y) * this.frontWidth + Math.abs(dir.x) * this.sideWidth;
+    this.orientationH = Math.abs(dir.x) * this.frontWidth + Math.abs(dir.y) * this.sideWidth;
   }
   width() {
     switch (this.asset.type) {
@@ -2634,13 +2635,38 @@ class _3D_ACTOR {
 }
 
 class $3D_ACTOR {
-  constructor() {
-
+  constructor(parent) {
+    this.parent = parent;
   }
 }
 class $3D_MoveState {
-  constructor() {
-
+  constructor(translation_vector, dir, rotation_to_north, parent) {
+    this.pos = translation_vector; //Vector3
+    this.dir = dir; //2D dir
+    this.rotation_to_north = rotation_to_north // rad
+    this.parent = parent;
+    this.update();
+  }
+  update() {
+    this.setRotation();
+    this.setDirectionVector();
+    this.setRotatedBoundingBox();
+  }
+  setDirectionVector() {
+    this.directionVector = Vector3.from_2D_dir(this.dir);
+  }
+  setRotation() {
+    this.rotation_angle = UP.radAngleBetweenVectors(this.dir);
+    this.rotate = glMatrix.mat4.create();
+    glMatrix.mat4.rotate(this.rotate, this.rotate, this.rotation_to_north + this.rotation_angle, [0, 1, 0]);
+  }
+  setRotatedBoundingBox() {
+    const axis = glMatrix.vec3.create();
+    const max = glMatrix.vec3.create();
+    const min = glMatrix.vec3.create();
+    glMatrix.vec3.rotateY(max, this.parent.boundingBox.max.array, axis, this.rotation_angle);
+    glMatrix.vec3.rotateY(min, this.parent.boundingBox.min.array, axis, this.rotation_angle);
+    this.boundingBox = new BoundingBox(max, min);
   }
 }
 

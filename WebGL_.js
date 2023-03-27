@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.20.5",
+    VERSION: "0.20.6",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1142,7 +1142,7 @@ class $3D_player {
         //console.log("this.map.enemyIA", this.map.enemyIA);
         //if (!this.map.enemyIA) return;
         let enemies = this.map.enemyIA.unrollArray(checkGrids);
-        console.log("enemies", enemies);
+        //console.log("enemies", enemies);
 
         /** this will not work, to be changed!! */
         if (enemies.size > 0) {
@@ -1463,12 +1463,11 @@ class WallFeature3D {
 }
 
 class BoundingBox {
-    constructor(max, min, scale) {
-        console.log(max, min, scale);
+    constructor(max, min, scale = null) {
         this.max = Vector3.from_array(max);
-        this.max = this.max.scaleVec3(scale);
+        if (scale) this.max = this.max.scaleVec3(scale);
         this.min = Vector3.from_array(min);
-        this.min = this.min.scaleVec3(scale);
+        if (scale) this.min = this.min.scaleVec3(scale);
     }
 }
 
@@ -1765,7 +1764,7 @@ class WoodExplosion extends ParticleEmmiter {
 }
 
 class $3D_Entity {
-    constructor(grid, type) {
+    constructor(grid, type, dir = UP) {
         this.birth = Date.now();
         this.grid = grid;
         this.type = type;
@@ -1783,18 +1782,13 @@ class $3D_Entity {
         //position from grid
         const minY = this.model.meshes[0].primitives[0].positions.min[1] * this.scale[1];
         this.translate = Vector3.from_Grid(grid, minY);
-        this.rotate = glMatrix.mat4.create();
-        this._2D_dir = UP;
-        glMatrix.mat4.rotate(this.rotate, this.rotate, Math.PI, [0, 1, 0]);
         this.boundingBox = new BoundingBox(this.model.meshes[0].primitives[0].positions.max, this.model.meshes[0].primitives[0].positions.min, this.scale);
         console.log("boundingBox", this.boundingBox);
-
-        this.actor = new $3D_ACTOR();
-        this.moveState = new $3D_MoveState();
+        this.actor = new $3D_ACTOR(this);
+        this.moveState = new $3D_MoveState(this.translate, dir, this.rotateToNorth, this);
     }
     draw(gl) {
         const program = WebGL.model_program.program;
-        //gl.useProgram(program);
 
         //uniforms
         //scale
@@ -1805,13 +1799,13 @@ class $3D_Entity {
 
         //translate
         const mTranslationMatrix = glMatrix.mat4.create();
-        glMatrix.mat4.fromTranslation(mTranslationMatrix, this.translate.array);
+        glMatrix.mat4.fromTranslation(mTranslationMatrix, this.moveState.pos.array);
         const uTranslateMatrix = gl.getUniformLocation(program, 'uTranslate');
         gl.uniformMatrix4fv(uTranslateMatrix, false, mTranslationMatrix);
 
         //rotate
         const uRotatematrix = gl.getUniformLocation(program, 'uRotateY');
-        gl.uniformMatrix4fv(uRotatematrix, false, this.rotate);
+        gl.uniformMatrix4fv(uRotatematrix, false, this.moveState.rotate);
 
         const uShine = gl.getUniformLocation(program, "uShine");
         gl.uniform1f(uShine, this.shine);
@@ -1848,7 +1842,12 @@ class $3D_Entity {
             }
         }
     }
-    update(date){}
+    drawVector2D(map) {
+        ENGINE.VECTOR2D.drawBlock(this);
+    }
+    update(date) {
+        this.moveState.update();
+    }
 }
 
 /** model formats */

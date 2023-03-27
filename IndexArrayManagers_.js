@@ -646,6 +646,11 @@ class Animated_3d_entity extends IAM {
             //
         }
     }
+    drawVector2D() {
+        for (let obj of this.POOL) {
+            if (obj) obj.drawVector2D(this.map);
+        }
+    }
     manage(date) {
         this.reIndex();
         let map = this.map;
@@ -661,7 +666,7 @@ class Animated_3d_entity extends IAM {
     display() {
         console.log("------------------------------------------");
         console.log("Overview:", this.constructor.name);
-        console.table(this.POOL, ['name', 'id', 'grid', 'model', 'translate']);
+        console.table(this.POOL, ['name', 'id', 'grid', 'model', 'moveState', 'actor', 'boundingBox']);
         console.log("------------------------------------------");
     }
 }

@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.10.12",
+    VERSION: "0.10.13",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -847,6 +847,7 @@ const GAME = {
         if (DEBUG._2D_display) {
             ENGINE.BLOCKGRID.draw(MAP[GAME.level].map);
             MISSILE3D.draw();
+            ENTITY3D.drawVector2D();
         }
     },
 

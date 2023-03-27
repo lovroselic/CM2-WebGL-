@@ -331,11 +331,11 @@ var SPAWN = {
     monsters(level) {
         console.log("spawning monsters...");
         const monsterLocations = [
-            { grid: new FP_Grid(2.0, 6.0), type: MONSTER_TYPE.GhostFace },
+            { grid: new FP_Grid(2.5, 6.5), dir: LEFT, type: MONSTER_TYPE.GhostFace },
         ];
 
         for (let monster of monsterLocations) {
-            ENTITY3D.add(new $3D_Entity(monster.grid, monster.type));
+            ENTITY3D.add(new $3D_Entity(monster.grid, monster.type, monster.dir));
         }
     }
 };
@@ -346,6 +346,7 @@ const MONSTER_TYPE = {
         model: "GhostFace",
         scale: 1 / 2 ** 1,
         shine: 128.0 * 0.5,
+        rotateToNorth: Math.PI
     }
 };
 
