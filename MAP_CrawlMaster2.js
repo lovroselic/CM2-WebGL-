@@ -25,7 +25,7 @@ const DECAL_PAINTINGS = [
     "Witcher1", "Spelunker", "ShamusCase2", "Ishar2", "Pitfall5", "PharaohCurse2", "Frontier", "LSL8", "SP2", "SP1",
     "SVS24", "SVS23", "KQ10", "Shamus20", "Pitfall21", "Apshai6", "Apshai5", "MontyMole", "PacClose", "PacGhost", "Pitfall20", "SVS22", "SVS21",
     "Apshai4", "Apshai3", "Paperboy", "RobinOfTheWood2", "Pyjamarama", "ThePawn", "KokotoniWilf", "Cauldron1",
-    "Zeppelin2", "TimeTunnel", "SP3", "AC2", "Hero30", "SVS30", "AirWolf", "AA41", "AA40", "SeaWolf", "GIJoe10",
+    "Zeppelin2", "SP3", "AC2", "Hero30", "SVS30", "AirWolf", "AA41", "AA40", "SeaWolf", "GIJoe10",
     "Hobbit1", "Hobbit3", "Ghostbusters2", "Commando3", "EOB20", "Hobbit6", "Hobbit7", "Hobbit8", "Hobbit9", "AticAtac1", "Infiltrator1", "ManicMiner2",
     "ManicMiner3", "Infiltrator2", "1942_2", "Arnie1", "BTF1", "BlueThunder1", "BrianBloodaxe1", "BrideOfFrakenstein1",
     "BruceLee1", "Captive", "Fred3", "Fred4", "JSW4", "ManiacMansion2", "PQ1", "Pengo", "Pirates", "PolePosition", "Silkworm1", "SirFred1",
@@ -322,6 +322,8 @@ var SPAWN = {
             { grid: new FP_Grid(4.5, 4.5), type: COMMON_ITEM_TYPE.TreasureChest },
             { grid: new FP_Grid(2.8, 12.8), type: COMMON_ITEM_TYPE.Chest },
 
+            { grid: new FP_Grid(5.5, 5.5), type: COMMON_ITEM_TYPE.Coins },
+
         ];
 
         for (let item of itemLocations) {
@@ -331,7 +333,8 @@ var SPAWN = {
     monsters(level) {
         console.log("spawning monsters...");
         const monsterLocations = [
-            { grid: new FP_Grid(2.5, 6.5), dir: LEFT, type: MONSTER_TYPE.GhostFace },
+            { grid: new FP_Grid(2.5, 6.5), dir: UP, type: MONSTER_TYPE.GhostFace },
+            { grid: new FP_Grid(5.5, 12.5), dir: LEFT, type: MONSTER_TYPE.GhostFace },
         ];
 
         for (let monster of monsterLocations) {
@@ -346,7 +349,14 @@ const MONSTER_TYPE = {
         model: "GhostFace",
         scale: 1 / 2 ** 1,
         shine: 128.0 * 0.5,
-        rotateToNorth: Math.PI
+        rotateToNorth: Math.PI,
+        deathType: "BloodExplosion",
+        inventory: "Coins",
+        //attribs
+        magic: 0,
+        health: 1,
+        xp: 50,
+        gold: 100,
     }
 };
 
@@ -585,6 +595,17 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 5,
         glueToFloor: true,
         texture: "Gold",
+        minVal: 10,
+        maxVal: 25,
+        shine: 128.0 * 0.99,
+    },
+    Coins: {
+        name: "Coins",
+        category: "gold",
+        element: "COINS",
+        scale: 1.5 / 2 ** 0,
+        glueToFloor: true,
+        texture: "Coins",
         minVal: 10,
         maxVal: 25,
         shine: 128.0 * 0.99,

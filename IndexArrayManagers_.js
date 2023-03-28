@@ -586,9 +586,11 @@ class Decal3D extends IAM {
 }
 
 class Missile3D extends IAM {
-    constructor() {
+    constructor(enemyIA, entity_IAM) {
         super();
         this.IA = null;
+        this.enemyIA = enemyIA;
+        this.entity_IAM = entity_IAM;
     }
     draw() {
         for (let obj of this.POOL) {
@@ -600,7 +602,8 @@ class Missile3D extends IAM {
         for (let obj of this.POOL) {
             if (obj) {
                 obj.move(lapsedTime);
-                let wallHit = !this.map.GA.entityNotInWall(Vector3.to_FP_Grid(obj.pos), Vector3.to_FP_Vector(obj.dir), obj.r);
+                const pos = Vector3.to_FP_Grid(obj.pos);
+                let wallHit = !this.map.GA.entityNotInWall(pos, Vector3.to_FP_Vector(obj.dir), obj.r);
                 if (wallHit) {
                     this.remove(obj.id);
                     EXPLOSION3D.add(new ParticleExplosion(obj.pos));
@@ -609,6 +612,29 @@ class Missile3D extends IAM {
                     AUDIO.Explosion.volume = RAY.volume(obj.distance);
                     AUDIO.Explosion.play();
                 }
+
+                //check entity collision
+                let IA = this.map[this.enemyIA];
+                let grid = Grid.toClass(pos);
+                //console.log(grid);
+                if (!IA.empty(grid)) {
+                    const possibleEnemies = IA.unroll(grid);
+                    //console.log("possibleEnemies", possibleEnemies);
+                    for (let P of possibleEnemies) {
+                        const monster = this.entity_IAM.POOL[P - 1];
+                        if (monster === null) continue;
+                        //console.log("monster", monster);
+                        //console.log(monster.r + obj.r, monster.r, obj.r);
+                        const monsterHit = GRID.circleCollision2D(monster.moveState.grid, Vector3.to_FP_Grid(obj.pos), monster.r + obj.r);
+                        //console.log("monsterHit", monsterHit);
+                        if (monsterHit) {
+                            //console.warn("monsterHit");
+                            monster.hitByMissile(obj);
+                            continue;
+                        }
+                    }
+                }
+
             }
         }
     }
@@ -722,11 +748,11 @@ const LIGHTS3D = new Decal3D();
 const VANISHING3D = new Decal3D();
 const GATE3D = new Decal3D(100);
 const ITEM3D = new Decal3D(1000);
-const MISSILE3D = new Missile3D();
 const EXPLOSION3D = new ParticleEmmission3D();
 const INTERACTIVE_DECAL3D = new Decal3D(1000);
 const BUMP3D = new Decal_IA_3D();
 const ENTITY3D = new Animated_3d_entity();
+const MISSILE3D = new Missile3D("enemyIA", ENTITY3D);
 /** *********************************************** */
 
 console.log(`%cIndexArrayManagers (IAM) ${IndexArrayManagers.VERSION} ready.`, "color: #7FFFD4");

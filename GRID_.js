@@ -23,10 +23,18 @@ const GRID = {
     EPSILON: 0.05
   },
   circleCollision(entity1, entity2) {
-    let distance = entity1.moveState.pos.EuclidianDistance(
-      entity2.moveState.pos
-    );
+    let distance = entity1.moveState.pos.EuclidianDistance(entity2.moveState.pos);
     let touchDistance = entity1.r + entity2.r;
+    return distance < touchDistance;
+  },
+  circleCollision2D(fpgrid1, fpgrid2, touchDistance) {
+    return fpgrid1.EuclidianDistance(fpgrid2) < touchDistance;
+  },
+  circleCollision_toPos(entity1, entity2) {
+    console.log(entity1.moveState.pos, entity2.pos);
+    let distance = entity1.moveState.pos.EuclidianDistance(entity2.pos);
+    let touchDistance = entity1.r + entity2.r;
+    console.log(distance, touchDistance);
     return distance < touchDistance;
   },
   circleRectangleCollision() { },

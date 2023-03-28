@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.20.7",
+    VERSION: "0.20.8",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -248,6 +248,8 @@ const WebGL = {
                 }
             }
         }
+
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     },
     initBuffers(gl, world) {
         const positionBuffer = gl.createBuffer();
@@ -1402,6 +1404,7 @@ class FloorItem3D {
         //unpack
         this.element = ELEMENT[this.element];
         this.texture = TEXTURE[this.texture];
+        //this.texture = WebGL.createTexture(this.texture); //
         if (typeof (this.scale) === "number") {
             this.scale = new Float32Array([this.scale, this.scale, this.scale]);
         }
@@ -1411,7 +1414,6 @@ class FloorItem3D {
         if (this.glueToFloor) {
             let max = ELEMENT.getMinY(this.element);
             heightTranslate[1] -= max * this.scale[1];
-
         }
         let translate = new Vector3(grid.x, h, grid.y);
         translate = translate.add(Vector3.from_array(heightTranslate));
@@ -1427,6 +1429,12 @@ class FloorItem3D {
         let identity = glMatrix.mat4.create();
         glMatrix.mat4.rotate(identity, identity, randomRotation, [0, 1, 0]);
         this.rotationY = identity;
+    }
+    setValue(value) {
+        this.value = value;
+    }
+    setTexture() {
+        this.texture = WebGL.createTexture(this.texture);//
     }
     interact(GA, inventory) {
         this.active = false;
@@ -1775,7 +1783,6 @@ class $3D_Entity {
         const minY = this.model.meshes[0].primitives[0].positions.min[1] * this.scale[1];
         this.translate = Vector3.from_Grid(grid, minY);
         this.boundingBox = new BoundingBox(this.model.meshes[0].primitives[0].positions.max, this.model.meshes[0].primitives[0].positions.min, this.scale);
-        console.log("boundingBox", this.boundingBox);
         this.actor = new $3D_ACTOR(this);
         this.moveState = new $3D_MoveState(this.translate, dir, this.rotateToNorth, this);
         this.r = ((this.boundingBox.max.z - this.boundingBox.min.z) / 2 + (this.boundingBox.max.x - this.boundingBox.min.x) / 2) / 2;
@@ -1841,7 +1848,35 @@ class $3D_Entity {
     update(date) {
         this.moveState.update();
     }
-    //translaton of entity expects grid (FP_Grid, 2D projection) is updated!
+    dropInventory() {
+        const item = new FloorItem3D(this.moveState.grid, COMMON_ITEM_TYPE[this.inventory]);
+        if (item.category === 'gold') item.setValue(this.gold);
+        item.setTexture();
+        console.warn("dropped inventory", item);
+        ITEM3D.add(item);
+    }
+    hitByMissile(missile) {
+        const damage = Math.max(missile.calcDamage(this.magic), 1);
+        let exp = Math.min(this.health, damage);
+        this.health -= damage;
+        let dead = false;
+        if (this.health <= 0) dead = true;
+        if (dead) {
+            exp += this.xp;
+            this.IAM.remove(this.id);
+            this.dropInventory();
+            EXPLOSION3D.add(new (eval(this.deathType))(this.moveState.pos));
+        }
+
+        //missile explosion
+        EXPLOSION3D.add(new ParticleExplosion(missile.pos));
+        MISSILE3D.remove(missile.id);
+        AUDIO.Explosion.volume = RAY.volume(missile.distance);
+        AUDIO.Explosion.play();
+
+        //exp to HERO
+        HERO.incExp(exp, "magic"); //accessing HERO directly TODO
+    }
 }
 
 /** model formats */

@@ -59,6 +59,7 @@ LoadTextures = [
     { srcName: "Explosion1.jpg", name: "Explosion" },
 
     { srcName: "treasure_chest.JPG", name: "TreasureChest" },
+    { srcName: "CoinColor.jpg", name: "Coins" },
 
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
@@ -98,7 +99,7 @@ LoadShaders = [
 ];
 LoadObjects = [
     "key.obj", "flask.obj", "scroll.obj", "ball.obj", "sword.obj", "heart.obj", "shield.obj", "pentagram.obj", "chest.obj",
-    "treasure_chest.obj"
+    "treasure_chest.obj", "coins.obj"
 ];
 
 LoadModels = ['GhostFace.gltf'];
@@ -378,7 +379,7 @@ LoadSprites = [
     { srcName: "KokotoniWilf.png", name: "KokotoniWilf" },
     { srcName: "Cauldron1.png", name: "Cauldron1" },
     { srcName: "Zeppelin2.png", name: "Zeppelin2" },
-    { srcName: "TimeTunnel.png", name: "TimeTunnel" },
+    //{ srcName: "TimeTunnel.png", name: "TimeTunnel" },
     { srcName: "SP3.png", name: "SP3" },
     { srcName: "AC2.png", name: "AC2" },
     { srcName: "Hero30.png", name: "Hero30" },

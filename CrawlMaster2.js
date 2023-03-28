@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.10.14",
+    VERSION: "0.10.15",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -378,7 +378,7 @@ class Missile {
         if (typeof (this.scale) === "number") {
             this.scale = new Float32Array([this.scale, this.scale, this.scale]);
         }
-        this.r = Math.max(...this.scale);
+        this.r = Math.max(...this.scale) * 2;
         this.indices = this.element.indices.length;
         this.power = this.calcPower(magic);
         this.pos = this.pos.translate(this.dir, 1.2 * this.r);
@@ -665,7 +665,7 @@ const GAME = {
         SPAWN.spawn(level);
         const object_map = [
             "BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM", "SWORD", "HEART", "SHIELD", "PENTAGRAM", "CHEST",
-            "TREASURE_CHEST",
+            "TREASURE_CHEST", "COINS"
         ];
         MAP[level].world = WORLD.build(MAP[level].map, object_map);
         console.log("world", MAP[level].world);
