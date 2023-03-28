@@ -640,10 +640,23 @@ class Animated_3d_entity extends IAM {
         this.POOL = [];
         this.IA = "enemyIA";
     }
-    poolToIA(IA){
-        for (const enemy of this.POOL){
+    poolToIA(IA) {
+        for (const enemy of this.POOL) {
             if (enemy === null) continue;
             //
+            const BB = enemy.moveState.boundingBox;
+            const grids = [
+                //orientation is rotated!
+                Grid.toClass(enemy.moveState.grid.add(new FP_Vector(BB.min.x, BB.min.z))), //top left
+                Grid.toClass(enemy.moveState.grid.add(new FP_Vector(BB.max.x, BB.min.z))), //top right
+                Grid.toClass(enemy.moveState.grid.add(new FP_Vector(BB.min.x, BB.max.z))), //bottom left
+                Grid.toClass(enemy.moveState.grid.add(new FP_Vector(BB.max.x, BB.max.z))), //bottom right
+            ];
+            for (let grid of grids) {
+                if (!IA.has(grid, enemy.id)) {
+                    IA.next(grid, enemy.id);
+                }
+            }
         }
     }
     drawVector2D() {
@@ -666,7 +679,7 @@ class Animated_3d_entity extends IAM {
     display() {
         console.log("------------------------------------------");
         console.log("Overview:", this.constructor.name);
-        console.table(this.POOL, ['name', 'id', 'grid', 'model', 'moveState', 'actor', 'boundingBox']);
+        console.table(this.POOL, ['name', 'id', 'grid', 'model', 'moveState', 'actor', 'boundingBox', 'r']);
         console.log("------------------------------------------");
     }
 }

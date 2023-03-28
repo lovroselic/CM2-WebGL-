@@ -2227,7 +2227,8 @@ const ENGINE = {
       CTX.lineJoin = "round";
       this._circle(CTX, Vector3.to_FP_Grid(player.pos), player.r, Vector3.to_FP_Grid(player.dir));
     },
-    _circle(CTX, grid, R, dir) {
+    _circle(CTX, grid, R, dir, color = null) {
+      if (color) CTX.strokeStyle = color;
       let point = grid.toPoint();
       CTX.pixelAtPoint(point);
       let r = Math.round(ENGINE.INI.GRIDPIX * R);
@@ -2244,9 +2245,10 @@ const ENGINE = {
       CTX.lineWidth = 1;
       this._circle(CTX, Vector3.to_FP_Grid(entity.pos), entity.r, Vector3.to_FP_Grid(entity.dir));
     },
-    drawBlock(monster) {
+    drawBlock(monster, color = "#8000FF") {
       const CTX = ENGINE.VECTOR2D.layer;
-      CTX.strokeStyle = "#000";
+      this._circle(CTX, Vector3.to_FP_Grid(monster.moveState.pos), monster.r, Vector3.to_FP_Grid(monster.moveState.dir), "#000"); //
+      CTX.strokeStyle = color;
       CTX.lineWidth = 1;
       const point = monster.moveState.pos.toPoint();
       const dir = monster.moveState.dir;
@@ -2651,6 +2653,7 @@ class $3D_MoveState {
     this.setRotation();
     this.setDirectionVector();
     this.setRotatedBoundingBox();
+    this.setGrid();
   }
   setDirectionVector() {
     this.directionVector = Vector3.from_2D_dir(this.dir);
@@ -2667,6 +2670,9 @@ class $3D_MoveState {
     glMatrix.vec3.rotateY(max, this.parent.boundingBox.max.array, axis, this.rotation_angle);
     glMatrix.vec3.rotateY(min, this.parent.boundingBox.min.array, axis, this.rotation_angle);
     this.boundingBox = new BoundingBox(max, min);
+  }
+  setGrid() {
+    this.grid = Vector3.to_FP_Grid(this.pos);
   }
 }
 

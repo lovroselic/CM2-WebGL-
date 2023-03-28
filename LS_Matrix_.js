@@ -93,6 +93,9 @@ class Vector3 {
         let z = this.z * vec3[2];
         return new Vector3(x, y, z);
     }
+    EuclidianDistance(Vector3) {
+        return glMatrix.vec3.distance(this.array, Vector3.array);
+    }
 }
 
 //END

@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.20.6",
+    VERSION: "0.20.7",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1136,19 +1136,11 @@ class $3D_player {
         //this.log();
     }
     bumpEnemy(nextPos) {
-        //console.error("bumpEnemy", nextPos, this.dir, this.r);
         let checkGrids = this.GA.gridsAroundEntity(nextPos, Vector3.to_FP_Vector(this.dir), this.r); //grid check is 2D!
-        //console.log("checkGrids", checkGrids);
-        //console.log("this.map.enemyIA", this.map.enemyIA);
-        //if (!this.map.enemyIA) return;
         let enemies = this.map.enemyIA.unrollArray(checkGrids);
-        //console.log("enemies", enemies);
-
-        /** this will not work, to be changed!! */
         if (enemies.size > 0) {
             for (const e of enemies) {
-                if (ENEMY_RC.POOL[e - 1].base !== 1) continue;
-                let EP_hit = this.circleCollision(ENEMY_RC.POOL[e - 1], nextPos);
+                let EP_hit = this.circleCollision(ENTITY3D.POOL[e - 1], nextPos);
                 if (EP_hit) {
                     return true;
                 }
@@ -1224,7 +1216,7 @@ class $3D_player {
     circleCollision(entity, nextPos = null) {
         let distance;
         if (nextPos !== null) {
-            distance = entity.moveState.pos.EuclidianDistance(nextPos);
+            distance = entity.moveState.pos.EuclidianDistance(Vector3.from_Grid(nextPos));
         } else {
             distance = entity.moveState.pos.EuclidianDistance(this.pos);
         }
@@ -1786,6 +1778,7 @@ class $3D_Entity {
         console.log("boundingBox", this.boundingBox);
         this.actor = new $3D_ACTOR(this);
         this.moveState = new $3D_MoveState(this.translate, dir, this.rotateToNorth, this);
+        this.r = ((this.boundingBox.max.z - this.boundingBox.min.z) / 2 + (this.boundingBox.max.x - this.boundingBox.min.x) / 2) / 2;
     }
     draw(gl) {
         const program = WebGL.model_program.program;
@@ -1848,6 +1841,7 @@ class $3D_Entity {
     update(date) {
         this.moveState.update();
     }
+    //translaton of entity expects grid (FP_Grid, 2D projection) is updated!
 }
 
 /** model formats */
