@@ -2645,7 +2645,7 @@ class $3D_MoveState {
   constructor(translation_vector, dir, rotation_to_north, parent) {
     this.pos = translation_vector; //Vector3
     this.dir = dir; //2D dir
-    this.rotation_to_north = rotation_to_north // rad
+    this.rotation_to_north = rotation_to_north; // rad
     this.parent = parent;
     this.update();
   }
