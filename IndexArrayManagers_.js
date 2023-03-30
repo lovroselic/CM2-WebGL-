@@ -616,25 +616,18 @@ class Missile3D extends IAM {
                 //check entity collision
                 let IA = this.map[this.enemyIA];
                 let grid = Grid.toClass(pos);
-                //console.log(grid);
                 if (!IA.empty(grid)) {
                     const possibleEnemies = IA.unroll(grid);
-                    //console.log("possibleEnemies", possibleEnemies);
                     for (let P of possibleEnemies) {
                         const monster = this.entity_IAM.POOL[P - 1];
                         if (monster === null) continue;
-                        //console.log("monster", monster);
-                        //console.log(monster.r + obj.r, monster.r, obj.r);
                         const monsterHit = GRID.circleCollision2D(monster.moveState.grid, Vector3.to_FP_Grid(obj.pos), monster.r + obj.r);
-                        //console.log("monsterHit", monsterHit);
                         if (monsterHit) {
-                            //console.warn("monsterHit");
                             monster.hitByMissile(obj);
                             continue;
                         }
                     }
                 }
-
             }
         }
     }
@@ -662,7 +655,6 @@ class ParticleEmmission3D extends IAM {
 class Animated_3d_entity extends IAM {
     constructor() {
         super();
-        //this.IA = null;
         this.POOL = [];
         this.IA = "enemyIA";
     }
@@ -716,8 +708,6 @@ const GLOBAL_ID_MANAGER = {
     offset: [0],
     IAM: [],
     getObject(globalId) {
-        //console.log("getObject", this.offset, this.IAM);
-        //console.log("globalId", globalId);
         if (this.offset.length < 2) return null;
         let idx = 1;
         while (idx < this.offset.length && globalId >= this.offset[idx]) {
@@ -725,12 +715,11 @@ const GLOBAL_ID_MANAGER = {
         }
         idx--;
         let id = globalId - this.offset[idx];
-        //console.log("..id", id, "idx", idx);
         return this.IAM[idx].POOL[id - 1];
     }
 };
 
-/**  IAM INSTANCES */
+/**  IAM INSTANCES: SUPER GLOBALS */
 const DECOR = new Decor();
 const PROFILE_BALLISTIC = new Profile_Ballistic();
 const PROFILE_ACTORS = new Profile_Actors();
@@ -756,4 +745,3 @@ const MISSILE3D = new Missile3D("enemyIA", ENTITY3D);
 /** *********************************************** */
 
 console.log(`%cIndexArrayManagers (IAM) ${IndexArrayManagers.VERSION} ready.`, "color: #7FFFD4");
-//console.log("GLOBAL_ID_MANAGER", GLOBAL_ID_MANAGER);

@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.11.00",
+    VERSION: "0.11.01",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -1073,7 +1073,7 @@ const TITLE = {
         TITLE.clearAllLayers();
         TITLE.blackBackgrounds();
         TITLE.titlePlot();
-        //ENGINE.draw("background", (ENGINE.sideWIDTH + ENGINE.gameWIDTH - 480) / 2, (ENGINE.gameHEIGHT - 480) / 2, SPRITE.Title);
+        ENGINE.draw("background", (ENGINE.gameWIDTH - TEXTURE.Title.width) / 2, (ENGINE.gameHEIGHT - TEXTURE.Title.height) / 2, TEXTURE.Title);
         $("#DOWN")[0].scrollIntoView();
         ENGINE.topCanvas = ENGINE.getCanvasName("ROOM");
         TITLE.drawButtons();
@@ -1089,7 +1089,7 @@ const TITLE = {
         this.topBackground();
         this.bottomBackground();
         this.sideBackground();
-        ENGINE.fillLayer("background", "#666");
+        ENGINE.fillLayer("background", "#000");
     },
     sidebackground_static() {
         //lines

@@ -177,6 +177,7 @@ var SPAWN = {
             { grid: new Grid(12, 0), face: 'FRONT' },
             { grid: new Grid(7, 4), face: 'LEFT' },
             { grid: new Grid(7, 4), face: 'RIGHT' },
+            { grid: new Grid(13, 3), face: 'LEFT' },
         ];
 
         for (let D of decalsLocations) {
@@ -308,6 +309,7 @@ var SPAWN = {
             { grid: new FP_Grid(6.5, 1.5), type: COMMON_ITEM_TYPE.Heart },
             { grid: new FP_Grid(6.5, 14.5), type: COMMON_ITEM_TYPE.Sword },
             { grid: new FP_Grid(1.5, 14.5), type: COMMON_ITEM_TYPE.Heart },
+            { grid: new FP_Grid(11.5, 4.5), type: COMMON_ITEM_TYPE.Sword },
 
             { grid: new FP_Grid(6.5, 3.5), type: COMMON_ITEM_TYPE.Shield },
             { grid: new FP_Grid(3.5, 14.5), type: COMMON_ITEM_TYPE.Shield },
@@ -320,6 +322,7 @@ var SPAWN = {
 
             { grid: new FP_Grid(1.5, 1.5), type: COMMON_ITEM_TYPE.Chest },
             { grid: new FP_Grid(4.5, 4.5), type: COMMON_ITEM_TYPE.TreasureChest },
+            { grid: new FP_Grid(12.5, 3.5), type: COMMON_ITEM_TYPE.TreasureChest },
             { grid: new FP_Grid(2.8, 12.8), type: COMMON_ITEM_TYPE.Chest },
 
             { grid: new FP_Grid(5.5, 5.5), type: COMMON_ITEM_TYPE.Coins },

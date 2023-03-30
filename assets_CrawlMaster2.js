@@ -57,7 +57,6 @@ LoadTextures = [
     { srcName: "Magic4.jpg", name: "Magic" },
     { srcName: "Wood2.jpg", name: "Wood1" },
     { srcName: "Explosion1.jpg", name: "Explosion" },
-
     { srcName: "treasure_chest.JPG", name: "TreasureChest" },
     { srcName: "CoinColor.jpg", name: "Coins" },
 
@@ -66,6 +65,9 @@ LoadTextures = [
     { srcName: "RedGate1_256.png", name: "RedGate1" },
     { srcName: "SilverGate1_256.png", name: "SilverGate1" },
     { srcName: "WoodeGate1_256.png", name: "WoodenGate1" },
+
+    //title
+    { srcName: "CrawlMaster2_title.jpg", name: "Title" },
 
 
 ];

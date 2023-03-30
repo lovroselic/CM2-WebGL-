@@ -1544,6 +1544,9 @@ const ENGINE = {
               const samplers = processSamplers(model.samplers);
 
               console.log("*************************************");
+              //set parents on nodes
+              markparents(model.nodes);
+
               //meshes
 
               /**
@@ -1563,11 +1566,45 @@ const ENGINE = {
                   const weights = processAccessor(model, buffer, primitive.attributes.WEIGHTS_0);
                   primitives[index] = new $Primitive(primitive.material, indices, positions, normals, textcoord, joints, weights);
                 }
-
                 meshes[index] = new $Mesh(mesh.name, primitives);
-                //add to models
-                $3D_MODEL[modelName] = new $3D_Model(modelName, buffer, images, meshes, samplers);
               }
+
+              /** skins */
+              let skins = new Array(model.skins.length);
+              for (let [index, skin] of model.skins.entries()) {
+                const invBindMatrices = processAccessor(model, buffer, skin.inverseBindMatrices);
+                console.log("invBindMatrices", invBindMatrices);
+                /*
+                The order of joints is defined by the skin.joints array and it MUST match the order of inverseBindMatrices accessor elements (when the latter is present). 
+                The skeleton property (if present) points to the node that is the common root of a joints hierarchy or to a direct or indirect parent node of the common root.
+                */
+                console.log("skin joint order", skin.joints);
+                const joints = [];
+
+                //mark nodes
+                markNodes(model.nodes, skin.joints, index);
+                console.log("nodes", model.nodes);
+
+
+                //find parent node
+                const parentNodeIndex = findParentNode(model.nodes, skin.joints[0], index);
+                console.log("parentNodeIndex", parentNodeIndex);
+
+                //get node
+                //create joint
+                /*
+                To compose the local transformation matrix, TRS properties MUST be converted to matrices and postmultiplied in the T * R * S order; 
+                first the scale is applied to the vertices, then the rotation, and then the translation.
+                */
+                const parentJoint = createJoint(model.nodes, skin.joints, invBindMatrices.data, parentNodeIndex, null);
+                console.warn("parentJoint", parentJoint);
+
+
+                skins[index] = new $Armature(skin.name, parentJoint);
+              }
+
+              //add to models
+              $3D_MODEL[modelName] = new $3D_Model(modelName, buffer, images, meshes, samplers, skins);
 
               console.log("*************************************");
               //finished
@@ -1583,6 +1620,46 @@ const ENGINE = {
         } catch (error) {
           console.error(`Error loading models: ${error}`);
           return false;
+        }
+
+        function createJoint(nodes, joints, invBindMatrices, jointIndex, parent) {
+          const accessIndex = joints.indexOf(jointIndex);
+          const IBM = invBindMatrices.slice(accessIndex * 16, accessIndex * 16 + 16);
+          const node = nodes[jointIndex];
+          const Joint = new $Joint(node.name, jointIndex, node.translation, node.rotation, node.scale, IBM, parent);
+          if (node.children) {
+            for (let child of node.children) {
+              Joint.addChild(createJoint(nodes, joints, invBindMatrices, child, Joint));
+            }
+          }
+          return Joint;
+        }
+
+        function markparents(nodes) {
+          for (let [i, node] of nodes.entries()) {
+            if (node.children) {
+              for (let child of node.children) {
+                nodes[child].parent = i;
+              }
+            }
+          }
+        }
+
+        function markNodes(nodes, joints, skinIndex) {
+          for (let [i, node] of nodes.entries()) {
+            if (joints.includes(i)) {
+              if (!node.skinIndex) node.skinIndex = [];
+              node.skinIndex.push(skinIndex);
+            }
+          }
+        }
+
+        function findParentNode(nodes, child, index) {
+          const parentIndex = nodes[child].parent;
+          if (!parentIndex) return child;
+          const parent = nodes[parentIndex];
+          if (parent.skinIndex && parent.skinIndex.includes(index)) return findParentNode(nodes, parentIndex, index);
+          return child;
         }
 
         function processSamplers(s) {
@@ -1616,7 +1693,7 @@ const ENGINE = {
           if (!TArr) throw new Error(`Illegal component type: ${component_type}`);
           const aLen = accessor.count * GL_DATA_LENGTH[accessor.type];
           let array = new TArr(buffer, bufferView.byteOffset, aLen);
-          let target = GL_CONSTANT[bufferView.target];
+          let target = GL_CONSTANT[bufferView.target] || null;
           const min = accessor.min || null;
           const max = accessor.max || null;
           return new $BufferData(array, accessor.count, component_type, target, min, max);

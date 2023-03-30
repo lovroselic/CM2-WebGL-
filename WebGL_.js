@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.21.0",
+    VERSION: "0.21.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1882,12 +1882,13 @@ class $3D_Entity {
 /** model formats */
 
 class $3D_Model {
-    constructor(name, buffer, textures, meshes, samplers) {
+    constructor(name, buffer, textures, meshes, samplers, skins) {
         this.name = name;
         this.buffer = buffer;
         this.textures = textures;
         this.meshes = meshes;
         this.samplers = samplers;
+        this.skins = skins;
     }
 }
 
@@ -1922,6 +1923,36 @@ class $BufferData {
         this.buffer = gl.createBuffer();
         gl.bindBuffer(gl[this.target], this.buffer);
         gl.bufferData(gl[this.target], this.data, gl.DYNAMIC_DRAW);
+    }
+}
+
+class $Armature {
+    constructor(name, joint) {
+        this.name = name;
+        this.joint = joint;
+    }
+}
+
+class $Joint {
+    constructor(name, nodeIndex, T, R, S, InverseBindMatrix, parent) {
+        this.name = name;
+        this.index = nodeIndex;
+        this.children = [];
+        this.T = T;
+        this.R = R;
+        this.S = S || new Array([1.0, 1.0, 1.0]);
+        this.InverseBindMatrix = InverseBindMatrix;
+        this.parent = parent;
+        this.createTRS_Matrix();
+    }
+    addChild(joint) {
+        this.children.push(joint);
+    }
+    createTRS_Matrix() {
+        const mat = glMatrix.mat4.create();
+        glMatrix.mat4.fromTranslation(mat, this.T);
+        glMatrix.mat4.fromRotationTranslationScale(mat, this.R, this.T, this.S);
+        this.TRS = mat;
     }
 }
 

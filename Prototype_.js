@@ -23,7 +23,7 @@ changelog:
 3.05: RNDF, updates for RUN, Set prototypes, substr -> substring updates;
 3.06: 3d vectors
 3.10: optimized, binarySearch
-3.11: date prototypes
+3.11: date prototypes - used by CoolWeb!
 */
 
 (function () {
