@@ -1544,16 +1544,9 @@ const ENGINE = {
               const samplers = processSamplers(model.samplers);
 
               console.log("*************************************");
-              //set parents on nodes
               markparents(model.nodes);
 
               //meshes
-
-              /**
-               * https://github.com/sketchpunk/FunWithWebGL2/blob/master/lesson_058/fungi/util/GTLFLoader.js
-               * https://github.com/sketchpunk/FunWithWebGL2/blob/master/lesson_058/test.html
-               */
-
               let meshes = new Array(model.meshes.length);
               for (let [index, mesh] of model.meshes.entries()) {
                 let primitives = new Array(mesh.primitives.length);
@@ -1573,33 +1566,11 @@ const ENGINE = {
               let skins = new Array(model.skins.length);
               for (let [index, skin] of model.skins.entries()) {
                 const invBindMatrices = processAccessor(model, buffer, skin.inverseBindMatrices);
-                console.log("invBindMatrices", invBindMatrices);
-                /*
-                The order of joints is defined by the skin.joints array and it MUST match the order of inverseBindMatrices accessor elements (when the latter is present). 
-                The skeleton property (if present) points to the node that is the common root of a joints hierarchy or to a direct or indirect parent node of the common root.
-                */
-                console.log("skin joint order", skin.joints);
-                const joints = [];
-
-                //mark nodes
                 markNodes(model.nodes, skin.joints, index);
-                console.log("nodes", model.nodes);
-
-
-                //find parent node
                 const parentNodeIndex = findParentNode(model.nodes, skin.joints[0], index);
-                console.log("parentNodeIndex", parentNodeIndex);
-
-                //get node
-                //create joint
-                /*
-                To compose the local transformation matrix, TRS properties MUST be converted to matrices and postmultiplied in the T * R * S order; 
-                first the scale is applied to the vertices, then the rotation, and then the translation.
-                */
                 const parentJoint = createJoint(model.nodes, skin.joints, invBindMatrices.data, parentNodeIndex, null);
                 console.warn("parentJoint", parentJoint);
-
-
+                applyTRS(parentJoint);
                 skins[index] = new $Armature(skin.name, parentJoint);
               }
 
@@ -1620,6 +1591,14 @@ const ENGINE = {
         } catch (error) {
           console.error(`Error loading models: ${error}`);
           return false;
+        }
+
+        function applyTRS(joint) {
+          const parentTRS = joint.parent ? joint.parent.TRS : glMatrix.mat4.create();
+          glMatrix.mat4.multiply(joint.TRS, parentTRS, joint.TRS);
+          for (const child of joint.children) {
+            applyTRS(child);
+          }
         }
 
         function createJoint(nodes, joints, invBindMatrices, jointIndex, parent) {
@@ -1707,7 +1686,6 @@ const ENGINE = {
           const response = await fetch(filename);
           const buffer = await response.arrayBuffer();
           return buffer;
-          //return new Uint8Array(buffer);
         } catch (error) {
           throw new Error(`Failed to load binary file: ${filename}: ${error}`);
         }

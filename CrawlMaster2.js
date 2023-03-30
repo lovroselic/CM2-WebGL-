@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.11.01",
+    VERSION: "0.11.02",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -889,7 +889,8 @@ const GAME = {
              
             Music: '...' written and performed by LaughingSkull, ${"\u00A9"
             } 20xx Lovro Selič. `;
-        text += "     ENGINE, SPEECH, GRID, MAZE, Burrows-Wheeler RLE Compression and GAME code by Lovro Selič using JavaScript. ";
+        text += "     ENGINE, SPEECH, GRID, MAZE, Burrows-Wheeler RLE Compression, WebGL and GAME code by Lovro Selič using JavaScript and GLSL. ";
+        text += "     glMatrix library by Brandon Jones and Colin MacKenzie IV. Thanks. ";
         text = text.split("").join(String.fromCharCode(8202));
         return text;
     },
