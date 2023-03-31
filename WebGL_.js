@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.21.2",
+    VERSION: "0.21.3",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1927,9 +1927,11 @@ class $BufferData {
 }
 
 class $Armature {
-    constructor(name, joint) {
+    constructor(name, skinJoints, joint, jointMatrix) {
         this.name = name;
+        this.skinJoints = skinJoints;
         this.joint = joint;
+        this.jointMatrix = jointMatrix;
     }
 }
 
@@ -1940,7 +1942,7 @@ class $Joint {
         this.children = [];
         this.T = T;
         this.R = R;
-        this.S = S || new Array([1.0, 1.0, 1.0]);
+        this.S = S || new Array(3).fill(1.0);
         this.InverseBindMatrix = InverseBindMatrix;
         this.parent = parent;
         this.createTRS_Matrix();

@@ -1571,8 +1571,12 @@ const ENGINE = {
                 const parentJoint = createJoint(model.nodes, skin.joints, invBindMatrices.data, parentNodeIndex, null);
                 console.warn("parentJoint", parentJoint);
                 applyTRS(parentJoint);
-                skins[index] = new $Armature(skin.name, parentJoint);
+                const jointMatrix = new Float32Array(skin.joints.length * 16);
+                makeJointMatrix(parentJoint, jointMatrix, skin.joints);
+                skins[index] = new $Armature(skin.name, skin.joints, parentJoint, jointMatrix);
               }
+
+              /** animations */
 
               //add to models
               $3D_MODEL[modelName] = new $3D_Model(modelName, buffer, images, meshes, samplers, skins);
@@ -1593,9 +1597,18 @@ const ENGINE = {
           return false;
         }
 
+        function makeJointMatrix(joint, matrix, skinJoints) {
+          const index = skinJoints.indexOf(joint.index) * 16;
+          glMatrix.mat4.copy(matrix.subarray(index, index + 16), joint.TRS);
+          for (const child of joint.children) {
+            makeJointMatrix(child, matrix, skinJoints);
+          }
+        }
+
         function applyTRS(joint) {
           const parentTRS = joint.parent ? joint.parent.TRS : glMatrix.mat4.create();
           glMatrix.mat4.multiply(joint.TRS, parentTRS, joint.TRS);
+          glMatrix.mat4.multiply(joint.TRS, joint.InverseBindMatrix, joint.TRS);
           for (const child of joint.children) {
             applyTRS(child);
           }
