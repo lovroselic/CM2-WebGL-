@@ -1607,11 +1607,11 @@ const ENGINE = {
 
         function applyTRS(joint) {
           const parentTRS = joint.parent ? joint.parent.TRS : glMatrix.mat4.create();
-          glMatrix.mat4.multiply(joint.TRS, parentTRS, joint.TRS);
-          glMatrix.mat4.multiply(joint.TRS, joint.InverseBindMatrix, joint.TRS);
+          glMatrix.mat4.multiply(joint.TRS, parentTRS, joint.TRS); //1
           for (const child of joint.children) {
             applyTRS(child);
           }
+          glMatrix.mat4.multiply(joint.TRS, joint.TRS, joint.InverseBindMatrix); 
         }
 
         function createJoint(nodes, joints, invBindMatrices, jointIndex, parent) {

@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.21.3",
+    VERSION: "0.21.4",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -531,7 +531,7 @@ const WebGL = {
         gl.uniform3fv(this.program.uniformLocations.lights, lights);
         gl.uniform3fv(this.program.uniformLocations.lightColors, lightColors);
 
-        //set global uniforms for model program - could be extendet to loop over more programs if required
+        //set global uniforms for model program - could be extended to loop over more programs if required
         gl.useProgram(this.model_program.program);
         gl.uniformMatrix4fv(this.model_program.uniforms.projection_matrix, false, this.projectionMatrix);
         gl.uniformMatrix4fv(this.model_program.uniforms.modelViewMatrix, false, this.viewMatrix);
@@ -707,7 +707,8 @@ const WebGL = {
         gl.useProgram(WebGL.model_program.program);
         for (const entity of ENTITY3D.POOL) {
             if (entity) {
-                entity.draw(gl);
+                //entity.draw(gl);
+                entity.drawSkin(gl);
             }
         }
 
@@ -1842,6 +1843,79 @@ class $3D_Entity {
             }
         }
     }
+    drawSkin(gl, skin = 0) {
+        const program = WebGL.model_program.program;
+
+        //uniforms
+        //scale
+        const mScaleMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromScaling(mScaleMatrix, this.scale);
+        const uScaleMatrix = gl.getUniformLocation(program, 'uScale');
+        gl.uniformMatrix4fv(uScaleMatrix, false, mScaleMatrix);
+
+        //translate
+        const mTranslationMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromTranslation(mTranslationMatrix, this.moveState.pos.array);
+        const uTranslateMatrix = gl.getUniformLocation(program, 'uTranslate');
+        gl.uniformMatrix4fv(uTranslateMatrix, false, mTranslationMatrix);
+
+        //rotate
+        const uRotatematrix = gl.getUniformLocation(program, 'uRotateY');
+        gl.uniformMatrix4fv(uRotatematrix, false, this.moveState.rotate);
+
+        //shine
+        const uShine = gl.getUniformLocation(program, "uShine");
+        gl.uniform1f(uShine, this.shine);
+
+        //u_jointMat
+        const uJointMat = gl.getUniformLocation(program, "u_jointMat");
+        gl.uniformMatrix4fv(uJointMat, false, this.model.skins[skin].jointMatrix);
+        //gl.uniformMatrix4fv(uJointMat, true, this.model.skins[skin].jointMatrix);
+
+        for (let mesh of this.model.meshes) {
+            for (let [index, primitive] of mesh.primitives.entries()) {
+
+                //positions
+                gl.bindBuffer(gl.ARRAY_BUFFER, primitive.positions.buffer);
+                const vertexPosition = gl.getAttribLocation(program, "aVertexPosition");
+                gl.vertexAttribPointer(vertexPosition, 3, gl[primitive.positions.type], false, 0, 0);
+                gl.enableVertexAttribArray(vertexPosition);
+
+                //texture
+                gl.bindBuffer(gl.ARRAY_BUFFER, primitive.textcoord.buffer);
+                const textureCoord = gl.getAttribLocation(program, "aTextureCoord");
+                gl.vertexAttribPointer(textureCoord, 2, gl[primitive.textcoord.type], false, 0, 0);
+                gl.enableVertexAttribArray(textureCoord);
+
+                //normals
+                gl.bindBuffer(gl.ARRAY_BUFFER, primitive.normals.buffer);
+                const vertexNormal = gl.getAttribLocation(program, "aVertexNormal");
+                gl.vertexAttribPointer(vertexNormal, 3, gl[primitive.normals.type], false, 0, 0);
+                gl.enableVertexAttribArray(vertexNormal);
+
+                //aJoint
+                gl.bindBuffer(gl.ARRAY_BUFFER, primitive.joints.buffer);
+                const joints =  gl.getAttribLocation(program, "aJoint");
+                gl.vertexAttribPointer(joints, 4, gl[primitive.joints.type], false, 0, 0);
+                gl.enableVertexAttribArray(joints);
+
+                //aWeight
+                gl.bindBuffer(gl.ARRAY_BUFFER, primitive.weights.buffer);
+                const weights =  gl.getAttribLocation(program, "aWeight");
+                gl.vertexAttribPointer(weights, 4, gl[primitive.weights.type], false, 0, 0);
+                gl.enableVertexAttribArray(weights);
+
+                //indices
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, primitive.indices.buffer);
+
+                //binding texture data
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, this.model.textures[index]);
+
+                gl.drawElements(gl.TRIANGLES, primitive.indices.count, gl[primitive.indices.type], 0);
+            }
+        }
+    }
     drawVector2D(map) {
         ENGINE.VECTOR2D.drawBlock(this);
     }
@@ -1952,7 +2026,6 @@ class $Joint {
     }
     createTRS_Matrix() {
         const mat = glMatrix.mat4.create();
-        glMatrix.mat4.fromTranslation(mat, this.T);
         glMatrix.mat4.fromRotationTranslationScale(mat, this.R, this.T, this.S);
         this.TRS = mat;
     }
