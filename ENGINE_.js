@@ -1577,9 +1577,74 @@ const ENGINE = {
               }
 
               /** animations */
+              //only joints are interesting!
+              //sampler input is time
+              /*
+                The sampler object in glTF stores several properties that affect how the animation is sampled, including:
+
+                input: An accessor index that specifies the time values for the animation. These values typically represent the time at which keyframe animations occur.
+                output: An accessor index that specifies the output values for the animation. These values can represent the rotation, translation, or scale values of the animation.
+                interpolation: Specifies the interpolation method to be used between keyframes. It can be one of "LINEAR", "STEP", or "CUBICSPLINE".
+              */
+
+              // https://github.com/sketchpunk/FunWithWebGL2/blob/master/lesson_060/fungi/util/GTLFLoader.js
+              // https://youtu.be/owbLvgjIPzQ?t=1245
+              // https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_007_Animations.md
+              let animations = new Array(model.animations.length);
+              for (let [index, animation] of model.animations.entries()) {
+                const skinJoints = model.skins[index].joints;
+                const paths = {};
+                for (let channel of animation.channels) {
+                  if (channel.target.node === undefined) continue;
+                  if (model.nodes[channel.target.node].skinIndex === undefined) continue;
+                  const sampler = animation.samplers[channel.sampler];
+                  if (sampler.interpolation !== "LINEAR") console.error("only LINEAR interpolation implemented!!");
+                  const timeData = processAccessor(model, buffer, sampler.input);
+                  const animData = processAccessor(model, buffer, sampler.output);
+                  const nodeIndex = channel.target.node;
+                  if (!paths[nodeIndex]) paths[nodeIndex] = { jointIndex: skinJoints.indexOf(nodeIndex) };
+                  if (!paths[nodeIndex][channel.target.path]) paths[nodeIndex][channel.target.path] = {};
+                  paths[nodeIndex][channel.target.path].interpolation = sampler.interpolation;
+                  paths[nodeIndex][channel.target.path].samples = [];
+                  const dataLength = animData.data.length / timeData.data.length;
+                  const samples = paths[nodeIndex][channel.target.path].samples;
+                  for (let i = 0; i < timeData.count; i++) {
+                    const ii = i * dataLength;
+                    samples.push({
+                      time: timeData.data[i],
+                      value: animData.data.slice(ii, ii + dataLength),
+                      max: timeData.max[0],
+                      min: timeData.min[0], //redundant??
+                    });
+                  }
+                }
+                //console.log("paths", paths);
+                //to T,R,S
+                const nodes = {};
+                for (let nodeIndex in paths) {
+                  const node = paths[nodeIndex];
+                  const LEN = node.rotation.samples.length || node.translation.samples.length;
+                  nodes[nodeIndex] = { jointIndex: node.jointIndex };
+                  nodes[nodeIndex].time = new Array(LEN);
+                  nodes[nodeIndex].max = node.rotation.samples[0].max || node.translation.samples[0].max;
+                  nodes[nodeIndex].min = node.rotation.samples[0].min || node.translation.samples[0].min;
+                  nodes[nodeIndex].translation = new Array(LEN);
+                  nodes[nodeIndex].rotation = new Array(LEN);
+                  nodes[nodeIndex].scale = new Array(LEN);
+                  for (let t = 0; t < LEN; t++) {
+                    nodes[nodeIndex].time[t] = node.rotation.samples[t].time;
+                    nodes[nodeIndex].translation[t] = node.translation.samples[t].value;
+                    nodes[nodeIndex].rotation[t] = node.rotation.samples[t].value;
+                    nodes[nodeIndex].scale[t] = node.scale.samples[t].value;
+                  }
+                }
+
+                console.log("nodes", nodes);
+                animations[index] = new $Animation(animation.name, nodes);
+              }
 
               //add to models
-              $3D_MODEL[modelName] = new $3D_Model(modelName, buffer, images, meshes, samplers, skins);
+              $3D_MODEL[modelName] = new $3D_Model(modelName, buffer, images, meshes, samplers, skins, animations);
 
               console.log("*************************************");
               //finished
@@ -1599,19 +1664,19 @@ const ENGINE = {
 
         function makeJointMatrix(joint, matrix, skinJoints) {
           const index = skinJoints.indexOf(joint.index) * 16;
-          glMatrix.mat4.copy(matrix.subarray(index, index + 16), joint.TRS);
+          glMatrix.mat4.copy(matrix.subarray(index, index + 16), joint.global_TRS);
           for (const child of joint.children) {
             makeJointMatrix(child, matrix, skinJoints);
           }
         }
 
         function applyTRS(joint) {
-          const parentTRS = joint.parent ? joint.parent.TRS : glMatrix.mat4.create();
-          glMatrix.mat4.multiply(joint.TRS, parentTRS, joint.TRS); //1
+          const parentTRS = joint.parent ? joint.parent.global_TRS : glMatrix.mat4.create();
+          glMatrix.mat4.multiply(joint.global_TRS, parentTRS, joint.local_TRS); //1
           for (const child of joint.children) {
             applyTRS(child);
           }
-          glMatrix.mat4.multiply(joint.TRS, joint.TRS, joint.InverseBindMatrix); 
+          glMatrix.mat4.multiply(joint.global_TRS, joint.global_TRS, joint.InverseBindMatrix);
         }
 
         function createJoint(nodes, joints, invBindMatrices, jointIndex, parent) {
@@ -2705,8 +2770,62 @@ class _3D_ACTOR {
 }
 
 class $3D_ACTOR {
-  constructor(parent) {
+  constructor(parent, animations, skin) {
     this.parent = parent;
+    this.animationIndex = 0; //develop
+    this.animations = animations;
+    this.birth = parent.birth;
+    this.skin = skin; //limited to 0th skin
+  }
+  animate(date) {
+    const A = this.animations[this.animationIndex];
+    const delta = ((date - this.birth) / 1000) % A.nodes[0].max;
+    let keyFrameIndex = -1;
+    let KFL = null;
+    let keyFrameTime = 0;
+    const animationMatrix = new Float32Array(Object.keys(A.nodes).length * 16);
+    for (let nodeIndex in A.nodes) {
+      const node = A.nodes[nodeIndex];
+      if (!(keyFrameIndex >= 0 && KFL === node.time.length && keyFrameTime === node.time[keyFrameIndex])) {
+        KFL = node.time.length;
+        keyFrameIndex = binarySearchClosestLowFloat(node.time, delta, node.max / KFL);
+        keyFrameTime = node.time[keyFrameIndex];
+      }
+      const nextKeyFrameTime = node.time[keyFrameIndex + 1];
+      const timeScale = (delta - keyFrameTime) / (nextKeyFrameTime - keyFrameTime);
+      const translation = glMatrix.vec3.create();
+      glMatrix.vec3.lerp(translation, node.translation[keyFrameIndex], node.translation[keyFrameIndex + 1], timeScale);
+      const rotation = glMatrix.quat.create();
+      glMatrix.quat.slerp(rotation, node.rotation[keyFrameIndex], node.rotation[keyFrameIndex + 1], timeScale);
+      const scale = glMatrix.vec3.create();
+      glMatrix.vec3.lerp(scale, node.scale[keyFrameIndex], node.scale[keyFrameIndex + 1], timeScale);
+      const TRS = glMatrix.mat4.create();
+      glMatrix.mat4.fromRotationTranslationScale(TRS, rotation, translation, scale);
+      glMatrix.mat4.copy(animationMatrix.subarray(node.jointIndex * 16, node.jointIndex * 16 + 16), TRS);
+    }
+    A.animationMatrix = animationMatrix;
+    //console.log("animation", A, "skin", this.skin);
+    const parentJoint = this.skin.joint;
+    this.applyTRS(parentJoint); // not using animation yet!!!
+    this.makeJointMatrix(parentJoint);
+    //console.log("parentJoint", parentJoint);
+  }
+  applyTRS(joint) {
+    const parentTRS = joint.parent ? joint.parent.global_TRS : glMatrix.mat4.create();
+    glMatrix.mat4.multiply(joint.global_TRS, parentTRS, joint.local_TRS);
+    for (const child of joint.children) {
+      this.applyTRS(child);
+    }
+    glMatrix.mat4.multiply(joint.global_TRS, joint.global_TRS, joint.InverseBindMatrix);
+  }
+  makeJointMatrix(joint) {
+    const matrix = this.skin.jointMatrix;
+    const skinJoints = this.skin.skinJoints;
+    const index = skinJoints.indexOf(joint.index) * 16;
+    glMatrix.mat4.copy(matrix.subarray(index, index + 16), joint.global_TRS);
+    for (const child of joint.children) {
+      this.makeJointMatrix(child);
+    }
   }
 }
 class $3D_MoveState {

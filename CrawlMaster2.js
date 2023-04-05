@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.11.04",
+    VERSION: "0.11.05",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -679,6 +679,8 @@ const GAME = {
         WebGL.updateShaders();
         WebGL.init('webgl', MAP[level].world, textureData, HERO.player);
         MINIMAP.init(MAP[level].map, INI.MIMIMAP_WIDTH, INI.MIMIMAP_HEIGHT, HERO.player);
+        //reset births!
+        ENTITY3D.resetTime();
     },
     continueLevel(level) {
         console.log("game continues on level", level);
@@ -887,8 +889,8 @@ const GAME = {
             }, a game by Lovro Selič, ${"\u00A9"} C00LSch00L ${PRG.YEAR
             }. 
              
-            Music: '...' written and performed by LaughingSkull, ${"\u00A9"
-            } 20xx Lovro Selič. `;
+            Music: 'Laughing Skull' written and performed by LaughingSkull, ${"\u00A9"
+            } 2006 Lovro Selič. `;
         text += "     ENGINE, SPEECH, GRID, MAZE, Burrows-Wheeler RLE Compression, WebGL and GAME code by Lovro Selič using JavaScript and GLSL. ";
         text += "     glMatrix library by Brandon Jones and Colin MacKenzie IV. Thanks. ";
         text = text.split("").join(String.fromCharCode(8202));

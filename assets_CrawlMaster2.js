@@ -72,6 +72,7 @@ LoadTextures = [
 
 ];
 LoadAudio = [
+    { srcName: "Laughing Skull.mp3", name: "Title" },
     { srcName: "UseScroll.mp3", name: "PickBox" },
     { srcName: "Scream.mp3", name: "Scream" },
     { srcName: "OpenGate.mp3", name: "OpenGate" },

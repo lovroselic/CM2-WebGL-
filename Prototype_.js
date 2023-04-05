@@ -6,7 +6,7 @@
 console.clear();
 
 var LIB = {
-  VERSION: "3.11",
+  VERSION: "3.12",
   CSS: "color: #EFE",
   log: function () {
     console.log(`%cPrototype LIB ${LIB.VERSION} loaded`, LIB.CSS);
@@ -24,6 +24,7 @@ changelog:
 3.06: 3d vectors
 3.10: optimized, binarySearch
 3.11: date prototypes - used by CoolWeb!
+3.12: float bin search
 */
 
 (function () {
@@ -87,6 +88,19 @@ changelog:
     }
     return low;
   }
+  function binarySearchClosestLowFloat(arr, target, delta) {
+    let low = 0;
+    let high = arr.length;
+    while (low < high) {
+      let mid = (low + high) >>> 1;
+      if (arr[mid] > target - delta) {
+        high = mid;
+      } else {
+        low = mid + 1;
+      }
+    }
+    return low;
+  }
 
   window.RND = RND;
   window.RNDF = RNDF;
@@ -100,6 +114,7 @@ changelog:
   window.weightedRnd = weightedRnd;
   window.colorStringToVector = colorStringToVector;
   window.binarySearch = binarySearch;
+  window.binarySearchClosestLowFloat = binarySearchClosestLowFloat;
 })();
 
 /** Date prototypes */

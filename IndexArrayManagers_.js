@@ -658,6 +658,12 @@ class Animated_3d_entity extends IAM {
         this.POOL = [];
         this.IA = "enemyIA";
     }
+    resetTime(){
+        for (const enemy of this.POOL){
+            if (enemy === null) continue;
+            enemy.resetTime();
+        }
+    }
     poolToIA(IA) {
         for (const enemy of this.POOL) {
             if (enemy === null) continue;

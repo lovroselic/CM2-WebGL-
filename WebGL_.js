@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.21.4",
+    VERSION: "0.21.5",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1766,7 +1766,7 @@ class WoodExplosion extends ParticleEmmiter {
 
 class $3D_Entity {
     constructor(grid, type, dir = UP) {
-        this.birth = Date.now();
+        this.resetTime();
         this.grid = grid;
         this.type = type;
         for (const prop in type) {
@@ -1784,9 +1784,12 @@ class $3D_Entity {
         const minY = this.model.meshes[0].primitives[0].positions.min[1] * this.scale[1];
         this.translate = Vector3.from_Grid(grid, minY);
         this.boundingBox = new BoundingBox(this.model.meshes[0].primitives[0].positions.max, this.model.meshes[0].primitives[0].positions.min, this.scale);
-        this.actor = new $3D_ACTOR(this);
+        this.actor = new $3D_ACTOR(this, this.model.animations, this.model.skins[0]);
         this.moveState = new $3D_MoveState(this.translate, dir, this.rotateToNorth, this);
         this.r = ((this.boundingBox.max.z - this.boundingBox.min.z) / 2 + (this.boundingBox.max.x - this.boundingBox.min.x) / 2) / 2;
+    }
+    resetTime(){
+        this.birth = Date.now();
     }
     draw(gl) {
         const program = WebGL.model_program.program;
@@ -1870,7 +1873,6 @@ class $3D_Entity {
         //u_jointMat
         const uJointMat = gl.getUniformLocation(program, "u_jointMat");
         gl.uniformMatrix4fv(uJointMat, false, this.model.skins[skin].jointMatrix);
-        //gl.uniformMatrix4fv(uJointMat, true, this.model.skins[skin].jointMatrix);
 
         for (let mesh of this.model.meshes) {
             for (let [index, primitive] of mesh.primitives.entries()) {
@@ -1921,6 +1923,7 @@ class $3D_Entity {
     }
     update(date) {
         this.moveState.update();
+        this.actor.animate(date);
     }
     dropInventory() {
         const item = new FloorItem3D(this.moveState.grid, COMMON_ITEM_TYPE[this.inventory]);
@@ -1956,13 +1959,14 @@ class $3D_Entity {
 /** model formats */
 
 class $3D_Model {
-    constructor(name, buffer, textures, meshes, samplers, skins) {
+    constructor(name, buffer, textures, meshes, samplers, skins, animations) {
         this.name = name;
         this.buffer = buffer;
         this.textures = textures;
         this.meshes = meshes;
         this.samplers = samplers;
         this.skins = skins;
+        this.animations = animations;
     }
 }
 
@@ -2027,7 +2031,15 @@ class $Joint {
     createTRS_Matrix() {
         const mat = glMatrix.mat4.create();
         glMatrix.mat4.fromRotationTranslationScale(mat, this.R, this.T, this.S);
-        this.TRS = mat;
+        this.local_TRS = mat;
+        this.global_TRS = glMatrix.mat4.create();
+        //this.anim_TRS = glMatrix.mat4.create();
+    }
+}
+class $Animation{
+    constructor(name, nodes){
+        this.name = name;
+        this.nodes = nodes;
     }
 }
 
