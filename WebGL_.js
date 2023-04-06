@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.21.5",
+    VERSION: "0.22.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -2014,7 +2014,7 @@ class $Armature {
 }
 
 class $Joint {
-    constructor(name, nodeIndex, T, R, S, InverseBindMatrix, parent) {
+    constructor(name, nodeIndex, T, R, S, InverseBindMatrix, parent, jointIndex) {
         this.name = name;
         this.index = nodeIndex;
         this.children = [];
@@ -2023,6 +2023,7 @@ class $Joint {
         this.S = S || new Array(3).fill(1.0);
         this.InverseBindMatrix = InverseBindMatrix;
         this.parent = parent;
+        this.jointIndex = jointIndex;
         this.createTRS_Matrix();
     }
     addChild(joint) {
@@ -2033,7 +2034,6 @@ class $Joint {
         glMatrix.mat4.fromRotationTranslationScale(mat, this.R, this.T, this.S);
         this.local_TRS = mat;
         this.global_TRS = glMatrix.mat4.create();
-        //this.anim_TRS = glMatrix.mat4.create();
     }
 }
 class $Animation{
