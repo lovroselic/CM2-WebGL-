@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.22.0",
+    VERSION: "0.22.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1766,6 +1766,9 @@ class WoodExplosion extends ParticleEmmiter {
 
 class $3D_Entity {
     constructor(grid, type, dir = UP) {
+        this.distance = null;
+        this.dirStack = [];
+        this.final_boss = false;
         this.resetTime();
         this.grid = grid;
         this.type = type;
@@ -1773,12 +1776,10 @@ class $3D_Entity {
             this[prop] = type[prop];
         }
 
+        this.fullHealth = this.health;
         //unpack
         this.model = $3D_MODEL[this.model];
-
-        if (typeof (this.scale) === "number") {
-            this.scale = new Float32Array([this.scale, this.scale, this.scale]);
-        }
+        if (typeof (this.scale) === "number") this.scale = new Float32Array([this.scale, this.scale, this.scale]);
 
         //position from grid
         const minY = this.model.meshes[0].primitives[0].positions.min[1] * this.scale[1];
@@ -1787,8 +1788,29 @@ class $3D_Entity {
         this.actor = new $3D_ACTOR(this, this.model.animations, this.model.skins[0]);
         this.moveState = new $3D_MoveState(this.translate, dir, this.rotateToNorth, this);
         this.r = ((this.boundingBox.max.z - this.boundingBox.min.z) / 2 + (this.boundingBox.max.x - this.boundingBox.min.x) / 2) / 2;
+
+        this.canAttack = true;
+        this.canShoot = false;
+        if (this.magic > 0) {
+            this.mana = this.mana * Missile.calcMana(this.magic);
+        }
+        this.petrified = false;
+        this.behaviour = new Behaviour(...this.behaviourArguments);
     }
-    resetTime(){
+    makeMove() {
+        this.moveState.next(this.dirStack.shift());
+    }
+    setDistanceFromNodeMap(nodemap) {
+        let gridPosition = Vector3.toGrid(this.moveState.pos);
+        let distance = nodemap[gridPosition.x][gridPosition.y].distance;
+        if (distance < Infinity) {
+            this.distance = distance;
+        } else this.distance = null;
+    }
+    hasStack() {
+        return this.dirStack.length > 0;
+    }
+    resetTime() {
         this.birth = Date.now();
     }
     draw(gl) {
@@ -1897,13 +1919,13 @@ class $3D_Entity {
 
                 //aJoint
                 gl.bindBuffer(gl.ARRAY_BUFFER, primitive.joints.buffer);
-                const joints =  gl.getAttribLocation(program, "aJoint");
+                const joints = gl.getAttribLocation(program, "aJoint");
                 gl.vertexAttribPointer(joints, 4, gl[primitive.joints.type], false, 0, 0);
                 gl.enableVertexAttribArray(joints);
 
                 //aWeight
                 gl.bindBuffer(gl.ARRAY_BUFFER, primitive.weights.buffer);
-                const weights =  gl.getAttribLocation(program, "aWeight");
+                const weights = gl.getAttribLocation(program, "aWeight");
                 gl.vertexAttribPointer(weights, 4, gl[primitive.weights.type], false, 0, 0);
                 gl.enableVertexAttribArray(weights);
 
@@ -2036,8 +2058,8 @@ class $Joint {
         this.global_TRS = glMatrix.mat4.create();
     }
 }
-class $Animation{
-    constructor(name, nodes){
+class $Animation {
+    constructor(name, nodes) {
         this.name = name;
         this.nodes = nodes;
     }

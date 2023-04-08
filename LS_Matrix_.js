@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////
 
 const LS_matrix = {
-    VERSION: "0.07",
+    VERSION: "0.10",
     CSS: "color: red",
 };
 
@@ -34,6 +34,9 @@ class Vector3 {
     }
     static to_FP_Grid(v) {
         return new FP_Grid(v.x, v.z);
+    }
+    static toGrid(v) {
+        return new Grid(v.x, v.z);
     }
     static to_FP_Vector(v) {
         return new FP_Vector(v.x, v.z);
@@ -76,11 +79,17 @@ class Vector3 {
     rotateY() { }
     rotateZ() { }
     translate(vector, length = 1) {
+        let x = this.x + length * (vector.x || 0);
+        let y = this.y + length * (vector.y || 0);
+        let z = this.z + length * (vector.z || 0);
+        return new Vector3(x, y, z);
+    }
+    /*translate(vector, length = 1) {
         let x = this.x + length * vector.x || 0;
         let y = this.y + length * vector.y || 0;
         let z = this.z + length * vector.z || 0;
         return new Vector3(x, y, z);
-    }
+    }*/
     add(vector) {
         let x = this.x + vector.x;
         let y = this.y + vector.y;

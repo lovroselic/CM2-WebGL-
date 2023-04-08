@@ -160,18 +160,20 @@ const GRID = {
     entity.actor.updateAnimation(lapsedTime);
     return;
   },
+  translatePosition3D(entity, lapsedTime, date) {
+    const length = (lapsedTime / 1000) * entity.moveSpeed;
+    const realDir = Vector3.from_2D_dir(entity.moveState.realDir); //2D to 3D
+    entity.moveState.pos = entity.moveState.pos.translate(realDir, length);
+    const distance = Vector3.to_FP_Grid(entity.moveState.pos).EuclidianDistance(entity.moveState.endPos);
+    entity.update(date);
+    if (distance < GRID.SETTING.EPSILON) entity.moveState.moving = false;
+  },
   translatePosition(entity, lapsedTime) {
     let length = (lapsedTime / 1000) * entity.moveSpeed;
     entity.moveState.pos = entity.moveState.pos.translate(entity.moveState.realDir, length);
     let distance = entity.moveState.pos.EuclidianDistance(entity.moveState.endPos);
-
     let boundGrid = Grid.toClass(entity.moveState.pos);
-    if (
-      !(
-        GRID.same(boundGrid, Grid.toClass(entity.moveState.endPos)) ||
-        GRID.same(boundGrid, Grid.toClass(entity.moveState.startPos))
-      )
-    ) {
+    if (!(GRID.same(boundGrid, Grid.toClass(entity.moveState.endPos)) || GRID.same(boundGrid, Grid.toClass(entity.moveState.startPos)))) {
       entity.moveState.pos = entity.moveState.endPos;
       entity.moveState.moving = false;
       return;
@@ -536,7 +538,7 @@ const MAPDICT = {
 };
 
 class ArrayBasedDataStructure {
-  constructor() { };
+  constructor() { }
   indexToGrid(index) {
     return new Grid(index % this.width, index / this.width | 0);
   }
@@ -571,10 +573,10 @@ class GridArray extends ArrayBasedDataStructure {
       4: Uint32Array
     };
     const GM = new byteToType[byte](sizeX * sizeY);
-    this.width = sizeX;
-    this.height = sizeY;
-    this.maxX = sizeX - 2;
-    this.maxY = sizeY - 2;
+    this.width = parseInt(sizeX, 10);
+    this.height = parseInt(sizeY, 10);
+    this.maxX = this.width - 2;
+    this.maxY = this.heigh - 2;
     this.minX = 1;
     this.minY = 1;
     this.map = GM;

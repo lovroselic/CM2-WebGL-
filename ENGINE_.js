@@ -1567,7 +1567,7 @@ const ENGINE = {
                 markNodes(model.nodes, skin.joints, index);
                 const parentNodeIndex = findParentNode(model.nodes, skin.joints[0], index);
                 const parentJoint = createJoint(model.nodes, skin.joints, invBindMatrices.data, parentNodeIndex, null);
-                console.warn("parentJoint", parentJoint);
+                console.log("parentJoint", parentJoint);
                 applyTRS(parentJoint);
                 const jointMatrix = new Float32Array(skin.joints.length * 16);
                 makeJointMatrix(parentJoint, jointMatrix, skin.joints);
@@ -1602,7 +1602,7 @@ const ENGINE = {
                     });
                   }
                 }
-                console.log("paths", paths);
+                //console.log("paths", paths);
                 //to T,R,S
                 const nodes = {};
                 for (let nodeIndex in paths) {
@@ -1622,7 +1622,7 @@ const ENGINE = {
                   }
                 }
 
-                console.log("nodes", nodes);
+                //console.log("nodes", nodes);
                 animations[index] = new $Animation(animation.name, nodes);
               }
 
@@ -2821,6 +2821,16 @@ class $3D_MoveState {
     this.rotation_to_north = rotation_to_north; // rad
     this.parent = parent;
     this.update();
+    this.startPos = Vector3.to_FP_Grid(this.pos);
+    this.endPos = this.startPos;
+  }
+  next(dir) {
+    if (!dir) throw new Error(`Direction ${dir} not defined error. Stopping execution!`);
+    this.startPos = this.endPos;
+    this.dir = dir; //2D dir
+    this.endPos = this.startPos.add(this.dir);
+    this.realDir = Vector3.to_FP_Grid(this.pos).direction(this.endPos);
+    this.moving = true;
   }
   update() {
     this.setRotation();

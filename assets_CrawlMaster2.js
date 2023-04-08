@@ -93,6 +93,19 @@ LoadAudio = [
     { srcName: "Explosion1.mp3", name: "Explosion" },
     { srcName: "OpenChest.mp3", name: "OpenChest" },
 
+    //monstersounds
+    { srcName: "MonsterDeath.mp3", name: "MonsterDeath" },
+    { srcName: "MonsterAttack1.mp3", name: "MonsterAttack1" },
+    { srcName: "MonsterAttack2.mp3", name: "MonsterAttack2" },
+    { srcName: "SnakeAttack.mp3", name: "SnakeAttack" },
+    { srcName: "MonsterHurt.mp3", name: "MonsterHurt" },
+    { srcName: "MonsterHurt2.mp3", name: "MonsterHurt2" },
+    { srcName: "BatAttack.mp3", name: "BatAttack" },
+    { srcName: "MonsterHurt3.mp3", name: "MonsterHurt3" },
+    { srcName: "PainSqueek.mp3", name: "PainSqueek" },
+    { srcName: "DeathPain1.mp3", name: "DeathPain1" },
+    { srcName: "HumanAttack1.mp3", name: "HumanAttack1" }
+
 ];
 LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
 LoadShaders = [
@@ -220,7 +233,7 @@ LoadSprites = [
     //{ srcName: "Soc.png", name: "Soccer" },
     { srcName: "LSL6.png", name: "LSL6" },
     { srcName: "LSL4.png", name: "LSL4" },
-    { srcName: "LSL1.png", name: "LSL1" },
+    //{ srcName: "LSL1.png", name: "LSL1" },
     { srcName: "Prince2.png", name: "Prince2" },
     { srcName: "Prince.png", name: "Prince1" },
     { srcName: "Ultima2.png", name: "Ultima2" },
@@ -392,7 +405,7 @@ LoadSprites = [
     { srcName: "AA40.png", name: "AA40" },
     { srcName: "SeaWolf.png", name: "SeaWolf" },
     { srcName: "GIJoe10.png", name: "GIJoe10" },
-    { srcName: "Hobbit1.png", name: "Hobbit1" },
+    //{ srcName: "Hobbit1.png", name: "Hobbit1" },
     { srcName: "Hobbit3.png", name: "Hobbit3" },
     { srcName: "Ghostbusters2.png", name: "Ghostbusters2" },
     { srcName: "Commando3.png", name: "Commando3" },

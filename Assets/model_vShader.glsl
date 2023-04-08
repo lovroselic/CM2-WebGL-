@@ -33,8 +33,6 @@ void main(void) {
     vec4 position = skinMat * aVertexPosition;
     gl_Position = uProjectionMatrix * uModelViewMatrix * uTranslate * uRotateY * uScale * position;
     vTextureCoord = aTextureCoord;
-    //FragPos = vec3(aVertexPosition);
-    FragPos = vec3(position); //? no effect yet?
-    //v_normal = aVertexNormal;
-    v_normal = vec3(skinMat * vec4(aVertexNormal, 0.0)); //? no effect yet?
+    FragPos = vec3(position); 
+    v_normal = vec3(skinMat * vec4(aVertexNormal, 0.0)); 
 }

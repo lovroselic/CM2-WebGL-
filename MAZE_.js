@@ -1690,13 +1690,12 @@ var ARENA = {
 };
 var FREE_MAP = {
     create(sizeX, sizeY, GA = null) {
-        var map = new FreeMap(sizeX, sizeY, GA);
-        return map;
+        return new FreeMap(sizeX, sizeY, GA);
     },
     import(data) {
         data.map = GridArray.importMap(data.map);
         data.map = GridArray.fromString(data.width, data.height, data.map);
-        return FREE_MAP.create(data.width, data.height, data.map);
+        return FREE_MAP.create(parseInt(data.width, 10), parseInt(data.height, 10), data.map);
     }
 };
 var DUNGEON = {

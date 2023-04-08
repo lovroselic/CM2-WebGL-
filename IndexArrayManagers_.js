@@ -37,6 +37,7 @@ class IAM {
         this.POOL.push(obj);
         obj.id = this.POOL.length;
         obj.IAM = this;
+        obj.parent = this; //compatibility with AI
     }
     remove(id) {
         this.POOL[id - 1] = null;
@@ -658,8 +659,8 @@ class Animated_3d_entity extends IAM {
         this.POOL = [];
         this.IA = "enemyIA";
     }
-    resetTime(){
-        for (const enemy of this.POOL){
+    resetTime() {
+        for (const enemy of this.POOL) {
             if (enemy === null) continue;
             enemy.resetTime();
         }
@@ -688,22 +689,59 @@ class Animated_3d_entity extends IAM {
             if (obj) obj.drawVector2D(this.map);
         }
     }
-    manage(date) {
+    manage(lapsedTime, date, flagArray) {
         this.reIndex();
         let map = this.map;
         map[this.IA] = new IndexArray(map.width, map.height, 4, 4);
         this.poolToIA(map[this.IA]);
+        GRID.calcDistancesBFS_A(Vector3.toGrid(HERO.player.pos), map);
 
         for (const entity of this.POOL) {
             if (entity) {
-                entity.update(date);
+                //entity.update(date);
+                //check distance
+                entity.setDistanceFromNodeMap(map.GA.nodeMap);
+                if (entity.distance === null) continue;
+                if (entity.petrified) continue;
+                //enemy/enemy collision resolution
+                //
+
+                //enemy/player collision
+                //
+                //enemy shoot
+                //
+                //enemy translate position
+                if (entity.moveState.moving) {
+                    GRID.translatePosition3D(entity, lapsedTime, date);
+                    continue;
+                }
+                //
+
+                //set behaviour and move
+                let passiveFlag = flagArray.includes(true);
+                entity.behaviour.manage(entity, entity.distance, passiveFlag);
+                if (!entity.hasStack()) {
+                    //next move(s) based on strategy
+                    let ARG = {
+                        playerPosition: Vector3.toGrid(HERO.player.pos),
+                        currentPlayerDir:  Vector3.to_FP_Vector(HERO.player.dir).ortoAlign(),
+                    };
+                    console.warn("entity.behaviour.strategy", entity.behaviour.strategy);
+                    entity.dirStack = AI[entity.behaviour.strategy](entity, ARG);
+                    console.warn("entity.dirStack", entity.dirStack);
+                }
+                //
+                entity.makeMove();
+
+
+                //entity.update(date);
             }
         }
     }
     display() {
         console.log("------------------------------------------");
-        console.log("Overview:", this.constructor.name);
-        console.table(this.POOL, ['name', 'id', 'grid', 'model', 'moveState', 'actor', 'boundingBox', 'r']);
+        console.log(this.constructor.name, "Overview:");
+        console.table(this.POOL, ['name', 'id', 'grid', 'distance', 'moveState', 'actor', 'r', 'behaviour']);
         console.log("------------------------------------------");
     }
 }

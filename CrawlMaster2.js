@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.12.00",
+    VERSION: "0.12.01",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -646,7 +646,6 @@ const GAME = {
         GAME.initLevel(GAME.level);
         GAME.continueLevel(GAME.level);
     },
-
     initLevel(level) {
         console.log("...level", level, 'initialization');
         MAP[level].map = FREE_MAP.import(JSON.parse(MAP[level].data));
@@ -659,6 +658,9 @@ const GAME = {
         let start_grid = Grid.toClass(MAP[GAME.level].entrance.grid).add(start_dir);
         start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
         HERO.player = new $3D_player(start_grid, Vector3.from_2D_dir(start_dir), MAP[level].map);
+
+        AI.immobileWander = false;
+        AI.initialize(HERO.player, "3D");
 
         WebGL.init_required_IAM(MAP[level].map);
         WebGL.MOUSE.initialize("ROOM");
@@ -701,16 +703,15 @@ const GAME = {
         VANISHING3D.manage(lapsedTime);
         MISSILE3D.manage(lapsedTime);
         EXPLOSION3D.manage(date);
-        ENTITY3D.manage(date);
+        ENTITY3D.manage(lapsedTime, date, [HERO.invisible, HERO.dead]);
         MINIMAP.unveil(Vector3.to_FP_Grid(HERO.player.pos), HERO.vision);
         ENGINE.TIMERS.update();
 
         //HERO.manage();
-        let interaction = WebGL.MOUSE.click(HERO);
+        const interaction = WebGL.MOUSE.click(HERO);
         if (interaction) GAME.processInteraction(interaction);
 
         GAME.frameDraw(lapsedTime);
-
         if (HERO.dead) GAME.checkIfProcessesComplete();
     },
     processInteraction(interaction) {
@@ -831,7 +832,6 @@ const GAME = {
         //if (HERO.floats) return;
         HERO.death();
     },
-
     frameDraw(lapsedTime) {
         //ENGINE.clearLayerStack();
         if (DEBUG._2D_display) {
@@ -852,7 +852,6 @@ const GAME = {
             ENTITY3D.drawVector2D();
         }
     },
-
     drawFirstFrame(level) {
         TITLE.firstFrame();
         if (DEBUG._2D_display) {
@@ -949,7 +948,11 @@ const GAME = {
             ENGINE.GAME.keymap[ENGINE.KEY.map.F4] = false;
         }
         if (map[ENGINE.KEY.map.F9]) {
-            console.log("F9");
+            console.log("\nDEBUG:");
+            console.log("#######################################################");
+            ENTITY3D.display();
+            console.log("#######################################################");
+            ENGINE.GAME.keymap[ENGINE.KEY.map.F9] = false;
         }
         if (map[ENGINE.KEY.map.left]) {
             TITLE.stack.scrollIndex--;
