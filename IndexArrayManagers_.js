@@ -703,11 +703,22 @@ class Animated_3d_entity extends IAM {
                 entity.setDistanceFromNodeMap(map.GA.nodeMap);
                 if (entity.distance === null) continue;
                 if (entity.petrified) continue;
+
+                entity.update(date);
+
                 //enemy/enemy collision resolution
                 //
 
                 //enemy/player collision
-                //
+                const EP_hit = HERO.player.circleCollision(entity);
+                if (EP_hit){
+                    if (entity.canAttack) {
+                        entity.performAttack(HERO.player.dir);
+                        //entity.update(date); // check?
+                    }
+                    continue;
+                }
+
                 //enemy shoot
                 //
                 //enemy translate position
@@ -715,13 +726,11 @@ class Animated_3d_entity extends IAM {
                     GRID.translatePosition3D(entity, lapsedTime, date);
                     continue;
                 }
-                //
 
                 //set behaviour and move
                 let passiveFlag = flagArray.includes(true);
                 entity.behaviour.manage(entity, entity.distance, passiveFlag);
                 if (!entity.hasStack()) {
-                    //next move(s) based on strategy
                     let ARG = {
                         playerPosition: Vector3.toGrid(HERO.player.pos),
                         currentPlayerDir:  Vector3.to_FP_Vector(HERO.player.dir).ortoAlign(),
@@ -730,11 +739,7 @@ class Animated_3d_entity extends IAM {
                     entity.dirStack = AI[entity.behaviour.strategy](entity, ARG);
                     console.warn("entity.dirStack", entity.dirStack);
                 }
-                //
                 entity.makeMove();
-
-
-                //entity.update(date);
             }
         }
     }

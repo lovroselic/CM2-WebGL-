@@ -165,7 +165,7 @@ const GRID = {
     const realDir = Vector3.from_2D_dir(entity.moveState.realDir); //2D to 3D
     entity.moveState.pos = entity.moveState.pos.translate(realDir, length);
     const distance = Vector3.to_FP_Grid(entity.moveState.pos).EuclidianDistance(entity.moveState.endPos);
-    entity.update(date);
+    //entity.update(date);
     if (distance < GRID.SETTING.EPSILON) entity.moveState.moving = false;
   },
   translatePosition(entity, lapsedTime) {

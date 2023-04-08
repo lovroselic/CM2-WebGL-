@@ -84,12 +84,6 @@ class Vector3 {
         let z = this.z + length * (vector.z || 0);
         return new Vector3(x, y, z);
     }
-    /*translate(vector, length = 1) {
-        let x = this.x + length * vector.x || 0;
-        let y = this.y + length * vector.y || 0;
-        let z = this.z + length * vector.z || 0;
-        return new Vector3(x, y, z);
-    }*/
     add(vector) {
         let x = this.x + vector.x;
         let y = this.y + vector.y;

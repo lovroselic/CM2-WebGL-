@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.22.1",
+    VERSION: "0.22.2",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1144,9 +1144,7 @@ class $3D_player {
         if (enemies.size > 0) {
             for (const e of enemies) {
                 let EP_hit = this.circleCollision(ENTITY3D.POOL[e - 1], nextPos);
-                if (EP_hit) {
-                    return true;
-                }
+                if (EP_hit) return true;
             }
         }
         return false;
@@ -1219,11 +1217,10 @@ class $3D_player {
     circleCollision(entity, nextPos = null) {
         let distance;
         if (nextPos !== null) {
-            distance = entity.moveState.pos.EuclidianDistance(Vector3.from_Grid(nextPos));
+            distance = Vector3.to_FP_Grid(entity.moveState.pos).EuclidianDistance(nextPos);
         } else {
-            distance = entity.moveState.pos.EuclidianDistance(this.pos);
+            distance = Vector3.to_FP_Grid(entity.moveState.pos).EuclidianDistance(Vector3.to_FP_Grid(this.pos));
         }
-
         let touchDistance = entity.r + this.r;
         return distance < touchDistance;
     }
@@ -1797,6 +1794,25 @@ class $3D_Entity {
         this.petrified = false;
         this.behaviour = new Behaviour(...this.behaviourArguments);
     }
+    performAttack(heroDir) {
+        console.warn(`${this.name} ${this.id} attacking. Hero dir:`, heroDir);
+        if (!this.canAttack || HERO.dead) return;
+        this.canAttack = false;
+        AUDIO[this.attackSound].play();
+        // you were here CONT
+
+
+        //
+        setTimeout(this.resetAttack.bind(this), INI.MONSTER_ATTACK_TIMEOUT);
+    }
+    resetAttack() {
+        if (!this) return;
+        this.canAttack = true;
+    }
+    weak() {
+        let ratio = this.health / this.fullHealth;
+        return ratio <= 0.2;
+    }
     makeMove() {
         this.moveState.next(this.dirStack.shift());
     }
@@ -1951,7 +1967,7 @@ class $3D_Entity {
         const item = new FloorItem3D(this.moveState.grid, COMMON_ITEM_TYPE[this.inventory]);
         if (item.category === 'gold') item.setValue(this.gold);
         item.setTexture();
-        console.warn("dropped inventory", item);
+        //console.warn("dropped inventory", item);
         ITEM3D.add(item);
     }
     hitByMissile(missile) {
