@@ -2823,6 +2823,10 @@ class $3D_MoveState {
     this.update();
     this.startPos = Vector3.to_FP_Grid(this.pos);
     this.endPos = this.startPos;
+    this.resetView();
+  }
+  resetView() {
+    this.lookDir = null;
   }
   next(dir) {
     if (!dir) throw new Error(`Direction ${dir} not defined error. Stopping execution!`);
@@ -2842,7 +2846,8 @@ class $3D_MoveState {
     this.directionVector = Vector3.from_2D_dir(this.dir);
   }
   setRotation() {
-    this.rotation_angle = UP.radAngleBetweenVectors(this.dir);
+    const angle = UP.radAngleBetweenVectors(this.dir);
+    if (!isNaN(angle)) this.rotation_angle = angle;
     this.rotate = glMatrix.mat4.create();
     glMatrix.mat4.rotate(this.rotate, this.rotate, this.rotation_to_north + this.rotation_angle, [0, 1, 0]);
   }

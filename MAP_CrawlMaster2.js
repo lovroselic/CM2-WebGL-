@@ -363,6 +363,8 @@ const MONSTER_TYPE = {
         deathType: "BloodExplosion",
         inventory: "Coins",
         //attribs
+        attack: 7,
+        defense: 3,
         magic: 0,
         health: 1,
         xp: 50,

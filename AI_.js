@@ -50,20 +50,35 @@ const AI = {
     }
   },
   immobile(enemy) {
+    console.info("IMMOBILE");
     if (AI.immobileWander) return this.wanderer(enemy);
     return [NOWAY];
+    /*
+    switch (this.setting) {
+      case "2D": return [NOWAY];
+      case "3D": return [NOWAY];
+    }
+    */
   },
-  hunt(enemy) {
+  hunt(enemy, exactPosition) {
     let nodeMap = enemy.parent.map.GA.nodeMap;
     let grid = this.getPosition(enemy);
     let goto = nodeMap[grid.x][grid.y].goto || NOWAY;
+    if (GRID.same(goto, NOWAY) && this.setting === "3D") return this.hunt_FP(enemy, exactPosition);
     return [goto];
   },
-  crossroader(enemy, playerPosition, dir, block) {
+  hunt_FP(enemy, exactPosition) {
+    const pPos = Vector3.to_FP_Grid(exactPosition);
+    const ePos = Vector3.to_FP_Grid(enemy.moveState.pos);
+    const direction = ePos.direction(pPos);
+    const orto = direction.ortoAlign();
+    return [orto];
+  },
+  crossroader(enemy, playerPosition, dir, block, exactPosition) {
     let goal, _;
     [goal, _] = enemy.parent.map.GA.findNextCrossroad(playerPosition, dir);
     if (goal === null) {
-      return this.hunt(enemy);
+      return this.hunt(enemy, exactPosition);
     }
 
     let Astar = enemy.parent.map.GA.findPath_AStar_fast(this.getPosition(enemy), goal, [MAPDICT.WALL], "exclude", block);
@@ -71,7 +86,7 @@ const AI = {
       return this.immobile(enemy);
     }
     if (Astar === 0) {
-      return this.hunt(enemy);
+      return this.hunt(enemy, exactPosition);
     }
 
     let path = GRID.pathFromNodeMap(goal, Astar);
@@ -79,10 +94,10 @@ const AI = {
     return directions;
   },
   follower(enemy, ARG) {
-    return this.crossroader(enemy, ARG.playerPosition, ARG.currentPlayerDir.mirror(), ARG.block);
+    return this.crossroader(enemy, ARG.playerPosition, ARG.currentPlayerDir.mirror(), ARG.block, ARG.exactPlayerPosition);
   },
   advancer(enemy, ARG) {
-    return this.crossroader(enemy, ARG.playerPosition, ARG.currentPlayerDir, ARG.block);
+    return this.crossroader(enemy, ARG.playerPosition, ARG.currentPlayerDir, ARG.block, ARG.exactPlayerPosition);
   },
   runAway(enemy) {
     let nodeMap = enemy.parent.map.GA.nodeMap;

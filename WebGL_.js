@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.22.2",
+    VERSION: "0.22.3",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -170,7 +170,7 @@ const WebGL = {
         this.initParticlePrograms(gl);
         this.initModelPrograms(gl);
     },
-    init_required_IAM(map) {
+    init_required_IAM(map, hero) {
         DECAL3D.init(map);
         LIGHTS3D.init(map);
         GATE3D.init(map);
@@ -180,7 +180,7 @@ const WebGL = {
         INTERACTIVE_DECAL3D.init(map);
         BUMP3D.init(map);
         INTERACTIVE_DECAL3D.init(map);
-        ENTITY3D.init(map);
+        ENTITY3D.init(map, hero);
 
         if (this.VERBOSE) {
             console.log("DECAL3D", DECAL3D);
@@ -1794,15 +1794,22 @@ class $3D_Entity {
         this.petrified = false;
         this.behaviour = new Behaviour(...this.behaviourArguments);
     }
-    performAttack(heroDir) {
-        console.warn(`${this.name} ${this.id} attacking. Hero dir:`, heroDir);
+    performAttack(victim) {
+        console.warn(`${this.name} ${this.id} attacking.`);
         if (!this.canAttack || HERO.dead) return;
         this.canAttack = false;
         AUDIO[this.attackSound].play();
-        // you were here CONT
-
-
-        //
+        let damage = TURN.damage(this, victim);
+        let luckAddiction = Math.min(1, (damage * 0.1) >>> 0);
+        damage -= luckAddiction * victim.luck;
+        if (damage <= 0) {
+            damage = "MISSED";
+            TURN.display(damage, "red");
+        } else {
+            TURN.display(damage, "red");
+            victim.incExp(damage, "defense");
+            victim.applyDamage(damage);
+        }
         setTimeout(this.resetAttack.bind(this), INI.MONSTER_ATTACK_TIMEOUT);
     }
     resetAttack() {
@@ -1962,6 +1969,9 @@ class $3D_Entity {
     update(date) {
         this.moveState.update();
         this.actor.animate(date);
+    }
+    reset() {
+        this.moveState.resetView();
     }
     dropInventory() {
         const item = new FloorItem3D(this.moveState.grid, COMMON_ITEM_TYPE[this.inventory]);

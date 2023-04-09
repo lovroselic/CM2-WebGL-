@@ -659,6 +659,11 @@ class Animated_3d_entity extends IAM {
         this.POOL = [];
         this.IA = "enemyIA";
     }
+    init(map, hero) {
+        this.POOL = [];
+        this.linkMap(map);
+        this.hero = hero; 
+    }
     resetTime() {
         for (const enemy of this.POOL) {
             if (enemy === null) continue;
@@ -694,36 +699,43 @@ class Animated_3d_entity extends IAM {
         let map = this.map;
         map[this.IA] = new IndexArray(map.width, map.height, 4, 4);
         this.poolToIA(map[this.IA]);
-        GRID.calcDistancesBFS_A(Vector3.toGrid(HERO.player.pos), map);
+        GRID.calcDistancesBFS_A(Vector3.toGrid(this.hero.player.pos), map);
 
         for (const entity of this.POOL) {
             if (entity) {
-                //entity.update(date);
+                //reset
+                entity.reset();
+
                 //check distance
                 entity.setDistanceFromNodeMap(map.GA.nodeMap);
                 if (entity.distance === null) continue;
                 if (entity.petrified) continue;
 
-                entity.update(date);
+                //entity.update(date);
 
                 //enemy/enemy collision resolution
                 //
 
                 //enemy/player collision
-                const EP_hit = HERO.player.circleCollision(entity);
-                if (EP_hit){
+                const EP_hit = this.hero.player.circleCollision(entity);
+                if (EP_hit) {
                     if (entity.canAttack) {
-                        entity.performAttack(HERO.player.dir);
-                        //entity.update(date); // check?
+                        entity.performAttack(this.hero);
                     }
+                    //set lookAt view
+
+                    //
+                    entity.update(date);
                     continue;
                 }
 
                 //enemy shoot
                 //
+
                 //enemy translate position
                 if (entity.moveState.moving) {
-                    GRID.translatePosition3D(entity, lapsedTime, date);
+                    GRID.translatePosition3D(entity, lapsedTime);
+                    entity.update(date);
                     continue;
                 }
 
@@ -732,12 +744,13 @@ class Animated_3d_entity extends IAM {
                 entity.behaviour.manage(entity, entity.distance, passiveFlag);
                 if (!entity.hasStack()) {
                     let ARG = {
-                        playerPosition: Vector3.toGrid(HERO.player.pos),
-                        currentPlayerDir:  Vector3.to_FP_Vector(HERO.player.dir).ortoAlign(),
+                        playerPosition: Vector3.toGrid(this.hero.player.pos),
+                        currentPlayerDir: Vector3.to_FP_Vector(this.hero.player.dir).ortoAlign(),
+                        exactPlayerPosition: this.hero.player.pos,
                     };
                     console.warn("entity.behaviour.strategy", entity.behaviour.strategy);
                     entity.dirStack = AI[entity.behaviour.strategy](entity, ARG);
-                    console.warn("entity.dirStack", entity.dirStack);
+                    console.warn("entity.dirStack", entity.dirStack, "dir", entity.moveState.dir);
                 }
                 entity.makeMove();
             }

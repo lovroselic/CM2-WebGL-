@@ -720,9 +720,6 @@ class Vector {
     let Angle1 = this.toRad();
     return Angle2 - Angle1;
   }
-  /*radAngleBetweenVectors(vector) {
-    return Math.acos(this.dot(vector));
-  }*/
   dot(vector) {
     return this.x * vector.x + this.y * vector.y;
   }

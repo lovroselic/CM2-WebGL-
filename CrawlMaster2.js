@@ -10,7 +10,7 @@
 TODO:
 
 known bugs: 
-    frame rate & time discrepancy
+    NO WAY but without touching
 
  */
 ////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.12.02",
+    VERSION: "0.12.03",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -573,7 +573,7 @@ const HERO = {
     },
 
     die() {
-
+        console.log(`%c HERO DIED! not yed implemented`, "color: red; font-size: 20px");
     },
     death() {
 
@@ -662,7 +662,7 @@ const GAME = {
         AI.immobileWander = false;
         AI.initialize(HERO.player, "3D");
 
-        WebGL.init_required_IAM(MAP[level].map);
+        WebGL.init_required_IAM(MAP[level].map, HERO);
         WebGL.MOUSE.initialize("ROOM");
         SPAWN.spawn(level);
         const object_map = [
@@ -838,7 +838,6 @@ const GAME = {
             GAME.drawPlayer();
         }
         WebGL.renderScene();
-
         MINIMAP.draw();
         TITLE.compassNeedle();
         TITLE.time();
@@ -1568,33 +1567,6 @@ const TITLE = {
         CTX.shadowBlur = 3;
         CTX.fillText("GAME OVER", x, y);
     },
-};
-
-const TURN = {
-    damage(attacker, defender) {
-        if (attacker.attack === 0) return 0;
-        let delta = attacker.attack - defender.defense;
-        let damage = RND(Math.min(-1, (delta / 2) | 0), Math.max(delta, 1));
-        return damage;
-    },
-    magicDamage(attacker, defender) {
-        if (attacker.magic === 0) return 0;
-    },
-    display(value, color = "#0F0") {
-        ENGINE.clearLayer("info");
-        let CTX = LAYER.info;
-        let fs = 16;
-        CTX.font = fs + "px Times";
-        CTX.shadowColor = "#666";
-        CTX.shadowOffsetX = 1;
-        CTX.shadowOffsetY = 1;
-        CTX.shadowBlur = 0;
-        CTX.fillStyle = color;
-        CTX.textAlign = "center";
-        CTX.fillText(value, ENGINE.gameWIDTH / 2, ENGINE.gameHEIGHT / 2);
-
-        GAME.infoTimer();
-    }
 };
 
 // -- main --
