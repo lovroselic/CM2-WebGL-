@@ -714,6 +714,32 @@ class Animated_3d_entity extends IAM {
                 //entity.update(date);
 
                 //enemy/enemy collision resolution
+                const ThisGrid = Vector3.toGrid(entity.moveState.pos);
+                const EndGrid = Vector3.toGrid(entity.moveState.endPos);
+                const Indices = map[this.IA].unroll(ThisGrid);
+                if (!GRID.same(ThisGrid, EndGrid)) {
+                    let add = map[this.IA].unroll(EndGrid);
+                    Indices.splice(0, -1, ...add);
+                }
+                let setIndices = new Set(Indices);
+                setIndices.delete(entity.id);
+                const FilteredIndices = Array.from(setIndices).filter((val) => val < entity.id);
+                let wait = false;
+                if (FilteredIndices.length > 0) {
+                    for (let e of FilteredIndices) {
+                        const compareEntity = this.POOL[e - 1];
+                        const EE_hit = GRID.circleCollision2D(
+                            Vector3.to_FP_Grid(entity.moveState.pos),
+                            Vector3.to_FP_Grid(compareEntity.moveState.pos),
+                            entity.r + compareEntity.r
+                        );
+                        if (EE_hit) {
+                            wait = true;
+                            break;
+                        }
+                    }
+                    if (wait) continue;
+                }
                 //
 
                 //enemy/player collision
@@ -730,6 +756,8 @@ class Animated_3d_entity extends IAM {
                 }
 
                 //enemy shoot
+
+                
                 //
 
                 //enemy translate position

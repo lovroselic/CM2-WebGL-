@@ -372,8 +372,12 @@ const MONSTER_TYPE = {
         //
         attackSound: "MonsterAttack1",
         hurtSound: "MonsterHurt",
-        behaviourArguments: [6, ["wanderer"], 3, ["advancer"]],
+        behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
         moveSpeed: 1.0,
+        //casters
+        caster: true,
+        shootDistance: 4,
+        stalkDistance: 5,
     }
 };
 
