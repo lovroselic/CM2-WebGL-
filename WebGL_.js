@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.22.3",
+    VERSION: "0.22.4",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1793,6 +1793,9 @@ class $3D_Entity {
         }
         this.petrified = false;
         this.behaviour = new Behaviour(...this.behaviourArguments);
+    }
+    setView(lookAt) {
+        this.moveState.setView(lookAt);
     }
     performAttack(victim) {
         console.warn(`${this.name} ${this.id} attacking.`);

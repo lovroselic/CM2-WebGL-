@@ -543,7 +543,9 @@ class FP_Vector {
     return this.x * vector.x + this.y * vector.y;
   }
   radAngleBetweenVectors(vector) {
-    return Math.acos(this.dot(vector));
+    let angle = Math.acos(this.dot(vector));
+    if (this.x * vector.y - this.y * vector.x < 0) angle = 2 * Math.PI - angle;
+    return angle;
   }
 }
 class Vector {
@@ -715,13 +717,20 @@ class Vector {
     let Angle1 = this.toRad();
     return (Math.degrees(Angle2 - Angle1) + 360) % 360;
   }
+  /*
+  dot(vector) {
+    return this.x * vector.x + this.y * vector.y;
+  }
+  radAngleBetweenVectors(vector) {
+    let angle = Math.acos(this.dot(vector));
+    if (this.x * vector.y - this.y * vector.x < 0) angle = 2 * Math.PI - angle;
+    return angle;
+  }
+  */
   radAngleBetweenVectors(vector) {
     let Angle2 = vector.toRad();
     let Angle1 = this.toRad();
     return Angle2 - Angle1;
-  }
-  dot(vector) {
-    return this.x * vector.x + this.y * vector.y;
   }
   rotate(rad) {
     let COS = Math.cos(rad);

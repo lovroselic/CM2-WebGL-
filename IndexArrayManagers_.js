@@ -662,7 +662,7 @@ class Animated_3d_entity extends IAM {
     init(map, hero) {
         this.POOL = [];
         this.linkMap(map);
-        this.hero = hero; 
+        this.hero = hero;
     }
     resetTime() {
         for (const enemy of this.POOL) {
@@ -723,7 +723,7 @@ class Animated_3d_entity extends IAM {
                         entity.performAttack(this.hero);
                     }
                     //set lookAt view
-
+                    entity.setView(this.hero.player.pos);
                     //
                     entity.update(date);
                     continue;
