@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.22.5",
+    VERSION: "0.22.6",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -176,7 +176,7 @@ const WebGL = {
         GATE3D.init(map);
         VANISHING3D.init(map);
         ITEM3D.init(map);
-        MISSILE3D.init(map);
+        MISSILE3D.init(map, hero);
         INTERACTIVE_DECAL3D.init(map);
         BUMP3D.init(map);
         INTERACTIVE_DECAL3D.init(map);
@@ -2004,6 +2004,21 @@ class $3D_Entity {
 
         //exp to HERO
         HERO.incExp(exp, "magic"); //accessing HERO directly TODO
+    }
+    shoot() {
+        const dir = Vector3.from_2D_dir(this.moveState.lookDir);
+        console.warn(`${this.name} ${this.id} shooting in:`, dir);
+        this.canShoot = false;
+        this.caster = false;
+        this.mana -= Missile.calcMana(this.magic);
+        let position = this.moveState.pos.translate(dir, this.r);
+        position.set_y(0.5);
+        const missile = new Missile(position, dir, COMMON_ITEM_TYPE.Fireball, this.magic);
+        MISSILE3D.add(missile);
+        setTimeout(this.resetShooting.bind(this), INI.MONSTER_SHOOT_TIMEOUT);
+    }
+    resetShooting() {
+        this.caster = true;
     }
 }
 

@@ -2827,13 +2827,15 @@ class $3D_MoveState {
   }
   resetView() {
     this.lookDir = null;
+    this.lookAngle = null;
   }
   setView(lookAt) {
     const pPos = Vector3.to_FP_Grid(lookAt);
     const ePos = Vector3.to_FP_Grid(this.pos);
     const direction = ePos.direction(pPos);
+    this.lookDir = direction;
     const angle = -FP_Vector.toClass(UP).radAngleBetweenVectors(direction);
-    this.lookDir = angle;
+    this.lookAngle = angle;
   }
   next(dir) {
     if (!dir) throw new Error(`Direction ${dir} not defined error. Stopping execution!`);
@@ -2853,8 +2855,8 @@ class $3D_MoveState {
     this.directionVector = Vector3.from_2D_dir(this.dir);
   }
   setRotation() {
-    if (this.lookDir) {
-      this.rotation_angle = this.lookDir;
+    if (this.lookAngle) {
+      this.rotation_angle = this.lookAngle;
     }
     else {
       const angle = UP.radAngleBetweenVectors(this.dir);

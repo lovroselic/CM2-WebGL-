@@ -153,7 +153,6 @@ const GRID = {
   isGridIn(grid, gridArray) {
     return gridArray.findIndex(g => g.x === grid.x && g.y === grid.y);
   },
-
   contTranslatePosition(entity, lapsedTime) {
     let length = (lapsedTime / 1000) * entity.moveSpeed;
     entity.moveState.pos = entity.moveState.pos.translate(entity.moveState.dir, length);
@@ -169,7 +168,6 @@ const GRID = {
       entity.moveState.moving = false;
       console.error(`${entity.name} ${entity.id} stopped moving`);
     }
-
   },
   translatePosition(entity, lapsedTime) {
     let length = (lapsedTime / 1000) * entity.moveSpeed;
@@ -256,6 +254,7 @@ const GRID = {
   vision(startGrid, endGrid, GA) {
     if (GRID.same(startGrid, endGrid)) return true;
     let path = GRID.raycasting(startGrid, endGrid);
+    console.info("path",path);
     return GA.pathClear(path);
   },
   freedom(startGrid, endGrid, IA) {

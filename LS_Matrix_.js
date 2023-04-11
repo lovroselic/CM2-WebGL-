@@ -75,9 +75,6 @@ class Vector3 {
     reverse2D() {
         return Vector3.from_2D_dir(this.rotate2D(Math.PI), this.y);
     }
-    rotateX() { }
-    rotateY() { }
-    rotateZ() { }
     translate(vector, length = 1) {
         let x = this.x + length * (vector.x || 0);
         let y = this.y + length * (vector.y || 0);

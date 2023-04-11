@@ -150,15 +150,16 @@ const AI = {
     return directions;
   },
   shoot(enemy, ARG) {
+    console.log("shooting:");
     if (enemy.caster) {
       if (enemy.mana >= Missile.calcMana(enemy.magic)) {
-        let GA = enemy.parent.map.GA;
-        let IA = enemy.parent.map.enemyIA;
+        const GA = enemy.parent.map.GA;
+        const IA = enemy.parent.map.enemyIA;
         if (GRID.vision(this.getPosition(enemy), Grid.toClass(ARG.playerPosition), GA) &&
           GRID.freedom(this.getPosition(enemy), Grid.toClass(ARG.playerPosition), IA)) {
           enemy.canShoot = true;
         }
-        return this.hunt(enemy);
+        return this.hunt(enemy, ARG.exactPlayerPosition);
       } else {
         this.caster = false;
         if (enemy.weak()) {
@@ -173,16 +174,16 @@ const AI = {
     }
   },
   keepTheDistance(enemy, ARG) {
-    let map = enemy.parent.map;
-    let grid = this.getPosition(enemy);
-    let playerGrid = Grid.toClass(ARG.playerPosition);
-    let directions = map.GA.getDirectionsFromNodeMap(grid, map.GA.nodeMap);
+    const map = enemy.parent.map;
+    const grid = this.getPosition(enemy);
+    const playerGrid = Grid.toClass(ARG.playerPosition);
+    const directions = map.GA.getDirectionsFromNodeMap(grid, map.GA.nodeMap);
     let possible = [];
     let max = [];
     let curMax = 0;
     for (let i = 0; i < directions.length; i++) {
-      let test = grid.add(directions[i]);
-      let distance = test.distanceDiagonal(playerGrid);
+      const test = grid.add(directions[i]);
+      const distance = test.distanceDiagonal(playerGrid);
       if (distance === enemy.stalkDistance) possible.push(directions[i]);
       if (distance > curMax) {
         max.clear();

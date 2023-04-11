@@ -593,6 +593,11 @@ class Missile3D extends IAM {
         this.enemyIA = enemyIA;
         this.entity_IAM = entity_IAM;
     }
+    init(map, hero) {
+        this.POOL = [];
+        this.linkMap(map);
+        this.hero = hero;
+    }
     draw() {
         for (let obj of this.POOL) {
             if (obj) obj.draw(this.map);
@@ -628,6 +633,13 @@ class Missile3D extends IAM {
                             continue;
                         }
                     }
+                }
+
+                //check player collision
+                const playerHit = GRID.circleCollision2D(Vector3.to_FP_Grid(this.hero.player.pos), Vector3.to_FP_Grid(obj.pos), this.hero.player.r + obj.r);
+                if (playerHit) {
+                    this.hero.hitByMissile(obj);
+                    continue;
                 }
             }
         }
@@ -756,8 +768,11 @@ class Animated_3d_entity extends IAM {
                 }
 
                 //enemy shoot
+                if (entity.canShoot) {
+                    entity.setView(this.hero.player.pos);
+                    entity.shoot();
+                }
 
-                
                 //
 
                 //enemy translate position

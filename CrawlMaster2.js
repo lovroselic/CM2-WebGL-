@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.12.05",
+    VERSION: "0.12.06",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -551,15 +551,13 @@ const HERO = {
         return Math.round(value * INI.LEVEL_FACTOR);
     },
     hitByMissile(missile) {
-        let damage = Math.max(missile.calcDamage(HERO.magic), 1) - HERO.luck;
-        let exp = Math.max((damage ** 0.9) | 0, 1);
+        //console.warn("HERO hit by missile", missile);
+        const damage = Math.max(missile.calcDamage(HERO.magic), 1) - HERO.luck;
+        const exp = Math.max((damage ** 0.9) | 0, 1);
         HERO.applyDamage(damage);
-        let type = "SmallShortExplosion";
-        if (this.dead) type = "LongExplosion";
-        let explosion = new Destruction(missile.moveState.pos, missile.base, DESTRUCTION_TYPE[type]);
-        DESTRUCTION_ANIMATION.add(explosion);
-        MISSILE.remove(missile.id);
-        AUDIO.Explosion.volume = RAYCAST.volume(missile.distance);
+        EXPLOSION3D.add(new ParticleExplosion(missile.pos));
+        MISSILE3D.remove(missile.id);
+        AUDIO.Explosion.volume = RAY.volume(missile.distance);
         AUDIO.Explosion.play();
         HERO.incExp(exp, "magic");
     },
@@ -570,6 +568,25 @@ const HERO = {
         if (HERO.health <= 0) {
             HERO.die();
         }
+    },
+    shoot() {
+        let cost = Missile.calcMana(HERO.reference_magic);
+        cost = 0; //debug
+        if (cost > HERO.mana) {
+            AUDIO.MagicFail.play();
+            return;
+        }
+        if (!HERO.canShoot) return;
+        HERO.canShoot = false;
+        HERO.mana -= cost;
+        const exp = (HERO.magic / 5) | 0;
+        HERO.incExp(exp, "magic");
+        TITLE.status();
+        const position = HERO.player.pos.translate(HERO.player.dir, HERO.player.r);
+        const missile = new Missile(position, HERO.player.dir, COMMON_ITEM_TYPE.Fireball, HERO.magic);
+        MISSILE3D.add(missile);
+        setTimeout(() => (HERO.canShoot = true), INI.HERO_SHOOT_TIMEOUT);
+        return;
     },
 
     die() {
@@ -990,25 +1007,8 @@ const GAME = {
             ENGINE.GAME.keymap[ENGINE.KEY.map.M] = false; //NO repeat
         }
         if (map[ENGINE.KEY.map.ctrl]) {
-            let cost = Missile.calcMana(HERO.reference_magic);
-            cost = 0; //debug
-            if (cost > HERO.mana) {
-                AUDIO.MagicFail.play();
-                return;
-            }
-            if (!HERO.canShoot) return;
-            HERO.canShoot = false;
-            HERO.mana -= cost;
-            let exp = (HERO.magic / 5) | 0;
-            HERO.incExp(exp, "magic");
-            TITLE.status();
-            let position = HERO.player.pos.translate(HERO.player.dir, HERO.player.r);
-            const missile = new Missile(position, HERO.player.dir, COMMON_ITEM_TYPE.Fireball, HERO.magic);
-            MISSILE3D.add(missile);
-
+            HERO.shoot();
             ENGINE.GAME.keymap[ENGINE.KEY.map.ctrl] = false; //NO repeat
-            setTimeout(() => (HERO.canShoot = true), INI.HERO_SHOOT_TIMEOUT);
-            return;
         }
         if (map[ENGINE.KEY.map.up]) {
 

@@ -343,7 +343,7 @@ var SPAWN = {
     monsters(level) {
         console.log("spawning monsters...");
         const monsterLocations = [
-            { grid: new FP_Grid(2.5, 6.5), dir: UP, type: MONSTER_TYPE.GhostFace },
+            { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.GhostFace },
             { grid: new FP_Grid(5.5, 12.5), dir: LEFT, type: MONSTER_TYPE.GhostFace },
         ];
 
@@ -365,16 +365,18 @@ const MONSTER_TYPE = {
         //attribs
         attack: 7,
         defense: 3,
-        magic: 0,
+        magic: 4,
         health: 1,
         xp: 50,
         gold: 100,
         //
         attackSound: "MonsterAttack1",
         hurtSound: "MonsterHurt",
-        behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
+        //behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
+        behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
         moveSpeed: 1.0,
         //casters
+        mana: 3,
         caster: true,
         shootDistance: 4,
         stalkDistance: 5,
