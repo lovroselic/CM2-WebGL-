@@ -59,6 +59,7 @@ LoadTextures = [
     { srcName: "Explosion1.jpg", name: "Explosion" },
     { srcName: "treasure_chest.JPG", name: "TreasureChest" },
     { srcName: "CoinColor.jpg", name: "Coins" },
+    { srcName: "Sting_Base_Color.png", name: "Sting" },
 
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
@@ -115,7 +116,7 @@ LoadShaders = [
 ];
 LoadObjects = [
     "key.obj", "flask.obj", "scroll.obj", "ball.obj", "sword.obj", "heart.obj", "shield.obj", "pentagram.obj", "chest.obj",
-    "treasure_chest.obj", "coins.obj"
+    "treasure_chest.obj", "coins.obj", "sting.obj"
 ];
 
 LoadModels = ['GhostFace.gltf'];

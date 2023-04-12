@@ -334,6 +334,9 @@ var SPAWN = {
 
             { grid: new FP_Grid(5.5, 5.5), type: COMMON_ITEM_TYPE.Coins },
 
+
+            { grid: new FP_Grid(4.5, 3.5), type: COMMON_ITEM_TYPE.Sting },
+
         ];
 
         for (let item of itemLocations) {
@@ -632,6 +635,17 @@ const COMMON_ITEM_TYPE = {
         minVal: 10,
         maxVal: 25,
         shine: 128.0 * 0.99,
+    },
+    Sting: {
+        name: "Sting",
+        category: "skill",
+        which: "attack",
+        element: "STING",
+        scale: 1 / 2 ** 1,
+        glueToFloor: true,
+        texture: "Sting",
+        shine: 128.0 * 0.99,
+        inventorySprite: "SwordSkill",
     }
 };
 

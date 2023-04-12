@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.12.06",
+    VERSION: "0.12.07",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -684,7 +684,7 @@ const GAME = {
         SPAWN.spawn(level);
         const object_map = [
             "BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM", "SWORD", "HEART", "SHIELD", "PENTAGRAM", "CHEST",
-            "TREASURE_CHEST", "COINS"
+            "TREASURE_CHEST", "COINS", "STING"
         ];
         MAP[level].world = WORLD.build(MAP[level].map, object_map);
         console.log("world", MAP[level].world);
