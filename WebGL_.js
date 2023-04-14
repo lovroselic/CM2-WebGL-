@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.22.7",
+    VERSION: "0.22.8",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -93,6 +93,7 @@ const WebGL = {
         DYNAMIC_LIGHTS_RESERVATION: 8,
         EXPLOSION_N_PARTICLES: 25000,
         EXPLOSION_DURATION_MS: 2000,
+        BLOOD_DURATION_MS: 2500,
     },
     program: null,
     pickProgram: null,
@@ -181,6 +182,7 @@ const WebGL = {
         BUMP3D.init(map);
         INTERACTIVE_DECAL3D.init(map);
         ENTITY3D.init(map, hero);
+        INTERFACE3D.init(map);
 
         if (this.VERBOSE) {
             console.log("DECAL3D", DECAL3D);
@@ -703,11 +705,22 @@ const WebGL = {
             }
         }
 
+        //pov 
+        for (const pov of INTERFACE3D.POOL) {
+            if (pov) {
+                gl.uniform1f(this.program.uniformLocations.uShine, pov.shine);
+                gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, pov.scale);
+                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, pov.pos);
+                gl.uniformMatrix4fv(this.program.uniformLocations.uRotY, false, pov.rotation);
+                gl.bindTexture(gl.TEXTURE_2D, pov.texture);
+                gl.drawElements(gl.TRIANGLES, pov.indices, gl.UNSIGNED_SHORT, this.world.offset[pov.start] * 2);
+            }
+        }
+
         //entities
         gl.useProgram(WebGL.model_program.program);
         for (const entity of ENTITY3D.POOL) {
             if (entity) {
-                //entity.draw(gl);
                 entity.drawSkin(gl);
             }
         }
@@ -1522,7 +1535,6 @@ class ParticleEmmiter {
         const locLife = 4;
 
         for (let i = 0; i < 2; i++) {
-
             gl.bindVertexArray(this.readFeedback[i]);
 
             //location offsets
@@ -1702,10 +1714,10 @@ class ParticleEmmiter {
 }
 
 class ParticleExplosion extends ParticleEmmiter {
-    constructor(position, texture = TEXTURE.Explosion, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
+    constructor(position, duration = WebGL.INI.EXPLOSION_DURATION_MS, texture = TEXTURE.Explosion, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
         super(position, texture);
         this.number = number;
-        this.duration = WebGL.INI.EXPLOSION_DURATION_MS;
+        this.duration = duration;
         this.build(number);
         this.lightColor = colorStringToVector("#FF3300");
         this.scale = 0.5;
@@ -1717,47 +1729,44 @@ class ParticleExplosion extends ParticleEmmiter {
 }
 
 class BloodExplosion extends ParticleEmmiter {
-    constructor(position, texture = TEXTURE.RedLiquid, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
+    constructor(position, duration = WebGL.INI.BLOOD_DURATION_MS, texture = TEXTURE.RedLiquid, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
         super(position, texture);
         this.number = number;
-        this.duration = WebGL.INI.EXPLOSION_DURATION_MS;
+        this.duration = duration;
         this.build(number);
         this.lightColor = colorStringToVector("#111111");
         this.scale = 0.25;
         this.gravity = new Float32Array([0, 0.0025, 0]);
         this.velocity = 0.0075;
         this.rounded = 1;
-        //console.log("ParticleEmmiter", this);
     }
 }
 
 class SmokeExplosion extends ParticleEmmiter {
-    constructor(position, texture = TEXTURE.ScrapedMetal, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
+    constructor(position, duration = WebGL.INI.EXPLOSION_DURATION_MS, texture = TEXTURE.ScrapedMetal, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
         super(position, texture);
         this.number = number;
-        this.duration = WebGL.INI.EXPLOSION_DURATION_MS;
+        this.duration = duration;
         this.build(number);
         this.lightColor = colorStringToVector("#111111");
         this.scale = 0.20;
         this.gravity = new Float32Array([0, -0.0025, 0]);
         this.velocity = 0.005;
         this.rounded = 1;
-        //console.log("ParticleEmmiter", this);
     }
 }
 
 class WoodExplosion extends ParticleEmmiter {
-    constructor(position, texture = TEXTURE.Wood1, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
+    constructor(position, duration = WebGL.INI.EXPLOSION_DURATION_MS, texture = TEXTURE.Wood1, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
         super(position, texture);
         this.number = number;
-        this.duration = WebGL.INI.EXPLOSION_DURATION_MS;
+        this.duration = duration;
         this.build(number);
         this.lightColor = colorStringToVector("#111111");
         this.scale = 0.1;
         this.gravity = new Float32Array([0, 0.0005, 0]);
         this.velocity = 0.0025;
         this.rounded = 0;
-        //console.log("ParticleEmmiter", this);
     }
 }
 
@@ -1799,7 +1808,7 @@ class $3D_Entity {
     }
     performAttack(victim) {
         console.warn(`${this.name} ${this.id} attacking.`);
-        if (!this.canAttack || HERO.dead) return;
+        if (!this.canAttack || this.IAM.hero.dead) return;
         this.canAttack = false;
         AUDIO[this.attackSound].play();
         let damage = TURN.damage(this, victim);
@@ -1980,30 +1989,27 @@ class $3D_Entity {
         const item = new FloorItem3D(this.moveState.grid, COMMON_ITEM_TYPE[this.inventory]);
         if (item.category === 'gold') item.setValue(this.gold);
         item.setTexture();
-        //console.warn("dropped inventory", item);
         ITEM3D.add(item);
+    }
+    die(expType, exp = 0) {
+        exp += this.xp;
+        this.IAM.remove(this.id);
+        this.dropInventory();
+        //EXPLOSION3D.add(new (eval(this.deathType))(this.moveState.pos));
+        EXPLOSION3D.add(new (eval(this.deathType))(this.moveState.pos.translate(DIR_UP, this.midHeight)));
+        this.IAM.hero.incExp(exp, expType);
+        AUDIO.MonsterDeath.play();
     }
     hitByMissile(missile) {
         const damage = Math.max(missile.calcDamage(this.magic), 1);
         let exp = Math.min(this.health, damage);
         this.health -= damage;
-        let dead = false;
-        if (this.health <= 0) dead = true;
-        if (dead) {
-            exp += this.xp;
-            this.IAM.remove(this.id);
-            this.dropInventory();
-            EXPLOSION3D.add(new (eval(this.deathType))(this.moveState.pos));
-        }
-
+        if (this.health <= 0) this.die('magic', exp);
         //missile explosion
         EXPLOSION3D.add(new ParticleExplosion(missile.pos));
         MISSILE3D.remove(missile.id);
         AUDIO.Explosion.volume = RAY.volume(missile.distance);
         AUDIO.Explosion.play();
-
-        //exp to HERO
-        HERO.incExp(exp, "magic"); //accessing HERO directly TODO
     }
     shoot() {
         const dir = Vector3.from_2D_dir(this.moveState.lookDir);
@@ -2022,6 +2028,150 @@ class $3D_Entity {
     }
 }
 
+class $POV {
+    constructor(type, player, offset, maxZ = 0.45) {
+        //offset = offset || [-0.15, 0.20, -0.02];
+        offset = offset || [-0.1, 0.20, -0.02];
+        maxZ = maxZ || 0.45;
+        for (const prop in type) {
+            this[prop] = type[prop];
+        }
+        this.start = `${this.element}_start`;
+        this.element = ELEMENT[this.element];
+        this.texture = TEXTURE[this.texture];
+        this.texture = WebGL.createTexture(this.texture);
+        if (typeof (this.scale) === "number") {
+            this.scale = new Float32Array([this.scale, this.scale, this.scale]);
+        }
+        this.indices = this.element.indices.length;
+        this.player = player;
+        this.offset = Vector3.from_array(offset);
+        this.minZ = this.offset.z;
+        this.maxZ = maxZ;
+        this.translationLength = this.maxZ - this.minZ;
+
+        //scale
+        const mScaleMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromScaling(mScaleMatrix, this.scale);
+        this.scale = mScaleMatrix;
+        this.manage();
+
+        //sword management
+        this.time = 500; //tune
+        this.length = 0.5;
+        this.stopMoving();
+    }
+    stab() {
+        if (this.moving) return;
+        this.startMoving();
+    }
+    stopMoving() {
+        this.now = this.minZ;
+        this.moving = false;
+        this.direction = null;
+    }
+    startMoving() {
+        this.date = Date.now();
+        this.moving = true;
+        this.direction = 1;
+    }
+    setRotation() {
+        const identity = glMatrix.mat4.create();
+        const angle = -FP_Vector.toClass(UP).radAngleBetweenVectors(Vector3.to_FP_Vector(this.player.dir));
+        glMatrix.mat4.rotate(identity, identity, angle, [0, 1, 0]);
+        this.rotation = identity;
+    }
+    setPosition() {
+        let pos = this.player.pos.translate(this.player.dir, this.now);
+        let dirRight = glMatrix.vec3.create();
+        glMatrix.vec3.rotateY(dirRight, this.player.dir.array, glMatrix.vec3.create(), Math.PI / 2);
+        pos = pos.translate(Vector3.from_array(dirRight), this.offset.x);
+        pos = pos.translate(DIR_DOWN, this.offset.y);
+        const mTranslationmatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromTranslation(mTranslationmatrix, pos.array);
+        this.pos = mTranslationmatrix;
+    }
+    stabbed() {
+        this.direction = -1;
+        this.date = Date.now();
+        //eval hit
+        const hit = this.hit();
+        if (!hit) return;
+        let damage = TURN.damage(this.IAM.hero, hit);
+        const luckAddiction = Math.min(1, (damage * 0.1) >>> 0);
+        damage += this.IAM.hero.luck * luckAddiction;
+        if (damage <= 0) {
+            damage = "MISSED";
+            TURN.display(damage);
+            this.miss();
+            return;
+        }
+        // damage done
+        TURN.display(damage);
+        AUDIO.SwordHit.play();
+        this.IAM.hero.incExp(Math.min(damage, hit.health), "attack");
+        hit.health -= damage;
+        AUDIO[hit.hurtSound].play();
+        //smudge
+
+        //
+        if (hit.health <= 0) hit.die("attack");
+    }
+    miss() {
+        AUDIO.SwordMiss.play();
+    }
+    hit() {
+        const refPoint = this.player.pos.translate(this.player.dir, this.length);
+        const refGrid = Vector3.toGrid(refPoint);
+        const playerGrid = Vector3.toGrid(this.player.pos);
+        console.log("grids", refGrid, playerGrid);
+        const IA = this.IAM.IA.enemy;
+        const map = this.IAM.map;
+        const POOL = this.IAM.external.enemy.POOL;
+        console.assert(POOL.length = ENTITY3D.POOL.length, "FUCK!!!!!");
+        console.log("POOL", POOL);
+        const enemies = map[IA].unrollArray([refGrid, playerGrid]);
+        console.info("enemies", enemies);
+        if (enemies.size === 0) return null;
+        if (enemies.size > 1) {
+            let distance = Infinity;
+            for (let e of enemies) {
+                //console.log(e, POOL[e - 1].name, POOL[e - 1].distance);
+                if (POOL[e - 1].distance < distance) {
+                    distance = POOL[e - 1].distance;
+                } else {
+                    enemies.delete(e);
+                }
+            }
+            console.info("prunning enemies", enemies, enemies.size === 1);
+        }
+        console.assert(enemies.size === 1, "Failed enemy pruning by distance!");
+        const enemy = POOL[enemies.first() - 1];
+        console.log("enemy", enemy);
+        let hit = ENGINE.lineIntersectsCircle(Vector3.to_FP_Grid(this.player.pos), Vector3.to_FP_Grid(refPoint), Vector3.to_FP_Grid(enemy.moveState.pos), enemy.r);
+        if (hit) return enemy;
+        return null;
+    }
+    manage() {
+        if (this.moving) {
+            let currentTime;
+            if (this.direction === 1) {
+                currentTime = (Date.now() - this.date) / this.time;
+                if (currentTime >= 1.0) {
+                    this.stabbed();
+                }
+            } else if (this.direction === -1) {
+                currentTime = 1.0 - (Date.now() - this.date) / this.time;
+                if (currentTime <= 0.0) {
+                    this.stopMoving();
+                }
+            }
+            this.now = this.translationLength * currentTime + this.minZ;
+        }
+        this.setPosition();
+        this.setRotation();
+    }
+}
 /** model formats */
 
 class $3D_Model {

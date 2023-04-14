@@ -98,5 +98,9 @@ class Vector3 {
     }
 }
 
+/** Global Constants */
+const DIR_DOWN = Vector3.from_array(glMatrix.vec3.fromValues(0, -1, 0));
+const DIR_UP = Vector3.from_array(glMatrix.vec3.fromValues(0, 1, 0));
+
 //END
 console.log(`%cLS_matrix ${LS_matrix.VERSION} loaded.`, LS_matrix.CSS);

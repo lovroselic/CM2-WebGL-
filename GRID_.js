@@ -254,7 +254,6 @@ const GRID = {
   vision(startGrid, endGrid, GA) {
     if (GRID.same(startGrid, endGrid)) return true;
     let path = GRID.raycasting(startGrid, endGrid);
-    console.info("path",path);
     return GA.pathClear(path);
   },
   freedom(startGrid, endGrid, IA) {

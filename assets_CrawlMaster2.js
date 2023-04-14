@@ -93,6 +93,8 @@ LoadAudio = [
     { srcName: "Evil laughter.mp3", name: "EvilLaughter" },
     { srcName: "Explosion1.mp3", name: "Explosion" },
     { srcName: "OpenChest.mp3", name: "OpenChest" },
+    { srcName: "SwordHit.mp3", name: "SwordHit" },
+    { srcName: "SwordMiss2.mp3", name: "SwordMiss" },
 
     //monstersounds
     { srcName: "MonsterDeath.mp3", name: "MonsterDeath" },
@@ -233,7 +235,7 @@ LoadSprites = [
     { srcName: "Amber.png", name: "Amberstar" },
     //{ srcName: "Soc.png", name: "Soccer" },
     { srcName: "LSL6.png", name: "LSL6" },
-    { srcName: "LSL4.png", name: "LSL4" },
+    //{ srcName: "LSL4.png", name: "LSL4" },
     //{ srcName: "LSL1.png", name: "LSL1" },
     { srcName: "Prince2.png", name: "Prince2" },
     { srcName: "Prince.png", name: "Prince1" },

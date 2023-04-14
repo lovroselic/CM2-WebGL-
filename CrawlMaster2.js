@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.12.07",
+    VERSION: "0.12.08",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -698,6 +698,14 @@ const GAME = {
         WebGL.updateShaders();
         WebGL.init('webgl', MAP[level].world, textureData, HERO.player);
         MINIMAP.init(MAP[level].map, INI.MIMIMAP_WIDTH, INI.MIMIMAP_HEIGHT, HERO.player);
+        //set POV
+        INTERFACE3D.associateIA("enemy", "enemyIA");
+        INTERFACE3D.associateExternal_IAM("enemy", ENTITY3D);
+        INTERFACE3D.associateHero(HERO);
+        INTERFACE3D.add(new $POV(COMMON_ITEM_TYPE.POV, HERO.player));
+        window.SWORD = INTERFACE3D.POOL[0];
+        console.log("SWORD", SWORD);
+
         //reset births!
         ENTITY3D.resetTime();
     },
@@ -719,6 +727,7 @@ const GAME = {
         GAME.respond(lapsedTime);
         VANISHING3D.manage(lapsedTime);
         MISSILE3D.manage(lapsedTime);
+        INTERFACE3D.manage(lapsedTime);
         EXPLOSION3D.manage(date);
         ENTITY3D.manage(lapsedTime, date, [HERO.invisible, HERO.dead]);
         MINIMAP.unveil(Vector3.to_FP_Grid(HERO.player.pos), HERO.vision);
@@ -1016,6 +1025,10 @@ const GAME = {
         if (map[ENGINE.KEY.map.down]) {
 
         }
+        if (map[ENGINE.KEY.map.space]) {
+            SWORD.stab();
+            ENGINE.GAME.keymap[ENGINE.KEY.map.space] = false; //NO repeat
+          }
         return;
     },
     FPS(lapsedTime) {

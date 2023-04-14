@@ -14,7 +14,7 @@ const DECAL_PAINTINGS = [
     "Fred1", "Fred2", "Frogger", "Galaxian3", "Ghostbusters", "Goonies", "GreenBeret", "HL1", "HL2", "HL3",
     "HL4", "HL5", "HOB11", "HOB2", "HOB5", "Hero1", "Hero10", "Hero2", "Hero3", "HoraceSki",
     "IM", "Iceman", "Imhotep", "Impossible_Mission4", "JSW", "JSW2", "JSW3", "Jumpman", "JumpmanJr", "KQ1",
-    "Kangaroo", "Karateka", "Killerwat", "Knightlore", "LSL20", "LSL4", "LSL6", "LTUT", "LastNinja1", "Lode",
+    "Kangaroo", "Karateka", "Killerwat", "Knightlore", "LSL20", "LSL6", "LTUT", "LastNinja1", "Lode",
     "Maniac", "ManicMiner", "Miner", "MonkeyIsland", "Montezuma", "Moon", "Oblivion", "Oblivion2", "OperationWolf",
     "OperationWolf2", "PAC2", "Penta", "Phara", "Pipeline", "Pitfall", "Pitfall3", "Pitfall4", "Pitstop", "Pooyan",
     "Portal1", "Prince1", "Prince2", "RRR", "RickDangerous", "SOF", "SQ1", "SVS1", "SVS10", "SVS2", "SVS3", "SVS4",
@@ -360,16 +360,17 @@ const MONSTER_TYPE = {
     GhostFace: {
         name: "GhostFace",
         model: "GhostFace",
-        scale: 1 / 2 ** 1,
+        scale: 1.75 / 2 ** 2,
         shine: 128.0 * 0.5,
         rotateToNorth: Math.PI,
+        midHeight: 0.5,
         deathType: "BloodExplosion",
         inventory: "Coins",
         //attribs
         attack: 7,
         defense: 3,
         magic: 4,
-        health: 1,
+        health: 10,
         xp: 50,
         gold: 100,
         //
@@ -646,6 +647,13 @@ const COMMON_ITEM_TYPE = {
         texture: "Sting",
         shine: 128.0 * 0.99,
         inventorySprite: "SwordSkill",
+    },
+    POV: {
+        name: "POV",
+        element: "STING",
+        scale: 1 / 2 ** 1,
+        texture: "Sting",
+        shine: 128.0 * 0.99,
     }
 };
 

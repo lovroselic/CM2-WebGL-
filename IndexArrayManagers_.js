@@ -74,6 +74,17 @@ class IAM {
     show(id) {
         return this.POOL[id - 1];
     }
+    associateIA(type, string) {
+        if (!this.IA) this.IA = {};
+        this.IA[type] = string;
+    }
+    associateExternal_IAM(type, pointer_to_entity) {
+        if (!this.external) this.external = {};
+        this.external[type] = pointer_to_entity;
+    }
+    associateHero(hero) {
+        this.hero = hero;
+    }
 }
 
 /** Profile IA Managers */
@@ -723,8 +734,6 @@ class Animated_3d_entity extends IAM {
                 if (entity.distance === null) continue;
                 if (entity.petrified) continue;
 
-                //entity.update(date);
-
                 //enemy/enemy collision resolution
                 const ThisGrid = Vector3.toGrid(entity.moveState.pos);
                 const EndGrid = Vector3.toGrid(entity.moveState.endPos);
@@ -752,7 +761,6 @@ class Animated_3d_entity extends IAM {
                     }
                     if (wait) continue;
                 }
-                //
 
                 //enemy/player collision
                 const EP_hit = this.hero.player.circleCollision(entity);
@@ -760,9 +768,7 @@ class Animated_3d_entity extends IAM {
                     if (entity.canAttack) {
                         entity.performAttack(this.hero);
                     }
-                    //set lookAt view
                     entity.setView(this.hero.player.pos);
-                    //
                     entity.update(date);
                     continue;
                 }
@@ -772,8 +778,6 @@ class Animated_3d_entity extends IAM {
                     entity.setView(this.hero.player.pos);
                     entity.shoot();
                 }
-
-                //
 
                 //enemy translate position
                 if (entity.moveState.moving) {
@@ -840,6 +844,7 @@ const DECAL = new Decal_IA();
 const DECAL3D = new Decal3D();
 const LIGHTS3D = new Decal3D();
 const VANISHING3D = new Decal3D();
+const INTERFACE3D = new Decal3D();
 const GATE3D = new Decal3D(100);
 const ITEM3D = new Decal3D(1000);
 const EXPLOSION3D = new ParticleEmmission3D();
