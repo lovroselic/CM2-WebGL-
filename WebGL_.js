@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.22.8",
+    VERSION: "0.22.9",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -94,6 +94,7 @@ const WebGL = {
         EXPLOSION_N_PARTICLES: 25000,
         EXPLOSION_DURATION_MS: 2000,
         BLOOD_DURATION_MS: 2500,
+        SMUDGE_DURATION_MS: 500,
     },
     program: null,
     pickProgram: null,
@@ -1742,6 +1743,20 @@ class BloodExplosion extends ParticleEmmiter {
     }
 }
 
+class BloodSmudge extends ParticleEmmiter {
+    constructor(position, duration = WebGL.INI.SMUDGE_DURATION_MS, texture = TEXTURE.RedLiquid, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
+        super(position, texture);
+        this.number = number;
+        this.duration = duration;
+        this.build(number);
+        this.lightColor = colorStringToVector("#330000");
+        this.scale = 0.05;
+        this.gravity = new Float32Array([0, 0.001, 0]);
+        this.velocity = 0.0025;
+        this.rounded = 1;
+    }
+}
+
 class SmokeExplosion extends ParticleEmmiter {
     constructor(position, duration = WebGL.INI.EXPLOSION_DURATION_MS, texture = TEXTURE.ScrapedMetal, number = WebGL.INI.EXPLOSION_N_PARTICLES) {
         super(position, texture);
@@ -1995,7 +2010,6 @@ class $3D_Entity {
         exp += this.xp;
         this.IAM.remove(this.id);
         this.dropInventory();
-        //EXPLOSION3D.add(new (eval(this.deathType))(this.moveState.pos));
         EXPLOSION3D.add(new (eval(this.deathType))(this.moveState.pos.translate(DIR_UP, this.midHeight)));
         this.IAM.hero.incExp(exp, expType);
         AUDIO.MonsterDeath.play();
@@ -2030,7 +2044,6 @@ class $3D_Entity {
 
 class $POV {
     constructor(type, player, offset, maxZ = 0.45) {
-        //offset = offset || [-0.15, 0.20, -0.02];
         offset = offset || [-0.1, 0.20, -0.02];
         maxZ = maxZ || 0.45;
         for (const prop in type) {
@@ -2057,7 +2070,7 @@ class $POV {
         this.manage();
 
         //sword management
-        this.time = 500; //tune
+        this.time = 500; 
         this.length = 0.5;
         this.stopMoving();
     }
@@ -2106,15 +2119,12 @@ class $POV {
             this.miss();
             return;
         }
-        // damage done
         TURN.display(damage);
         AUDIO.SwordHit.play();
         this.IAM.hero.incExp(Math.min(damage, hit.health), "attack");
         hit.health -= damage;
         AUDIO[hit.hurtSound].play();
-        //smudge
-
-        //
+        EXPLOSION3D.add(new BloodSmudge(hit.moveState.pos.translate(DIR_UP, hit.midHeight)));
         if (hit.health <= 0) hit.die("attack");
     }
     miss() {
@@ -2124,14 +2134,14 @@ class $POV {
         const refPoint = this.player.pos.translate(this.player.dir, this.length);
         const refGrid = Vector3.toGrid(refPoint);
         const playerGrid = Vector3.toGrid(this.player.pos);
-        console.log("grids", refGrid, playerGrid);
+        //console.log("grids", refGrid, playerGrid);
         const IA = this.IAM.IA.enemy;
         const map = this.IAM.map;
         const POOL = this.IAM.external.enemy.POOL;
-        console.assert(POOL.length = ENTITY3D.POOL.length, "FUCK!!!!!");
-        console.log("POOL", POOL);
+        //console.assert(POOL.length = ENTITY3D.POOL.length, "FUCK!!!!!");
+        //console.log("POOL", POOL);
         const enemies = map[IA].unrollArray([refGrid, playerGrid]);
-        console.info("enemies", enemies);
+        //console.info("enemies", enemies);
         if (enemies.size === 0) return null;
         if (enemies.size > 1) {
             let distance = Infinity;
@@ -2147,7 +2157,7 @@ class $POV {
         }
         console.assert(enemies.size === 1, "Failed enemy pruning by distance!");
         const enemy = POOL[enemies.first() - 1];
-        console.log("enemy", enemy);
+        //console.log("enemy", enemy);
         let hit = ENGINE.lineIntersectsCircle(Vector3.to_FP_Grid(this.player.pos), Vector3.to_FP_Grid(refPoint), Vector3.to_FP_Grid(enemy.moveState.pos), enemy.r);
         if (hit) return enemy;
         return null;
