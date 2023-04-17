@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.22.9",
+    VERSION: "0.23.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1803,8 +1803,12 @@ class $3D_Entity {
         if (typeof (this.scale) === "number") this.scale = new Float32Array([this.scale, this.scale, this.scale]);
 
         //position from grid
-        const minY = this.model.meshes[0].primitives[0].positions.min[1] * this.scale[1];
-        this.translate = Vector3.from_Grid(grid, minY);
+        if (this.fly) {
+            this.translate = Vector3.from_Grid(grid, this.fly);
+        } else {
+            const minY = this.model.meshes[0].primitives[0].positions.min[1] * this.scale[1];
+            this.translate = Vector3.from_Grid(grid, minY);
+        }
         this.boundingBox = new BoundingBox(this.model.meshes[0].primitives[0].positions.max, this.model.meshes[0].primitives[0].positions.min, this.scale);
         this.actor = new $3D_ACTOR(this, this.model.animations, this.model.skins[0]);
         this.moveState = new $3D_MoveState(this.translate, dir, this.rotateToNorth, this);
@@ -2001,6 +2005,7 @@ class $3D_Entity {
         this.moveState.resetView();
     }
     dropInventory() {
+        if (!this.inventory) return;
         const item = new FloorItem3D(this.moveState.grid, COMMON_ITEM_TYPE[this.inventory]);
         if (item.category === 'gold') item.setValue(this.gold);
         item.setTexture();
@@ -2012,6 +2017,7 @@ class $3D_Entity {
         this.dropInventory();
         EXPLOSION3D.add(new (eval(this.deathType))(this.moveState.pos.translate(DIR_UP, this.midHeight)));
         this.IAM.hero.incExp(exp, expType);
+        AUDIO.MonsterDeath.volume = RAY.volume(this.distance);
         AUDIO.MonsterDeath.play();
     }
     hitByMissile(missile) {
@@ -2070,7 +2076,7 @@ class $POV {
         this.manage();
 
         //sword management
-        this.time = 500; 
+        this.time = 500;
         this.length = 0.5;
         this.stopMoving();
     }
@@ -2244,8 +2250,8 @@ class $Joint {
         this.name = name;
         this.index = nodeIndex;
         this.children = [];
-        this.T = T;
-        this.R = R;
+        this.T = T || new Array(3).fill(0.0);
+        this.R = R || new Array(3).fill(0.0);
         this.S = S || new Array(3).fill(1.0);
         this.InverseBindMatrix = InverseBindMatrix;
         this.parent = parent;

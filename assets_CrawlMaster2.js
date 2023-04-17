@@ -121,7 +121,7 @@ LoadObjects = [
     "treasure_chest.obj", "coins.obj", "sting.obj"
 ];
 
-LoadModels = ['GhostFace.gltf'];
+LoadModels = ['GhostFace.gltf', 'Bat.gltf'];
 
 LoadSprites = [
     { srcName: "WallLamp256.png", name: "WallLamp" },
@@ -233,10 +233,7 @@ LoadSprites = [
     { srcName: "AMC.png", name: "AMC" },
     { srcName: "Walls.png", name: "Walls" },
     { srcName: "Amber.png", name: "Amberstar" },
-    //{ srcName: "Soc.png", name: "Soccer" },
     { srcName: "LSL6.png", name: "LSL6" },
-    //{ srcName: "LSL4.png", name: "LSL4" },
-    //{ srcName: "LSL1.png", name: "LSL1" },
     { srcName: "Prince2.png", name: "Prince2" },
     { srcName: "Prince.png", name: "Prince1" },
     { srcName: "Ultima2.png", name: "Ultima2" },

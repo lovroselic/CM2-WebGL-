@@ -346,7 +346,8 @@ var SPAWN = {
     monsters(level) {
         console.log("spawning monsters...");
         const monsterLocations = [
-            { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.GhostFace },
+            //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.GhostFace },
+            { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Bat },
             { grid: new FP_Grid(5.5, 12.5), dir: LEFT, type: MONSTER_TYPE.GhostFace },
         ];
 
@@ -384,6 +385,31 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 4,
         stalkDistance: 5,
+    },
+    Bat: {
+        name: "Bat",
+        model: "Bat",
+        scale: 1 / 2 ** 3,
+        shine: 128.0 * 0.5,
+        rotateToNorth: Math.PI,
+        midHeight: 0.0,
+        fly: 0.5,
+        deathType: "SmokeExplosion",
+        inventory: null,
+        //attribs
+        attack: 1,
+        defense: 0,
+        magic: 0,
+        health: 1,
+        xp: 1,
+        gold: 0,
+        //
+        attackSound: "BatAttack",
+        hurtSound: "BatAttack",
+        behaviourArguments: [Infinity, ["wanderer"], -1],
+        moveSpeed: 1.0,
+        //casters
+        mana: 0
     }
 };
 
