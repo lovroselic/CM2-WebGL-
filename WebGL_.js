@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.23.0",
+    VERSION: "0.23.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1807,7 +1807,9 @@ class $3D_Entity {
             this.translate = Vector3.from_Grid(grid, this.fly);
         } else {
             const minY = this.model.meshes[0].primitives[0].positions.min[1] * this.scale[1];
+            console.warn(`${this.name} minY`, minY);
             this.translate = Vector3.from_Grid(grid, minY);
+            //this.translate = Vector3.from_Grid(grid, 0.5);
         }
         this.boundingBox = new BoundingBox(this.model.meshes[0].primitives[0].positions.max, this.model.meshes[0].primitives[0].positions.min, this.scale);
         this.actor = new $3D_ACTOR(this, this.model.animations, this.model.skins[0]);
@@ -2251,7 +2253,7 @@ class $Joint {
         this.index = nodeIndex;
         this.children = [];
         this.T = T || new Array(3).fill(0.0);
-        this.R = R || new Array(3).fill(0.0);
+        this.R = R || Array(0,0,0,1);
         this.S = S || new Array(3).fill(1.0);
         this.InverseBindMatrix = InverseBindMatrix;
         this.parent = parent;

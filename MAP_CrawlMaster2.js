@@ -346,9 +346,17 @@ var SPAWN = {
     monsters(level) {
         console.log("spawning monsters...");
         const monsterLocations = [
+            //study
             //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.GhostFace },
-            { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Bat },
+            //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Bat },
+            //{grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Lady },
+            //{grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Bunny },
+            { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Hulk },
+
+            //zoo
+            { grid: new FP_Grid(1.5, 12.5), dir: UP, type: MONSTER_TYPE.Bat },
             { grid: new FP_Grid(5.5, 12.5), dir: LEFT, type: MONSTER_TYPE.GhostFace },
+            { grid: new FP_Grid(1.5, 8.5), dir: DOWN, type: MONSTER_TYPE.Hulk },
         ];
 
         for (let monster of monsterLocations) {
@@ -358,6 +366,90 @@ var SPAWN = {
 };
 
 const MONSTER_TYPE = {
+    Hulk: {
+        name: "Hulk",
+        model: "Hulk",
+        scale: 1.5 / 2 ** 6,
+        shine: 128.0 * 0.99,
+        rotateToNorth: Math.PI,
+        midHeight: 0.5,
+        deathType: "BloodExplosion",
+        inventory: "Coins",
+        //attribs
+        attack: 7,
+        defense: 3,
+        magic: 4,
+        health: 10,
+        xp: 50,
+        gold: 100,
+        //
+        attackSound: "HumanAttack1",
+        hurtSound: "MonsterHurt2",
+        behaviourArguments: [7, ["wanderer"], 3, ["advancer"]],
+        //behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
+        moveSpeed: 1.0,
+        //casters
+        mana: 3,
+        caster: true,
+        shootDistance: 4,
+        stalkDistance: 5,
+    },
+    /*Bunny: {
+        name: "Bunny",
+        model: "Bunny",
+        scale: 1.5 / 2 ** 3,
+        shine: 128.0 * 0.5,
+        rotateToNorth: Math.PI,
+        midHeight: 0.5,
+        deathType: "BloodExplosion",
+        inventory: "Coins",
+        //attribs
+        attack: 7,
+        defense: 3,
+        magic: 4,
+        health: 10,
+        xp: 50,
+        gold: 100,
+        //
+        attackSound: "HumanAttack1",
+        hurtSound: "MonsterHurt2",
+        behaviourArguments: [7, ["wanderer"], 3, ["advancer"]],
+        //behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
+        moveSpeed: 1.0,
+        //casters
+        mana: 3,
+        caster: true,
+        shootDistance: 4,
+        stalkDistance: 5,
+    },*/
+    /*Lady: {
+        name: "Lady",
+        model: "Lady",
+        scale: 1 / 2 ** 3,
+        shine: 128.0 * 0.5,
+        rotateToNorth: Math.PI,
+        midHeight: 0.5,
+        deathType: "BloodExplosion",
+        inventory: "Coins",
+        //attribs
+        attack: 7,
+        defense: 3,
+        magic: 4,
+        health: 10,
+        xp: 50,
+        gold: 100,
+        //
+        attackSound: "HumanAttack1",
+        hurtSound: "MonsterHurt2",
+        behaviourArguments: [7, ["wanderer"], 3, ["advancer"]],
+        //behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
+        moveSpeed: 1.0,
+        //casters
+        mana: 3,
+        caster: true,
+        shootDistance: 4,
+        stalkDistance: 5,
+    },*/
     GhostFace: {
         name: "GhostFace",
         model: "GhostFace",

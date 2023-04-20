@@ -1559,7 +1559,7 @@ const ENGINE = {
                 }
                 meshes[index] = new $Mesh(mesh.name, primitives);
               }
-              //console.info("..meshes done", modelName);
+              console.info("..meshes done", modelName);
 
               /** skins */
               let skins = new Array(model.skins.length);
@@ -1567,7 +1567,7 @@ const ENGINE = {
                 const invBindMatrices = processAccessor(model, buffer, skin.inverseBindMatrices);
                 markNodes(model.nodes, skin.joints, index);
                 const parentNodeIndex = findParentNode(model.nodes, skin.joints[0], index);
-                //console.warn(`...parentNodeIndex ${modelName}`, parentNodeIndex);
+                console.warn(`...parentNodeIndex ${modelName}`, parentNodeIndex);
                 const parentJoint = createJoint(model.nodes, skin.joints, invBindMatrices.data, parentNodeIndex, null);
                 console.info("parentJoint", parentJoint);
                 applyTRS(parentJoint);
@@ -1575,7 +1575,7 @@ const ENGINE = {
                 makeJointMatrix(parentJoint, jointMatrix, skin.joints);
                 skins[index] = new $Armature(skin.name, skin.joints, parentJoint, jointMatrix);
               }
-              //console.info("..skins done", modelName);
+              console.info("..skins done", modelName);
 
 
               /** animations */
@@ -1721,7 +1721,11 @@ const ENGINE = {
         }
 
         function processAccessor(model, buffer, idx) {
+          
           const accessor = model.accessors[idx];
+          if (!accessor) {
+            console.error(model.meshes[0].name, idx);
+          }
           const bufferView = model.bufferViews[idx];
           const component_type = GL_CONSTANT[accessor.componentType];
 
@@ -2779,8 +2783,7 @@ class $3D_ACTOR {
         keyFrameTime = node.time[keyFrameIndex];
       }
       const nextKeyFrameTime = node.time[keyFrameIndex + 1];
-      const timeScale = (delta - keyFrameTime) / (nextKeyFrameTime - keyFrameTime);
-
+      const timeScale = (delta - keyFrameTime) / (nextKeyFrameTime - keyFrameTime); 
       const translation = glMatrix.vec3.create();
       glMatrix.vec3.lerp(translation, node.translation[keyFrameIndex], node.translation[keyFrameIndex + 1], timeScale);
 

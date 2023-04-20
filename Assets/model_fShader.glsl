@@ -80,9 +80,9 @@ vec3 CalcPointLight(vec3 PL_position, vec3 FragPos, vec3 viewDir, vec3 normal, f
     float distance = length(PL_position - FragPos);
     float attenuation = 1.0 / (1.0 + 0.15 * distance + 0.45 * (distance * distance));
 
-    float ambientStrength = 0.99;
+    float ambientStrength = 1.2;
     vec3 ambient = pointLightColor * ambientStrength * attenuation;
-    float diffuseStrength = 0.99;
+    float diffuseStrength = 1.2;
     vec3 diffuse = pointLightColor * diff * diffuseStrength * attenuation;
     float specStrength = 0.99;
     vec3 specular = pointLightColor * spec * specStrength * attenuation;
