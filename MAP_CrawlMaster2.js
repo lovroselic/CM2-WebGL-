@@ -352,12 +352,15 @@ var SPAWN = {
             //{grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Lady },
             //{grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Bunny },
             //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Hulk },
-            { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Viking },
+            //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Viking },
+            { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Astro },
 
             //zoo
             { grid: new FP_Grid(1.5, 12.5), dir: UP, type: MONSTER_TYPE.Bat },
             { grid: new FP_Grid(5.5, 12.5), dir: LEFT, type: MONSTER_TYPE.GhostFace },
             { grid: new FP_Grid(1.5, 8.5), dir: DOWN, type: MONSTER_TYPE.Hulk },
+            { grid: new FP_Grid(8.5, 4.5), dir: UP, type: MONSTER_TYPE.Viking },
+            { grid: new FP_Grid(11.5, 5.5), dir: UP, type: MONSTER_TYPE.Astro },
         ];
 
         for (let monster of monsterLocations) {
@@ -423,11 +426,11 @@ const MONSTER_TYPE = {
         shootDistance: 4,
         stalkDistance: 5,
     },
-    /*Bunny: {
-        name: "Bunny",
-        model: "Bunny",
-        scale: 1.5 / 2 ** 3,
-        shine: 128.0 * 0.5,
+    Astro: {
+        name: "Astro",
+        model: "Astro",
+        scale: 1.5 / 2 ** 4,
+        shine: 128.0 * 0.99,
         rotateToNorth: Math.PI,
         midHeight: 0.5,
         deathType: "BloodExplosion",
@@ -450,7 +453,7 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 4,
         stalkDistance: 5,
-    },*/
+    },
     /*Lady: {
         name: "Lady",
         model: "Lady",

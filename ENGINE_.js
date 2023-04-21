@@ -76,14 +76,23 @@ const ENGINE = {
   },
   readyCall: null,
   start: null,
+  SOURCE: "./Assets/AA/",
+  WASM_SOURCE: "https://www.c00lsch00l.eu/WASM/",
+  AUDIO_SOURCE: "./Assets/Mp3/",
+  FONT_SOURCE: "./Assets/Fonts/",
+  /*
   SOURCE: "https://www.c00lsch00l.eu/Games/AA/",
   WASM_SOURCE: "https://www.c00lsch00l.eu/WASM/",
   AUDIO_SOURCE: "https://www.c00lsch00l.eu/Mp3/",
   FONT_SOURCE: "https://www.c00lsch00l.eu/Fonts/",
-  SHADER_SOURCE: "./Assets/",
+  SHADER_SOURCE: "/Games/Shaders/",
+  OBJECT_SOURCE: "/Games/Objects/",
+  MODEL_SOURCE: "/Games/Models/",
+  */
+  SHADER_SOURCE: "./Shaders/",
   OBJECT_SOURCE: "./Objects/",
   MODEL_SOURCE: "./Models/",
-  checkProximity: true, //check proximity before pixel perfect evaluation of collision to background
+  checkProximity: true, //check proximity before pixel perfect evaluation of collision to background //very obsolete!!
   LOAD_W: 160,
   LOAD_H: 22,
   autostart: false,
