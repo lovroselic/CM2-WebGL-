@@ -353,7 +353,7 @@ var SPAWN = {
             //{grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Bunny },
             //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Hulk },
             //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Viking },
-            { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Astro },
+            { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.MissWhite },
 
             //zoo
             { grid: new FP_Grid(1.5, 12.5), dir: UP, type: MONSTER_TYPE.Bat },
@@ -454,11 +454,11 @@ const MONSTER_TYPE = {
         shootDistance: 4,
         stalkDistance: 5,
     },
-    /*Lady: {
-        name: "Lady",
-        model: "Lady",
-        scale: 1 / 2 ** 3,
-        shine: 128.0 * 0.5,
+    MissWhite: {
+        name: "MissWhite",
+        model: "MissWhite",
+        scale: 1.3 / 2 ** 2,
+        shine: 128.0 * 0.9,
         rotateToNorth: Math.PI,
         midHeight: 0.5,
         deathType: "BloodExplosion",
@@ -481,7 +481,7 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 4,
         stalkDistance: 5,
-    },*/
+    },
     GhostFace: {
         name: "GhostFace",
         model: "GhostFace",
