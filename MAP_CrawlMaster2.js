@@ -353,7 +353,8 @@ var SPAWN = {
             //{grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Bunny },
             //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Hulk },
             //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Viking },
-            { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.MissWhite },
+            //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.MissWhite },
+            { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.BatCat },
 
             //zoo
             { grid: new FP_Grid(1.5, 12.5), dir: UP, type: MONSTER_TYPE.Bat },
@@ -361,6 +362,8 @@ var SPAWN = {
             { grid: new FP_Grid(1.5, 8.5), dir: DOWN, type: MONSTER_TYPE.Hulk },
             { grid: new FP_Grid(8.5, 4.5), dir: UP, type: MONSTER_TYPE.Viking },
             { grid: new FP_Grid(11.5, 5.5), dir: UP, type: MONSTER_TYPE.Astro },
+            { grid: new FP_Grid(14.5, 1.5), dir: UP, type: MONSTER_TYPE.MissWhite },
+            { grid: new FP_Grid(12.5, 7.5), dir: UP, type: MONSTER_TYPE.BatCat },
         ];
 
         for (let monster of monsterLocations) {
@@ -370,6 +373,34 @@ var SPAWN = {
 };
 
 const MONSTER_TYPE = {
+    BatCat: {
+        name: "BatCat",
+        model: "BatCat",
+        scale: 1.1 / 2 ** 1,
+        shine: 128.0 * 0.9,
+        rotateToNorth: Math.PI,
+        midHeight: 0.5,
+        deathType: "BloodExplosion",
+        inventory: "Coins",
+        //attribs
+        attack: 7,
+        defense: 3,
+        magic: 4,
+        health: 10,
+        xp: 50,
+        gold: 100,
+        //
+        attackSound: "MonsterAttack2",
+        hurtSound: "MonsterHurt3",
+        behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
+        //behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
+        moveSpeed: 1.0,
+        //casters
+        mana: 3,
+        caster: true,
+        shootDistance: 4,
+        stalkDistance: 5,
+    },
     Hulk: {
         name: "Hulk",
         model: "Hulk",
@@ -389,7 +420,7 @@ const MONSTER_TYPE = {
         //
         attackSound: "HumanAttack1",
         hurtSound: "MonsterHurt2",
-        behaviourArguments: [7, ["wanderer"], 3, ["advancer"]],
+        behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
         //behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
         moveSpeed: 1.0,
         //casters
@@ -417,7 +448,7 @@ const MONSTER_TYPE = {
         //
         attackSound: "HumanAttack1",
         hurtSound: "MonsterHurt2",
-        behaviourArguments: [7, ["wanderer"], 3, ["advancer"]],
+        behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
         //behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
         moveSpeed: 1.0,
         //casters
@@ -445,7 +476,7 @@ const MONSTER_TYPE = {
         //
         attackSound: "HumanAttack1",
         hurtSound: "MonsterHurt2",
-        behaviourArguments: [7, ["wanderer"], 3, ["advancer"]],
+        behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
         //behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
         moveSpeed: 1.0,
         //casters
@@ -457,7 +488,7 @@ const MONSTER_TYPE = {
     MissWhite: {
         name: "MissWhite",
         model: "MissWhite",
-        scale: 1.3 / 2 ** 2,
+        scale: 1.5 / 2 ** 2,
         shine: 128.0 * 0.9,
         rotateToNorth: Math.PI,
         midHeight: 0.5,
@@ -473,7 +504,7 @@ const MONSTER_TYPE = {
         //
         attackSound: "HumanAttack1",
         hurtSound: "MonsterHurt2",
-        behaviourArguments: [7, ["wanderer"], 3, ["advancer"]],
+        behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
         //behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
         moveSpeed: 1.0,
         //casters

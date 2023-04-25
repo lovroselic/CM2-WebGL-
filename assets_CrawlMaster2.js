@@ -121,7 +121,7 @@ LoadObjects = [
     "treasure_chest.obj", "coins.obj", "sting.obj"
 ];
 
-LoadModels = ['GhostFace.gltf', 'Bat.gltf', 'Hulk.gltf', 'Viking.gltf', 'Astro.gltf', 'MissWhite.gltf'];
+LoadModels = ['GhostFace.gltf', 'Bat.gltf', 'Hulk.gltf', 'Viking.gltf', 'Astro.gltf', 'MissWhite.gltf', 'BatCat.gltf'];
 //LoadModels = ['GhostFace.gltf', 'Bat.gltf'];
 /** unused models
  * 'Lady.gltf', 'Bunny.gltf'

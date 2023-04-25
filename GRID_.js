@@ -577,7 +577,7 @@ class GridArray extends ArrayBasedDataStructure {
     this.width = parseInt(sizeX, 10);
     this.height = parseInt(sizeY, 10);
     this.maxX = this.width - 2;
-    this.maxY = this.heigh - 2;
+    this.maxY = this.height - 2;
     this.minX = 1;
     this.minY = 1;
     this.map = GM;
@@ -1095,16 +1095,13 @@ class GridArray extends ArrayBasedDataStructure {
   }
   findNextCrossroad(start, dir) {
     let directions = this.getDirectionsIfNot(start, MAPDICT.WALL, dir.mirror());
+    console.log("....findNextCrossroad", start, dir, directions);
     let lastDir = dir;
     while (directions.length <= 1) {
-      if (directions.length === 0) return null; //dead end!
+      if (directions.length === 0) return [null, null]; //dead end!
       start = start.add(directions[0]);
       lastDir = directions[0];
-      directions = this.getDirectionsIfNot(
-        start,
-        MAPDICT.WALL,
-        directions[0].mirror()
-      );
+      directions = this.getDirectionsIfNot(start, MAPDICT.WALL, directions[0].mirror());
     }
     return [start, lastDir];
   }

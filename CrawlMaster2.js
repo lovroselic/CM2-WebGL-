@@ -10,7 +10,7 @@
 TODO:
 
 known bugs: 
-    NO WAY but without touching
+   
 
  */
 ////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.13.05",
+    VERSION: "0.13.06",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -976,6 +976,7 @@ const GAME = {
             console.log("\nDEBUG:");
             console.log("#######################################################");
             ENTITY3D.display();
+            console.log("MAP", MAP[GAME.level].map);
             console.log("#######################################################");
             ENGINE.GAME.keymap[ENGINE.KEY.map.F9] = false;
         }

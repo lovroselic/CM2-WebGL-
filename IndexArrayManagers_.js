@@ -275,6 +275,7 @@ class Changing_Animation extends IAM {
         }
     }
 }
+
 /**  Raycast IA Managers */
 class Missile_RC extends IAM {
     constructor() {
@@ -795,9 +796,9 @@ class Animated_3d_entity extends IAM {
                         currentPlayerDir: Vector3.to_FP_Vector(this.hero.player.dir).ortoAlign(),
                         exactPlayerPosition: this.hero.player.pos,
                     };
-                    console.warn("entity.behaviour.strategy", entity.behaviour.strategy);
+                    console.warn(`${entity.name} ${entity.id} strategy`, entity.behaviour.strategy);
                     entity.dirStack = AI[entity.behaviour.strategy](entity, ARG);
-                    console.warn("entity.dirStack", entity.dirStack, "dir", entity.moveState.dir);
+                    console.warn(`${entity.name} ${entity.id} dirStack`, entity.dirStack, "dir", entity.moveState.dir);
                 }
                 entity.makeMove();
             }
