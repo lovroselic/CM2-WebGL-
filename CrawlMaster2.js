@@ -45,7 +45,7 @@ const INI = {
     FINAL_LEVEL: 1,
 };
 const PRG = {
-    VERSION: "0.13.06",
+    VERSION: "0.14.00",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
