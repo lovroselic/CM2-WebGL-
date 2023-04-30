@@ -42,10 +42,10 @@ const INI = {
     CRIPPLE_SPEED: 0.5,
     BOOST_TIME: 59,
     MM_reveal_radius: 4,
-    FINAL_LEVEL: 1,
+    FINAL_LEVEL: 4,
 };
 const PRG = {
-    VERSION: "0.14.00",
+    VERSION: "0.14.01",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -663,18 +663,27 @@ const GAME = {
         GAME.initLevel(GAME.level);
         GAME.continueLevel(GAME.level);
     },
+    
     initLevel(level) {
-        console.log("...level", level, 'initialization');
-        MAP[level].map = FREE_MAP.import(JSON.parse(MAP[level].data));
+        console.log("...level", level, 'initialization'); 
+        let randomDungeon;
+        if (GAME.level < INI.FINAL_LEVEL) {
+            randomDungeon = DUNGEON.create(MAP[GAME.level].width, MAP[GAME.level].height);
+        } else if (GAME.level === INI.FINAL_LEVEL) {
+            console.log("newDungeon: CREATE FINAL LEVEL");
+            randomDungeon = ARENA.create(MAP[GAME.level].width, MAP[GAME.level].height);
+        }
+        console.warn("randomDungeon", randomDungeon);
+        MAP[level].map = randomDungeon;
         MAP[level].pw = MAP[level].map.width * ENGINE.INI.GRIDPIX;
         MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
         MAP[level].map.GA.massSet(MAPDICT.FOG);
 
-        //HERO.pos from entrance
-        let start_dir = FaceToDirection(MAP[GAME.level].entrance.face);
-        let start_grid = Grid.toClass(MAP[GAME.level].entrance.grid).add(start_dir);
+        const start_dir = MAP[GAME.level].map.entrance.vector;
+        let start_grid = Grid.toClass(MAP[GAME.level].map.entrance.grid).add(start_dir);
         start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
         HERO.player = new $3D_player(start_grid, Vector3.from_2D_dir(start_dir), MAP[level].map);
+        console.warn("HERO.player", HERO.player);
 
         AI.immobileWander = false;
         AI.initialize(HERO.player, "3D");
@@ -682,6 +691,64 @@ const GAME = {
         WebGL.init_required_IAM(MAP[level].map, HERO);
         WebGL.MOUSE.initialize("ROOM");
         SPAWN.spawn(level);
+        const object_map = [
+            "BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM", "SWORD", "HEART", "SHIELD", "PENTAGRAM", "CHEST",
+            "TREASURE_CHEST", "COINS", "STING"
+        ];
+        MAP[level].world = WORLD.build(MAP[level].map, object_map);
+        console.log("world", MAP[level].world);
+
+        const textureData = {
+            wall: TEXTURE[MAP[level].wall],
+            floor: TEXTURE[MAP[level].floor],
+            ceil: TEXTURE[MAP[level].ceil]
+        };
+
+        WebGL.updateShaders();
+        WebGL.init('webgl', MAP[level].world, textureData, HERO.player);
+        MINIMAP.init(MAP[level].map, INI.MIMIMAP_WIDTH, INI.MIMIMAP_HEIGHT, HERO.player);
+
+        //set POV
+        INTERFACE3D.associateIA("enemy", "enemyIA");
+        INTERFACE3D.associateExternal_IAM("enemy", ENTITY3D);
+        INTERFACE3D.associateHero(HERO);
+        INTERFACE3D.add(new $POV(COMMON_ITEM_TYPE.POV, HERO.player));
+        window.SWORD = INTERFACE3D.POOL[0];
+        console.log("SWORD", SWORD);
+
+        //reset births!
+        ENTITY3D.resetTime();
+    },
+    
+    
+    /*
+    initLevel(level) {
+        console.log("...level", level, 'initialization');
+        MAP[level].map = FREE_MAP.import(JSON.parse(MAP[level].data));
+
+       
+        console.warn("MAP[level].map", MAP[level].map);
+
+        MAP[level].pw = MAP[level].map.width * ENGINE.INI.GRIDPIX;
+        MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
+        MAP[level].map.GA.massSet(MAPDICT.FOG);
+
+        //HERO.pos from entrance
+        //let start_dir = FaceToDirection(MAP[GAME.level].entrance.face);
+        let start_dir = DOWN;
+        //let start_grid = Grid.toClass(MAP[GAME.level].entrance.grid).add(start_dir);
+        //let start_grid = Grid.toClass(MAP[GAME.level].entrance.grid).add(RIGHT);
+        let start_grid = new Grid(1,1);
+        start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
+        //HERO.player = new $3D_player(start_grid, Vector3.from_2D_dir(start_dir), MAP[level].map);
+        HERO.player = new $3D_player(start_grid, Vector3.from_2D_dir(UP), MAP[level].map);
+
+        AI.immobileWander = false;
+        AI.initialize(HERO.player, "3D");
+
+        WebGL.init_required_IAM(MAP[level].map, HERO);
+        WebGL.MOUSE.initialize("ROOM");
+        SPAWN.spawn(level); //
         const object_map = [
             "BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM", "SWORD", "HEART", "SHIELD", "PENTAGRAM", "CHEST",
             "TREASURE_CHEST", "COINS", "STING"
@@ -709,6 +776,7 @@ const GAME = {
         //reset births!
         ENTITY3D.resetTime();
     },
+    */
     continueLevel(level) {
         console.log("game continues on level", level);
         GAME.levelExecute();
@@ -1029,7 +1097,7 @@ const GAME = {
         if (map[ENGINE.KEY.map.space]) {
             SWORD.stab();
             ENGINE.GAME.keymap[ENGINE.KEY.map.space] = false; //NO repeat
-          }
+        }
         return;
     },
     FPS(lapsedTime) {

@@ -166,7 +166,7 @@ const GRID = {
     const distance = Vector3.to_FP_Grid(entity.moveState.pos).EuclidianDistance(entity.moveState.endPos);
     if (distance < GRID.SETTING.EPSILON) {
       entity.moveState.moving = false;
-      console.error(`${entity.name} ${entity.id} stopped moving`);
+      //console.error(`${entity.name} ${entity.id} stopped moving`);
     }
   },
   translatePosition(entity, lapsedTime) {
@@ -705,9 +705,11 @@ class GridArray extends ArrayBasedDataStructure {
   }
   toShrine(grid) {
     this.setValue(grid, MAPDICT.SHRINE);
+    this.reserve(grid);
   }
   addShrine(grid) {
     this.set(grid, MAPDICT.SHRINE);
+    this.reserve(grid);
   }
   reserve(grid) {
     this.set(grid, MAPDICT.RESERVED);
@@ -1095,7 +1097,7 @@ class GridArray extends ArrayBasedDataStructure {
   }
   findNextCrossroad(start, dir) {
     let directions = this.getDirectionsIfNot(start, MAPDICT.WALL, dir.mirror());
-    console.log("....findNextCrossroad", start, dir, directions);
+    //console.log("....findNextCrossroad", start, dir, directions);
     let lastDir = dir;
     while (directions.length <= 1) {
       if (directions.length === 0) return [null, null]; //dead end!

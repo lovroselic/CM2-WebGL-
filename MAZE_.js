@@ -792,7 +792,7 @@ class MasterDungeon {
         var pointerCandidates = [];
         for (let q = 0; q < 4; q++) {
             let checkedGrid = grid.add(ENGINE.directions[q]);
-            if (!this.GA.isOut(checkedGrid) && this.GA.isWall(checkedGrid)) {
+            if (!this.GA.isOut(checkedGrid) && this.GA.isWall(checkedGrid) && this.GA.notReserved(checkedGrid)) {
                 pointerCandidates.push(new Pointer(checkedGrid, ENGINE.directions[q]));
             }
         }
@@ -810,7 +810,7 @@ class MasterDungeon {
         const ADL = allDirections.length;
         for (let q = 0; q < ADL; q++) {
             let testGrid = pointer.grid.add(allDirections[q]);
-            if (this.GA.isEmpty(testGrid)) return false;
+            if (this.GA.isEmpty(testGrid) || this.GA.isReserved(testGrid)) return false;
         }
         return true;
     }
@@ -952,13 +952,11 @@ class MasterDungeon {
                 }
             } while (true);
             do {
-                if (STACK.length === 0) return;
+                if (STACK.length === 0) return this.recheckDeadEnds();
                 nextBranchPointer = STACK.pop();
             } while (!this.safePointer(nextBranchPointer));
             start = nextBranchPointer.grid;
         } while (true);
-
-        this.recheckDeadEnds();
     }
     roomWallGrids(room) {
         let grids = [];
@@ -1195,6 +1193,7 @@ class Maze extends MasterDungeon {
         super(sizeX, sizeY);
         this.type = "MAZE";
         this.carveMaze(start);
+        //this.recheckDeadEnds();
         console.log(`%cMaze construction ${performance.now() - t0} ms.`, DUNGEON.CSS);
     }
 }
@@ -1352,25 +1351,32 @@ class Dungeon extends MasterDungeon {
         //staircase up, down,
         if (DUNGEON.SET_ROOMS) {
             let stairsUp = this.randomUnusedEntry(startingRoom);
-            this.GA.toStair(stairsUp);
-            this.GA.addRoom(stairsUp);
-            this.entrance = stairsUp;
-
+            this.GA.toRoom(stairsUp);
+            const entranceDir = this.GA.getDirectionsIfNot(stairsUp, MAPDICT.WALL)[0];
+            stairsUp = stairsUp.add(entranceDir.mirror());
+            this.GA.addStair(stairsUp);
+            this.entrance = new Pointer(stairsUp, entranceDir);
+            
             let exitRoom = this.getRoom(this.rooms, "common");
             exitRoom.type = DUNGEON.LOCK_LEVELS[0];
             let stairsDown = this.randomUnusedEntry(exitRoom);
-            this.GA.toStair(stairsDown);
-            this.GA.addRoom(stairsDown);
-            this.exit = stairsDown;
+            this.GA.toRoom(stairsDown);
+            const exitDir = this.GA.getDirectionsIfNot(stairsDown, MAPDICT.WALL)[0];
+            stairsDown = stairsDown.add(exitDir.mirror());
+            this.GA.addStair(stairsDown);
+            this.exit = new Pointer(stairsDown,exitDir );
 
+            //
             this.shrines = [];
             let temple = this.getRoom(this.rooms, "common", DUNGEON.BIG_ROOM);
             temple.type = 'temple';
             for (let i = 0; i < DUNGEON.N_SHRINES; i++) {
                 let shrine = this.randomUnusedEntry(temple);
-                this.shrines.push(shrine);
                 this.GA.carveDot(shrine);
                 this.GA.addRoom(shrine);
+                this.shrines.push(shrine);
+                const shrineDir = this.GA.getDirectionsIfNot(shrine, MAPDICT.WALL)[0];
+                shrine = shrine.add(shrineDir.mirror());
                 this.GA.addShrine(shrine);
             }
         }
@@ -1379,6 +1385,7 @@ class Dungeon extends MasterDungeon {
         let start = this.randomUnusedEntry(startingRoom);
         startingRoom.door.push(start);
         this.carveMaze(start);
+        //this.recheckDeadEnds();
         this.GA.toDoor(start);
         MAZE.configure(this);
 
@@ -1465,6 +1472,7 @@ class PacDungeon extends MasterDungeon {
 
         MAZE.useBias = true;
         this.carveMaze(start);
+        //this.recheckDeadEnds();
         this.connectSomeDeadEnds(0);
 
         //maximize density!
@@ -1601,6 +1609,7 @@ class RatArena extends MasterDungeon {
         this.maxY = tempMaxY;
         let start = new Grid(centerX, this.maxY - RAT_ARENA.CORR_LENGTH);
         this.carveMaze(start);
+        //this.recheckDeadEnds();
         this.connectRooms(3, 0);
         this.eradicateDeadEnds();
         this.density = this.measureDensity();
@@ -1620,7 +1629,7 @@ class FreeMap extends MasterDungeon {
         if (GA !== null) this.GA = GA;
     }
 }
-var MAZE = {
+const MAZE = {
     opened: false,
     openDirs: null,
     storeDeadEnds: true,
@@ -1651,12 +1660,12 @@ var MAZE = {
         return MAZE.configure(new Maze(sizeX, sizeY, start), sizeX, sizeY, start);
     }
 };
-var PACDUNGEON = {
+const PACDUNGEON = {
     create(sizeX, sizeY) {
         return new PacDungeon(sizeX, sizeY);
     }
 };
-var RAT_ARENA = {
+const RAT_ARENA = {
     NCORR: 5,
     CORR_PAD: 1,
     CORR_LENGTH: 9,
@@ -1670,7 +1679,7 @@ var RAT_ARENA = {
         return rat_arena;
     }
 };
-var ARENA = {
+const ARENA = {
     CENTRAL_ROOM_SIZE: 1,
     CENTRAL_ROOM_WALL_WIDTH: 2,
     MIN_ROOM: 1,
@@ -1688,7 +1697,7 @@ var ARENA = {
         return arena;
     }
 };
-var FREE_MAP = {
+const FREE_MAP = {
     create(sizeX, sizeY, GA = null) {
         return new FreeMap(sizeX, sizeY, GA);
     },
@@ -1698,8 +1707,8 @@ var FREE_MAP = {
         return FREE_MAP.create(parseInt(data.width, 10), parseInt(data.height, 10), data.map);
     }
 };
-var DUNGEON = {
-    VERSION: "3.07",
+const DUNGEON = {
+    VERSION: "3.10",
     CSS: "color: #f4ee42",
     REFUSE_CONNECTION_TO_ROOM: true,
     LIMIT_ROOMS: false,
@@ -1735,8 +1744,8 @@ var DUNGEON = {
     },
     create(sizeX, sizeY) {
         this.init();
-        var dungeon = new Dungeon(sizeX, sizeY);
-        return dungeon;
+        //const dungeon = new Dungeon(sizeX, sizeY);
+        return new Dungeon(sizeX, sizeY);
     }
 };
 

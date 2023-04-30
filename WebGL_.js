@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.23.1",
+    VERSION: "0.24.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1036,9 +1036,10 @@ const WORLD = {
 
         for (let [index, value] of GA.map.entries()) {
             let grid = GA.indexToGrid(index);
-            value &= (2 ** GA.gridSizeBit - 1 - (MAPDICT.FOG + MAPDICT.RESERVED));
+            value &= (2 ** GA.gridSizeBit - 1 - (MAPDICT.FOG + MAPDICT.RESERVED + MAPDICT.ROOM));
             switch (value) {
                 case MAPDICT.EMPTY:
+                case MAPDICT.DOOR:
                 case MAPDICT.WALL + MAPDICT.DOOR:
                     this.addCube(Y - 1, grid, "floor");
                     this.addCube(Y + 1, grid, "ceil");
@@ -1065,7 +1066,6 @@ const WORLD = {
         for (let element of object_map) {
             this.reserveObject(ELEMENT[element], element);
         }
-
         /** object map end*/
 
         /** map indices */
@@ -1314,10 +1314,12 @@ class Portal extends Decal {
         this.texture = texture;
     }
     interact(hero) {
-        let start_dir = FaceToDirection(this.destination.face);
+        //let start_dir = FaceToDirection(this.destination.face);
+        const start_dir = this.destination.dir;
         let start_grid = this.destination.grid.add(start_dir);
         start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
         hero.setPos(start_grid);
+        console.info("Portalling to:", start_grid);
         hero.setDir(Vector3.from_2D_dir(start_dir));
 
         if (GAME.level !== this.destination.level) {
@@ -1333,9 +1335,9 @@ class Portal extends Decal {
 }
 
 class Destination {
-    constructor(grid, face, level) {
+    constructor(grid, dir, level) {
         this.grid = Grid.toClass(grid);
-        this.face = face;
+        this.dir = dir;
         this.level = level;
     }
 }
@@ -1807,9 +1809,8 @@ class $3D_Entity {
             this.translate = Vector3.from_Grid(grid, this.fly);
         } else {
             const minY = this.model.meshes[0].primitives[0].positions.min[1] * this.scale[1];
-            console.warn(`${this.name} minY`, minY);
+            //console.warn(`${this.name} minY`, minY);
             this.translate = Vector3.from_Grid(grid, minY);
-            //this.translate = Vector3.from_Grid(grid, 0.5);
         }
         this.boundingBox = new BoundingBox(this.model.meshes[0].primitives[0].positions.max, this.model.meshes[0].primitives[0].positions.min, this.scale);
         this.actor = new $3D_ACTOR(this, this.model.animations, this.model.skins[0]);
@@ -2060,7 +2061,9 @@ class $POV {
         this.start = `${this.element}_start`;
         this.element = ELEMENT[this.element];
         this.texture = TEXTURE[this.texture];
+        console.log("this.texture", this.texture);
         this.texture = WebGL.createTexture(this.texture);
+        console.info("this.texture", this.texture);
         if (typeof (this.scale) === "number") {
             this.scale = new Float32Array([this.scale, this.scale, this.scale]);
         }
@@ -2253,7 +2256,7 @@ class $Joint {
         this.index = nodeIndex;
         this.children = [];
         this.T = T || new Array(3).fill(0.0);
-        this.R = R || Array(0,0,0,1);
+        this.R = R || Array(0, 0, 0, 1);
         this.S = S || new Array(3).fill(1.0);
         this.InverseBindMatrix = InverseBindMatrix;
         this.parent = parent;
@@ -2296,16 +2299,26 @@ const FaceToOffset = function (face, E = 0) {
 
 const FaceToDirection = function (face) {
     switch (face) {
-        case "FRONT":
-            return DOWN;
-        case "BACK":
-            return UP;
-        case "LEFT":
-            return LEFT;
-        case "RIGHT":
-            return RIGHT;
+        case "FRONT": return DOWN;
+        case "BACK": return UP;
+        case "LEFT": return LEFT;
+        case "RIGHT": return RIGHT;
         default:
             console.error("FaceToDirection, invalid face", face);
+    }
+};
+
+const DirectionToFace = function (dir) {
+    if (GRID.same(dir, DOWN)) {
+        return "FRONT";
+    } else if (GRID.same(dir, UP)) {
+        return "BACK";
+    } else if (GRID.same(dir, LEFT)) {
+        return "LEFT";
+    } else if (GRID.same(dir, RIGHT)) {
+        return "RIGHT";
+    } else {
+        console.error("DirectionToFace, invalid dir", dir);
     }
 };
 

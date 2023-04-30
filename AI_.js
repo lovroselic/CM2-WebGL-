@@ -53,7 +53,7 @@ const AI = {
     }
   },
   immobile(enemy) {
-    console.info("IMMOBILE");
+    //console.info("IMMOBILE");
     if (AI.immobileWander) return this.wanderer(enemy);
     return [NOWAY];
   },
@@ -61,7 +61,7 @@ const AI = {
     let nodeMap = enemy.parent.map.GA.nodeMap;
     let grid = this.getPosition(enemy);
     let goto = nodeMap[grid.x][grid.y].goto || NOWAY;
-    console.info(`...${enemy.name} ${enemy.id} hunting -> goto:`, goto);
+    //console.info(`...${enemy.name} ${enemy.id} hunting -> goto:`, goto);
     if (GRID.same(goto, NOWAY) && this.setting === "3D") return this.hunt_FP(enemy, exactPosition);
     return [goto];
   },
@@ -70,21 +70,21 @@ const AI = {
     const ePos = Vector3.to_FP_Grid(enemy.moveState.pos);
     const direction = ePos.direction(pPos);
     const orto = direction.ortoAlign();
-    console.info(`${enemy.name} ${enemy.id} FP hunt: ${orto}`);
+    //console.info(`${enemy.name} ${enemy.id} FP hunt: ${orto}`);
     return [orto];
   },
   crossroader(enemy, playerPosition, dir, block, exactPosition) {
-    console.log("------------------------------");
-    console.info(`Crossroader analysis for ${enemy.name} ${enemy.id}`);
+    //console.log("------------------------------");
+    //console.info(`Crossroader analysis for ${enemy.name} ${enemy.id}`);
     let goal, _;
     [goal, _] = enemy.parent.map.GA.findNextCrossroad(playerPosition, dir);
-    console.log(`.. ${enemy.name} ${enemy.id} goal`, goal);
+    //console.log(`.. ${enemy.name} ${enemy.id} goal`, goal);
 
     /** what if goal takes you further away - advancer! */
     const new_distance = enemy.parent.map.GA.nodeMap[goal.x][goal.y].distance;
-    console.log(`.. ${enemy.name} ${enemy.id} new_distance  from goal`, new_distance, "current distance", enemy.distance);
+    //console.log(`.. ${enemy.name} ${enemy.id} new_distance  from goal`, new_distance, "current distance", enemy.distance);
     if (enemy.distance < this.INI.CHANGE_ADVANCER_TO_HUNT_MIN_DISTANCE && new_distance > enemy.distance) {
-      console.warn("... overriding behavior -> hunt");
+      //console.warn("... overriding behavior -> hunt");
       return this.hunt(enemy, exactPosition);
     }
 
@@ -93,7 +93,7 @@ const AI = {
     }
 
     let Astar = enemy.parent.map.GA.findPath_AStar_fast(this.getPosition(enemy), goal, [MAPDICT.WALL], "exclude", block);
-    console.log(`.. ${enemy.name} ${enemy.id} Astar`, Astar);
+    //console.log(`.. ${enemy.name} ${enemy.id} Astar`, Astar);
     if (Astar === null) {
       return this.immobile(enemy);
     }

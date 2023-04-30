@@ -1550,7 +1550,7 @@ const ENGINE = {
               const images = await Promise.all(texture_names.map(img => quickLoadImage(img)));
               const samplers = processSamplers(model.samplers);
 
-              console.log(`${modelName} files loaded *********************************`);
+              //console.log(`${modelName} files loaded *********************************`);
               markparents(model.nodes);
 
               //meshes
@@ -1568,7 +1568,7 @@ const ENGINE = {
                 }
                 meshes[index] = new $Mesh(mesh.name, primitives);
               }
-              console.info("..meshes done", modelName);
+              //console.info("..meshes done", modelName);
 
               /** skins */
               let skins = new Array(model.skins.length);
@@ -1576,15 +1576,15 @@ const ENGINE = {
                 const invBindMatrices = processAccessor(model, buffer, skin.inverseBindMatrices);
                 markNodes(model.nodes, skin.joints, index);
                 const parentNodeIndex = findParentNode(model.nodes, skin.joints[0], index);
-                console.warn(`...parentNodeIndex ${modelName}`, parentNodeIndex);
+                //console.warn(`...parentNodeIndex ${modelName}`, parentNodeIndex);
                 const parentJoint = createJoint(model.nodes, skin.joints, invBindMatrices.data, parentNodeIndex, null);
-                console.info("parentJoint", parentJoint);
+                //console.info("parentJoint", parentJoint);
                 applyTRS(parentJoint);
                 const jointMatrix = new Float32Array(skin.joints.length * 16);
                 makeJointMatrix(parentJoint, jointMatrix, skin.joints);
                 skins[index] = new $Armature(skin.name, skin.joints, parentJoint, jointMatrix);
               }
-              console.info("..skins done", modelName);
+              //console.info("..skins done", modelName);
 
 
               /** animations */
@@ -1642,7 +1642,7 @@ const ENGINE = {
               //add to models
               $3D_MODEL[modelName] = new $3D_Model(modelName, buffer, images, meshes, samplers, skins, animations);
 
-              console.log("*************************************");
+              //console.log("*************************************");
               //finished
               ENGINE.LOAD.Models++;
               ENGINE.drawLoadingGraph("Models");

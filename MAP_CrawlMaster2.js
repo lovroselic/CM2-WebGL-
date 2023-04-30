@@ -88,8 +88,15 @@ console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
 
 console.log("%cMAP for CrawlMaster2 loaded.", "color: #888");
 //{"width":"16","height":"16","map":"BB9ABB10AA26BAA10BAA20BAA9BAA8BB2AA2BAA6BAA9BAA6BB3ABAA2BB6AA2BAA10BABAA2BB2AA8BB9ABB2ABAA2BAA2BB2AA2BAA7BB2AA5BABABB2AA4BB6ABB2ABAA2BB9ABB18A$"}
-var MAP = {
+const MAP = {
     1: {
+        width: 37,
+        height: 37,
+        floor: "GreenDungeonWall",
+        ceil: "GreyDungeonFloor",
+        wall: "DungeonWall"
+    },
+    2: {
         data: `
         {"width":"16","height":"16","map":"BB5ABB7AA2BABAA12BAA2BB4AA5BAA2BAA19BAA11BAA5BAA2BAA2BAA5BAA12BAA3BB6ABAA2BABB4AA11BB2AA2BAA3BB2AA3BB9AA6BB2ABAA2BAA2BABB2AA2BAA7BB3ABAA2BABABB2AA3BABB8ABB3AA4BAA2BB9ABB18A$"}
         `,
@@ -129,7 +136,7 @@ var MAP = {
         entrance: { grid: new Grid(0, 4), face: 'RIGHT' },
         exit: { grid: new Grid(15, 4), face: 'LEFT' },
     },
-    2: {
+    3: {
         data: `
         {"width":"16","height":"16","map":"BB3ABAA6BB45ABB4ABB43$BB150A"}
         `,
@@ -140,7 +147,19 @@ var MAP = {
 
 };
 
-var SPAWN = {
+const SPAWN = {
+    spawn(level) {
+        console.log("spawning ... level", level);
+        //this.decals(level);
+        this.stairs(level);
+        //this.shrines(level);
+        //this.lights(level);
+        //this.gates(level);
+        //this.items(level);
+        //this.monsters(level);
+        //console.log("ENTITY3D", ENTITY3D);
+    },
+    /*
     spawn(level) {
         console.log("spawning ... level", level);
         this.decals(level);
@@ -150,12 +169,9 @@ var SPAWN = {
         this.gates(level);
         this.items(level);
         this.monsters(level);
-        //GATE3D.display();
-        //ITEM3D.display();
-        //INTERACTIVE_DECAL3D.display();
         console.log("ENTITY3D", ENTITY3D);
-        //ENTITY3D.display();
     },
+    */
     shrines(level) {
         const GA = MAP[level].map.GA;
         const shrines = [SHRINE_TYPE.AttackShrine, SHRINE_TYPE.DefenseShrine, SHRINE_TYPE.MagicShrine];
@@ -229,35 +245,32 @@ var SPAWN = {
         }
     },
     stairs(level) {
+        console.info("spawning stairs", level);
         const GA = MAP[level].map.GA;
         GAME.upperLimit = -1; //DEBUG; DESIGN
-        let entranceLocation = MAP[level].entrance;
-        let exitLocation = MAP[level].exit;
+        const entranceLocation = MAP[level].map.entrance;
+        const exitLocation = MAP[level].map.exit;
 
         //entrance gate
         let entranceSprite = null;
         if (level > GAME.upperLimit) {
             entranceSprite = "StairsUp";
-            let entrance_destination_level = GAME.level; //DEBUG; DESIGN
-            const destination = new Destination(exitLocation.grid, exitLocation.face, entrance_destination_level);
-            const entrance = new Portal(entranceLocation.grid, entranceLocation.face, SPRITE[entranceSprite], 'portal', entranceSprite, destination);
+            const entrance_destination_level = GAME.level; //DEBUG; DESIGN
+            const destination = new Destination(exitLocation.grid, exitLocation.vector, entrance_destination_level);
+            const entrance = new Portal(entranceLocation.grid, DirectionToFace(entranceLocation.vector), SPRITE[entranceSprite], 'portal', entranceSprite, destination);
             BUMP3D.add(entrance);
-            GA.addStair(entranceLocation.grid);
         } else {
             entranceSprite = "EntranceGate";
-            DECAL3D.add(new StaticDecal(entranceLocation.grid, entranceLocation.face, SPRITE[entranceSprite], "crest", entranceSprite));
+            DECAL3D.add(new StaticDecal(entranceLocation.grid, DirectionToFace(entranceLocation.vector), SPRITE[entranceSprite], "crest", entranceSprite));
         }
         GA.reserve(entranceLocation.grid);
 
         //exit gate
         let exitSprite = "StairsDown";
         let exit_destination_level = GAME.level; //DEBUG; DESIGN
-        const destination = new Destination(entranceLocation.grid, entranceLocation.face, exit_destination_level);
-        const exit = new Portal(exitLocation.grid, exitLocation.face, SPRITE[exitSprite], 'portal', exitSprite, destination);
+        const destination = new Destination(entranceLocation.grid, entranceLocation.vector, exit_destination_level);
+        const exit = new Portal(exitLocation.grid, DirectionToFace(exitLocation.vector), SPRITE[exitSprite], 'portal', exitSprite, destination);
         BUMP3D.add(exit);
-        GA.reserve(exitLocation.grid);
-        GA.addStair(exitLocation.grid);
-
         BUMP3D.update();
     },
     lights(level) {
@@ -834,6 +847,7 @@ const COMMON_ITEM_TYPE = {
         element: "STING",
         scale: 1 / 2 ** 1,
         texture: "Sting",
+        //texture: "Magic",
         shine: 128.0 * 0.99,
     }
 };
