@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.24.1",
+    VERSION: "0.24.2",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -181,7 +181,6 @@ const WebGL = {
         MISSILE3D.init(map, hero);
         INTERACTIVE_DECAL3D.init(map);
         BUMP3D.init(map);
-        INTERACTIVE_DECAL3D.init(map);
         ENTITY3D.init(map, hero);
         INTERFACE3D.init(map);
 
@@ -641,6 +640,7 @@ const WebGL = {
         //existing doors
         for (const door of GATE3D.POOL) {
             if (door) {
+                //console.warn("door", this.world.offset[door.start]);
                 const mTranslationmatrix = glMatrix.mat4.create();
                 glMatrix.mat4.fromTranslation(mTranslationmatrix, door.pos.array);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, mTranslationmatrix);
@@ -740,23 +740,6 @@ const WebGL = {
     idToVec(id) {
         return [((id >> 0) & 0xFF) / 0xFF, ((id >> 8) & 0xFF) / 0xFF, ((id >> 16) & 0xFF) / 0xFF, ((id >> 24) & 0xFF) / 0xFF];
     },
-
-    /** buffer manipulation, unused, keep for information */
-    /*
-    hideCube(id, type) {
-        let offset = (this.world.positionOffset[`${type}_start`] + ((id - 1) * 72)) * 4;
-        let data = ELEMENT.CUBE.hidden;
-        return this.updateVertices(offset, data);
-    },
-    updateVertices(offset, data) {
-        const gl = this.CTX;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.position);
-        gl.bufferSubData(gl.ARRAY_BUFFER, offset, data);
-    },
-    */
-
-    /** end buffer manipulation */
-
     DATA: {
         window: null,
         layer: null,
@@ -779,19 +762,19 @@ const WebGL = {
                     const data = new Uint8Array(4);
                     gl.readPixels(pixelX, pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data);
                     const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
-                    //console.warn("id", id);
+                    console.warn("id", id);
                     if (id <= 0) return;
                     const obj = GLOBAL_ID_MANAGER.getObject(id);
                     if (!obj) return;
                     if (!obj.interactive) return;
-                    //console.log("obj", obj, obj.grid, obj.constructor.name);
+                    console.log("obj", obj, obj.grid, obj.constructor.name);
                     let PPos2d = Vector3.to_FP_Grid(hero.player.pos);
                     let itemGrid = obj.grid;
-                    if (obj.constructor.name === "Gate") {
+                    if (obj.grid.constructor.name === "Grid") {
                         itemGrid = Grid.toCenter(obj.grid);
                     }
                     let distance = PPos2d.EuclidianDistance(itemGrid);
-                    //console.log("distance", distance);
+                    console.log("distance", distance);
                     if (distance < WebGL.INI.INTERACT_DISTANCE) {
                         return obj.interact(hero.player.GA, hero.inventory);
                     }
@@ -2061,9 +2044,7 @@ class $POV {
         this.start = `${this.element}_start`;
         this.element = ELEMENT[this.element];
         this.texture = TEXTURE[this.texture];
-        console.log("this.texture", this.texture);
         this.texture = WebGL.createTexture(this.texture);
-        console.info("this.texture", this.texture);
         if (typeof (this.scale) === "number") {
             this.scale = new Float32Array([this.scale, this.scale, this.scale]);
         }
@@ -2078,12 +2059,12 @@ class $POV {
         const mScaleMatrix = glMatrix.mat4.create();
         glMatrix.mat4.fromScaling(mScaleMatrix, this.scale);
         this.scale = mScaleMatrix;
-        this.manage();
 
         //sword management
         this.time = 500;
         this.length = 0.5;
         this.stopMoving();
+        this.manage();
     }
     stab() {
         if (this.moving) return;
@@ -2106,11 +2087,16 @@ class $POV {
         this.rotation = identity;
     }
     setPosition() {
+        //console.info("setting position, now:", this.now, "player.pos", this.player.pos, "dir", this.player.dir);
         let pos = this.player.pos.translate(this.player.dir, this.now);
+        //let pos = this.player.pos.translate(this.player.dir, 4);
+        //console.warn(".pos-translate now", pos);
         let dirRight = glMatrix.vec3.create();
         glMatrix.vec3.rotateY(dirRight, this.player.dir.array, glMatrix.vec3.create(), Math.PI / 2);
         pos = pos.translate(Vector3.from_array(dirRight), this.offset.x);
+        //console.warn("..pos-translate right", pos);
         pos = pos.translate(DIR_DOWN, this.offset.y);
+        //console.warn("...pos-final (down)", pos);
         const mTranslationmatrix = glMatrix.mat4.create();
         glMatrix.mat4.fromTranslation(mTranslationmatrix, pos.array);
         this.pos = mTranslationmatrix;
@@ -2153,7 +2139,8 @@ class $POV {
         //console.log("POOL", POOL);
         const enemies = map[IA].unrollArray([refGrid, playerGrid]);
         //console.info("enemies", enemies);
-        if (enemies.size === 0) return null;
+        //if (enemies.size === 0) return null;
+        if (enemies.size === 0) return this.miss();
         if (enemies.size > 1) {
             let distance = Infinity;
             for (let e of enemies) {

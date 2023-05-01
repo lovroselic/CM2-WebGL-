@@ -21,6 +21,9 @@ const DEBUG = {
     SETTING: true,
     VERBOSE: true,
     _2D_display: true,
+    goto(grid){
+        HERO.player.pos = Vector3.from_Grid(Grid.toCenter(grid), 0.5);
+    }
 };
 const INI = {
     MIMIMAP_HEIGHT: 200,
@@ -45,7 +48,7 @@ const INI = {
     FINAL_LEVEL: 4,
 };
 const PRG = {
-    VERSION: "0.14.01",
+    VERSION: "0.14.02",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -296,13 +299,14 @@ class Scroll {
                 Scroll.boost("magic");
                 break;
             case "TeleportTemple":
-                if (1 === 1) {
+                /*if (1 === 1) {
                     console.warn("not yet implmented");
                     break;
-                }
-                let temple = map.findRoom("temple");
-                let target = map.findMiddleSpaceUnreserved(temple.area);
-                PLAYER.pos = Grid.toCenter(target);
+                }*/
+                //start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
+                const temple = map.findRoom("temple");
+                const target = map.findMiddleSpaceUnreserved(temple.area);
+                HERO.player.pos = Vector3.from_Grid(Grid.toCenter(target), 0.5);
                 break;
             case "Luck":
                 HERO.lucky();
@@ -663,9 +667,10 @@ const GAME = {
         GAME.initLevel(GAME.level);
         GAME.continueLevel(GAME.level);
     },
-    
+
     initLevel(level) {
-        console.log("...level", level, 'initialization'); 
+        console.log("...level", level, 'initialization');
+        DUNGEON.MIN_PADDING = MAP[GAME.level].minPad;
         let randomDungeon;
         if (GAME.level < INI.FINAL_LEVEL) {
             randomDungeon = DUNGEON.create(MAP[GAME.level].width, MAP[GAME.level].height);
@@ -719,8 +724,8 @@ const GAME = {
         //reset births!
         ENTITY3D.resetTime();
     },
-    
-    
+
+
     /*
     initLevel(level) {
         console.log("...level", level, 'initialization');
@@ -969,6 +974,7 @@ const GAME = {
         $("#buttons").prepend("<input type='button' id='startGame' value='Start Game'>");
         $("#startGame").prop("disabled", true);
         $("#conv").remove();
+        //DUNGEON.MIN_PADDING = 3;
     },
     setTitle() {
         const text = GAME.generateTitleText();
@@ -1033,12 +1039,21 @@ const GAME = {
         if (HERO.dead) return;
         HERO.player.respond(lapsedTime);
 
-        var map = ENGINE.GAME.keymap;
+        const map = ENGINE.GAME.keymap;
 
         if (map[ENGINE.KEY.map.F4]) {
             $("#pause").trigger("click");
             ENGINE.TIMERS.display();
             ENGINE.GAME.keymap[ENGINE.KEY.map.F4] = false;
+        }
+        if (map[ENGINE.KEY.map.F8]) {
+            console.log("TELEPORT TO TEMPLE");
+            const M = MAP[GAME.level].map;
+            const temple = M.findRoom("temple");
+            const target = M.findMiddleSpaceUnreserved(temple.area);
+            HERO.player.pos = Vector3.from_Grid(Grid.toCenter(target), 0.5);
+
+            ENGINE.GAME.keymap[ENGINE.KEY.map.F8] = false;
         }
         if (map[ENGINE.KEY.map.F9]) {
             console.log("\nDEBUG:");

@@ -76,11 +76,19 @@ class Vector3 {
         return Vector3.from_2D_dir(this.rotate2D(Math.PI), this.y);
     }
     translate(vector, length = 1) {
+        let x = this.x + length * vector.x;
+        let y = this.y + length * vector.y;
+        let z = this.z + length * vector.z;
+        return new Vector3(x, y, z);
+    }
+    /*
+     translate(vector, length = 1) {
         let x = this.x + length * (vector.x || 0);
         let y = this.y + length * (vector.y || 0);
         let z = this.z + length * (vector.z || 0);
         return new Vector3(x, y, z);
     }
+    */
     add(vector) {
         let x = this.x + vector.x;
         let y = this.y + vector.y;

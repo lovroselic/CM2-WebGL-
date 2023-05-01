@@ -77,7 +77,11 @@ const DECAL_PAINTINGS = [
 ];*/
 console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 
-const LIGHT_DECALS = ["WallLamp"];
+const LIGHT_COLORS = {
+    standard: new Float32Array([0.95, 0.95, 0.85]),
+};
+
+const LIGHT_DECALS = [{ sprite: "WallLamp", color: LIGHT_COLORS.standard }];
 
 const DECAL_CRESTS = ["LS", "Skull4", "Skull3", "Skull2", "Skull1", "Crack4", "Crack3", "Skeleton11", "Skeleton12", "Crack20", "Crack21", "DancingSkeletons2",
     "PrayingSkeleton10", "SittingSkeleton2", "Skeleton21", "Skull10", "Skull11"];
@@ -87,14 +91,15 @@ const BOTTOM_CRESTS = ["Drain2_96", "Drain64", "Grate1_128", "RoundGrille96"];
 console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
 
 console.log("%cMAP for CrawlMaster2 loaded.", "color: #888");
-//{"width":"16","height":"16","map":"BB9ABB10AA26BAA10BAA20BAA9BAA8BB2AA2BAA6BAA9BAA6BB3ABAA2BB6AA2BAA10BABAA2BB2AA8BB9ABB2ABAA2BAA2BB2AA2BAA7BB2AA5BABABB2AA4BB6ABB2ABAA2BB9ABB18A$"}
+
 const MAP = {
     1: {
-        width: 37,
-        height: 37,
+        width: 40,
+        height: 40,
         floor: "GreenDungeonWall",
         ceil: "GreyDungeonFloor",
-        wall: "DungeonWall"
+        wall: "DungeonWall",
+        minPad: 3,
     },
     2: {
         data: `
@@ -150,43 +155,45 @@ const MAP = {
 const SPAWN = {
     spawn(level) {
         console.log("spawning ... level", level);
-        //this.decals(level);
+        this.decals(level);
+        this.shrines(level);
         this.stairs(level);
-        //this.shrines(level);
-        //this.lights(level);
-        //this.gates(level);
+        this.lights(level);
+        this.gates(level);
         //this.items(level);
         //this.monsters(level);
         //console.log("ENTITY3D", ENTITY3D);
     },
-    /*
-    spawn(level) {
-        console.log("spawning ... level", level);
-        this.decals(level);
-        this.stairs(level);
-        this.shrines(level);
-        this.lights(level);
-        this.gates(level);
-        this.items(level);
-        this.monsters(level);
-        console.log("ENTITY3D", ENTITY3D);
-    },
-    */
     shrines(level) {
         const GA = MAP[level].map.GA;
         const shrines = [SHRINE_TYPE.AttackShrine, SHRINE_TYPE.DefenseShrine, SHRINE_TYPE.MagicShrine];
-        const shrine_locations = [
-            { grid: new Grid(1, 15), face: 'BACK' },
-            { grid: new Grid(8, 15), face: 'BACK' },
-            { grid: new Grid(15, 11), face: 'LEFT' },
-        ];
+        const shrine_locations = MAP[level].map.shrines;
         for (let s = 0; s < shrines.length; s++) {
             GA.addShrine(shrine_locations[s].grid);
-            let shrine = new Shrine(shrine_locations[s].grid, shrine_locations[s].face, shrines[s]);
+            const shrine = new Shrine(shrine_locations[s].grid, DirectionToFace(shrine_locations[s].vector), shrines[s]);
             INTERACTIVE_DECAL3D.add(shrine);
         }
     },
     decals(level) {
+        console.log("spawning decals", level);
+        const map = MAP[level].map;
+
+        // room wall decals
+        for (const room of map.rooms) {
+            const lo = ((0.25 * room.squareSize) >>> 0) - 1;
+            const hi = ((0.33 * room.squareSize) >>> 0) + 1;
+            let N = RND(lo, hi);
+            let wallGrids = map.roomWallGrids(room);
+            while (N > 0 && wallGrids.length > 0) {
+                const slot = wallGrids.removeRandom();
+                map.GA.reserve(slot.grid);
+                const picture = DECAL_PAINTINGS.chooseRandom();
+                DECAL3D.add(new StaticDecal(slot.grid, DirectionToFace(slot.dir), SPRITE[picture], "picture", picture));
+                N--;
+            }
+        }
+
+        /*
         const decalsLocations = [
             { grid: new Grid(2, 2), face: 'FRONT' },
             { grid: new Grid(5, 2), face: 'FRONT' },
@@ -243,6 +250,7 @@ const SPAWN = {
             console.log("crest", crest);
             DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[crest], "crest", crest));
         }
+        */
     },
     stairs(level) {
         console.info("spawning stairs", level);
@@ -274,6 +282,25 @@ const SPAWN = {
         BUMP3D.update();
     },
     lights(level) {
+        const map = MAP[level].map;
+        console.log("spawning lights", level);
+        // room wall lights
+        for (const room of map.rooms) {
+            const lo = Math.max(((room.squareSize / 16) >>> 0), 1);
+            const hi = Math.max(((room.squareSize / 10) >>> 0), 2);
+            let N = RND(lo, hi);
+            let wallGrids = map.roomWallGrids(room);
+            while (N > 0 && wallGrids.length > 0) {
+                const slot = wallGrids.removeRandom();
+                map.GA.reserve(slot.grid);
+                const light = LIGHT_DECALS.chooseRandom();
+                LIGHTS3D.add(new LightDecal(slot.grid, DirectionToFace(slot.dir), SPRITE[light.sprite], "light", light.sprite, light.color));
+                N--;
+            }
+
+        }
+        
+        /*
         const standardLightColor = new Float32Array([0.95, 0.95, 0.85]);
         const redColor = new Float32Array([0.95, 0.0, 0.0]);
         const greenColor = new Float32Array([0.15, 0.9, 0.15]);
@@ -288,22 +315,42 @@ const SPAWN = {
             const light = LIGHT_DECALS.chooseRandom();
             LIGHTS3D.add(new LightDecal(L.grid, L.face, SPRITE[light], "light", light, L.color));
         }
+        */
     },
     gates(level) {
+        console.log("spawning gates and keys");
         const GA = MAP[level].map.GA;
-        const gateLocations = [
-            { grid: new Grid(6, 7), type: GATE_TYPE.Common },
-            { grid: new Grid(7, 8), type: GATE_TYPE.Common },
+        const map = MAP[level].map;
 
-            { grid: new Grid(10, 1), type: GATE_TYPE.Red },
-            { grid: new Grid(10, 6), type: GATE_TYPE.Silver },
-            { grid: new Grid(13, 6), type: GATE_TYPE.Gold },
-        ];
+        //keys
+        for (const color in map.keys) {
+            const grid = Grid.toCenter(map.keys[color]);
+            const key = COMMON_ITEM_TYPE[`${color}Key`];
+            console.info(grid, key);
+            ITEM3D.add(new FloorItem3D(grid, key));
+        }
+        console.log("ITEM3D", ITEM3D);
 
-        for (let G of gateLocations) {
-            GA.addDoor(G.grid); //needs to be removed if door set properly in the map!!
-            GATE3D.add(new Gate(G.grid, G.type));
-            GA.closeDoor(G.grid);
+        //locked
+        for (const color in map.lockedRooms) {
+            const grid = map.lockedRooms[color].door[0];
+            const gate = GATE_TYPE[color];
+            GATE3D.add(new Gate(grid, gate));
+            GA.closeDoor(grid);
+            console.info(grid, gate);
+        }
+        console.log("GATE3D", GATE3D);
+
+        //common
+        const ignore = ["Silver", "Gold", "Red"];
+        for (const R of map.rooms) {
+            console.log("room", R);
+            if (ignore.includes(R.type)) continue;
+            for (const D of R.door) {
+                GATE3D.add(new Gate(D, GATE_TYPE.Common));
+                GA.closeDoor(D);
+                console.info(D);
+            }
         }
     },
     items(level) {
@@ -314,9 +361,11 @@ const SPAWN = {
             { grid: new FP_Grid(1.5, 9.5), type: COMMON_ITEM_TYPE.SilverBar },
             { grid: new FP_Grid(1.5, 2.5), type: COMMON_ITEM_TYPE.GoldBar },
 
+            /*
             { grid: new FP_Grid(12.5, 2.5), type: COMMON_ITEM_TYPE.GoldKey },
             { grid: new FP_Grid(13.5, 2.5), type: COMMON_ITEM_TYPE.SilverKey },
             { grid: new FP_Grid(14.5, 2.5), type: COMMON_ITEM_TYPE.RedKey },
+            */
 
             { grid: new FP_Grid(3.5, 2.5), type: COMMON_ITEM_TYPE.RedPotion },
             { grid: new FP_Grid(3.8, 2.0), type: COMMON_ITEM_TYPE.BluePotion },
@@ -846,8 +895,8 @@ const COMMON_ITEM_TYPE = {
         name: "POV",
         element: "STING",
         scale: 1 / 2 ** 1,
-        texture: "Sting",
-        //texture: "Magic",
+        //texture: "Sting",
+        texture: "Magic",
         shine: 128.0 * 0.99,
     }
 };

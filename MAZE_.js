@@ -1356,7 +1356,7 @@ class Dungeon extends MasterDungeon {
             stairsUp = stairsUp.add(entranceDir.mirror());
             this.GA.addStair(stairsUp);
             this.entrance = new Pointer(stairsUp, entranceDir);
-            
+
             let exitRoom = this.getRoom(this.rooms, "common");
             exitRoom.type = DUNGEON.LOCK_LEVELS[0];
             let stairsDown = this.randomUnusedEntry(exitRoom);
@@ -1364,7 +1364,7 @@ class Dungeon extends MasterDungeon {
             const exitDir = this.GA.getDirectionsIfNot(stairsDown, MAPDICT.WALL)[0];
             stairsDown = stairsDown.add(exitDir.mirror());
             this.GA.addStair(stairsDown);
-            this.exit = new Pointer(stairsDown,exitDir );
+            this.exit = new Pointer(stairsDown, exitDir);
 
             //
             this.shrines = [];
@@ -1374,10 +1374,10 @@ class Dungeon extends MasterDungeon {
                 let shrine = this.randomUnusedEntry(temple);
                 this.GA.carveDot(shrine);
                 this.GA.addRoom(shrine);
-                this.shrines.push(shrine);
                 const shrineDir = this.GA.getDirectionsIfNot(shrine, MAPDICT.WALL)[0];
                 shrine = shrine.add(shrineDir.mirror());
                 this.GA.addShrine(shrine);
+                this.shrines.push(new Pointer(shrine, shrineDir));
             }
         }
 
@@ -1410,7 +1410,9 @@ class Dungeon extends MasterDungeon {
             //keys
             let firstKeyRoom = this.getRoom(this.rooms, "common");
             if (firstKeyRoom === undefined || firstKeyRoom === null) {
-                throw "firstKeyRoom is undefined. need more rooms!";
+                //throw "firstKeyRoom is undefined. need more rooms!";
+                console.error("firstKeyRoom is undefined. need more rooms! - creating new dungeon!");
+                return new Dungeon(sizeX, sizeY);
             }
             firstKeyRoom.type = "firstKey";
             this.connectToGrid(firstKeyRoom, RND(1, 2));
