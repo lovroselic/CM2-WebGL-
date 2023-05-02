@@ -48,7 +48,7 @@ const INI = {
     FINAL_LEVEL: 4,
 };
 const PRG = {
-    VERSION: "0.14.03",
+    VERSION: "0.14.04",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -695,6 +695,7 @@ const GAME = {
 
         WebGL.init_required_IAM(MAP[level].map, HERO);
         WebGL.MOUSE.initialize("ROOM");
+        WebGL.setContext('webgl'); //need this early, optimize redundand call later!!!
         SPAWN.spawn(level);
         //problems: "FLASK", "SWORD","SHIELD", "PENTAGRAM","TREASURE_CHEST","COINS","STING",
         /*const object_map = [
@@ -704,8 +705,14 @@ const GAME = {
         /*const object_map = [
             "BALL", "SCROLL", "FLASK",
         ];*/
+        /*const object_map = [
+            "BALL", "SCROLL", "KEY", "CUBE_SM",
+            "CUBE_CENTERED", "BAR", "HEART", "CHEST",
+       
+        ];*/
         const object_map = [
-            "BALL", "SCROLL", "KEY", "CUBE_SM", "CUBE_CENTERED", "BAR", "HEART", "CHEST", 
+            "BALL", "CUBE_SM",
+            
         ];
         MAP[level].world = WORLD.build(MAP[level].map, object_map);
         console.log("world", MAP[level].world);

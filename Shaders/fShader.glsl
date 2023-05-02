@@ -46,7 +46,9 @@ void main(void) {
 
 vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal) {
     //ambient
-    float ambientStrength = 0.15;
+    //float ambientStrength = 0.15;
+    //float ambientStrength = 0.25;
+    float ambientStrength = 0.2;
     vec3 ambientLightColor = vec3(1, 1, 0.9);
     vec3 ambientLight = ambientStrength * ambientLightColor;
 
@@ -62,7 +64,8 @@ vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal) {
     float shininess = 128.0 * 0.20;
     vec3 reflectDir = reflect(-viewDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-    float specStrength = 1.2;
+    //float specStrength = 1.2;
+    float specStrength = 0.9;
     vec3 specularLight = diffuseLightColor * spec * specStrength * attenuation;
 
     return ambientLight + diffuselight + specularLight;
@@ -80,14 +83,14 @@ vec3 CalcPointLight(vec3 PL_position, vec3 FragPos, vec3 viewDir, vec3 normal, f
     float distance = length(PL_position - FragPos);
     float attenuation = 1.0 / (1.0 + 0.15 * distance + 0.45 * (distance * distance));
 
-    //float ambientStrength = 0.99;
-    float ambientStrength = 1.2;
+    float ambientStrength = 0.99;
+    //float ambientStrength = 1.2;
     vec3 ambient = pointLightColor * ambientStrength * attenuation;
     //float diffuseStrength = 0.99;
     float diffuseStrength = 1.1;
     vec3 diffuse = pointLightColor * diff * diffuseStrength * attenuation;
-    float specStrength = 2.5;
-    //float specStrength = 0.7;
+    //float specStrength = 1.5;
+    float specStrength = 0.7;
     vec3 specular = pointLightColor * spec * specStrength * attenuation;
 
     return diffuse + ambient + specular;

@@ -155,10 +155,11 @@ const MAP = {
 const SPAWN = {
     spawn(level) {
         console.log("spawning ... level", level);
+        this.lights(level);
         this.decals(level);
         this.shrines(level);
         this.stairs(level);
-        this.lights(level);
+
         this.gates(level);
         this.debug(level);
         //this.items(level);
@@ -185,6 +186,7 @@ const SPAWN = {
             const hi = ((0.33 * room.squareSize) >>> 0) + 1;
             let N = RND(lo, hi);
             let wallGrids = map.roomWallGrids(room);
+            console.log("room", room, lo, hi, N);
             while (N > 0 && wallGrids.length > 0) {
                 const slot = wallGrids.removeRandom();
                 map.GA.reserve(slot.grid);
@@ -291,6 +293,7 @@ const SPAWN = {
             const hi = Math.max(((room.squareSize / 10) >>> 0), 2);
             let N = RND(lo, hi);
             let wallGrids = map.roomWallGrids(room);
+            console.log("room", room, lo, hi, N);
             while (N > 0 && wallGrids.length > 0) {
                 const slot = wallGrids.removeRandom();
                 map.GA.reserve(slot.grid);
@@ -356,13 +359,14 @@ const SPAWN = {
     },
     debug(level) {
         const map = MAP[level].map;
-        /*const items = [COMMON_ITEM_TYPE.GoldCube, COMMON_ITEM_TYPE.GoldBar, COMMON_ITEM_TYPE.GoldKey, COMMON_ITEM_TYPE.RedPotion, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Sword,
+        const items = [COMMON_ITEM_TYPE.GoldCube, COMMON_ITEM_TYPE.GoldBar, COMMON_ITEM_TYPE.GoldKey, COMMON_ITEM_TYPE.RedPotion, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Sword,
         COMMON_ITEM_TYPE.Heart, COMMON_ITEM_TYPE.Shield, COMMON_ITEM_TYPE.Mana, COMMON_ITEM_TYPE.Magic, COMMON_ITEM_TYPE.Chest, COMMON_ITEM_TYPE.TreasureChest,
-        COMMON_ITEM_TYPE.Coins, COMMON_ITEM_TYPE.Sting];*/
+        COMMON_ITEM_TYPE.Coins, COMMON_ITEM_TYPE.Sting];
         //const items = [COMMON_ITEM_TYPE.RedPotion, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Mana];
-        const items = [COMMON_ITEM_TYPE.GoldKey, COMMON_ITEM_TYPE.SilverKey, COMMON_ITEM_TYPE.RedKey, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Mana, COMMON_ITEM_TYPE.GoldCube,
-        COMMON_ITEM_TYPE.SilverBar, COMMON_ITEM_TYPE.Heart, COMMON_ITEM_TYPE.Chest, 
-        ];
+        /*const items = [COMMON_ITEM_TYPE.GoldKey, COMMON_ITEM_TYPE.SilverKey, COMMON_ITEM_TYPE.RedKey, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Mana, COMMON_ITEM_TYPE.GoldCube,
+        COMMON_ITEM_TYPE.SilverBar, COMMON_ITEM_TYPE.Heart, COMMON_ITEM_TYPE.Chest,
+        COMMON_ITEM_TYPE.Shield,
+        ];*/
         console.log("debug", items.length);
         const start = map.findRoom("start");
         for (const item of items) {
@@ -918,8 +922,8 @@ const COMMON_ITEM_TYPE = {
         name: "POV",
         element: "STING",
         scale: 1 / 2 ** 1,
-        //texture: "Sting",
-        texture: "Magic",
+        texture: "Sting",
+        //texture: "Magic",
         shine: 128.0 * 0.99,
     }
 };
