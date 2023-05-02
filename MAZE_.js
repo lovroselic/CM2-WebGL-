@@ -1418,9 +1418,7 @@ class Dungeon extends MasterDungeon {
             this.connectToGrid(firstKeyRoom, RND(1, 2));
 
             for (let r = 0; r < DUNGEON.LOCK_LEVEL - 1; r++) {
-                let keyLocation = this.findMiddleSpace(
-                    this.lockedRooms[DUNGEON.LOCK_LEVELS[r + 1]].area
-                );
+                let keyLocation = this.findMiddleSpace(this.lockedRooms[DUNGEON.LOCK_LEVELS[r + 1]].area);
                 this.keys[DUNGEON.LOCK_LEVELS[r]] = keyLocation;
             }
             let keyLocation = this.findMiddleSpace(firstKeyRoom.area);

@@ -21,7 +21,7 @@ const DEBUG = {
     SETTING: true,
     VERBOSE: true,
     _2D_display: true,
-    goto(grid){
+    goto(grid) {
         HERO.player.pos = Vector3.from_Grid(Grid.toCenter(grid), 0.5);
     }
 };
@@ -48,7 +48,7 @@ const INI = {
     FINAL_LEVEL: 4,
 };
 const PRG = {
-    VERSION: "0.14.02",
+    VERSION: "0.14.03",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -696,9 +696,16 @@ const GAME = {
         WebGL.init_required_IAM(MAP[level].map, HERO);
         WebGL.MOUSE.initialize("ROOM");
         SPAWN.spawn(level);
-        const object_map = [
+        //problems: "FLASK", "SWORD","SHIELD", "PENTAGRAM","TREASURE_CHEST","COINS","STING",
+        /*const object_map = [
             "BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM", "SWORD", "HEART", "SHIELD", "PENTAGRAM", "CHEST",
             "TREASURE_CHEST", "COINS", "STING"
+        ];*/
+        /*const object_map = [
+            "BALL", "SCROLL", "FLASK",
+        ];*/
+        const object_map = [
+            "BALL", "SCROLL", "KEY", "CUBE_SM", "CUBE_CENTERED", "BAR", "HEART", "CHEST", 
         ];
         MAP[level].world = WORLD.build(MAP[level].map, object_map);
         console.log("world", MAP[level].world);

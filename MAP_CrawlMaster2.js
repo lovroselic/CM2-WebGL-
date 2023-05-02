@@ -160,6 +160,7 @@ const SPAWN = {
         this.stairs(level);
         this.lights(level);
         this.gates(level);
+        this.debug(level);
         //this.items(level);
         //this.monsters(level);
         //console.log("ENTITY3D", ENTITY3D);
@@ -299,7 +300,7 @@ const SPAWN = {
             }
 
         }
-        
+
         /*
         const standardLightColor = new Float32Array([0.95, 0.95, 0.85]);
         const redColor = new Float32Array([0.95, 0.0, 0.0]);
@@ -337,21 +338,43 @@ const SPAWN = {
             const gate = GATE_TYPE[color];
             GATE3D.add(new Gate(grid, gate));
             GA.closeDoor(grid);
-            console.info(grid, gate);
+            //console.info(grid, gate);
         }
         console.log("GATE3D", GATE3D);
 
         //common
         const ignore = ["Silver", "Gold", "Red"];
         for (const R of map.rooms) {
-            console.log("room", R);
+            //console.log("room", R);
             if (ignore.includes(R.type)) continue;
             for (const D of R.door) {
                 GATE3D.add(new Gate(D, GATE_TYPE.Common));
                 GA.closeDoor(D);
-                console.info(D);
+                //console.info(D);
             }
         }
+    },
+    debug(level) {
+        const map = MAP[level].map;
+        /*const items = [COMMON_ITEM_TYPE.GoldCube, COMMON_ITEM_TYPE.GoldBar, COMMON_ITEM_TYPE.GoldKey, COMMON_ITEM_TYPE.RedPotion, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Sword,
+        COMMON_ITEM_TYPE.Heart, COMMON_ITEM_TYPE.Shield, COMMON_ITEM_TYPE.Mana, COMMON_ITEM_TYPE.Magic, COMMON_ITEM_TYPE.Chest, COMMON_ITEM_TYPE.TreasureChest,
+        COMMON_ITEM_TYPE.Coins, COMMON_ITEM_TYPE.Sting];*/
+        //const items = [COMMON_ITEM_TYPE.RedPotion, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Mana];
+        const items = [COMMON_ITEM_TYPE.GoldKey, COMMON_ITEM_TYPE.SilverKey, COMMON_ITEM_TYPE.RedKey, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Mana, COMMON_ITEM_TYPE.GoldCube,
+        COMMON_ITEM_TYPE.SilverBar, COMMON_ITEM_TYPE.Heart, COMMON_ITEM_TYPE.Chest, 
+        ];
+        console.log("debug", items.length);
+        const start = map.findRoom("start");
+        for (const item of items) {
+            const grid = map.findSpace(start.area);
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), item));
+        }
+        const end = map.findRoom("Gold");
+        for (const item of items) {
+            const grid = map.findSpace(end.area);
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), item));
+        }
+        console.log("ITEM3D", ITEM3D);
     },
     items(level) {
         console.log("spawning items");
@@ -776,10 +799,10 @@ const COMMON_ITEM_TYPE = {
         name: "Scroll",
         category: "scroll",
         element: "SCROLL",
-        scale: 1 / 2 ** 4,
+        scale: 1.2 / 2 ** 4,
         glueToFloor: true,
         texture: "ScrollTexture",
-        shine: 128.0 * 0.15,
+        shine: 128.0 * 0.9,
     },
     RedPotion: {
         name: "RedPotion",
