@@ -48,7 +48,7 @@ const INI = {
     FINAL_LEVEL: 4,
 };
 const PRG = {
-    VERSION: "0.14.06",
+    VERSION: "0.15.00",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -651,8 +651,7 @@ const GAME = {
         WebGL.setContext('webgl'); //need this early, optimize redundand call later!!!
         SPAWN.spawn(level);
 
-        const object_map = []; // delete and optimize world building!!!!!!
-        MAP[level].world = WORLD.build(MAP[level].map, object_map);
+        MAP[level].world = WORLD.build(MAP[level].map);
         console.log("world", MAP[level].world);
 
         const textureData = {

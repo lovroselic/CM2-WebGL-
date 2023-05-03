@@ -186,7 +186,7 @@ const SPAWN = {
             const hi = ((0.33 * room.squareSize) >>> 0) + 1;
             let N = RND(lo, hi);
             let wallGrids = map.roomWallGrids(room);
-            //console.log("room", room, lo, hi, N);
+            console.log("room", room, lo, hi, N);
             while (N > 0 && wallGrids.length > 0) {
                 const slot = wallGrids.removeRandom();
                 map.GA.reserve(slot.grid);
@@ -287,13 +287,13 @@ const SPAWN = {
     lights(level) {
         const map = MAP[level].map;
         console.log("spawning lights", level);
+
         // room wall lights
         for (const room of map.rooms) {
             const lo = Math.max(((room.squareSize / 16) >>> 0), 1);
             const hi = Math.max(((room.squareSize / 10) >>> 0), 2);
             let N = RND(lo, hi);
             let wallGrids = map.roomWallGrids(room);
-            //console.log("room", room, lo, hi, N);
             while (N > 0 && wallGrids.length > 0) {
                 const slot = wallGrids.removeRandom();
                 map.GA.reserve(slot.grid);
@@ -303,23 +303,6 @@ const SPAWN = {
             }
 
         }
-
-        /*
-        const standardLightColor = new Float32Array([0.95, 0.95, 0.85]);
-        const redColor = new Float32Array([0.95, 0.0, 0.0]);
-        const greenColor = new Float32Array([0.15, 0.9, 0.15]);
-        const lightLocations = [
-            { grid: new Grid(1, 0), face: 'FRONT', color: standardLightColor },
-            { grid: new Grid(6, 0), face: 'FRONT', color: standardLightColor },
-            { grid: new Grid(11, 15), face: 'BACK', color: standardLightColor },
-            { grid: new Grid(15, 9), face: 'LEFT', color: redColor },
-            { grid: new Grid(15, 1), face: 'LEFT', color: standardLightColor },
-        ];
-        for (let L of lightLocations) {
-            const light = LIGHT_DECALS.chooseRandom();
-            LIGHTS3D.add(new LightDecal(L.grid, L.face, SPRITE[light], "light", light, L.color));
-        }
-        */
     },
     gates(level) {
         console.log("spawning gates and keys");
@@ -341,19 +324,15 @@ const SPAWN = {
             const gate = GATE_TYPE[color];
             GATE3D.add(new Gate(grid, gate));
             GA.closeDoor(grid);
-            //console.info(grid, gate);
         }
-        console.log("GATE3D", GATE3D);
 
         //common
         const ignore = ["Silver", "Gold", "Red"];
         for (const R of map.rooms) {
-            //console.log("room", R);
             if (ignore.includes(R.type)) continue;
             for (const D of R.door) {
                 GATE3D.add(new Gate(D, GATE_TYPE.Common));
                 GA.closeDoor(D);
-                //console.info(D);
             }
         }
     },
@@ -374,6 +353,10 @@ const SPAWN = {
             ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), item));
         }
         console.log("ITEM3D", ITEM3D);
+
+        //monsters
+        const grid = map.findSpace(start.area);
+        ENTITY3D.add(new $3D_Entity(Grid.toCenter(grid), MONSTER_TYPE.GhostFace, UP));
     },
     items(level) {
         console.log("spawning items");

@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.24.5",
+    VERSION: "0.25.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -564,7 +564,7 @@ const WebGL = {
         gl.vertexAttribPointer(this.program.attribLocations.textureCoord, 2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(this.program.attribLocations.textureCoord);
 
-        // Tell WebGL which indices to use to index the vertices
+        // indices
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffer.indices);
 
         //setNormalAttribute
@@ -572,14 +572,13 @@ const WebGL = {
         gl.vertexAttribPointer(this.program.attribLocations.vertexNormal, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(this.program.attribLocations.vertexNormal);
 
-        // Tell WebGL we want to affect texture unit 0
         // Bind the texture to texture unit 0
-        // Tell the shader we bound the texture to texture unit 0
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.texture.wall);
 
         //picking program
         gl.useProgram(this.pickProgram.program);
+
         //setPositionAttribute
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.position);
         gl.vertexAttribPointer(this.pickProgram.attribLocations.vertexPosition, 3, gl.FLOAT, false, 0, 0);
@@ -593,9 +592,8 @@ const WebGL = {
         //start draw
         gl.useProgram(this.program.program);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        //gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer); //
 
-        //draw separated
+        /**  draw per world slice */
 
         //wall
         gl.drawElements(gl.TRIANGLES, this.world.offset.wall_count, gl.UNSIGNED_SHORT, this.world.offset.wall_start * 2);
@@ -639,42 +637,13 @@ const WebGL = {
             }
         }
 
+        /**  draw per object */
+
         //existing doors
         for (const door of GATE3D.POOL) {
             if (door) {
-
                 door.drawObject(gl);
-
-                /*
-                gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, door.mScaleMatrix);
-                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, door.mTranslationMatrix);
-                gl.bindTexture(gl.TEXTURE_2D, door.texture);
-                gl.drawElements(gl.TRIANGLES, door.indices, gl.UNSIGNED_SHORT, this.world.offset[door.start] * 2);
-                */
-
-
-
-
                 door.drawInteraction(gl, this.frameBuffer);
-
-                /*
-                // to texture 
-                let id_vec = this.idToVec(door.global_id);
-                gl.useProgram(this.pickProgram.program);
-                gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
-                gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
-                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uScale, false, door.mScaleMatrix);
-
-
-                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, door.mTranslationMatrix);
-                gl.drawElements(gl.TRIANGLES, door.indices, gl.UNSIGNED_SHORT, this.world.offset[door.start] * 2);
-
-                //back to canvas
-                gl.useProgram(this.program.program);
-                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                */
-
-
             }
         }
 
@@ -682,51 +651,14 @@ const WebGL = {
         for (const item of ITEM3D.POOL) {
             if (item.active) {
                 item.drawObject(gl);
-                /*
-                gl.useProgram(this.program.program);
-                gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, item.mScaleMatrix);
-                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, item.mTranslationMatrix);
-                gl.uniform1f(this.program.uniformLocations.uShine, item.shine);
-                gl.uniformMatrix4fv(this.program.uniformLocations.uRotY, false, item.rotationY);
-                gl.bindTexture(gl.TEXTURE_2D, item.texture);
-                gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, this.world.offset[item.start] * 2);
-                */
-
                 item.drawInteraction(gl, this.frameBuffer);
-                /*
-                // to texture 
-                let id_vec = this.idToVec(item.global_id);
-                gl.useProgram(this.pickProgram.program);
-                gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
-                gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
-                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uScale, false, item.mScaleMatrix);
-                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, item.mTranslationMatrix);
-                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uRotY, false, item.rotationY);
-                gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, this.world.offset[item.start] * 2);
-
-                //back to canvas
-                gl.useProgram(this.program.program);
-                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                */
             }
         }
 
         //missile
-        //this.enableAttributes(gl); // in development!!! - not helping
         for (const missile of MISSILE3D.POOL) {
             if (missile) {
                 missile.drawObject(gl);
-                /*
-                const mScaleMatrix = glMatrix.mat4.create();
-                glMatrix.mat4.fromScaling(mScaleMatrix, missile.scale);
-                const mTranslationMatrix = glMatrix.mat4.create();
-                glMatrix.mat4.fromTranslation(mTranslationMatrix, missile.pos.array);
-                gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, mScaleMatrix);
-                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, mTranslationMatrix);
-                gl.uniform1f(this.program.uniformLocations.uShine, missile.shine);
-                gl.bindTexture(gl.TEXTURE_2D, missile.texture);
-                gl.drawElements(gl.TRIANGLES, missile.indices, gl.UNSIGNED_SHORT, this.world.offset[missile.start] * 2);
-                */
             }
         }
 
@@ -734,14 +666,6 @@ const WebGL = {
         for (const pov of INTERFACE3D.POOL) {
             if (pov) {
                 pov.drawObject(gl);
-                /*
-                gl.uniform1f(this.program.uniformLocations.uShine, pov.shine);
-                gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, pov.scale);
-                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, pov.pos);
-                gl.uniformMatrix4fv(this.program.uniformLocations.uRotY, false, pov.rotation);
-                gl.bindTexture(gl.TEXTURE_2D, pov.texture);
-                gl.drawElements(gl.TRIANGLES, pov.indices, gl.UNSIGNED_SHORT, this.world.offset[pov.start] * 2);
-                */
             }
         }
 
@@ -794,14 +718,14 @@ const WebGL = {
                     const obj = GLOBAL_ID_MANAGER.getObject(id);
                     if (!obj) return;
                     if (!obj.interactive) return;
-                    console.log("obj", obj, obj.grid, obj.constructor.name);
+                    //console.log("obj", obj, obj.grid, obj.constructor.name);
                     let PPos2d = Vector3.to_FP_Grid(hero.player.pos);
                     let itemGrid = obj.grid;
                     if (obj.grid.constructor.name === "Grid") {
                         itemGrid = Grid.toCenter(obj.grid);
                     }
                     let distance = PPos2d.EuclidianDistance(itemGrid);
-                    console.log("distance", distance);
+                    //console.log("distance", distance);
                     if (distance < WebGL.INI.INTERACT_DISTANCE) {
                         return obj.interact(hero.player.GA, hero.inventory);
                     }
@@ -1039,7 +963,7 @@ const WORLD = {
         this[type].textureCoordinates.push(...textureCoordinates);
         this[type].vertexNormals.push(...vertexNormals);
     },
-    build(map, object_map, Y = 0) {
+    build(map, Y = 0, object_map = []) {
         const GA = map.GA;
         console.time("WorldBuilding");
         this.init(object_map);
@@ -1160,7 +1084,6 @@ class $3D_player {
     rotate(rotDirection, lapsedTime) {
         let angle = Math.round(lapsedTime / ENGINE.INI.ANIMATION_INTERVAL) * rotDirection * ((2 * Math.PI) / this.rotationResolution);
         this.dir = Vector3.from_2D_dir(this.dir.rotate2D(angle), this.dir.y);
-        //this.log();
     }
     bumpEnemy(nextPos) {
         let checkGrids = this.GA.gridsAroundEntity(nextPos, Vector3.to_FP_Vector(this.dir), this.r); //grid check is 2D!
@@ -1434,10 +1357,6 @@ class Drawable_object {
         gl.uniform4fv(uniforms.id, new Float32Array(id_vec));
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
         gl.drawElements(gl.TRIANGLES, this.indices, gl.UNSIGNED_SHORT, 0);
-
-        //back to canvas
-        gl.useProgram(WebGL.program.program); ///take care of this elswhere!!!!
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 }
 class Gate extends Drawable_object {
@@ -1456,7 +1375,6 @@ class Gate extends Drawable_object {
         this.indices = this.element.indices.length;
         this.shine = 100.0;
 
-        //matrices
         this.mScaleMatrix = glMatrix.mat4.create();
         this.mRotationMatrix = glMatrix.mat4.create();
         const mTranslationMatrix = glMatrix.mat4.create();
@@ -1471,7 +1389,7 @@ class Gate extends Drawable_object {
         console.log("Open gate", this.color, this.name);
         if (this.locked) {
             const checkKey = (key, value) => inventory.key.some((o) => o[key] === value);
-            console.log("checkKey", checkKey("color", this.color));
+            //console.log("checkKey", checkKey("color", this.color));
             if (checkKey("color", this.color)) {
                 this.locked = false;
                 inventory.key = inventory.key.filter((el) => el.color !== this.color);
@@ -1525,8 +1443,7 @@ class FloorItem3D extends Drawable_object {
         for (const prop in type) {
             this[prop] = type[prop];
         }
-        //this.start = `${this.element}_start`;
-        //unpack
+   
         this.element = ELEMENT[this.element];
         this.initBuffers();
         this.texture = TEXTURE[this.texture];
@@ -1534,7 +1451,7 @@ class FloorItem3D extends Drawable_object {
             this.scale = new Float32Array([this.scale, this.scale, this.scale]);
         }
         this.indices = this.element.indices.length;
-        //translate
+
         let heightTranslate = new Float32Array([0, 0, 0]);
         if (this.glueToFloor) {
             let max = ELEMENT.getMinY(this.element);
@@ -1543,13 +1460,11 @@ class FloorItem3D extends Drawable_object {
         let translate = new Vector3(grid.x, h, grid.y);
         translate = translate.add(Vector3.from_array(heightTranslate));
         this.translate = translate.array;
-        //this.Y = this.translate[1]; //is this redundant?
-        //value
+
         if (this.category === "gold") {
             this.value = RND(this.minVal, this.maxVal);
         }
 
-        // matrices
         const randomRotation = Math.radians(RND(0, 359));
         let identity = glMatrix.mat4.create();
         glMatrix.mat4.rotate(identity, identity, randomRotation, [0, 1, 0]);
@@ -1594,7 +1509,6 @@ class Missile extends Drawable_object {
             this[prop] = type[prop];
         }
         this.texture = WebGL.createTexture(TEXTURE[this.texture]);
-        //this.start = `${this.element}_start`;
         this.element = ELEMENT[this.element];
         this.initBuffers();
         this.lightColor = colorStringToVector(this.lightColor);
@@ -1607,13 +1521,10 @@ class Missile extends Drawable_object {
         this.power = this.calcPower(magic);
         this.pos = this.pos.translate(this.dir, 1.2 * this.r);
 
-        //matrices
         const mScaleMatrix = glMatrix.mat4.create();
         glMatrix.mat4.fromScaling(mScaleMatrix, this.scale);
         this.mScaleMatrix = mScaleMatrix;
         this.mRotationMatrix = glMatrix.mat4.create();
-
-        //translate
         const mTranslationMatrix = glMatrix.mat4.create();
         glMatrix.mat4.fromTranslation(mTranslationMatrix, this.pos.array);
         this.mTranslationMatrix = mTranslationMatrix;
@@ -1629,7 +1540,6 @@ class Missile extends Drawable_object {
         this.pos = this.pos.translate(this.dir, length);
         this.distance = glMatrix.vec3.distance(this.IAM.hero.player.pos.array, this.pos.array);
 
-        //translate
         const mTranslationMatrix = glMatrix.mat4.create();
         glMatrix.mat4.fromTranslation(mTranslationMatrix, this.pos.array);
         this.mTranslationMatrix = mTranslationMatrix;
@@ -1909,7 +1819,6 @@ class ParticleExplosion extends ParticleEmmiter {
         this.gravity = new Float32Array([0, 0.0075, 0]);
         this.velocity = 0.03;
         this.rounded = 1;
-        //console.log("ParticleEmmiter", this);
     }
 }
 
@@ -1982,16 +1891,13 @@ class $3D_Entity {
         }
 
         this.fullHealth = this.health;
-        //unpack
         this.model = $3D_MODEL[this.model];
         if (typeof (this.scale) === "number") this.scale = new Float32Array([this.scale, this.scale, this.scale]);
 
-        //position from grid
         if (this.fly) {
             this.translate = Vector3.from_Grid(grid, this.fly);
         } else {
             const minY = this.model.meshes[0].primitives[0].positions.min[1] * this.scale[1];
-            //console.warn(`${this.name} minY`, minY);
             this.translate = Vector3.from_Grid(grid, minY);
         }
         this.boundingBox = new BoundingBox(this.model.meshes[0].primitives[0].positions.max, this.model.meshes[0].primitives[0].positions.min, this.scale);
@@ -2179,7 +2085,7 @@ class $3D_Entity {
             }
         }
     }
-    drawVector2D(map) {
+    drawVector2D() {
         ENGINE.VECTOR2D.drawBlock(this);
     }
     update(date) {
@@ -2285,29 +2191,21 @@ class $POV extends Drawable_object {
         const identity = glMatrix.mat4.create();
         const angle = -FP_Vector.toClass(UP).radAngleBetweenVectors(Vector3.to_FP_Vector(this.player.dir));
         glMatrix.mat4.rotate(identity, identity, angle, [0, 1, 0]);
-        //this.rotation = identity;
         this.mRotationMatrix = identity;
     }
     setPosition() {
-        //console.info("setting position, now:", this.now, "player.pos", this.player.pos, "dir", this.player.dir);
         let pos = this.player.pos.translate(this.player.dir, this.now);
-        //let pos = this.player.pos.translate(this.player.dir, 4);
-        //console.warn(".pos-translate now", pos);
         let dirRight = glMatrix.vec3.create();
         glMatrix.vec3.rotateY(dirRight, this.player.dir.array, glMatrix.vec3.create(), Math.PI / 2);
         pos = pos.translate(Vector3.from_array(dirRight), this.offset.x);
-        //console.warn("..pos-translate right", pos);
         pos = pos.translate(DIR_DOWN, this.offset.y);
-        //console.warn("...pos-final (down)", pos);
         const mTranslationMatrix = glMatrix.mat4.create();
         glMatrix.mat4.fromTranslation(mTranslationMatrix, pos.array);
-        //this.pos = mTranslationMatrix;
         this.mTranslationMatrix = mTranslationMatrix;
     }
     stabbed() {
         this.direction = -1;
         this.date = Date.now();
-        //eval hit
         const hit = this.hit();
         if (!hit) return;
         let damage = TURN.damage(this.IAM.hero, hit);
@@ -2334,15 +2232,12 @@ class $POV extends Drawable_object {
         const refPoint = this.player.pos.translate(this.player.dir, this.length);
         const refGrid = Vector3.toGrid(refPoint);
         const playerGrid = Vector3.toGrid(this.player.pos);
-        //console.log("grids", refGrid, playerGrid);
         const IA = this.IAM.IA.enemy;
         const map = this.IAM.map;
         const POOL = this.IAM.external.enemy.POOL;
         //console.assert(POOL.length = ENTITY3D.POOL.length, "FUCK!!!!!");
-        //console.log("POOL", POOL);
         const enemies = map[IA].unrollArray([refGrid, playerGrid]);
-        //console.info("enemies", enemies);
-        //if (enemies.size === 0) return null;
+
         if (enemies.size === 0) return this.miss();
         if (enemies.size > 1) {
             let distance = Infinity;
