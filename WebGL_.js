@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.24.3",
+    VERSION: "0.24.5",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -642,40 +642,46 @@ const WebGL = {
         //existing doors
         for (const door of GATE3D.POOL) {
             if (door) {
-     
-                //door.draw(gl);
-                
-                
+
+                door.drawObject(gl);
+
+                /*
+                gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, door.mScaleMatrix);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, door.mTranslationmatrix);
                 gl.bindTexture(gl.TEXTURE_2D, door.texture);
                 gl.drawElements(gl.TRIANGLES, door.indices, gl.UNSIGNED_SHORT, this.world.offset[door.start] * 2);
-                
-                
-                
+                */
 
-                //door.drawInteraction(gl, this.frameBuffer);
-                
-                
+
+
+
+                door.drawInteraction(gl, this.frameBuffer);
+
+                /*
                 // to texture 
                 let id_vec = this.idToVec(door.global_id);
                 gl.useProgram(this.pickProgram.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
                 gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
+                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uScale, false, door.mScaleMatrix);
+
+
                 gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, door.mTranslationmatrix);
                 gl.drawElements(gl.TRIANGLES, door.indices, gl.UNSIGNED_SHORT, this.world.offset[door.start] * 2);
 
                 //back to canvas
                 gl.useProgram(this.program.program);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                
-                
+                */
+
+
             }
         }
 
         //items
         for (const item of ITEM3D.POOL) {
             if (item.active) {
-                item.draw(gl);
+                item.drawObject(gl);
                 /*
                 gl.useProgram(this.program.program);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, item.mScaleMatrix);
@@ -709,6 +715,8 @@ const WebGL = {
         //this.enableAttributes(gl); // in development!!! - not helping
         for (const missile of MISSILE3D.POOL) {
             if (missile) {
+                missile.drawObject(gl);
+                /*
                 const mScaleMatrix = glMatrix.mat4.create();
                 glMatrix.mat4.fromScaling(mScaleMatrix, missile.scale);
                 const mTranslationmatrix = glMatrix.mat4.create();
@@ -718,6 +726,7 @@ const WebGL = {
                 gl.uniform1f(this.program.uniformLocations.uShine, missile.shine);
                 gl.bindTexture(gl.TEXTURE_2D, missile.texture);
                 gl.drawElements(gl.TRIANGLES, missile.indices, gl.UNSIGNED_SHORT, this.world.offset[missile.start] * 2);
+                */
             }
         }
 
@@ -1395,7 +1404,7 @@ class Drawable_object {
         gl.uniformMatrix4fv(uniforms.uTranslate, false, this.mTranslationmatrix);
         gl.uniformMatrix4fv(uniforms.uRotY, false, this.rotationY);
     }
-    draw(gl) {
+    drawObject(gl) {
         const program = WebGL.program.program;
         const attrib = WebGL.program.attribLocations;
         const uniforms = WebGL.program.uniformLocations;
@@ -1438,11 +1447,11 @@ class Gate extends Drawable_object {
         for (const prop in type) {
             this[prop] = type[prop];
         }
-        this.start = `${this.element}_start`;
         this.texture = TEXTURE[this.texture];
         this.element = ELEMENT[this.element];
         this.initBuffers();
         this.indices = this.element.indices.length;
+        this.shine = 100.0;
 
         //matrices
         this.mScaleMatrix = glMatrix.mat4.create();
@@ -1536,13 +1545,12 @@ class FloorItem3D extends Drawable_object {
         if (this.category === "gold") {
             this.value = RND(this.minVal, this.maxVal);
         }
-        //random rotation
-        let randomRotation = RND(0, 359);
-        randomRotation = Math.radians(randomRotation);
+
+        // matrices
+        const randomRotation = Math.radians(RND(0, 359));
         let identity = glMatrix.mat4.create();
         glMatrix.mat4.rotate(identity, identity, randomRotation, [0, 1, 0]);
         this.rotationY = identity;
-        // scale , translate matrices
         const mScaleMatrix = glMatrix.mat4.create();
         glMatrix.mat4.fromScaling(mScaleMatrix, this.scale);
         this.mScaleMatrix = mScaleMatrix;
@@ -1556,7 +1564,7 @@ class FloorItem3D extends Drawable_object {
     setTexture() {
         this.texture = WebGL.createTexture(this.texture);//
     }
-    interact(GA, inventory) {
+    interact() {
         this.active = false;
         return {
             category: this.category,
@@ -1566,6 +1574,71 @@ class FloorItem3D extends Drawable_object {
             which: this.which,
             pos: this.translate,
         };
+    }
+}
+
+class Missile extends Drawable_object {
+    constructor(position, direction, type, magic, casterId = 0) {
+        super();
+        this.active = true;
+        this.name = "Missile";
+        this.pos = position;
+        this.dir = direction;
+        this.magic = magic;
+        this.casterId = casterId;
+        this.distance = null;
+        for (const prop in type) {
+            this[prop] = type[prop];
+        }
+        this.texture = WebGL.createTexture(TEXTURE[this.texture]);
+        this.start = `${this.element}_start`;
+        this.element = ELEMENT[this.element];
+        this.initBuffers();
+        this.lightColor = colorStringToVector(this.lightColor);
+
+        if (typeof (this.scale) === "number") {
+            this.scale = new Float32Array([this.scale, this.scale, this.scale]);
+        }
+        this.r = Math.max(...this.scale) * 2;
+        this.indices = this.element.indices.length;
+        this.power = this.calcPower(magic);
+        this.pos = this.pos.translate(this.dir, 1.2 * this.r);
+
+        //matrices
+        const mScaleMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromScaling(mScaleMatrix, this.scale);
+        this.mScaleMatrix = mScaleMatrix;
+        this.rotationY = glMatrix.mat4.create();
+
+        //translate
+        const mTranslationmatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromTranslation(mTranslationmatrix, this.pos.array);
+        this.mTranslationmatrix = mTranslationmatrix;
+    }
+    static calcMana(magic) {
+        return (magic ** 1.15) | 0;
+    }
+    draw() {
+        ENGINE.VECTOR2D.drawPerspective(this, "#F00");
+    }
+    move(lapsedTime) {
+        let length = (lapsedTime / 1000) * this.moveSpeed;
+        this.pos = this.pos.translate(this.dir, length);
+        this.distance = glMatrix.vec3.distance(this.IAM.hero.player.pos.array, this.pos.array);
+
+        //translate
+        const mTranslationmatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromTranslation(mTranslationmatrix, this.pos.array);
+        this.mTranslationmatrix = mTranslationmatrix;
+    }
+    calcPower(magic) {
+        return 2 * magic + RND(-2, 2);
+    }
+    calcDamage(magic) {
+        let part1 = (magic / 2) | 0;
+        let part2 = magic - part1;
+        let damage = this.power - part1 - RND(0, part2);
+        return damage;
     }
 }
 

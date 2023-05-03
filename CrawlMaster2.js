@@ -48,7 +48,7 @@ const INI = {
     FINAL_LEVEL: 4,
 };
 const PRG = {
-    VERSION: "0.14.04",
+    VERSION: "0.14.05",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -362,53 +362,6 @@ class Scroll {
     }
 }
 
-class Missile {
-    constructor(position, direction, type, magic, casterId = 0) {
-        this.active = true;
-        this.name = "Missile";
-        this.pos = position;
-        this.dir = direction;
-        this.magic = magic;
-        this.casterId = casterId;
-        this.distance = null;
-        for (const prop in type) {
-            this[prop] = type[prop];
-        }
-        this.texture = WebGL.createTexture(TEXTURE[this.texture]);
-        this.start = `${this.element}_start`;
-        this.element = ELEMENT[this.element];
-        this.lightColor = colorStringToVector(this.lightColor);
-
-        if (typeof (this.scale) === "number") {
-            this.scale = new Float32Array([this.scale, this.scale, this.scale]);
-        }
-        this.r = Math.max(...this.scale) * 2;
-        this.indices = this.element.indices.length;
-        this.power = this.calcPower(magic);
-        this.pos = this.pos.translate(this.dir, 1.2 * this.r);
-    }
-    static calcMana(magic) {
-        return (magic ** 1.15) | 0;
-    }
-    draw() {
-        ENGINE.VECTOR2D.drawPerspective(this, "#F00");
-    }
-    move(lapsedTime) {
-        let length = (lapsedTime / 1000) * this.moveSpeed;
-        this.pos = this.pos.translate(this.dir, length);
-        this.distance = glMatrix.vec3.distance(HERO.player.pos.array, this.pos.array);
-    }
-    calcPower(magic) {
-        return 2 * magic + RND(-2, 2);
-    }
-    calcDamage(magic) {
-        let part1 = (magic / 2) | 0;
-        let part2 = magic - part1;
-        let damage = this.power - part1 - RND(0, part2);
-        return damage;
-    }
-}
-
 const HERO = {
     //startInit() { },
     //init() { },
@@ -697,23 +650,8 @@ const GAME = {
         WebGL.MOUSE.initialize("ROOM");
         WebGL.setContext('webgl'); //need this early, optimize redundand call later!!!
         SPAWN.spawn(level);
-        //problems: "FLASK", "SWORD","SHIELD", "PENTAGRAM","TREASURE_CHEST","COINS","STING",
-        /*const object_map = [
-            "BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM", "SWORD", "HEART", "SHIELD", "PENTAGRAM", "CHEST",
-            "TREASURE_CHEST", "COINS", "STING"
-        ];*/
-        /*const object_map = [
-            "BALL", "SCROLL", "FLASK",
-        ];*/
-        /*const object_map = [
-            "BALL", "SCROLL", "KEY", "CUBE_SM",
-            "CUBE_CENTERED", "BAR", "HEART", "CHEST",
-       
-        ];*/
-        const object_map = [
-            "BALL", "CUBE_SM",
-            
-        ];
+
+        const object_map = []; // delete and optimize world building!!!!!!
         MAP[level].world = WORLD.build(MAP[level].map, object_map);
         console.log("world", MAP[level].world);
 
@@ -738,64 +676,6 @@ const GAME = {
         //reset births!
         ENTITY3D.resetTime();
     },
-
-
-    /*
-    initLevel(level) {
-        console.log("...level", level, 'initialization');
-        MAP[level].map = FREE_MAP.import(JSON.parse(MAP[level].data));
-
-       
-        console.warn("MAP[level].map", MAP[level].map);
-
-        MAP[level].pw = MAP[level].map.width * ENGINE.INI.GRIDPIX;
-        MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
-        MAP[level].map.GA.massSet(MAPDICT.FOG);
-
-        //HERO.pos from entrance
-        //let start_dir = FaceToDirection(MAP[GAME.level].entrance.face);
-        let start_dir = DOWN;
-        //let start_grid = Grid.toClass(MAP[GAME.level].entrance.grid).add(start_dir);
-        //let start_grid = Grid.toClass(MAP[GAME.level].entrance.grid).add(RIGHT);
-        let start_grid = new Grid(1,1);
-        start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
-        //HERO.player = new $3D_player(start_grid, Vector3.from_2D_dir(start_dir), MAP[level].map);
-        HERO.player = new $3D_player(start_grid, Vector3.from_2D_dir(UP), MAP[level].map);
-
-        AI.immobileWander = false;
-        AI.initialize(HERO.player, "3D");
-
-        WebGL.init_required_IAM(MAP[level].map, HERO);
-        WebGL.MOUSE.initialize("ROOM");
-        SPAWN.spawn(level); //
-        const object_map = [
-            "BALL", "SCROLL", "FLASK", "KEY", "BAR", "CUBE_CENTERED", "CUBE_SM", "SWORD", "HEART", "SHIELD", "PENTAGRAM", "CHEST",
-            "TREASURE_CHEST", "COINS", "STING"
-        ];
-        MAP[level].world = WORLD.build(MAP[level].map, object_map);
-        console.log("world", MAP[level].world);
-
-        const textureData = {
-            wall: TEXTURE[MAP[level].wall],
-            floor: TEXTURE[MAP[level].floor],
-            ceil: TEXTURE[MAP[level].ceil]
-        };
-
-        WebGL.updateShaders();
-        WebGL.init('webgl', MAP[level].world, textureData, HERO.player);
-        MINIMAP.init(MAP[level].map, INI.MIMIMAP_WIDTH, INI.MIMIMAP_HEIGHT, HERO.player);
-        //set POV
-        INTERFACE3D.associateIA("enemy", "enemyIA");
-        INTERFACE3D.associateExternal_IAM("enemy", ENTITY3D);
-        INTERFACE3D.associateHero(HERO);
-        INTERFACE3D.add(new $POV(COMMON_ITEM_TYPE.POV, HERO.player));
-        window.SWORD = INTERFACE3D.POOL[0];
-        console.log("SWORD", SWORD);
-
-        //reset births!
-        ENTITY3D.resetTime();
-    },
-    */
     continueLevel(level) {
         console.log("game continues on level", level);
         GAME.levelExecute();

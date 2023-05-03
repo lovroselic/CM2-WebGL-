@@ -186,7 +186,7 @@ const SPAWN = {
             const hi = ((0.33 * room.squareSize) >>> 0) + 1;
             let N = RND(lo, hi);
             let wallGrids = map.roomWallGrids(room);
-            console.log("room", room, lo, hi, N);
+            //console.log("room", room, lo, hi, N);
             while (N > 0 && wallGrids.length > 0) {
                 const slot = wallGrids.removeRandom();
                 map.GA.reserve(slot.grid);
@@ -293,7 +293,7 @@ const SPAWN = {
             const hi = Math.max(((room.squareSize / 10) >>> 0), 2);
             let N = RND(lo, hi);
             let wallGrids = map.roomWallGrids(room);
-            console.log("room", room, lo, hi, N);
+            //console.log("room", room, lo, hi, N);
             while (N > 0 && wallGrids.length > 0) {
                 const slot = wallGrids.removeRandom();
                 map.GA.reserve(slot.grid);
@@ -362,12 +362,7 @@ const SPAWN = {
         const items = [COMMON_ITEM_TYPE.GoldCube, COMMON_ITEM_TYPE.GoldBar, COMMON_ITEM_TYPE.GoldKey, COMMON_ITEM_TYPE.RedPotion, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Sword,
         COMMON_ITEM_TYPE.Heart, COMMON_ITEM_TYPE.Shield, COMMON_ITEM_TYPE.Mana, COMMON_ITEM_TYPE.Magic, COMMON_ITEM_TYPE.Chest, COMMON_ITEM_TYPE.TreasureChest,
         COMMON_ITEM_TYPE.Coins, COMMON_ITEM_TYPE.Sting];
-        //const items = [COMMON_ITEM_TYPE.RedPotion, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Mana];
-        /*const items = [COMMON_ITEM_TYPE.GoldKey, COMMON_ITEM_TYPE.SilverKey, COMMON_ITEM_TYPE.RedKey, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Mana, COMMON_ITEM_TYPE.GoldCube,
-        COMMON_ITEM_TYPE.SilverBar, COMMON_ITEM_TYPE.Heart, COMMON_ITEM_TYPE.Chest,
-        COMMON_ITEM_TYPE.Shield,
-        ];*/
-        console.log("debug", items.length);
+    
         const start = map.findRoom("start");
         for (const item of items) {
             const grid = map.findSpace(start.area);
@@ -923,7 +918,6 @@ const COMMON_ITEM_TYPE = {
         element: "STING",
         scale: 1 / 2 ** 1,
         texture: "Sting",
-        //texture: "Magic",
         shine: 128.0 * 0.99,
     }
 };
