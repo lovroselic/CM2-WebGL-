@@ -647,7 +647,7 @@ const WebGL = {
 
                 /*
                 gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, door.mScaleMatrix);
-                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, door.mTranslationmatrix);
+                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, door.mTranslationMatrix);
                 gl.bindTexture(gl.TEXTURE_2D, door.texture);
                 gl.drawElements(gl.TRIANGLES, door.indices, gl.UNSIGNED_SHORT, this.world.offset[door.start] * 2);
                 */
@@ -666,7 +666,7 @@ const WebGL = {
                 gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uScale, false, door.mScaleMatrix);
 
 
-                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, door.mTranslationmatrix);
+                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, door.mTranslationMatrix);
                 gl.drawElements(gl.TRIANGLES, door.indices, gl.UNSIGNED_SHORT, this.world.offset[door.start] * 2);
 
                 //back to canvas
@@ -685,7 +685,7 @@ const WebGL = {
                 /*
                 gl.useProgram(this.program.program);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, item.mScaleMatrix);
-                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, item.mTranslationmatrix);
+                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, item.mTranslationMatrix);
                 gl.uniform1f(this.program.uniformLocations.uShine, item.shine);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uRotY, false, item.rotationY);
                 gl.bindTexture(gl.TEXTURE_2D, item.texture);
@@ -700,7 +700,7 @@ const WebGL = {
                 gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
                 gl.uniform4fv(this.pickProgram.uniformLocations.id, new Float32Array(id_vec));
                 gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uScale, false, item.mScaleMatrix);
-                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, item.mTranslationmatrix);
+                gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uTranslate, false, item.mTranslationMatrix);
                 gl.uniformMatrix4fv(this.pickProgram.uniformLocations.uRotY, false, item.rotationY);
                 gl.drawElements(gl.TRIANGLES, item.indices, gl.UNSIGNED_SHORT, this.world.offset[item.start] * 2);
 
@@ -719,10 +719,10 @@ const WebGL = {
                 /*
                 const mScaleMatrix = glMatrix.mat4.create();
                 glMatrix.mat4.fromScaling(mScaleMatrix, missile.scale);
-                const mTranslationmatrix = glMatrix.mat4.create();
-                glMatrix.mat4.fromTranslation(mTranslationmatrix, missile.pos.array);
+                const mTranslationMatrix = glMatrix.mat4.create();
+                glMatrix.mat4.fromTranslation(mTranslationMatrix, missile.pos.array);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, mScaleMatrix);
-                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, mTranslationmatrix);
+                gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, mTranslationMatrix);
                 gl.uniform1f(this.program.uniformLocations.uShine, missile.shine);
                 gl.bindTexture(gl.TEXTURE_2D, missile.texture);
                 gl.drawElements(gl.TRIANGLES, missile.indices, gl.UNSIGNED_SHORT, this.world.offset[missile.start] * 2);
@@ -733,12 +733,15 @@ const WebGL = {
         //pov 
         for (const pov of INTERFACE3D.POOL) {
             if (pov) {
+                pov.drawObject(gl);
+                /*
                 gl.uniform1f(this.program.uniformLocations.uShine, pov.shine);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, pov.scale);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, pov.pos);
                 gl.uniformMatrix4fv(this.program.uniformLocations.uRotY, false, pov.rotation);
                 gl.bindTexture(gl.TEXTURE_2D, pov.texture);
                 gl.drawElements(gl.TRIANGLES, pov.indices, gl.UNSIGNED_SHORT, this.world.offset[pov.start] * 2);
+                */
             }
         }
 
@@ -1401,8 +1404,8 @@ class Drawable_object {
     }
     setUniforms(gl, uniforms) {
         gl.uniformMatrix4fv(uniforms.uScale, false, this.mScaleMatrix);
-        gl.uniformMatrix4fv(uniforms.uTranslate, false, this.mTranslationmatrix);
-        gl.uniformMatrix4fv(uniforms.uRotY, false, this.rotationY);
+        gl.uniformMatrix4fv(uniforms.uTranslate, false, this.mTranslationMatrix);
+        gl.uniformMatrix4fv(uniforms.uRotY, false, this.mRotationMatrix);
     }
     drawObject(gl) {
         const program = WebGL.program.program;
@@ -1455,10 +1458,10 @@ class Gate extends Drawable_object {
 
         //matrices
         this.mScaleMatrix = glMatrix.mat4.create();
-        this.rotationY = glMatrix.mat4.create();
-        const mTranslationmatrix = glMatrix.mat4.create();
-        glMatrix.mat4.fromTranslation(mTranslationmatrix, this.pos.array);
-        this.mTranslationmatrix = mTranslationmatrix;
+        this.mRotationMatrix = glMatrix.mat4.create();
+        const mTranslationMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromTranslation(mTranslationMatrix, this.pos.array);
+        this.mTranslationMatrix = mTranslationMatrix;
     }
     lift() {
         let gate = new LiftingGate(this);
@@ -1498,9 +1501,9 @@ class LiftingGate {
     }
     lift(dY) {
         this.gate.pos = this.gate.pos.add(new Vector3(0, dY, 0));
-        const mTranslationmatrix = glMatrix.mat4.create();
-        glMatrix.mat4.fromTranslation(mTranslationmatrix, this.gate.pos.array);
-        this.gate.mTranslationmatrix = mTranslationmatrix;
+        const mTranslationMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromTranslation(mTranslationMatrix, this.gate.pos.array);
+        this.gate.mTranslationMatrix = mTranslationMatrix;
     }
     done() {
         return this.gate.pos.y > 1.0;
@@ -1550,13 +1553,13 @@ class FloorItem3D extends Drawable_object {
         const randomRotation = Math.radians(RND(0, 359));
         let identity = glMatrix.mat4.create();
         glMatrix.mat4.rotate(identity, identity, randomRotation, [0, 1, 0]);
-        this.rotationY = identity;
+        this.mRotationMatrix = identity;
         const mScaleMatrix = glMatrix.mat4.create();
         glMatrix.mat4.fromScaling(mScaleMatrix, this.scale);
         this.mScaleMatrix = mScaleMatrix;
-        const mTranslationmatrix = glMatrix.mat4.create();
-        glMatrix.mat4.fromTranslation(mTranslationmatrix, this.translate);
-        this.mTranslationmatrix = mTranslationmatrix;
+        const mTranslationMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromTranslation(mTranslationMatrix, this.translate);
+        this.mTranslationMatrix = mTranslationMatrix;
     }
     setValue(value) {
         this.value = value;
@@ -1591,7 +1594,7 @@ class Missile extends Drawable_object {
             this[prop] = type[prop];
         }
         this.texture = WebGL.createTexture(TEXTURE[this.texture]);
-        this.start = `${this.element}_start`;
+        //this.start = `${this.element}_start`;
         this.element = ELEMENT[this.element];
         this.initBuffers();
         this.lightColor = colorStringToVector(this.lightColor);
@@ -1608,12 +1611,12 @@ class Missile extends Drawable_object {
         const mScaleMatrix = glMatrix.mat4.create();
         glMatrix.mat4.fromScaling(mScaleMatrix, this.scale);
         this.mScaleMatrix = mScaleMatrix;
-        this.rotationY = glMatrix.mat4.create();
+        this.mRotationMatrix = glMatrix.mat4.create();
 
         //translate
-        const mTranslationmatrix = glMatrix.mat4.create();
-        glMatrix.mat4.fromTranslation(mTranslationmatrix, this.pos.array);
-        this.mTranslationmatrix = mTranslationmatrix;
+        const mTranslationMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromTranslation(mTranslationMatrix, this.pos.array);
+        this.mTranslationMatrix = mTranslationMatrix;
     }
     static calcMana(magic) {
         return (magic ** 1.15) | 0;
@@ -1627,9 +1630,9 @@ class Missile extends Drawable_object {
         this.distance = glMatrix.vec3.distance(this.IAM.hero.player.pos.array, this.pos.array);
 
         //translate
-        const mTranslationmatrix = glMatrix.mat4.create();
-        glMatrix.mat4.fromTranslation(mTranslationmatrix, this.pos.array);
-        this.mTranslationmatrix = mTranslationmatrix;
+        const mTranslationMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromTranslation(mTranslationMatrix, this.pos.array);
+        this.mTranslationMatrix = mTranslationMatrix;
     }
     calcPower(magic) {
         return 2 * magic + RND(-2, 2);
@@ -2230,8 +2233,9 @@ class $3D_Entity {
     }
 }
 
-class $POV {
+class $POV extends Drawable_object {
     constructor(type, player, offset, maxZ = 0.45) {
+        super();
         offset = offset || [-0.1, 0.20, -0.02];
         maxZ = maxZ || 0.45;
         for (const prop in type) {
@@ -2239,6 +2243,7 @@ class $POV {
         }
         this.start = `${this.element}_start`;
         this.element = ELEMENT[this.element];
+        this.initBuffers();
         this.texture = TEXTURE[this.texture];
         this.texture = WebGL.createTexture(this.texture);
         if (typeof (this.scale) === "number") {
@@ -2254,7 +2259,7 @@ class $POV {
         //scale
         const mScaleMatrix = glMatrix.mat4.create();
         glMatrix.mat4.fromScaling(mScaleMatrix, this.scale);
-        this.scale = mScaleMatrix;
+        this.mScaleMatrix = mScaleMatrix;
 
         //sword management
         this.time = 500;
@@ -2280,7 +2285,8 @@ class $POV {
         const identity = glMatrix.mat4.create();
         const angle = -FP_Vector.toClass(UP).radAngleBetweenVectors(Vector3.to_FP_Vector(this.player.dir));
         glMatrix.mat4.rotate(identity, identity, angle, [0, 1, 0]);
-        this.rotation = identity;
+        //this.rotation = identity;
+        this.mRotationMatrix = identity;
     }
     setPosition() {
         //console.info("setting position, now:", this.now, "player.pos", this.player.pos, "dir", this.player.dir);
@@ -2293,9 +2299,10 @@ class $POV {
         //console.warn("..pos-translate right", pos);
         pos = pos.translate(DIR_DOWN, this.offset.y);
         //console.warn("...pos-final (down)", pos);
-        const mTranslationmatrix = glMatrix.mat4.create();
-        glMatrix.mat4.fromTranslation(mTranslationmatrix, pos.array);
-        this.pos = mTranslationmatrix;
+        const mTranslationMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.fromTranslation(mTranslationMatrix, pos.array);
+        //this.pos = mTranslationMatrix;
+        this.mTranslationMatrix = mTranslationMatrix;
     }
     stabbed() {
         this.direction = -1;
