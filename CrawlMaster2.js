@@ -48,7 +48,7 @@ const INI = {
     FINAL_LEVEL: 4,
 };
 const PRG = {
-    VERSION: "0.15.00",
+    VERSION: "0.15.01",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -725,6 +725,7 @@ const GAME = {
                 TITLE.keys();
                 AUDIO.Keys.play();
                 display(interaction.inventorySprite);
+                delete MAP[GAME.level].map.keys[interaction.color];
                 break;
             case 'potion':
                 HERO.inventory.potion[interaction.color]++;

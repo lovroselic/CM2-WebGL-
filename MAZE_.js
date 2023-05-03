@@ -28,25 +28,26 @@ class Room {
         this.door = [];
         this.reservedCount = 0;
     }
-    randomGrid() {
+    randomGrid(GA) {
         let grid;
         do {
             grid = new Grid(
                 RND(this.area.x, this.area.x + this.area.w - 1),
                 RND(this.area.y, this.area.y + this.area.h - 1)
             );
-        } while (this.GA.isReserved(grid));
+        } while (GA.isReserved(grid));
         return grid;
     }
-    random_Uninhabited_Grid(obstacles = []) {
+
+    random_Uninhabited_Grid(GA, obstacles = []) {
         let grid;
         do {
             grid = new Grid(
                 RND(this.area.x, this.area.x + this.area.w - 1),
                 RND(this.area.y, this.area.y + this.area.h - 1)
             );
-        } while (this.GA.isStartPosition(grid) || grid.isInAt(obstacles) !== -1);
-        this.GA.setStartPosition(grid);
+        } while (GA.isStartPosition(grid) || grid.isInAt(obstacles) !== -1);
+        GA.setStartPosition(grid);
         return grid;
     }
     hasSpace() {
@@ -530,7 +531,7 @@ class MasterDungeon {
         do {
             room = this.rooms.chooseRandom();
         } while (!room.hasSpace());
-        let grid = room.randomGrid();
+        let grid = room.randomGrid(this.GA);
         this.GA.reserve(grid);
         return grid;
     }
@@ -1036,8 +1037,23 @@ class MasterDungeon {
         }
         return this.reservePool(N, pool);
     }
-    poolOfCorridorGrids(N) {
+    getCorridorGrids() {
         let pool = [];
+        for (let x = this.minX; x <= this.maxX; x++) {
+            for (let y = this.minY; y <= this.maxY; y++) {
+                let grid = new Grid(x, y);
+                if (this.GA.notReserved(grid) && !this.GA.isRoom(grid) && this.GA.notWall(grid)) {
+                    pool.push(grid);
+                }
+            }
+        }
+        return pool;
+    }
+    poolOfUnreservedCorridorGrids(N) {
+        return this.getCorridorGrids().removeRandomPool(N);
+    }
+    poolOfCorridorGrids(N) {
+        /*let pool = [];
         for (let x = this.minX; x <= this.maxX; x++) {
             for (let y = this.minY; y <= this.maxY; y++) {
                 let grid = new Grid(x, y);
@@ -1049,8 +1065,9 @@ class MasterDungeon {
                     pool.push(grid);
                 }
             }
-        }
-        return this.reservePool(N, pool);
+        }*/
+        //let pool = this.getCorridorGrids();
+        return this.reservePool(N, this.getCorridorGrids());
     }
     poolOfGrids(N) {
         let pool = [];

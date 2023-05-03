@@ -88,6 +88,8 @@ const DECAL_CRESTS = ["LS", "Skull4", "Skull3", "Skull2", "Skull1", "Crack4", "C
 const TOP_CRESTS = ["Grate1_128"];
 const BOTTOM_CRESTS = ["Drain2_96", "Drain64", "Grate1_128", "RoundGrille96"];
 //const DECAL_CRESTS = [];
+const DECAL_SOURCES = { picture: DECAL_PAINTINGS, crest: DECAL_CRESTS };
+const TOP_BOTTOM_SOURCES = { TOP: TOP_CRESTS, BOTTOM: BOTTOM_CRESTS };
 console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
 
 console.log("%cMAP for CrawlMaster2 loaded.", "color: #888");
@@ -159,12 +161,12 @@ const SPAWN = {
         this.decals(level);
         this.shrines(level);
         this.stairs(level);
-
         this.gates(level);
-        this.debug(level);
-        //this.items(level);
+        this.items(level);
+
+        //this.debug(level);
+    
         //this.monsters(level);
-        //console.log("ENTITY3D", ENTITY3D);
     },
     shrines(level) {
         const GA = MAP[level].map.GA;
@@ -177,7 +179,6 @@ const SPAWN = {
         }
     },
     decals(level) {
-        console.log("spawning decals", level);
         const map = MAP[level].map;
 
         // room wall decals
@@ -186,7 +187,6 @@ const SPAWN = {
             const hi = ((0.33 * room.squareSize) >>> 0) + 1;
             let N = RND(lo, hi);
             let wallGrids = map.roomWallGrids(room);
-            console.log("room", room, lo, hi, N);
             while (N > 0 && wallGrids.length > 0) {
                 const slot = wallGrids.removeRandom();
                 map.GA.reserve(slot.grid);
@@ -194,66 +194,35 @@ const SPAWN = {
                 DECAL3D.add(new StaticDecal(slot.grid, DirectionToFace(slot.dir), SPRITE[picture], "picture", picture));
                 N--;
             }
+
+            //bottom
+            const topGrid = map.findMiddleSpaceUnreserved(room.area);
+            const topCrest = TOP_CRESTS.chooseRandom();
+            DECAL3D.add(new StaticDecal(topGrid, 'TOP', SPRITE[topCrest], "crest", topCrest));
+
+            //top
+            const bottomGrid = map.findMiddleSpaceUnreserved(room.area);
+            const bottomCrest = BOTTOM_CRESTS.chooseRandom();
+            DECAL3D.add(new StaticDecal(bottomGrid, 'BOTTOM', SPRITE[bottomCrest], "crest", bottomCrest));
         }
 
-        /*
-        const decalsLocations = [
-            { grid: new Grid(2, 2), face: 'FRONT' },
-            { grid: new Grid(5, 2), face: 'FRONT' },
-            { grid: new Grid(3, 5), face: 'BACK' },
-            { grid: new Grid(0, 3), face: 'RIGHT' },
-            { grid: new Grid(7, 3), face: 'LEFT' },
-            { grid: new Grid(2, 7), face: 'BACK' },
-            { grid: new Grid(3, 0), face: 'FRONT' },
-            { grid: new Grid(3, 15), face: 'BACK' },
-            { grid: new Grid(3, 7), face: 'FRONT' },
-            { grid: new Grid(12, 0), face: 'FRONT' },
-            { grid: new Grid(7, 4), face: 'LEFT' },
-            { grid: new Grid(7, 4), face: 'RIGHT' },
-            { grid: new Grid(13, 3), face: 'LEFT' },
-        ];
-
-        for (let D of decalsLocations) {
-            const picture = DECAL_PAINTINGS.chooseRandom();
-            console.log("picture", picture);
-            DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[picture], "picture", picture));
+        //corridor decals
+        const N = (map.width * map.height * parseFloat(map.density) * 0.13) | 0;
+        const corrDecalGrids = map.poolOfCorridorDecalGrids(N);
+        for (let grid of corrDecalGrids) {
+            const type = weightedRnd({ picture: 10, crest: 20 });
+            const source = DECAL_SOURCES[type].chooseRandom();
+            DECAL3D.add(new StaticDecal(grid.grid, DirectionToFace(grid.dir), SPRITE[source], type, source));
         }
 
-        const crestLocations = [
-            { grid: new Grid(0, 5), face: 'RIGHT' },
-            { grid: new Grid(10, 2), face: 'FRONT' },
-            { grid: new Grid(13, 3), face: 'FRONT' },
-            { grid: new Grid(7, 10), face: 'LEFT' },
-            { grid: new Grid(0, 11), face: 'RIGHT' },
-
-        ];
-        for (let D of crestLocations) {
-            const crest = DECAL_CRESTS.chooseRandom();
-            console.log("crest", crest);
-            DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[crest], "crest", crest));
+        //top, bottom corridor decals
+        const TB = (map.width * map.height * parseFloat(map.density) * 0.05) | 0;
+        const corrGrids = map.poolOfUnreservedCorridorGrids(TB);
+        for (let grid of corrGrids) {
+            const type = weightedRnd({TOP: 10, BOTTOM:5});
+            const source = TOP_BOTTOM_SOURCES[type].chooseRandom();
+            DECAL3D.add(new StaticDecal(grid, type, SPRITE[source], "crest", source));
         }
-
-        const bottomCrestLocations = [
-            //TOP
-            { grid: new Grid(2, 5), face: 'TOP' },
-            { grid: new Grid(12, 4), face: 'TOP' }
-        ];
-        for (let D of bottomCrestLocations) {
-            const crest = BOTTOM_CRESTS.chooseRandom();
-            console.log("crest", crest);
-            DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[crest], "crest", crest));
-        }
-
-        const topCrestLocations = [
-            //BOTTOM
-            { grid: new Grid(2, 5), face: 'BOTTOM' },
-        ];
-        for (let D of topCrestLocations) {
-            const crest = TOP_CRESTS.chooseRandom();
-            console.log("crest", crest);
-            DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[crest], "crest", crest));
-        }
-        */
     },
     stairs(level) {
         console.info("spawning stairs", level);
@@ -301,7 +270,14 @@ const SPAWN = {
                 LIGHTS3D.add(new LightDecal(slot.grid, DirectionToFace(slot.dir), SPRITE[light.sprite], "light", light.sprite, light.color));
                 N--;
             }
+        }
 
+        //corridor lights
+        const N = (map.width * map.height * parseFloat(map.density) * 0.01) | 0;
+        const corrDecalGrids = map.poolOfCorridorDecalGrids(N);
+        for (let grid of corrDecalGrids){
+            const light = LIGHT_DECALS.chooseRandom();
+            LIGHTS3D.add(new LightDecal(grid.grid, DirectionToFace(grid.dir), SPRITE[light.sprite], "light", light.sprite, light.color));
         }
     },
     gates(level) {
@@ -341,7 +317,7 @@ const SPAWN = {
         const items = [COMMON_ITEM_TYPE.GoldCube, COMMON_ITEM_TYPE.GoldBar, COMMON_ITEM_TYPE.GoldKey, COMMON_ITEM_TYPE.RedPotion, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Sword,
         COMMON_ITEM_TYPE.Heart, COMMON_ITEM_TYPE.Shield, COMMON_ITEM_TYPE.Mana, COMMON_ITEM_TYPE.Magic, COMMON_ITEM_TYPE.Chest, COMMON_ITEM_TYPE.TreasureChest,
         COMMON_ITEM_TYPE.Coins, COMMON_ITEM_TYPE.Sting];
-    
+
         const start = map.findRoom("start");
         for (const item of items) {
             const grid = map.findSpace(start.area);
@@ -360,17 +336,15 @@ const SPAWN = {
     },
     items(level) {
         console.log("spawning items");
+
+        /*
         const itemLocations = [
             { grid: new FP_Grid(1.5, 8.5), type: COMMON_ITEM_TYPE.GoldCube },
             { grid: new FP_Grid(4.5, 2.5), type: COMMON_ITEM_TYPE.GoldBar },
             { grid: new FP_Grid(1.5, 9.5), type: COMMON_ITEM_TYPE.SilverBar },
             { grid: new FP_Grid(1.5, 2.5), type: COMMON_ITEM_TYPE.GoldBar },
 
-            /*
-            { grid: new FP_Grid(12.5, 2.5), type: COMMON_ITEM_TYPE.GoldKey },
-            { grid: new FP_Grid(13.5, 2.5), type: COMMON_ITEM_TYPE.SilverKey },
-            { grid: new FP_Grid(14.5, 2.5), type: COMMON_ITEM_TYPE.RedKey },
-            */
+    
 
             { grid: new FP_Grid(3.5, 2.5), type: COMMON_ITEM_TYPE.RedPotion },
             { grid: new FP_Grid(3.8, 2.0), type: COMMON_ITEM_TYPE.BluePotion },
@@ -409,6 +383,7 @@ const SPAWN = {
         for (let item of itemLocations) {
             ITEM3D.add(new FloorItem3D(item.grid, item.type));
         }
+        */
     },
     monsters(level) {
         console.log("spawning monsters...");
