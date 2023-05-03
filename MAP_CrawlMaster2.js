@@ -79,15 +79,27 @@ console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 
 const LIGHT_COLORS = {
     standard: new Float32Array([0.95, 0.95, 0.85]),
+    fire: new Float32Array([0.94, 0.50, 0.07]),
+    red: new Float32Array([0.95, 0.70, 0.70]),
+    yellowgreen: new Float32Array([0.90, 0.90, 0.50]),
 };
 
-const LIGHT_DECALS = [{ sprite: "WallLamp", color: LIGHT_COLORS.standard }];
+const LIGHT_DECALS = [
+    { sprite: "WallLamp", color: LIGHT_COLORS.standard },
+    { sprite: "WallLamp2", color: LIGHT_COLORS.standard },
+    { sprite: "WallLamp3", color: LIGHT_COLORS.red },
+    { sprite: "WallTorch", color: LIGHT_COLORS.fire },
+    { sprite: "Lamp4", color: LIGHT_COLORS.yellowgreen }
+];
 
 const DECAL_CRESTS = ["LS", "Skull4", "Skull3", "Skull2", "Skull1", "Crack4", "Crack3", "Skeleton11", "Skeleton12", "Crack20", "Crack21", "DancingSkeletons2",
-    "PrayingSkeleton10", "SittingSkeleton2", "Skeleton21", "Skull10", "Skull11"];
-const TOP_CRESTS = ["Grate1_128"];
-const BOTTOM_CRESTS = ["Drain2_96", "Drain64", "Grate1_128", "RoundGrille96"];
-//const DECAL_CRESTS = [];
+    "PrayingSkeleton10", "SittingSkeleton2", "Skeleton21", "Skull10", "Skull11", "WOWc1", "WOWc2", "Reaper"];
+const BOTTOM_CRESTS = ["Grate1_128"];
+const TOP_CRESTS = ["Drain2_96", "Drain64", "Grate1_128", "RoundGrille96", "FlatPond"];
+
+//const BOTTOM_CRESTS = ["FlatPond"];
+//const DECAL_CRESTS = ["Reaper"];
+
 const DECAL_SOURCES = { picture: DECAL_PAINTINGS, crest: DECAL_CRESTS };
 const TOP_BOTTOM_SOURCES = { TOP: TOP_CRESTS, BOTTOM: BOTTOM_CRESTS };
 console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
@@ -165,7 +177,7 @@ const SPAWN = {
         this.items(level);
 
         //this.debug(level);
-    
+
         //this.monsters(level);
     },
     shrines(level) {
@@ -219,13 +231,13 @@ const SPAWN = {
         const TB = (map.width * map.height * parseFloat(map.density) * 0.05) | 0;
         const corrGrids = map.poolOfUnreservedCorridorGrids(TB);
         for (let grid of corrGrids) {
-            const type = weightedRnd({TOP: 10, BOTTOM:5});
+            const type = weightedRnd({ TOP: 10, BOTTOM: 5 });
             const source = TOP_BOTTOM_SOURCES[type].chooseRandom();
             DECAL3D.add(new StaticDecal(grid, type, SPRITE[source], "crest", source));
         }
     },
     stairs(level) {
-        console.info("spawning stairs", level);
+        //console.info("spawning stairs", level);
         const GA = MAP[level].map.GA;
         GAME.upperLimit = -1; //DEBUG; DESIGN
         const entranceLocation = MAP[level].map.entrance;
@@ -255,7 +267,7 @@ const SPAWN = {
     },
     lights(level) {
         const map = MAP[level].map;
-        console.log("spawning lights", level);
+        //console.log("spawning lights", level);
 
         // room wall lights
         for (const room of map.rooms) {
@@ -275,13 +287,13 @@ const SPAWN = {
         //corridor lights
         const N = (map.width * map.height * parseFloat(map.density) * 0.01) | 0;
         const corrDecalGrids = map.poolOfCorridorDecalGrids(N);
-        for (let grid of corrDecalGrids){
+        for (let grid of corrDecalGrids) {
             const light = LIGHT_DECALS.chooseRandom();
             LIGHTS3D.add(new LightDecal(grid.grid, DirectionToFace(grid.dir), SPRITE[light.sprite], "light", light.sprite, light.color));
         }
     },
     gates(level) {
-        console.log("spawning gates and keys");
+        //console.log("spawning gates and keys");
         const GA = MAP[level].map.GA;
         const map = MAP[level].map;
 
@@ -289,10 +301,10 @@ const SPAWN = {
         for (const color in map.keys) {
             const grid = Grid.toCenter(map.keys[color]);
             const key = COMMON_ITEM_TYPE[`${color}Key`];
-            console.info(grid, key);
+            //console.info(grid, key);
             ITEM3D.add(new FloorItem3D(grid, key));
         }
-        console.log("ITEM3D", ITEM3D);
+        //console.log("ITEM3D", ITEM3D);
 
         //locked
         for (const color in map.lockedRooms) {
@@ -334,8 +346,12 @@ const SPAWN = {
         const grid = map.findSpace(start.area);
         ENTITY3D.add(new $3D_Entity(Grid.toCenter(grid), MONSTER_TYPE.GhostFace, UP));
     },
+    containers(level) {
+        console.log("spawning chests");
+    },
     items(level) {
         console.log("spawning items");
+        this.containers(level);
 
         /*
         const itemLocations = [

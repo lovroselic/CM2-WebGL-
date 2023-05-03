@@ -128,7 +128,14 @@ LoadModels = ['GhostFace.gltf', 'Bat.gltf', 'Hulk.gltf', 'Viking.gltf', 'Astro.g
  */
 
 LoadSprites = [
+    //lights
     { srcName: "WallLamp256.png", name: "WallLamp" },
+    { srcName: "WallLamp2.png", name: "WallLamp2" },
+    { srcName: "WallLamp3.png", name: "WallLamp3" },
+    { srcName: "WallTorch.png", name: "WallTorch" },
+    { srcName: "Lamp4.png", name: "Lamp4" },
+
+    //compas
     { srcName: "CompassRose.png", name: "CompassRose" },
 
     //shrine
@@ -185,6 +192,8 @@ LoadSprites = [
     { srcName: "Drain64.png", name: "Drain64" },
     { srcName: "Grate1_128.png", name: "Grate1_128" },
     { srcName: "RoundGrille96.png", name: "RoundGrille96" },
+    { srcName: "FlatPond.png", name: "FlatPond" },
+    //FlatPond.png
 
     //decal-other
     { srcName: "LS.png", name: "LS" },
@@ -196,7 +205,6 @@ LoadSprites = [
     { srcName: "Crack3.png", name: "Crack3" },
     { srcName: "Skeleton11.png", name: "Skeleton11" },
     { srcName: "Skeleton12.png", name: "Skeleton12" },
-
     { srcName: "Crack20.png", name: "Crack20" },
     { srcName: "Crack21.png", name: "Crack21" },
     { srcName: "DancingSkeletons2.png", name: "DancingSkeletons2" },
@@ -205,6 +213,10 @@ LoadSprites = [
     { srcName: "Skeleton21.png", name: "Skeleton21" },
     { srcName: "Skull10.png", name: "Skull10" },
     { srcName: "Skull11.png", name: "Skull11" },
+    { srcName: "wow_left.png", name: "WOWc1" },
+    { srcName: "wow_right.png", name: "WOWc2" },
+
+    { srcName: "Reaper.png", name: "Reaper" },
 
     //decal-pics
     { srcName: "SVS7.png", name: "SVS1" },
