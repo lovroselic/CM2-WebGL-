@@ -167,32 +167,36 @@ const MAP = {
 };
 
 const SPAWN = {
+    INI: {
+        health_potions_per_level: 6,
+        mana_potions_per_level: 6,
+        scrolls_per_level: 6,
+        monster_on_corridors: 25,
+        gold_per_level: 6
+    },
     spawn(level) {
         console.log("spawning ... level", level);
-        this.lights(level);
-        this.decals(level);
-        this.shrines(level);
-        this.stairs(level);
-        this.gates(level);
-        this.items(level);
-
+        const map = MAP[level].map;
+        this.lights(map);
+        this.decals(map);
+        this.shrines(map);
+        this.stairs(map, level);
+        this.gates(map);
+        this.items(map);
         //this.debug(level);
-
         //this.monsters(level);
     },
-    shrines(level) {
-        const GA = MAP[level].map.GA;
+    shrines(map) {
+        const GA = map.GA;
         const shrines = [SHRINE_TYPE.AttackShrine, SHRINE_TYPE.DefenseShrine, SHRINE_TYPE.MagicShrine];
-        const shrine_locations = MAP[level].map.shrines;
+        const shrine_locations = map.shrines;
         for (let s = 0; s < shrines.length; s++) {
             GA.addShrine(shrine_locations[s].grid);
             const shrine = new Shrine(shrine_locations[s].grid, DirectionToFace(shrine_locations[s].vector), shrines[s]);
             INTERACTIVE_DECAL3D.add(shrine);
         }
     },
-    decals(level) {
-        const map = MAP[level].map;
-
+    decals(map) {
         // room wall decals
         for (const room of map.rooms) {
             const lo = ((0.25 * room.squareSize) >>> 0) - 1;
@@ -236,12 +240,11 @@ const SPAWN = {
             DECAL3D.add(new StaticDecal(grid, type, SPRITE[source], "crest", source));
         }
     },
-    stairs(level) {
-        //console.info("spawning stairs", level);
-        const GA = MAP[level].map.GA;
+    stairs(map, level) {
+        const GA = map.GA;
         GAME.upperLimit = -1; //DEBUG; DESIGN
-        const entranceLocation = MAP[level].map.entrance;
-        const exitLocation = MAP[level].map.exit;
+        const entranceLocation = map.entrance;
+        const exitLocation = map.exit;
 
         //entrance gate
         let entranceSprite = null;
@@ -265,10 +268,7 @@ const SPAWN = {
         BUMP3D.add(exit);
         BUMP3D.update();
     },
-    lights(level) {
-        const map = MAP[level].map;
-        //console.log("spawning lights", level);
-
+    lights(map) {
         // room wall lights
         for (const room of map.rooms) {
             const lo = Math.max(((room.squareSize / 16) >>> 0), 1);
@@ -292,19 +292,15 @@ const SPAWN = {
             LIGHTS3D.add(new LightDecal(grid.grid, DirectionToFace(grid.dir), SPRITE[light.sprite], "light", light.sprite, light.color));
         }
     },
-    gates(level) {
-        //console.log("spawning gates and keys");
-        const GA = MAP[level].map.GA;
-        const map = MAP[level].map;
+    gates(map) {
+        const GA = map.GA;
 
         //keys
         for (const color in map.keys) {
             const grid = Grid.toCenter(map.keys[color]);
             const key = COMMON_ITEM_TYPE[`${color}Key`];
-            //console.info(grid, key);
             ITEM3D.add(new FloorItem3D(grid, key));
         }
-        //console.log("ITEM3D", ITEM3D);
 
         //locked
         for (const color in map.lockedRooms) {
@@ -324,8 +320,7 @@ const SPAWN = {
             }
         }
     },
-    debug(level) {
-        const map = MAP[level].map;
+    debug(map) {
         const items = [COMMON_ITEM_TYPE.GoldCube, COMMON_ITEM_TYPE.GoldBar, COMMON_ITEM_TYPE.GoldKey, COMMON_ITEM_TYPE.RedPotion, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Sword,
         COMMON_ITEM_TYPE.Heart, COMMON_ITEM_TYPE.Shield, COMMON_ITEM_TYPE.Mana, COMMON_ITEM_TYPE.Magic, COMMON_ITEM_TYPE.Chest, COMMON_ITEM_TYPE.TreasureChest,
         COMMON_ITEM_TYPE.Coins, COMMON_ITEM_TYPE.Sting];
@@ -346,60 +341,71 @@ const SPAWN = {
         const grid = map.findSpace(start.area);
         ENTITY3D.add(new $3D_Entity(Grid.toCenter(grid), MONSTER_TYPE.GhostFace, UP));
     },
-    containers(level) {
-        console.log("spawning chests");
-    },
-    items(level) {
-        console.log("spawning items");
-        this.containers(level);
-
-        /*
-        const itemLocations = [
-            { grid: new FP_Grid(1.5, 8.5), type: COMMON_ITEM_TYPE.GoldCube },
-            { grid: new FP_Grid(4.5, 2.5), type: COMMON_ITEM_TYPE.GoldBar },
-            { grid: new FP_Grid(1.5, 9.5), type: COMMON_ITEM_TYPE.SilverBar },
-            { grid: new FP_Grid(1.5, 2.5), type: COMMON_ITEM_TYPE.GoldBar },
-
-    
-
-            { grid: new FP_Grid(3.5, 2.5), type: COMMON_ITEM_TYPE.RedPotion },
-            { grid: new FP_Grid(3.8, 2.0), type: COMMON_ITEM_TYPE.BluePotion },
-
-            { grid: new FP_Grid(2.1, 3.5), type: COMMON_ITEM_TYPE.Scroll },
-            { grid: new FP_Grid(1.1, 4.5), type: COMMON_ITEM_TYPE.Scroll },
-            { grid: new FP_Grid(1.5, 5.5), type: COMMON_ITEM_TYPE.Scroll },
-
-            { grid: new FP_Grid(5.5, 3.5), type: COMMON_ITEM_TYPE.Sword },
-            { grid: new FP_Grid(6.5, 1.5), type: COMMON_ITEM_TYPE.Heart },
-            { grid: new FP_Grid(6.5, 14.5), type: COMMON_ITEM_TYPE.Sword },
-            { grid: new FP_Grid(1.5, 14.5), type: COMMON_ITEM_TYPE.Heart },
-            { grid: new FP_Grid(11.5, 4.5), type: COMMON_ITEM_TYPE.Sword },
-
-            { grid: new FP_Grid(6.5, 3.5), type: COMMON_ITEM_TYPE.Shield },
-            { grid: new FP_Grid(3.5, 14.5), type: COMMON_ITEM_TYPE.Shield },
-
-            { grid: new FP_Grid(1.5, 6.5), type: COMMON_ITEM_TYPE.Mana },
-            { grid: new FP_Grid(1.5, 11.5), type: COMMON_ITEM_TYPE.Mana },
-
-            { grid: new FP_Grid(6.5, 4.5), type: COMMON_ITEM_TYPE.Magic },
-            { grid: new FP_Grid(1.5, 10.5), type: COMMON_ITEM_TYPE.Magic },
-
-            { grid: new FP_Grid(1.5, 1.5), type: COMMON_ITEM_TYPE.Chest },
-            { grid: new FP_Grid(4.5, 4.5), type: COMMON_ITEM_TYPE.TreasureChest },
-            { grid: new FP_Grid(12.5, 3.5), type: COMMON_ITEM_TYPE.TreasureChest },
-            { grid: new FP_Grid(2.8, 12.8), type: COMMON_ITEM_TYPE.Chest },
-
-            { grid: new FP_Grid(5.5, 5.5), type: COMMON_ITEM_TYPE.Coins },
-
-
-            { grid: new FP_Grid(4.5, 3.5), type: COMMON_ITEM_TYPE.Sting },
-
-        ];
-
-        for (let item of itemLocations) {
-            ITEM3D.add(new FloorItem3D(item.grid, item.type));
+    containers(map) {
+        for (const room of map.rooms) {
+            const corner = map.roomCornerGrids(room);
+            const type = weightedRnd({ Chest: 10, TreasureChest: 1 });
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(corner.grid), COMMON_ITEM_TYPE[type]));
         }
-        */
+        console.log("ITEM3D", ITEM3D);
+    },
+    items(map) {
+        this.containers(map);
+
+        //health potions
+        const roomPool = map.poolOfRoomGrids(SPAWN.INI.health_potions_per_level);
+        for (const grid of roomPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.RedPotion));
+        }
+
+        //mana potions
+        const corridorPool = map.poolOfCorridorGrids(SPAWN.INI.mana_potions_per_level);
+        for (const grid of corridorPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.BluePotion));
+        }
+
+        //scrolls
+        let anyPool = map.poolOfGrids(SPAWN.INI.scrolls_per_level);
+        for (const grid of anyPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.Scroll));
+        }
+
+        //gold
+        anyPool = map.poolOfGrids(SPAWN.INI.gold_per_level);
+        for (const grid of anyPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.GoldCube));
+        }
+        anyPool = map.poolOfGrids(SPAWN.INI.gold_per_level);
+        for (const grid of anyPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.GoldBar));
+        }
+        anyPool = map.poolOfGrids(SPAWN.INI.gold_per_level);
+        for (const grid of anyPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.SilverBar));
+        }
+        anyPool = map.poolOfGrids(SPAWN.INI.gold_per_level);
+        for (const grid of anyPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.GoldBar));
+        }
+
+        //skills, upgrades
+        const skills = [
+            [COMMON_ITEM_TYPE.Sword, COMMON_ITEM_TYPE.Sting],
+            [COMMON_ITEM_TYPE.Shield],
+            [COMMON_ITEM_TYPE.Heart],
+            [COMMON_ITEM_TYPE.Mana],
+            [COMMON_ITEM_TYPE.Magic]
+        ];
+        const total = skills.length;
+        let DE = map.freeDeadEnds(total);
+        const remain = total - DE.length;
+        if (remain > 0) {
+            let addFromRoom = map.poolOfRoomGrids(remain);
+            DE = DE.concat(addFromRoom);
+        }
+        for (let [index, grid] of DE.entries()) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), skills[index].chooseRandom()));
+        }
     },
     monsters(level) {
         console.log("spawning monsters...");
@@ -772,7 +778,7 @@ const COMMON_ITEM_TYPE = {
         name: "Scroll",
         category: "scroll",
         element: "SCROLL",
-        scale: 1.2 / 2 ** 4,
+        scale: 1.3 / 2 ** 4,
         glueToFloor: true,
         texture: "ScrollTexture",
         shine: 128.0 * 0.9,
@@ -782,7 +788,7 @@ const COMMON_ITEM_TYPE = {
         category: "potion",
         color: "red",
         element: "FLASK",
-        scale: 1 / 2 ** 5,
+        scale: 1.1 / 2 ** 5,
         glueToFloor: true,
         texture: "RedLiquid",
         shine: 128.0 * 0.25,
@@ -793,7 +799,7 @@ const COMMON_ITEM_TYPE = {
         category: "potion",
         color: "blue",
         element: "FLASK",
-        scale: 1 / 2 ** 5,
+        scale: 1.1 / 2 ** 5,
         glueToFloor: true,
         texture: "BlueLiquid",
         shine: 128.0 * 0.25,

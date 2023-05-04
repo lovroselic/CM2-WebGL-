@@ -1025,7 +1025,7 @@ class MasterDungeon {
         }
         return null;
     }
-    poolOfRoomGrids(N) {
+    getRoomGrids(){
         let pool = [];
         for (let x = this.minX; x <= this.maxX; x++) {
             for (let y = this.minY; y <= this.maxY; y++) {
@@ -1035,7 +1035,10 @@ class MasterDungeon {
                 }
             }
         }
-        return this.reservePool(N, pool);
+        return pool;
+    }
+    poolOfRoomGrids(N) {
+        return this.reservePool(N, this.getRoomGrids());
     }
     getCorridorGrids() {
         let pool = [];
@@ -1053,20 +1056,6 @@ class MasterDungeon {
         return this.getCorridorGrids().removeRandomPool(N);
     }
     poolOfCorridorGrids(N) {
-        /*let pool = [];
-        for (let x = this.minX; x <= this.maxX; x++) {
-            for (let y = this.minY; y <= this.maxY; y++) {
-                let grid = new Grid(x, y);
-                if (
-                    this.GA.notReserved(grid) &&
-                    !this.GA.isRoom(grid) &&
-                    this.GA.notWall(grid)
-                ) {
-                    pool.push(grid);
-                }
-            }
-        }*/
-        //let pool = this.getCorridorGrids();
         return this.reservePool(N, this.getCorridorGrids());
     }
     poolOfGrids(N) {
