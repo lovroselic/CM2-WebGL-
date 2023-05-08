@@ -122,10 +122,6 @@ LoadObjects = [
 ];
 
 LoadModels = ['GhostFace.gltf', 'Bat.gltf', 'Hulk.gltf', 'Viking.gltf', 'Astro.gltf', 'MissWhite.gltf', 'BatCat.gltf'];
-//LoadModels = ['GhostFace.gltf', 'Bat.gltf'];
-/** unused models
- * 'Lady.gltf', 'Bunny.gltf'
- */
 
 LoadSprites = [
     //lights

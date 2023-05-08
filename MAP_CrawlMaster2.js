@@ -116,53 +116,14 @@ const MAP = {
         minPad: 3,
     },
     2: {
-        data: `
-        {"width":"16","height":"16","map":"BB5ABB7AA2BABAA12BAA2BB4AA5BAA2BAA19BAA11BAA5BAA2BAA2BAA5BAA12BAA3BB6ABAA2BABB4AA11BB2AA2BAA3BB2AA3BB9AA6BB2ABAA2BAA2BABB2AA2BAA7BB3ABAA2BABABB2AA3BABB8ABB3AA4BAA2BB9ABB18A$"}
-        `,
-        //floor: "RockFloor",
-        //floor: "StoneFloor3",
-        //floor: "StoneFloor",
-        //floor: "Pavement",
-        //floor: "Pavement2",
-        //floor: "TlakFloor3",
-        //floor: "DungeonFloor",
-        //floor: "ThatchFloor",
-        //floor: "OldFloor",
-        //floor: "GreyDungeonFloor", //good
-        //floor: "BrokenRuin",
-        //floor: "DirtFloor",
-        //floor: "TiledFloor",
-        //floor: "Tile",
-        floor: "GreenDungeonWall", //keep - nice, but bright
-        //floor: "Wall7",
-        //floor: "MorgueFloor",
-
-        //ceil: "GreenDungeonWall",
-        //ceil: "RockCeiling",
-        //ceil: "Rough",
+        width: 40,
+        height: 40,
+        floor: "MorgueFloor",
         ceil: "GreyDungeonFloor",
+        wall: "GreenDungeonWall",
+        minPad: 3,
+    },
 
-        //wall: "CastleWall",
-        wall: "DungeonWall", //256
-        //wall: "GreenDungeonWall",
-        //wall: "BlackBrickWall",
-        //wall: "BrickWall",
-        //wall: "BrickWall2",
-        //wall: "BrickWall3",
-        //wall: "RockWall", // not very good
-        //wall: "StoneWall2",
-        //wall: "DungeonWall4",
-        entrance: { grid: new Grid(0, 4), face: 'RIGHT' },
-        exit: { grid: new Grid(15, 4), face: 'LEFT' },
-    },
-    3: {
-        data: `
-        {"width":"16","height":"16","map":"BB3ABAA6BB45ABB4ABB43$BB150A"}
-        `,
-        floor: "GreyDungeonFloor",
-        ceil: "ThatchFloor",
-        wall: "CastleWall",
-    },
 
 };
 
@@ -242,7 +203,6 @@ const SPAWN = {
     },
     stairs(map, level) {
         const GA = map.GA;
-        GAME.upperLimit = -1; //DEBUG; DESIGN
         const entranceLocation = map.entrance;
         const exitLocation = map.exit;
 
@@ -250,9 +210,9 @@ const SPAWN = {
         let entranceSprite = null;
         if (level > GAME.upperLimit) {
             entranceSprite = "StairsUp";
-            const entrance_destination_level = GAME.level; //DEBUG; DESIGN
-            const destination = new Destination(exitLocation.grid, exitLocation.vector, entrance_destination_level);
-            const entrance = new Portal(entranceLocation.grid, DirectionToFace(entranceLocation.vector), SPRITE[entranceSprite], 'portal', entranceSprite, destination);
+            const entrance_destination_level = GAME.level - 1;
+            const destination = new Destination("exit", entrance_destination_level);
+            const entrance = new Portal(entranceLocation.grid, DirectionToFace(entranceLocation.vector), SPRITE[entranceSprite], 'portal', entranceSprite, destination, GAME.useStaircase);
             BUMP3D.add(entrance);
         } else {
             entranceSprite = "EntranceGate";
@@ -261,11 +221,12 @@ const SPAWN = {
         GA.reserve(entranceLocation.grid);
 
         //exit gate
-        let exitSprite = "StairsDown";
-        let exit_destination_level = GAME.level; //DEBUG; DESIGN
-        const destination = new Destination(entranceLocation.grid, entranceLocation.vector, exit_destination_level);
-        const exit = new Portal(exitLocation.grid, DirectionToFace(exitLocation.vector), SPRITE[exitSprite], 'portal', exitSprite, destination);
+        const exitSprite = "StairsDown";
+        const exit_destination_level = GAME.level + 1;
+        const destination = new Destination("entrance", exit_destination_level);
+        const exit = new Portal(exitLocation.grid, DirectionToFace(exitLocation.vector), SPRITE[exitSprite], 'portal', exitSprite, destination, GAME.useStaircase);
         BUMP3D.add(exit);
+        GA.reserve(exitLocation.grid);
         BUMP3D.update();
     },
     lights(map) {
@@ -770,7 +731,7 @@ const COMMON_ITEM_TYPE = {
         element: "BALL",
         scale: 1 / 2 ** 4,
         texture: "FireballTexture",
-        moveSpeed: 6.0,
+        moveSpeed: 8.0,
         shine: 128.0 * 0.90,
         lightColor: "#FF7700",
     },

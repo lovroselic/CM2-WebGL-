@@ -48,7 +48,7 @@ const INI = {
     FINAL_LEVEL: 4,
 };
 const PRG = {
-    VERSION: "0.15.03",
+    VERSION: "0.15.04",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -599,13 +599,17 @@ const GAME = {
         ENGINE.watchVisibility(GAME.lostFocus);
         ENGINE.GAME.start(16);
         MINIMAP.setOffset(TITLE.stack.minimapX, TITLE.stack.minimapY);
+        AI.immobileWander = false;
         GAME.completed = false;
         GAME.upperLimit = 1;
         GAME.won = false;
-        GAME.level = 1;
-        //GAME.level = 2;
+        //GAME.level = 1;
+        GAME.level = 2;
         //GAME.gold = 0;
         GAME.gold = 10000;
+
+        const storeList = ["DECAL3D", "LIGHTS3D", "GATE3D", "VANISHING3D", "ITEM3D", "MISSILE3D", "INTERACTIVE_DECAL3D", "BUMP3D", "ENTITY3D"];
+        GAME.STORE = new Store(storeList);
 
         HERO.construct();
         ENGINE.VECTOR2D.configure("player");
@@ -620,40 +624,28 @@ const GAME = {
         GAME.initLevel(GAME.level);
         GAME.continueLevel(GAME.level);
     },
-
-    initLevel(level) {
-        console.log("...level", level, 'initialization');
-        DUNGEON.MIN_PADDING = MAP[GAME.level].minPad;
+    newDungeon(level) {
+        DUNGEON.MIN_PADDING = MAP[level].minPad;
         let randomDungeon;
-        if (GAME.level < INI.FINAL_LEVEL) {
-            randomDungeon = DUNGEON.create(MAP[GAME.level].width, MAP[GAME.level].height);
+        if (level < INI.FINAL_LEVEL) {
+            randomDungeon = DUNGEON.create(MAP[level].width, MAP[level].height);
         } else if (GAME.level === INI.FINAL_LEVEL) {
             console.log("newDungeon: CREATE FINAL LEVEL");
-            randomDungeon = ARENA.create(MAP[GAME.level].width, MAP[GAME.level].height);
+            randomDungeon = ARENA.create(MAP[level].width, MAP[level].height);
         }
         console.warn("randomDungeon", randomDungeon);
         MAP[level].map = randomDungeon;
         MAP[level].pw = MAP[level].map.width * ENGINE.INI.GRIDPIX;
         MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
         MAP[level].map.GA.massSet(MAPDICT.FOG);
-
-        const start_dir = MAP[GAME.level].map.entrance.vector;
-        let start_grid = Grid.toClass(MAP[GAME.level].map.entrance.grid).add(start_dir);
-        start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
-        HERO.player = new $3D_player(start_grid, Vector3.from_2D_dir(start_dir), MAP[level].map);
-        console.warn("HERO.player", HERO.player);
-
-        AI.immobileWander = false;
-        AI.initialize(HERO.player, "3D");
-
-        WebGL.init_required_IAM(MAP[level].map, HERO);
-        WebGL.MOUSE.initialize("ROOM");
-        WebGL.setContext('webgl'); //need this early, optimize redundand call later!!!
+        MAP[level].map.level = level;
+    },
+    buildWorld(level) {
         SPAWN.spawn(level);
-
         MAP[level].world = WORLD.build(MAP[level].map);
         console.log("world", MAP[level].world);
-
+    },
+    setWorld(level, decalsAreSet = false) {
         const textureData = {
             wall: TEXTURE[MAP[level].wall],
             floor: TEXTURE[MAP[level].floor],
@@ -661,8 +653,27 @@ const GAME = {
         };
 
         WebGL.updateShaders();
-        WebGL.init('webgl', MAP[level].world, textureData, HERO.player);
+        WebGL.init('webgl', MAP[level].world, textureData, HERO.player, decalsAreSet);
         MINIMAP.init(MAP[level].map, INI.MIMIMAP_WIDTH, INI.MIMIMAP_HEIGHT, HERO.player);
+    },
+    initLevel(level) {
+        console.log("...level", level, 'initialization');
+
+        this.newDungeon(level);
+
+        const start_dir = MAP[level].map.entrance.vector;
+        let start_grid = Grid.toClass(MAP[level].map.entrance.grid).add(start_dir);
+        start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
+
+        HERO.player = new $3D_player(start_grid, Vector3.from_2D_dir(start_dir), MAP[level].map);
+        AI.initialize(HERO.player, "3D");
+
+        WebGL.init_required_IAM(MAP[level].map, HERO);
+        WebGL.MOUSE.initialize("ROOM");
+        WebGL.setContext('webgl');
+
+        this.buildWorld(level);
+        this.setWorld(level);
 
         //set POV
         INTERFACE3D.associateIA("enemy", "enemyIA");
@@ -674,6 +685,41 @@ const GAME = {
 
         //reset births!
         ENTITY3D.resetTime();
+    },
+    useStaircase(destination) {
+        console.time("staircase");
+        console.warn("useStaircase", destination);
+        GAME.STORE.storeIAM(MAP[GAME.level].map);
+        GAME.level = destination.level;
+        const level = GAME.level;
+        if (!MAP[GAME.level].map) {
+            console.info("Setting new level ->", GAME.level);
+            GAME.STORE.clearPools();
+            GAME.newDungeon(level);
+            GAME.buildWorld(level);
+            GAME.STORE.linkMap(MAP[level].map);
+            GAME.setWorld(level);
+        } else {
+            console.info("Restoring level ->", GAME.level);
+            GAME.STORE.loadIAM(MAP[level].map);
+            GAME.STORE.linkMap(MAP[level].map);
+            GAME.setWorld(level, true);
+        }
+
+        HERO.player.setMap(MAP[level].map);
+        BUMP3D.update();
+
+        const start_dir = MAP[level].map[this.destination.waypoint].vector;
+        let start_grid = Grid.toClass(MAP[level].map[this.destination.waypoint].grid).add(start_dir);
+        start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
+        HERO.player.setPos(start_grid);
+        HERO.player.setDir(Vector3.from_2D_dir(start_dir));
+        if (DEBUG._2D_display) {
+            ENGINE.BLOCKGRID.draw(MAP[GAME.level].map);
+            GRID.grid();
+            GRID.paintCoord("coord", MAP[level].map);
+        }
+        console.timeEnd("staircase");
     },
     continueLevel(level) {
         console.log("game continues on level", level);

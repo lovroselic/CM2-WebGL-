@@ -829,6 +829,40 @@ const GLOBAL_ID_MANAGER = {
     }
 };
 
+class Store {
+    constructor(list) {
+        this.list = list;
+    }
+    storeIAM(map) {
+        map.store = {};
+        for (const IAM of this.list) {
+            map.store[IAM] = {};
+            map.store[IAM].POOL = eval(IAM).POOL;
+        }
+    }
+    clearPools() {
+        for (const IAM of this.list) {
+            eval(IAM).clearAll();
+        }
+    }
+    displayGlobals() {
+        for (const IAM of this.list) {
+            console.log(IAM, eval(IAM));
+        }
+    }
+    linkMap(map) {
+        for (const IAM of this.list) {
+            eval(IAM).linkMap(map);
+        }
+    }
+    loadIAM(map) {
+        for (const IAM of this.list) {
+            eval(IAM).POOL = map.store[IAM].POOL;
+        }
+    }
+}
+
+
 /**  IAM INSTANCES: SUPER GLOBALS */
 const DECOR = new Decor();
 const PROFILE_BALLISTIC = new Profile_Ballistic();

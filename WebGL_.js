@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.25.0",
+    VERSION: "0.25.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -113,6 +113,7 @@ const WebGL = {
     dynamicDecalList: [GATE3D, ITEM3D],
     dynamicLightSources: [MISSILE3D, EXPLOSION3D],
     models: [$3D_MODEL],
+    modelTextureSet: false,
     main_program: {
         vSource: "vShader",
         fSource: "fShader",
@@ -146,7 +147,7 @@ const WebGL = {
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
         if (!this.CTX) console.error("Unable to initialize WebGL. Your browser or machine may not support it.");
     },
-    init(layer, world, textureData, camera) {
+    init(layer, world, textureData, camera, decalsAreSet) {
         this.world = world;
         this.setContext(layer);
         const gl = this.CTX;
@@ -155,7 +156,7 @@ const WebGL = {
         this.initPrograms(gl);
         this.initBuffers(gl, world);
         this.setTexture(textureData);
-        this.setDecalTextures();
+        if (!decalsAreSet) this.setDecalTextures();
         this.aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
         this.setCamera(camera);
         this.setPickBuffers(gl);
@@ -241,6 +242,9 @@ const WebGL = {
             }
         }
 
+        if (!this.modelTextureSet) this.setModelTextures();
+    },
+    setModelTextures() {
         const gl = this.CTX;
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
         for (const obj of [...WebGL.models]) {
@@ -252,6 +256,7 @@ const WebGL = {
         }
 
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        this.modelTextureSet = true;
     },
     initBuffers(gl, world) {
         const positionBuffer = gl.createBuffer();
@@ -1056,7 +1061,6 @@ class $3D_player {
         this.setPos(position);
         this.setDir(dir);
         this.setMap(map);
-        this.GA = this.map.GA;
         this.setR(size / 2.0);
         this.setFov();
         this.rotationResolution = 64;
@@ -1074,6 +1078,7 @@ class $3D_player {
     }
     setMap(map) {
         this.map = map;
+        this.GA = this.map.GA;
     }
     setR(r) {
         this.r = r;
@@ -1108,7 +1113,7 @@ class $3D_player {
         let nextPos = Vector3.to_FP_Grid(nextPos3);
         let bump = this.usingStaircase(nextPos);
         if (bump !== null) {
-            bump.interact(this);
+            bump.interact();
             return;
         }
 
@@ -1239,37 +1244,22 @@ class LightDecal extends Decal {
 }
 
 class Portal extends Decal {
-    constructor(grid, face, texture, category, name, destination) {
+    constructor(grid, face, texture, category, name, destination, call) {
         super(grid, face, texture, category, name);
         this.type = "Portal";
         this.interactive = false;
         this.destination = destination;
         this.texture = texture;
+        this.call = call;
     }
-    interact(hero) {
-        const start_dir = this.destination.dir;
-        let start_grid = this.destination.grid.add(start_dir);
-        start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
-        hero.setPos(start_grid);
-        console.info("Portalling to:", start_grid);
-        hero.setDir(Vector3.from_2D_dir(start_dir));
-
-        if (GAME.level !== this.destination.level) {
-            console.error("Moving between levels not yet implemented!!");
-            //TODO, FIXME
-            // bind new map
-            // stores IAMs
-            //... 
-
-            throw "GAME DIES!";
-        }
+    interact() {
+        this.call(this.destination);
     }
 }
 
 class Destination {
-    constructor(grid, dir, level) {
-        this.grid = Grid.toClass(grid);
-        this.dir = dir;
+    constructor(waypoint, level) {
+        this.waypoint = waypoint;
         this.level = level;
     }
 }
@@ -1443,7 +1433,7 @@ class FloorItem3D extends Drawable_object {
         for (const prop in type) {
             this[prop] = type[prop];
         }
-   
+
         this.element = ELEMENT[this.element];
         this.initBuffers();
         this.texture = TEXTURE[this.texture];
