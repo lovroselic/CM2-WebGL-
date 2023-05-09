@@ -810,6 +810,25 @@ class Animated_3d_entity extends IAM {
         console.table(this.POOL, ['name', 'id', 'grid', 'distance', 'moveState', 'actor', 'r', 'behaviour']);
         console.log("------------------------------------------");
     }
+    analyze() {
+        let monsterDict = new DefaultDict(0);
+        let XP = 0;
+        let gold = 0;
+        for (const enemy of this.POOL) {
+            monsterDict[enemy.name]++;
+            XP += enemy.xp;
+            gold += enemy.gold;
+        }
+
+        console.group("ENEMY analysis");
+        for (const item in monsterDict) {
+            console.log(item, monsterDict[item], Number(monsterDict[item] / this.POOL.length * 100).toFixed(2), "%");
+        }
+        console.log("TOTAL XP:", XP);
+        console.log("TOTAL Gold:", gold);
+        console.info(monsterDict);
+        console.groupEnd("ENEMY analysis");
+    }
 }
 
 /** GLOBAL ID */

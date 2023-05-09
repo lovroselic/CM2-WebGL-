@@ -123,8 +123,85 @@ const MAP = {
         wall: "GreenDungeonWall",
         minPad: 3,
     },
+};
 
-
+const MONSTER_LAYOUT = {
+    1: {
+        start: {
+            N: 1,
+            monster: { Bat: 1 }
+        },
+        corridor: {
+            N: 25,
+            monster: { Bat: 1 }
+        },
+        common: {
+            N: 2,
+            monster: { Bat: 1 }
+        },
+        Gold: {
+            N: 2,
+            monster: { Bat: 1 },
+            boss: { Bat: 1 }
+        },
+        Silver: {
+            N: 2,
+            monster: { Bat: 1 },
+            boss: { Bat: 1 },
+        },
+        firstKey: {
+            N: 2,
+            monster: { Bat: 1 },
+            boss: { Bat: 1 },
+        },
+        Red: {
+            N: 2,
+            monster: { Bat: 1 },
+            boss: { Bat: 1 },
+        },
+        temple: {
+            N: 1,
+            monster: { Bat: 1 },
+        }
+    },
+    2: {
+        start: {
+            N: 1,
+            monster: { Bat: 1 }
+        },
+        corridor: {
+            N: 25,
+            monster: { Bat: 1 }
+        },
+        common: {
+            N: 2,
+            monster: { Bat: 1 }
+        },
+        Gold: {
+            N: 2,
+            monster: { Bat: 1 },
+            boss: { Bat: 1 }
+        },
+        Silver: {
+            N: 2,
+            monster: { Bat: 1 },
+            boss: { Bat: 1 },
+        },
+        firstKey: {
+            N: 2,
+            monster: { Bat: 1 },
+            boss: { Bat: 1 },
+        },
+        Red: {
+            N: 2,
+            monster: { Bat: 1 },
+            boss: { Bat: 1 },
+        },
+        temple: {
+            N: 1,
+            monster: { Bat: 1 },
+        }
+    },
 };
 
 const SPAWN = {
@@ -145,7 +222,7 @@ const SPAWN = {
         this.gates(map);
         this.items(map);
         //this.debug(level);
-        //this.monsters(level);
+        this.monsters(map, level);
     },
     shrines(map) {
         const GA = map.GA;
@@ -368,7 +445,37 @@ const SPAWN = {
             ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), skills[index].chooseRandom()));
         }
     },
-    monsters(level) {
+    monsters(map, level) {
+        console.log("spawning monsters...");
+        const corrGrids = map.poolOfCorridorGrids(MONSTER_LAYOUT[level].corridor.N);
+        for (const grid of corrGrids) {
+            const type = weightedRnd(MONSTER_LAYOUT[level].corridor.monster);
+            ENTITY3D.add(new $3D_Entity(Grid.toCenter(grid), MONSTER_TYPE[type], UP));
+        }
+        for (const room of map.rooms) {
+            const N = MONSTER_LAYOUT[level][room.type].N;
+            for (let i = 0; i < N; i++) {
+                const grid = map.findSpace(room.area);
+                const type = weightedRnd(MONSTER_LAYOUT[level][room.type].monster);
+                const enemy = new $3D_Entity(Grid.toCenter(grid), MONSTER_TYPE[type], UP);
+                const guardPosition = map.findMiddleSpaceUnreserved(room.area);
+                enemy.setGuardPosition(guardPosition);
+                ENTITY3D.add(enemy);
+            }
+            const boss = MONSTER_LAYOUT[level][room.type].boss;
+            if (boss) {
+                const grid = map.findSpace(room.area);
+                const type = weightedRnd(MONSTER_LAYOUT[level][room.type].boss);
+                const enemy = new $3D_Entity(Grid.toCenter(grid), MONSTER_TYPE[type], UP);
+                const guardPosition = map.findMiddleSpaceUnreserved(room.area);
+                enemy.setGuardPosition(guardPosition);
+                ENTITY3D.add(enemy);
+            }
+        }
+        //analysis
+        if (DEBUG.VERBOSE) ENTITY3D.analyze();
+    },
+    /*monsters(level) {
         console.log("spawning monsters...");
         const monsterLocations = [
             //study
@@ -394,7 +501,7 @@ const SPAWN = {
         for (let monster of monsterLocations) {
             ENTITY3D.add(new $3D_Entity(monster.grid, monster.type, monster.dir));
         }
-    }
+    }*/
 };
 
 const MONSTER_TYPE = {
@@ -569,7 +676,7 @@ const MONSTER_TYPE = {
     Bat: {
         name: "Bat",
         model: "Bat",
-        scale: 1 / 2 ** 3,
+        scale: 1.2 / 2 ** 3,
         shine: 128.0 * 0.5,
         rotateToNorth: Math.PI,
         midHeight: 0.0,

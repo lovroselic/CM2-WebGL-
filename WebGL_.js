@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.25.1",
+    VERSION: "0.25.2",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -1902,6 +1902,7 @@ class $3D_Entity {
         }
         this.petrified = false;
         this.behaviour = new Behaviour(...this.behaviourArguments);
+        this.guardPosition = null;
     }
     setView(lookAt) {
         this.moveState.setView(lookAt);
@@ -2126,6 +2127,9 @@ class $3D_Entity {
     }
     resetShooting() {
         this.caster = true;
+    }
+    setGuardPosition(grid) {
+        this.guardPosition = grid;
     }
 }
 
