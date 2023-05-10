@@ -42,13 +42,13 @@ const INI = {
     MONSTER_SHOOT_TIMEOUT: 4000,
     HERO_SHOOT_TIMEOUT: 2000,
     SCROLL_RANGE: 3,
-    CRIPPLE_SPEED: 0.5,
+    CRIPPLE_SPEED: 0.1,
     BOOST_TIME: 59,
     MM_reveal_radius: 4,
     FINAL_LEVEL: 4,
 };
 const PRG = {
-    VERSION: "0.15.05",
+    VERSION: "0.15.06",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -207,10 +207,6 @@ class Scroll {
                 }
                 break;
             case "Map":
-                if (1 === 1) {
-                    console.warn("not yet implmented");
-                    break;
-                }
                 let pointers = map.map_pointers;
                 let origin;
                 if (pointers.length > 0) {
@@ -221,11 +217,7 @@ class Scroll {
                 MINIMAP.reveal(origin, INI.MM_reveal_radius);
                 break;
             case "DrainMana":
-                if (1 === 1) {
-                    console.warn("not yet implmented");
-                    break;
-                }
-                for (let enemy of ENEMY_RC.POOL) {
+                for (let enemy of ENTITY3D.POOL) {
                     if (enemy === null) continue;
                     if (enemy.distance === null) continue;
                     if (enemy.distance <= INI.SCROLL_RANGE) {
@@ -236,11 +228,7 @@ class Scroll {
                 TITLE.status();
                 break;
             case "Cripple":
-                if (1 === 1) {
-                    console.warn("not yet implmented");
-                    break;
-                }
-                for (let enemy of ENEMY_RC.POOL) {
+                for (let enemy of ENTITY3D.POOL) {
                     if (enemy === null) continue;
                     if (enemy.distance === null) continue;
                     if (enemy.distance <= INI.SCROLL_RANGE) {
@@ -255,11 +243,7 @@ class Scroll {
                 Scroll.boost("defense");
                 break;
             case "DestroyArmor":
-                if (1 === 1) {
-                    console.warn("not yet implmented");
-                    break;
-                }
-                for (let enemy of ENEMY_RC.POOL) {
+                for (let enemy of ENTITY3D.POOL) {
                     if (enemy === null) continue;
                     if (enemy.distance === null) continue;
                     if (enemy.distance <= INI.SCROLL_RANGE) {
@@ -269,11 +253,7 @@ class Scroll {
                 }
                 break;
             case "DestroyWeapon":
-                if (1 === 1) {
-                    console.warn("not yet implmented");
-                    break;
-                }
-                for (let enemy of ENEMY_RC.POOL) {
+                for (let enemy of ENTITY3D.POOL) {
                     if (enemy === null) continue;
                     if (enemy.distance === null) continue;
                     if (enemy.distance <= INI.SCROLL_RANGE) {
@@ -283,11 +263,7 @@ class Scroll {
                 }
                 break;
             case "Petrify":
-                if (1 === 1) {
-                    console.warn("not yet implmented");
-                    break;
-                }
-                for (let enemy of ENEMY_RC.POOL) {
+                for (let enemy of ENTITY3D.POOL) {
                     if (enemy === null) continue;
                     if (enemy.distance === null) continue;
                     if (enemy.distance <= INI.SCROLL_RANGE) {
@@ -299,11 +275,6 @@ class Scroll {
                 Scroll.boost("magic");
                 break;
             case "TeleportTemple":
-                /*if (1 === 1) {
-                    console.warn("not yet implmented");
-                    break;
-                }*/
-                //start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
                 const temple = map.findRoom("temple");
                 const target = map.findMiddleSpaceUnreserved(temple.area);
                 HERO.player.pos = Vector3.from_Grid(Grid.toCenter(target), 0.5);
@@ -322,11 +293,7 @@ class Scroll {
                 }
                 break;
             case "HalfLife":
-                if (1 === 1) {
-                    console.warn("not yet implmented");
-                    break;
-                }
-                for (let enemy of ENEMY_RC.POOL) {
+                for (let enemy of ENTITY3D.POOL) {
                     if (enemy === null) continue;
                     if (enemy.distance === null) continue;
                     if (enemy.distance <= INI.SCROLL_RANGE) {
@@ -685,6 +652,12 @@ const GAME = {
 
         //reset births!
         ENTITY3D.resetTime();
+
+        //debug
+        HERO.inventory.scroll.add(new Scroll("Petrify"));
+        HERO.inventory.scroll.add(new Scroll("Petrify"));
+        HERO.inventory.scroll.add(new Scroll("Petrify"));
+        HERO.inventory.scroll.add(new Scroll("Petrify"));
     },
     useStaircase(destination) {
         console.time("staircase");
@@ -708,6 +681,8 @@ const GAME = {
 
         HERO.player.setMap(MAP[level].map);
         BUMP3D.update();
+        INTERFACE3D.linkMap(MAP[level].map);
+        INTERFACE3D.associateExternal_IAM("enemy", ENTITY3D);
 
         const start_dir = MAP[level].map[this.destination.waypoint].vector;
         let start_grid = Grid.toClass(MAP[level].map[this.destination.waypoint].grid).add(start_dir);

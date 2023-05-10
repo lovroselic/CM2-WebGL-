@@ -1873,6 +1873,7 @@ class $3D_Entity {
         this.distance = null;
         this.dirStack = [];
         this.final_boss = false;
+        this.texture = null; //model is the source, until change!
         this.resetTime();
         this.grid = grid;
         this.type = type;
@@ -2070,7 +2071,11 @@ class $3D_Entity {
 
                 //binding texture data
                 gl.activeTexture(gl.TEXTURE0);
-                gl.bindTexture(gl.TEXTURE_2D, this.model.textures[index]);
+                if (this.texture) {
+                    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+                } else {
+                    gl.bindTexture(gl.TEXTURE_2D, this.model.textures[index]);
+                }
 
                 gl.drawElements(gl.TRIANGLES, primitive.indices.count, gl[primitive.indices.type], 0);
             }
@@ -2080,8 +2085,10 @@ class $3D_Entity {
         ENGINE.VECTOR2D.drawBlock(this);
     }
     update(date) {
-        this.moveState.update();
-        this.actor.animate(date);
+        if (!this.petrified) {
+            this.moveState.update();
+            this.actor.animate(date);
+        }
     }
     reset() {
         this.moveState.resetView();
@@ -2130,6 +2137,20 @@ class $3D_Entity {
     }
     setGuardPosition(grid) {
         this.guardPosition = grid;
+    }
+    petrify() {
+        if (this.fly) {
+            const minY = this.model.meshes[0].primitives[0].positions.min[1] * this.scale[1];
+            this.moveState.pos.set_y(minY);
+            this.fly = 0;
+        }
+        this.moveSpeed = 0;
+        this.petrified = true;
+        this.changeTexture(TEXTURE.Marble);
+    }
+    changeTexture(texture) {
+        this.texture = texture;
+        this.texture = WebGL.createTexture(this.texture);
     }
 }
 
@@ -2247,7 +2268,7 @@ class $POV extends Drawable_object {
         }
         console.assert(enemies.size === 1, "Failed enemy pruning by distance!");
         const enemy = POOL[enemies.first() - 1];
-        //console.log("enemy", enemy);
+        //console.log("enemy may be hit", enemy);
         let hit = ENGINE.lineIntersectsCircle(Vector3.to_FP_Grid(this.player.pos), Vector3.to_FP_Grid(refPoint), Vector3.to_FP_Grid(enemy.moveState.pos), enemy.r);
         if (hit) return enemy;
         return null;

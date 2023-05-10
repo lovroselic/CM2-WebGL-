@@ -223,6 +223,7 @@ const SPAWN = {
         this.items(map);
         //this.debug(level);
         this.monsters(map, level);
+        this.mapPointers(map);
     },
     shrines(map) {
         const GA = map.GA;
@@ -358,6 +359,14 @@ const SPAWN = {
             }
         }
     },
+    mapPointers(map) {
+        map.map_pointers = [
+          map.shrines.chooseRandom().grid,
+          map.keys.Red,
+          map.keys.Silver,
+          map.keys.Gold
+        ];
+      },
     debug(map) {
         const items = [COMMON_ITEM_TYPE.GoldCube, COMMON_ITEM_TYPE.GoldBar, COMMON_ITEM_TYPE.GoldKey, COMMON_ITEM_TYPE.RedPotion, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Sword,
         COMMON_ITEM_TYPE.Heart, COMMON_ITEM_TYPE.Shield, COMMON_ITEM_TYPE.Mana, COMMON_ITEM_TYPE.Magic, COMMON_ITEM_TYPE.Chest, COMMON_ITEM_TYPE.TreasureChest,
@@ -475,33 +484,6 @@ const SPAWN = {
         //analysis
         if (DEBUG.VERBOSE) ENTITY3D.analyze();
     },
-    /*monsters(level) {
-        console.log("spawning monsters...");
-        const monsterLocations = [
-            //study
-            //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.GhostFace },
-            //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Bat },
-            //{grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Lady },
-            //{grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Bunny },
-            //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Hulk },
-            //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.Viking },
-            //{ grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.MissWhite },
-            { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.BatCat },
-
-            //zoo
-            { grid: new FP_Grid(1.5, 12.5), dir: UP, type: MONSTER_TYPE.Bat },
-            { grid: new FP_Grid(5.5, 12.5), dir: LEFT, type: MONSTER_TYPE.GhostFace },
-            { grid: new FP_Grid(1.5, 8.5), dir: DOWN, type: MONSTER_TYPE.Hulk },
-            { grid: new FP_Grid(8.5, 4.5), dir: UP, type: MONSTER_TYPE.Viking },
-            { grid: new FP_Grid(11.5, 5.5), dir: UP, type: MONSTER_TYPE.Astro },
-            { grid: new FP_Grid(14.5, 1.5), dir: UP, type: MONSTER_TYPE.MissWhite },
-            { grid: new FP_Grid(12.5, 7.5), dir: UP, type: MONSTER_TYPE.BatCat },
-        ];
-
-        for (let monster of monsterLocations) {
-            ENTITY3D.add(new $3D_Entity(monster.grid, monster.type, monster.dir));
-        }
-    }*/
 };
 
 const MONSTER_TYPE = {

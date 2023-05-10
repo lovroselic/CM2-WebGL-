@@ -60,6 +60,7 @@ LoadTextures = [
     { srcName: "treasure_chest.JPG", name: "TreasureChest" },
     { srcName: "CoinColor.jpg", name: "Coins" },
     { srcName: "Sting_Base_Color.png", name: "Sting" },
+    { srcName: "Marble.jpg", name: "Marble" },
 
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
@@ -110,7 +111,10 @@ LoadAudio = [
     { srcName: "HumanAttack1.mp3", name: "HumanAttack1" }
 
 ];
-LoadFonts = [{ srcName: "DeepDown.ttf", name: "DeepDown" }];
+LoadFonts = [
+    //{ srcName: "DeepDown.ttf", name: "DeepDown" },
+    { srcName: "MoriaCitadel.ttf", name: "DeepDown" },
+];
 LoadShaders = [
     'vShader.glsl', 'fShader.glsl', 'pick_vShader.glsl', 'pick_fShader.glsl',
     'particle_render_fShader.glsl', 'particle_render_vShader.glsl', 'particle_transform_fShader.glsl', 'particle_transform_vShader.glsl',

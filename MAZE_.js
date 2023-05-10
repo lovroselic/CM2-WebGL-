@@ -1025,7 +1025,7 @@ class MasterDungeon {
         }
         return null;
     }
-    getRoomGrids(){
+    getRoomGrids() {
         let pool = [];
         for (let x = this.minX; x <= this.maxX; x++) {
             for (let y = this.minY; y <= this.maxY; y++) {
@@ -1396,9 +1396,9 @@ class Dungeon extends MasterDungeon {
         MAZE.configure(this);
 
         if (DUNGEON.SET_ROOMS) {
-            if (this.rooms.length < DUNGEON.LOCK_LEVEL - 1) {
+            if (this.rooms.length < DUNGEON.MIN_ROOM_NUMBER) {
                 console.error("too few rooms: ", this.rooms.length, "; for lock level", DUNGEON.LOCK_LEVEL);
-                throw "SOLVE it Lovro!";
+                return new Dungeon(sizeX, sizeY);
             }
 
             for (let r = 0; r < DUNGEON.LOCK_LEVEL; r++) {
@@ -1416,7 +1416,6 @@ class Dungeon extends MasterDungeon {
             //keys
             let firstKeyRoom = this.getRoom(this.rooms, "common");
             if (firstKeyRoom === undefined || firstKeyRoom === null) {
-                //throw "firstKeyRoom is undefined. need more rooms!";
                 console.error("firstKeyRoom is undefined. need more rooms! - creating new dungeon!");
                 return new Dungeon(sizeX, sizeY);
             }
@@ -1735,6 +1734,7 @@ const DUNGEON = {
     MIN_LOCK_LEVEL: 1,
     LOCK_LEVELS: ["Gold", "Silver", "Red"],
     N_SHRINES: 3,
+    MIN_ROOM_NUMBER: 6,
     CREATE_LOCKED: false,
     setLockLevel(level) {
         let lockLevel = Math.min(this.MAX_LOCK_LEVEL, level);
