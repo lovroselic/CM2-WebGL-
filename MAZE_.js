@@ -1212,8 +1212,12 @@ class Arena extends MasterDungeon {
         this.GA.border(2);
 
         //set entrance, randomly on top
-        this.entrance = new Grid(RND(this.minX + 2, this.maxX - 2), this.minY);
-        this.GA.toStair(this.entrance);
+        let stairsUp = new Grid(RND(this.minX + 2, this.maxX - 2), this.minY);
+        this.GA.carveDot(stairsUp);
+        const entranceDir = this.GA.getDirectionsIfNot(stairsUp, MAPDICT.WALL)[0];
+        stairsUp = stairsUp.add(entranceDir.mirror());
+        this.GA.addStair(stairsUp);
+        this.entrance = new Pointer(stairsUp, entranceDir);
 
         //center room with downstairs
         let center = new Grid((this.width / 2) | 0, (this.height / 2) | 0);
@@ -1224,9 +1228,11 @@ class Arena extends MasterDungeon {
         let ignoreArea = new Area(topLeft.x, topLeft.y, W, W);
         let RoomObj = new Room(this.rooms.length + 1, roomArea, DUNGEON.LOCK_LEVELS[0]);
         let centeringVector = new Vector((ARENA.CENTRAL_ROOM_SIZE / 2) | 0, 0);
+
         //exit
-        this.exit = center.add(UP).add(centeringVector);
-        this.GA.toStair(this.exit);
+        let stairsDown = center.add(UP).add(centeringVector);
+        this.GA.addStair(stairsDown);
+        this.exit = new Pointer(stairsDown, DOWN);
 
         //corridor + door
         for (let x = 0; x < ARENA.CENTRAL_ROOM_SIZE; x++) {
@@ -1234,6 +1240,7 @@ class Arena extends MasterDungeon {
                 this.GA.toRoom(center.add(new Vector(x, y)));
             }
         }
+
         this.GA.toRoom(center.add(DOWN, ARENA.CENTRAL_ROOM_SIZE).add(centeringVector));
         let door = center.add(DOWN, ARENA.CENTRAL_ROOM_SIZE + 1).add(centeringVector);
         this.GA.toDoor(door);
@@ -1265,9 +1272,11 @@ class Arena extends MasterDungeon {
         shrinePool.push(new Grid(this.minX, RND(this.minY + 2, this.maxY - 2)));
         shrinePool.push(new Grid(this.maxX, RND(this.minY + 2, this.maxY - 2)));
         for (let shrine of shrinePool) {
-            this.shrines.push(shrine);
             this.GA.carveDot(shrine);
+            const shrineDir = this.GA.getDirectionsIfNot(shrine, MAPDICT.WALL)[0];
+            shrine = shrine.add(shrineDir.mirror());
             this.GA.addShrine(shrine);
+            this.shrines.push(new Pointer(shrine, shrineDir));
         }
 
         delete this.areas;
@@ -1391,7 +1400,6 @@ class Dungeon extends MasterDungeon {
         let start = this.randomUnusedEntry(startingRoom);
         startingRoom.door.push(start);
         this.carveMaze(start);
-        //this.recheckDeadEnds();
         this.GA.toDoor(start);
         MAZE.configure(this);
 
@@ -1713,7 +1721,7 @@ const FREE_MAP = {
     }
 };
 const DUNGEON = {
-    VERSION: "3.10",
+    VERSION: "4.00",
     CSS: "color: #f4ee42",
     REFUSE_CONNECTION_TO_ROOM: true,
     LIMIT_ROOMS: false,

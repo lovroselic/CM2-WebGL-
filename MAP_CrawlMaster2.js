@@ -123,6 +123,14 @@ const MAP = {
         wall: "GreenDungeonWall",
         minPad: 3,
     },
+    3: {
+        width: 37,
+        height: 37,
+        floor: "OldFloor",
+        ceil: "Tile",
+        wall: "Wall7",
+        minPad: 3,
+    },
 };
 
 const MONSTER_LAYOUT = {
@@ -202,6 +210,13 @@ const MONSTER_LAYOUT = {
             monster: { Bat: 1 },
         }
     },
+    3: { //ARENA
+        corridor: {
+            N: 15,
+            monster: { Bat: 1 }
+        },
+        boss: { Bat: 1 },
+    }
 };
 
 const SPAWN = {
@@ -221,7 +236,6 @@ const SPAWN = {
         this.stairs(map, level);
         this.gates(map);
         this.items(map);
-        //this.debug(level);
         this.monsters(map, level);
         this.mapPointers(map);
     },
@@ -361,12 +375,12 @@ const SPAWN = {
     },
     mapPointers(map) {
         map.map_pointers = [
-          map.shrines.chooseRandom().grid,
-          map.keys.Red,
-          map.keys.Silver,
-          map.keys.Gold
+            map.shrines.chooseRandom().grid,
+            map.keys.Red,
+            map.keys.Silver,
+            map.keys.Gold
         ];
-      },
+    },
     debug(map) {
         const items = [COMMON_ITEM_TYPE.GoldCube, COMMON_ITEM_TYPE.GoldBar, COMMON_ITEM_TYPE.GoldKey, COMMON_ITEM_TYPE.RedPotion, COMMON_ITEM_TYPE.Scroll, COMMON_ITEM_TYPE.Sword,
         COMMON_ITEM_TYPE.Heart, COMMON_ITEM_TYPE.Shield, COMMON_ITEM_TYPE.Mana, COMMON_ITEM_TYPE.Magic, COMMON_ITEM_TYPE.Chest, COMMON_ITEM_TYPE.TreasureChest,
@@ -484,6 +498,13 @@ const SPAWN = {
         //analysis
         if (DEBUG.VERBOSE) ENTITY3D.analyze();
     },
+    arena(level) {
+        console.warn("spawning ... arena level", level);
+        const map = MAP[level].map;
+        this.stairs(map, level);
+        this.gates(map);
+        this.shrines(map);
+    }
 };
 
 const MONSTER_TYPE = {

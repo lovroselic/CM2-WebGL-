@@ -45,10 +45,10 @@ const INI = {
     CRIPPLE_SPEED: 0.1,
     BOOST_TIME: 59,
     MM_reveal_radius: 4,
-    FINAL_LEVEL: 4,
+    FINAL_LEVEL: 3,
 };
 const PRG = {
-    VERSION: "0.15.06",
+    VERSION: "0.15.07",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -569,7 +569,7 @@ const GAME = {
         AI.immobileWander = false;
         GAME.completed = false;
         GAME.upperLimit = 1;
-        GAME.won = false;
+        //GAME.won = false;
         //GAME.level = 1;
         GAME.level = 2;
         //GAME.gold = 0;
@@ -608,7 +608,11 @@ const GAME = {
         MAP[level].map.level = level;
     },
     buildWorld(level) {
-        SPAWN.spawn(level);
+        if (level === INI.FINAL_LEVEL) {
+            SPAWN.arena(level);
+        } else {
+            SPAWN.spawn(level);
+        }
         MAP[level].world = WORLD.build(MAP[level].map);
         console.log("world", MAP[level].world);
     },
@@ -664,6 +668,7 @@ const GAME = {
         console.warn("useStaircase", destination);
         GAME.STORE.storeIAM(MAP[GAME.level].map);
         GAME.level = destination.level;
+        if (GAME.level === GAME.WIN_LEVEL) return GAME.won();
         const level = GAME.level;
         if (!MAP[GAME.level].map) {
             console.info("Setting new level ->", GAME.level);
@@ -889,7 +894,7 @@ const GAME = {
         $("#buttons").prepend("<input type='button' id='startGame' value='Start Game'>");
         $("#startGame").prop("disabled", true);
         $("#conv").remove();
-        //DUNGEON.MIN_PADDING = 3;
+        GAME.WIN_LEVEL = INI.FINAL_LEVEL + 1;
     },
     setTitle() {
         const text = GAME.generateTitleText();
@@ -960,6 +965,15 @@ const GAME = {
             $("#pause").trigger("click");
             ENGINE.TIMERS.display();
             ENGINE.GAME.keymap[ENGINE.KEY.map.F4] = false;
+        }
+        if (map[ENGINE.KEY.map.F7]) {
+            console.log("TELEPORT TO GOLD ROOM");
+            const M = MAP[GAME.level].map;
+            const room = M.findRoom("Gold");
+            const target = M.findMiddleSpaceUnreserved(room.area);
+            HERO.player.pos = Vector3.from_Grid(Grid.toCenter(target), 0.5);
+
+            ENGINE.GAME.keymap[ENGINE.KEY.map.F7] = false;
         }
         if (map[ENGINE.KEY.map.F8]) {
             console.log("TELEPORT TO TEMPLE");
@@ -1057,6 +1071,19 @@ const GAME = {
         GAME.checkScore();
         TITLE.hiScore();
         ENGINE.GAME.ANIMATION.next(ENGINE.KEY.waitFor.bind(null, TITLE.startTitle, "enter"));
+    },
+    won() {
+        console.log("GAME WON");
+        throw "NOT IMPLEMENTED";
+        /*
+        ENGINE.TIMERS.stop();
+        ENGINE.GAME.ANIMATION.resetTimer();
+        TITLE.music();
+        TITLE.setEndingCreditsScroll();
+        $("#pause").prop("disabled", true);
+        $("#pause").off();
+        ENGINE.GAME.ANIMATION.next(GAME.inBetween);
+        */
     }
 };
 const TITLE = {
