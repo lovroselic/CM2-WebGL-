@@ -48,7 +48,7 @@ const INI = {
     FINAL_LEVEL: 3,
 };
 const PRG = {
-    VERSION: "0.15.07",
+    VERSION: "0.15.08",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -569,7 +569,6 @@ const GAME = {
         AI.immobileWander = false;
         GAME.completed = false;
         GAME.upperLimit = 1;
-        //GAME.won = false;
         //GAME.level = 1;
         GAME.level = 2;
         //GAME.gold = 0;

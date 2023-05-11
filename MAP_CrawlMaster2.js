@@ -126,8 +126,8 @@ const MAP = {
     3: {
         width: 37,
         height: 37,
-        floor: "OldFloor",
-        ceil: "Tile",
+        floor: "Tile",
+        ceil: "OldFloor",
         wall: "Wall7",
         minPad: 3,
     },
@@ -215,7 +215,7 @@ const MONSTER_LAYOUT = {
             N: 15,
             monster: { Bat: 1 }
         },
-        boss: { Bat: 1 },
+        boss: { GhostFace: 1 },
     }
 };
 
@@ -225,7 +225,8 @@ const SPAWN = {
         mana_potions_per_level: 6,
         scrolls_per_level: 6,
         monster_on_corridors: 25,
-        gold_per_level: 6
+        gold_per_level: 6,
+        chest_per_arena: 6
     },
     spawn(level) {
         console.log("spawning ... level", level);
@@ -408,7 +409,6 @@ const SPAWN = {
             const type = weightedRnd({ Chest: 10, TreasureChest: 1 });
             ITEM3D.add(new FloorItem3D(Grid.toCenter(corner.grid), COMMON_ITEM_TYPE[type]));
         }
-        console.log("ITEM3D", ITEM3D);
     },
     items(map) {
         this.containers(map);
@@ -504,6 +504,112 @@ const SPAWN = {
         this.stairs(map, level);
         this.gates(map);
         this.shrines(map);
+        this.arenaLights(map);
+        this.arenaDecals(map);
+        this.arenaItems(map);
+        this.arenaMonsters(map, level);
+    },
+    arenaMonsters(map, level) {
+        const corrGrids = map.poolOfCorridorGrids(MONSTER_LAYOUT[level].corridor.N);
+        for (const grid of corrGrids) {
+            const type = weightedRnd(MONSTER_LAYOUT[level].corridor.monster);
+            ENTITY3D.add(new $3D_Entity(Grid.toCenter(grid), MONSTER_TYPE[type], UP));
+        }
+
+        const boss = MONSTER_LAYOUT[level].boss;
+        const N = Object.keys(boss).length;
+        const bossGrids = map.poolOfCorridorGrids(N);
+        for (let [index, type] of Object.keys(boss).entries()) {
+            const grid = bossGrids[index];
+            ENTITY3D.add(new $3D_Entity(Grid.toCenter(grid), MONSTER_TYPE[type], UP));
+        }
+    },
+    arenaDecals(map) {
+        //corridor decals
+        const N = (map.width * map.height * parseFloat(map.density) * 0.11) | 0;
+        console.info("decals wall", N);
+        const corrDecalGrids = map.poolOfCorridorDecalGrids(N);
+        for (let grid of corrDecalGrids) {
+            const type = weightedRnd({ picture: 10, crest: 20 });
+            const source = DECAL_SOURCES[type].chooseRandom();
+            DECAL3D.add(new StaticDecal(grid.grid, DirectionToFace(grid.dir), SPRITE[source], type, source));
+        }
+
+        //top, bottom corridor decals
+        const TB = (map.width * map.height * parseFloat(map.density) * 0.03) | 0;
+        console.info("decals TB", N);
+        const corrGrids = map.poolOfUnreservedCorridorGrids(TB);
+        for (let grid of corrGrids) {
+            const type = weightedRnd({ TOP: 10, BOTTOM: 5 });
+            const source = TOP_BOTTOM_SOURCES[type].chooseRandom();
+            DECAL3D.add(new StaticDecal(grid, type, SPRITE[source], "crest", source));
+        }
+    },
+    arenaLights(map) {
+        //corridor lights
+        const N = (map.width * map.height * parseFloat(map.density) * 0.01) | 0;
+        console.info("lights", N);
+        const corrDecalGrids = map.poolOfCorridorDecalGrids(N);
+        for (let grid of corrDecalGrids) {
+            const light = LIGHT_DECALS.chooseRandom();
+            LIGHTS3D.add(new LightDecal(grid.grid, DirectionToFace(grid.dir), SPRITE[light.sprite], "light", light.sprite, light.color));
+        }
+    },
+    arenaItems(map) {
+        //health potions
+        const roomPool = map.poolOfCorridorGrids(SPAWN.INI.health_potions_per_level);
+        for (const grid of roomPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.RedPotion));
+        }
+        //mana potions
+        const corridorPool = map.poolOfCorridorGrids(SPAWN.INI.mana_potions_per_level);
+        for (const grid of corridorPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.BluePotion));
+        }
+        //scrolls
+        let anyPool = map.poolOfCorridorGrids(SPAWN.INI.scrolls_per_level);
+        for (const grid of anyPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.Scroll));
+        }
+
+        //gold
+        anyPool = map.poolOfCorridorGrids(SPAWN.INI.gold_per_level);
+        for (const grid of anyPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.GoldCube));
+        }
+        anyPool = map.poolOfCorridorGrids(SPAWN.INI.gold_per_level);
+        for (const grid of anyPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.GoldBar));
+        }
+        anyPool = map.poolOfCorridorGrids(SPAWN.INI.gold_per_level);
+        for (const grid of anyPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.SilverBar));
+        }
+        anyPool = map.poolOfCorridorGrids(SPAWN.INI.gold_per_level);
+        for (const grid of anyPool) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE.GoldBar));
+        }
+
+        //skills, upgrades
+        const skills = [
+            [COMMON_ITEM_TYPE.Sword, COMMON_ITEM_TYPE.Sting],
+            [COMMON_ITEM_TYPE.Shield],
+            [COMMON_ITEM_TYPE.Heart],
+            [COMMON_ITEM_TYPE.Mana],
+            [COMMON_ITEM_TYPE.Magic]
+        ];
+        const total = skills.length;
+        const pool = map.poolOfCorridorGrids(total);
+        for (let [index, grid] of pool.entries()) {
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), skills[index].chooseRandom()));
+        }
+
+        //chests
+        const chestPool = map.poolOfCorridorGrids(SPAWN.INI.chest_per_arena);
+        for (const grid of chestPool) {
+            const type = weightedRnd({ Chest: 10, TreasureChest: 1 });
+            ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE[type]));
+        }
     }
 };
 
