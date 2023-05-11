@@ -175,7 +175,7 @@ const MONSTER_LAYOUT = {
     2: {
         start: {
             N: 1,
-            monster: { Bat: 1 }
+            monster: { RedGoldBat: 1 }
         },
         corridor: {
             N: 25,
@@ -798,6 +798,32 @@ const MONSTER_TYPE = {
         magic: 0,
         health: 1,
         xp: 1,
+        gold: 0,
+        //
+        attackSound: "BatAttack",
+        hurtSound: "BatAttack",
+        behaviourArguments: [Infinity, ["wanderer"], -1],
+        moveSpeed: 1.0,
+        //casters
+        mana: 0
+    },
+    RedGoldBat: {
+        name: "RedGoldBat",
+        texture: "RedGoldBat",
+        model: "Bat",
+        scale: 1.2 / 2 ** 3,
+        shine: 128.0 * 0.5,
+        rotateToNorth: Math.PI,
+        midHeight: 0.0,
+        fly: 0.5,
+        deathType: "SmokeExplosion",
+        inventory: null,
+        //attribs
+        attack: 2,
+        defense: 1,
+        magic: 0,
+        health: 2,
+        xp: 2,
         gold: 0,
         //
         attackSound: "BatAttack",

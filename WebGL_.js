@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.25.4",
+    VERSION: "0.30.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -184,15 +184,6 @@ const WebGL = {
         BUMP3D.init(map);
         ENTITY3D.init(map, hero);
         INTERFACE3D.init(map);
-
-        if (this.VERBOSE) {
-            console.log("DECAL3D", DECAL3D);
-            console.log("LIGHTS3D", LIGHTS3D);
-            console.log("GATE3D", GATE3D);
-            console.log("VANISHING3D", VANISHING3D);
-            console.log("ITEM3D", ITEM3D);
-            console.log("INTERACTIVE_DECAL3D", INTERACTIVE_DECAL3D);
-        }
     },
     setCamera(camera) {
         this.camera = camera;
@@ -1886,6 +1877,8 @@ class $3D_Entity {
         for (const prop in type) {
             this[prop] = type[prop];
         }
+
+        if (this.texture) this.changeTexture(TEXTURE[this.texture]); //superseed from model
 
         this.fullHealth = this.health;
         this.model = $3D_MODEL[this.model];

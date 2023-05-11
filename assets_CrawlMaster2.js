@@ -62,6 +62,8 @@ LoadTextures = [
     { srcName: "Sting_Base_Color.png", name: "Sting" },
     { srcName: "Marble.jpg", name: "Marble" },
 
+    { srcName: "RedGoldBat.jpg", name: "RedGoldBat" },
+
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
     { srcName: "RedGate1_256.png", name: "RedGate1" },
