@@ -77,7 +77,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.25.3",
+    VERSION: "0.25.4",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: true,
@@ -464,6 +464,12 @@ const WebGL = {
                 }
             }
         }
+    },
+    black() {
+        const gl = this.CTX;
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clearDepth(1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     },
     renderScene() {
         const gl = this.CTX;

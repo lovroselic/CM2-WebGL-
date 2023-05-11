@@ -48,7 +48,7 @@ const INI = {
     FINAL_LEVEL: 3,
 };
 const PRG = {
-    VERSION: "0.15.08",
+    VERSION: "0.15.09",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -105,7 +105,7 @@ const PRG = {
         $(ENGINE.gameWindowId).width(ENGINE.gameWIDTH + 2 * ENGINE.sideWIDTH + 4);
         ENGINE.addBOX("TITLE", ENGINE.titleWIDTH, ENGINE.titleHEIGHT, ["title", "compassRose", "compassNeedle"], null);
         ENGINE.addBOX("LSIDE", ENGINE.sideWIDTH, ENGINE.gameHEIGHT, ["Lsideback", "potion", "time", "statusBars", "stat", "gold"], "side");
-        ENGINE.addBOX("ROOM", ENGINE.gameWIDTH, ENGINE.gameHEIGHT, ["background", "3d_webgl", "sword", "info", "text", "FPS", "button", "click"], "side");
+        ENGINE.addBOX("ROOM", ENGINE.gameWIDTH, ENGINE.gameHEIGHT, ["background", "3d_webgl", "info", "text", "FPS", "button", "click"], "side");
         ENGINE.addBOX("SIDE", ENGINE.sideWIDTH, ENGINE.gameHEIGHT, ["sideback", "keys", "minimap", "scrolls"], "fside");
         ENGINE.addBOX("DOWN", ENGINE.bottomWIDTH, ENGINE.bottomHEIGHT, ["bottom", "bottomText"], null);
 
@@ -851,6 +851,7 @@ const GAME = {
         HERO.death();
     },
     frameDraw(lapsedTime) {
+        if (GAME.completed) return;
         //ENGINE.clearLayerStack();
         if (DEBUG._2D_display) {
             GAME.drawPlayer();
@@ -1073,8 +1074,7 @@ const GAME = {
     },
     won() {
         console.log("GAME WON");
-        throw "NOT IMPLEMENTED";
-        /*
+        GAME.completed = true;
         ENGINE.TIMERS.stop();
         ENGINE.GAME.ANIMATION.resetTimer();
         TITLE.music();
@@ -1082,8 +1082,25 @@ const GAME = {
         $("#pause").prop("disabled", true);
         $("#pause").off();
         ENGINE.GAME.ANIMATION.next(GAME.inBetween);
-        */
-    }
+    },
+    inBetween() {
+        const layersToClear = ["FPS", "info"];
+        layersToClear.forEach(item => ENGINE.layersToClear.add(item));
+        ENGINE.clearLayerStack();
+        ENGINE.GAME.ANIMATION.next(GAME.wonRun);
+        WebGL.black();
+    },
+    wonRun(lapsedTime) {
+        if (ENGINE.GAME.stopAnimation) return;
+        if (ENGINE.GAME.keymap[ENGINE.KEY.map.enter]) {
+            ENGINE.GAME.ANIMATION.waitThen(TITLE.startTitle);
+        }
+        GAME.endingCreditText.process(lapsedTime);
+        GAME.wonFrameDraw();
+    },
+    wonFrameDraw() {
+        GAME.endingCreditText.draw();
+    },
 };
 const TITLE = {
     stack: {
@@ -1604,6 +1621,49 @@ const TITLE = {
         CTX.shadowOffsetY = 2;
         CTX.shadowBlur = 3;
         CTX.fillText("GAME OVER", x, y);
+    },
+    setEndingCreditsScroll() {
+        console.group("endingCredits");
+        const text = this.generateEndingCredits();
+        const RD = new RenderData("DeepDown", 16, "#DAA520", "text");
+        GAME.endingCreditText = new VerticalScrollingText(text, 1, RD);
+        console.groupEnd("endingCredits");
+    },
+    generateEndingCredits() {
+        const text = `Congratulations!
+        You have completed CrawlMaster II
+        in ${GAME.time.timeString()}.
+        You certainly had fun.
+        You may think this ending is rather
+        anticlimactic ... just like as in
+        Crawl Master I ...
+        sure ...
+        but what would you prefer?
+        picking gold, without noticing that it's over?
+        like in 'Deep Down ...'?
+        There comes a time a project has to end.
+        Somehow.
+        
+        CREDITS:
+        all libraries and game code: Lovro Selic,
+        written in JavaScript and GLSL,
+        except of course,  JQUERY: John Resig et al,
+        glMatrix library by Brandon Jones and 
+        Colin MacKenzie IV.
+
+        Graphics taken from (hopefully) free resources
+        or drawn with PiskelApp or made with Blender.
+
+        Supplementary tools written in 
+        JavaScript or Python.
+          
+        Music: Laughing Skull 
+        written and performed by LaughingSkull, 
+        ${"\u00A9"} 2006 Lovro Selic.
+    
+        thanks for sticking 'till the end.\n`;
+        return text;
+
     },
 };
 
