@@ -1730,7 +1730,7 @@ const ENGINE = {
         }
 
         function processAccessor(model, buffer, idx) {
-          
+
           const accessor = model.accessors[idx];
           if (!accessor) {
             console.error(model.meshes[0].name, idx);
@@ -2792,7 +2792,7 @@ class $3D_ACTOR {
         keyFrameTime = node.time[keyFrameIndex];
       }
       const nextKeyFrameTime = node.time[keyFrameIndex + 1];
-      const timeScale = (delta - keyFrameTime) / (nextKeyFrameTime - keyFrameTime); 
+      const timeScale = (delta - keyFrameTime) / (nextKeyFrameTime - keyFrameTime);
       const translation = glMatrix.vec3.create();
       glMatrix.vec3.lerp(translation, node.translation[keyFrameIndex], node.translation[keyFrameIndex + 1], timeScale);
 

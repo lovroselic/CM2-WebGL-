@@ -354,7 +354,7 @@ String.prototype.changeChar = function (at, char) {
 String.prototype.splitByN = function (N) {
   let result = [];
   for (let i = 0, LN = this.length; i < LN; i += N) {
-    result.push(this.substring(i, N));
+    result.push(this.substring(i, i + N));
   }
   return result;
 };
@@ -367,6 +367,16 @@ String.prototype.fill = function (stringy, howMany) {
     else break;
   }
   return s;
+};
+String.prototype.splitOnLastDot = function () {
+  const lastIndex = this.lastIndexOf(".");
+  if (lastIndex === -1) {
+    return [this, ""];
+  } else {
+    const firstPart = this.slice(0, lastIndex);
+    const secondPart = this.slice(lastIndex + 1);
+    return [firstPart, secondPart];
+  }
 };
 Set.prototype.moveFrom = function (s) {
   s.forEach(e => {

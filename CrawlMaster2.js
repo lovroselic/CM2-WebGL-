@@ -48,9 +48,10 @@ const INI = {
     FINAL_LEVEL: 3,
 };
 const PRG = {
-    VERSION: "0.16.01",
+    VERSION: "0.16.02",
     NAME: "Crawl Master II",
     YEAR: "2023",
+    SG: "CrawlMaster2",
     CSS: "color: #239AFF;",
     INIT() {
         console.log("%c**************************************************************************************************************************************", PRG.CSS);
@@ -352,14 +353,13 @@ const HERO = {
         this.magicExpGoal = INI.INI_BASE_EXP_FONT;
         this.canShoot = true;
         this.inventory.clear();
-        /*const propsToSave = ["health", "maxHealth", "mana", "maxMana", "defense", "reference_defense", "attack",
-          "reference_attack", "magic", "attackExp", "defenseExp", "magicExp", "attackExpGoal", "defenseExpGoal", "magicExpGoal",
-          "inventory.potion.red", "inventory.potion.blue"];*/
-        //this.attributesForSaveGame = [];
-        /*for (const P of propsToSave) {
-          this.attributesForSaveGame.push(`HERO.${P}`);
-        }*/
-        //PLAYER.hitByMissile = HERO.hitByMissile;
+        const propsToSave = ["health", "maxHealth", "mana", "maxMana", "defense", "reference_defense", "attack",
+            "reference_attack", "magic", "attackExp", "defenseExp", "magicExp", "attackExpGoal", "defenseExpGoal", "magicExpGoal",
+            "inventory.potion.red", "inventory.potion.blue"];
+        this.attributesForSaveGame = [];
+        for (const P of propsToSave) {
+            this.attributesForSaveGame.push(`HERO.${P}`);
+        }
     },
     resetVision() {
         this.vision = 1;
@@ -582,13 +582,32 @@ const GAME = {
         HERO.construct();
         ENGINE.VECTOR2D.configure("player");
         GAME.fps = new FPS_short_term_measurement(300);
+        GAME.prepareForRestart();
         GAME.time = new Timer("Main");
+
+        console.info(" GAME.time", GAME.time);
+
+        //SAVE GAME
+        SAVE_GAME.pointers = [...HERO.attributesForSaveGame, 'GAME.level', 'GAME.gold'];
+        SAVE_GAME.lists = ["HERO.inventory.scroll"];
+        SAVE_GAME.timers = ["Main"];
+        //end SAVE GAME
+        if (GAME.fromCheckpoint) {
+            console.log(`%c ... Loading from checkpoint ...`, GAME.CSS);
+            HERO.inventory.scroll.clear();
+            SAVE_GAME.load();
+            GAME.upperLimit = GAME.level;
+            GAME.fromCheckpoint = false;
+        }
         GAME.levelStart();
+    },
+    checkpoint() {
+        GAME.fromCheckpoint = true;
+        GAME.start();
     },
     levelStart() {
         console.log("starting level", GAME.level);
         GAME.levelFinished = false;
-        GAME.prepareForRestart();
         GAME.initLevel(GAME.level);
         GAME.continueLevel(GAME.level);
     },
@@ -615,7 +634,6 @@ const GAME = {
             SPAWN.spawn(level);
         }
         MAP[level].world = WORLD.build(MAP[level].map);
-        console.log("world", MAP[level].world);
     },
     setWorld(level, decalsAreSet = false) {
         const textureData = {
@@ -653,16 +671,9 @@ const GAME = {
         INTERFACE3D.associateHero(HERO);
         INTERFACE3D.add(new $POV(COMMON_ITEM_TYPE.POV, HERO.player));
         window.SWORD = INTERFACE3D.POOL[0];
-        console.log("SWORD", SWORD);
 
         //reset births!
         ENTITY3D.resetTime();
-
-        //debug
-        HERO.inventory.scroll.add(new Scroll("Petrify"));
-        HERO.inventory.scroll.add(new Scroll("Petrify"));
-        HERO.inventory.scroll.add(new Scroll("Petrify"));
-        HERO.inventory.scroll.add(new Scroll("Petrify"));
     },
     useStaircase(destination) {
         console.time("staircase");
@@ -672,6 +683,8 @@ const GAME = {
         if (GAME.level === GAME.WIN_LEVEL) return GAME.won();
         const level = GAME.level;
         if (!MAP[GAME.level].map) {
+            SAVE_GAME.save();
+            TURN.display("GAME SAVED", "#FFF");
             console.info("Setting new level ->", GAME.level);
             GAME.STORE.clearPools();
             GAME.newDungeon(level);
@@ -1523,12 +1536,21 @@ const TITLE = {
         FORM.BUTTON.POOL.clear();
         let x = 36;
         let y = 440;
-        let w = 166;
-        let h = 24;
+        const w = 166;
+        const h = 24;
         let startBA = new Area(x, y, w, h);
-        let buttonColors = new ColorInfo("#F00", "#A00", "#222", "#666", 13);
-        let musicColors = new ColorInfo("#0E0", "#090", "#222", "#666", 13);
+        const buttonColors = new ColorInfo("#F00", "#A00", "#222", "#666", 13);
+        const musicColors = new ColorInfo("#0E0", "#090", "#222", "#666", 13);
+        const checkpointColors = new ColorInfo("#F0F", "#A0A", "#222", "#666", 10);
         FORM.BUTTON.POOL.push(new Button("Start game", startBA, buttonColors, GAME.start));
+
+        const sg = localStorage.getItem(PRG.SG);
+        if (sg) {
+            x += 1.2 * w;
+            let resumeBA = new Area(x, y, w, h);
+            FORM.BUTTON.POOL.push(new Button("Resume", resumeBA, checkpointColors, GAME.checkpoint));
+        }
+
         x += 1.2 * w;
         let music = new Area(x, y, w, h);
         FORM.BUTTON.POOL.push(new Button("Play title music", music, musicColors, TITLE.music));
@@ -1703,10 +1725,6 @@ $(function () {
     //SPEECH.init(0.6);
     PRG.setup();
     ENGINE.LOAD.preload();
-    //takes a long time, use during preloading
     UNIFORM.setup();
-    //SCORE.init("SC", "RUN", 10, 2500);
-    //SCORE.loadHS();
-    //SCORE.hiScore();
-    //SCORE.extraLife = [10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, Infinity];
+    SAVE_GAME.setKey(PRG.SG);
 });

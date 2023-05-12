@@ -80,7 +80,7 @@ const WebGL = {
     VERSION: "0.30.1",
     CSS: "color: gold",
     CTX: null,
-    VERBOSE: true,
+    VERBOSE: false,
     INI: {
         PIC_WIDTH: 0.5,
         PIC_TOP: 0.2,

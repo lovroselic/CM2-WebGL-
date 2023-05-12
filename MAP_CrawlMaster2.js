@@ -229,7 +229,6 @@ const SPAWN = {
         chest_per_arena: 6
     },
     spawn(level) {
-        console.log("spawning ... level", level);
         const map = MAP[level].map;
         this.lights(map);
         this.decals(map);
@@ -469,7 +468,6 @@ const SPAWN = {
         }
     },
     monsters(map, level) {
-        console.log("spawning monsters...");
         const corrGrids = map.poolOfCorridorGrids(MONSTER_LAYOUT[level].corridor.N);
         for (const grid of corrGrids) {
             const type = weightedRnd(MONSTER_LAYOUT[level].corridor.monster);
@@ -499,7 +497,6 @@ const SPAWN = {
         if (DEBUG.VERBOSE) ENTITY3D.analyze();
     },
     arena(level) {
-        console.warn("spawning ... arena level", level);
         const map = MAP[level].map;
         this.stairs(map, level);
         this.gates(map);
@@ -508,6 +505,7 @@ const SPAWN = {
         this.arenaDecals(map);
         this.arenaItems(map);
         this.arenaMonsters(map, level);
+        map.map_pointers = [];
     },
     arenaMonsters(map, level) {
         const corrGrids = map.poolOfCorridorGrids(MONSTER_LAYOUT[level].corridor.N);
@@ -527,7 +525,6 @@ const SPAWN = {
     arenaDecals(map) {
         //corridor decals
         const N = (map.width * map.height * parseFloat(map.density) * 0.11) | 0;
-        console.info("decals wall", N);
         const corrDecalGrids = map.poolOfCorridorDecalGrids(N);
         for (let grid of corrDecalGrids) {
             const type = weightedRnd({ picture: 10, crest: 20 });
@@ -537,7 +534,6 @@ const SPAWN = {
 
         //top, bottom corridor decals
         const TB = (map.width * map.height * parseFloat(map.density) * 0.03) | 0;
-        console.info("decals TB", N);
         const corrGrids = map.poolOfUnreservedCorridorGrids(TB);
         for (let grid of corrGrids) {
             const type = weightedRnd({ TOP: 10, BOTTOM: 5 });
@@ -548,7 +544,6 @@ const SPAWN = {
     arenaLights(map) {
         //corridor lights
         const N = (map.width * map.height * parseFloat(map.density) * 0.01) | 0;
-        console.info("lights", N);
         const corrDecalGrids = map.poolOfCorridorDecalGrids(N);
         for (let grid of corrDecalGrids) {
             const light = LIGHT_DECALS.chooseRandom();
