@@ -48,7 +48,7 @@ const INI = {
     FINAL_LEVEL: 3,
 };
 const PRG = {
-    VERSION: "0.16.00",
+    VERSION: "0.16.01",
     NAME: "Crawl Master II",
     YEAR: "2023",
     CSS: "color: #239AFF;",
@@ -330,8 +330,6 @@ class Scroll {
 }
 
 const HERO = {
-    //startInit() { },
-    //init() { },
     construct() {
         this.resetVision();
         this.visible();
@@ -353,6 +351,7 @@ const HERO = {
         this.defenseExpGoal = INI.INI_BASE_EXP_FONT;
         this.magicExpGoal = INI.INI_BASE_EXP_FONT;
         this.canShoot = true;
+        this.inventory.clear();
         /*const propsToSave = ["health", "maxHealth", "mana", "maxMana", "defense", "reference_defense", "attack",
           "reference_attack", "magic", "attackExp", "defenseExp", "magicExp", "attackExpGoal", "defenseExpGoal", "magicExpGoal",
           "inventory.potion.red", "inventory.potion.blue"];*/
@@ -512,23 +511,26 @@ const HERO = {
         setTimeout(() => (HERO.canShoot = true), INI.HERO_SHOOT_TIMEOUT);
         return;
     },
-
     die() {
-        console.log(`%c HERO DIED! not yed implemented`, "color: red; font-size: 20px");
+        this.dead = true;
+        AUDIO.Scream.play();
     },
     death() {
-
-        //ENGINE.TEXT.centeredText("Press <ENTER> to try again", ENGINE.gameWIDTH, ENGINE.gameHEIGHT / 2);
-        //ENGINE.GAME.ANIMATION.next(ENGINE.KEY.waitFor.bind(null, GAME.levelStart, "enter"));
+        this.player.pos.set_y(0.1);
+        for (const L of LIGHTS3D.POOL) {
+            L.lightColor = Array(0, 0, 0);
+        }
+        GAME.over();
     },
     inventory: {
-        key: [],
-        status: [],
-        potion: {
-            red: 0,
-            blue: 0
-        },
-        scroll: new Inventory()
+        clear() {
+            this.key = [];
+            this.status = [];
+            this.potion = {};
+            this.potion.red = 0;
+            this.potion.blue = 0;
+            this.scroll = new Inventory();
+        }
     },
 };
 
@@ -561,7 +563,7 @@ const GAME = {
         $("#pause").off();
         GAME.paused = false;
 
-        let GameRD = new RenderData("DeepDown", 60, "#DC143C", "text", "#F22", 2, 2, 2);
+        let GameRD = new RenderData("DeepDown", 50, "#f6602d", "text", "#F22", 2, 2, 2);
         ENGINE.TEXT.setRD(GameRD);
         ENGINE.watchVisibility(GAME.lostFocus);
         ENGINE.GAME.start(16);
@@ -571,8 +573,8 @@ const GAME = {
         GAME.upperLimit = 1;
         GAME.level = 1;
         //GAME.level = 2;
-        //GAME.gold = 0;
-        GAME.gold = 10000;
+        GAME.gold = 0;
+        //GAME.gold = 10000;
 
         const storeList = ["DECAL3D", "LIGHTS3D", "GATE3D", "VANISHING3D", "ITEM3D", "MISSILE3D", "INTERACTIVE_DECAL3D", "BUMP3D", "ENTITY3D"];
         GAME.STORE = new Store(storeList);
@@ -724,7 +726,6 @@ const GAME = {
         MINIMAP.unveil(Vector3.to_FP_Grid(HERO.player.pos), HERO.vision);
         ENGINE.TIMERS.update();
 
-        //HERO.manage();
         const interaction = WebGL.MOUSE.click(HERO);
         if (interaction) GAME.processInteraction(interaction);
 
@@ -845,14 +846,13 @@ const GAME = {
         }
     },
     checkIfProcessesComplete() {
-        //if (DESTRUCTION_ANIMATION.POOL.length !== 0) return;
-        //if (VANISHING.POOL.length !== 0) return;
-        //if (HERO.floats) return;
+        if (EXPLOSION3D.POOL.length !== 0) return;
+        if (VANISHING3D.POOL.length !== 0) return;
+        if (MISSILE3D.POOL.length !== 0) return;
         HERO.death();
     },
     frameDraw(lapsedTime) {
         if (GAME.completed) return;
-        //ENGINE.clearLayerStack();
         if (DEBUG._2D_display) {
             GAME.drawPlayer();
         }
@@ -927,14 +927,12 @@ const GAME = {
         GAME.clickPause();
     },
     clickPause() {
-        if (HERO.dead || GAME.levelCompleted) return;
         $("#pause").trigger("click");
         ENGINE.GAME.keymap[ENGINE.KEY.map.F4] = false;
     },
     pause() {
         if (GAME.paused) return;
-        if (GAME.levelCompleted) return;
-        if (HERO.dead) return;
+        //if (HERO.dead) return;
         console.log("%cGAME paused.", PRG.CSS);
         $("#pause").prop("value", "Resume Game [F4]");
         $("#pause").off("click", GAME.pause);
@@ -1066,11 +1064,13 @@ const GAME = {
         TITLE.score();
     },
     over() {
-        TITLE.gameOver();
-        ENGINE.showMouse();
-        GAME.checkScore();
-        TITLE.hiScore();
-        ENGINE.GAME.ANIMATION.next(ENGINE.KEY.waitFor.bind(null, TITLE.startTitle, "enter"));
+        console.log(`%c HERO DIED!`, "color: red; font-size: 20px");
+        AUDIO.Scream.play();
+        ENGINE.TEXT.centeredText("Rest In Peace", ENGINE.gameWIDTH, ENGINE.gameHEIGHT / 2);
+        ENGINE.TEXT.centeredText("(ENTER)", ENGINE.gameWIDTH, ENGINE.gameHEIGHT / 2 + ENGINE.TEXT.RD.fs * 1.2);
+        ENGINE.TIMERS.stop();
+        ENGINE.GAME.ANIMATION.resetTimer();
+        ENGINE.GAME.ANIMATION.next(GAME.gameOverRun);
     },
     won() {
         console.log("GAME WON");
@@ -1101,6 +1101,32 @@ const GAME = {
     wonFrameDraw() {
         GAME.endingCreditText.draw();
     },
+    gameOverRun(lapsedTime) {
+        if (ENGINE.GAME.stopAnimation) return;
+        if (ENGINE.GAME.keymap[ENGINE.KEY.map.enter]) {
+            ENGINE.GAME.ANIMATION.waitThen(TITLE.startTitle);
+        }
+        const date = Date.now();
+        EXPLOSION3D.manage(date);
+        INTERFACE3D.manage(lapsedTime);
+        ENTITY3D.manage(lapsedTime, date, [HERO.invisible, HERO.dead]);
+        GAME.gameOverFrameDraw(lapsedTime);
+    },
+    gameOverFrameDraw(lapsedTime) {
+        if (DEBUG._2D_display) {
+            GAME.drawPlayer();
+        }
+        WebGL.renderScene();
+
+        if (DEBUG.FPS) {
+            GAME.FPS(lapsedTime);
+        }
+        if (DEBUG._2D_display) {
+            ENGINE.BLOCKGRID.draw(MAP[GAME.level].map);
+            MISSILE3D.draw();
+            ENTITY3D.drawVector2D();
+        }
+    }
 };
 const TITLE = {
     stack: {
@@ -1142,8 +1168,12 @@ const TITLE = {
         ENGINE.GAME.ANIMATION.next(GAME.runTitle);
     },
     clearAllLayers() {
-        ENGINE.layersToClear = new Set(["text", "sideback", "button", "title", "FPS"]);
+        ENGINE.layersToClear = new Set(["text", "sideback", "button", "title", "FPS",
+            "Lsideback", "potion", "time", "statusBars", "stat", "gold",
+            "sideback", "keys", "minimap", "scrolls",
+            "compassRose", "compassNeedle"]);
         ENGINE.clearLayerStack();
+        WebGL.transparent();
     },
     blackBackgrounds() {
         this.topBackground();
@@ -1471,7 +1501,7 @@ const TITLE = {
     },
     titlePlot() {
         let CTX = LAYER.title;
-        var fs = 42;
+        var fs = 36;
         CTX.font = fs + "px DeepDown";
         CTX.textAlign = "center";
         let txt = CTX.measureText(PRG.NAME);
