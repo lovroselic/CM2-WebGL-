@@ -21,6 +21,8 @@ const DEBUG = {
     SETTING: true,
     VERBOSE: true,
     _2D_display: true,
+    INVINCIBLE: false,
+    FREE_MAGIC: false,
     goto(grid) {
         HERO.player.pos = Vector3.from_Grid(Grid.toCenter(grid), 0.5);
     }
@@ -48,7 +50,7 @@ const INI = {
     FINAL_LEVEL: 3,
 };
 const PRG = {
-    VERSION: "0.16.02",
+    VERSION: "0.16.03",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -474,7 +476,6 @@ const HERO = {
         return Math.round(value * INI.LEVEL_FACTOR);
     },
     hitByMissile(missile) {
-        //console.warn("HERO hit by missile", missile);
         const damage = Math.max(missile.calcDamage(HERO.magic), 1) - HERO.luck;
         const exp = Math.max((damage ** 0.9) | 0, 1);
         HERO.applyDamage(damage);
@@ -494,7 +495,7 @@ const HERO = {
     },
     shoot() {
         let cost = Missile.calcMana(HERO.reference_magic);
-        cost = 0; //debug
+        if (DEBUG.FREE_MAGIC) cost = 0;
         if (cost > HERO.mana) {
             AUDIO.MagicFail.play();
             return;
@@ -512,6 +513,7 @@ const HERO = {
         return;
     },
     die() {
+        if (DEBUG.INVINCIBLE) return;
         this.dead = true;
         AUDIO.Scream.play();
     },
@@ -592,6 +594,7 @@ const GAME = {
         SAVE_GAME.lists = ["HERO.inventory.scroll"];
         SAVE_GAME.timers = ["Main"];
         //end SAVE GAME
+
         if (GAME.fromCheckpoint) {
             console.log(`%c ... Loading from checkpoint ...`, GAME.CSS);
             HERO.inventory.scroll.clear();
@@ -620,7 +623,7 @@ const GAME = {
             console.log("newDungeon: CREATE FINAL LEVEL");
             randomDungeon = ARENA.create(MAP[level].width, MAP[level].height);
         }
-        console.warn("randomDungeon", randomDungeon);
+
         MAP[level].map = randomDungeon;
         MAP[level].pw = MAP[level].map.width * ENGINE.INI.GRIDPIX;
         MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
@@ -647,8 +650,6 @@ const GAME = {
         MINIMAP.init(MAP[level].map, INI.MIMIMAP_WIDTH, INI.MIMIMAP_HEIGHT, HERO.player);
     },
     initLevel(level) {
-        console.log("...level", level, 'initialization');
-
         this.newDungeon(level);
 
         const start_dir = MAP[level].map.entrance.vector;
@@ -672,12 +673,9 @@ const GAME = {
         INTERFACE3D.add(new $POV(COMMON_ITEM_TYPE.POV, HERO.player));
         window.SWORD = INTERFACE3D.POOL[0];
 
-        //reset births!
         ENTITY3D.resetTime();
     },
     useStaircase(destination) {
-        console.time("staircase");
-        console.warn("useStaircase", destination);
         GAME.STORE.storeIAM(MAP[GAME.level].map);
         GAME.level = destination.level;
         if (GAME.level === GAME.WIN_LEVEL) return GAME.won();
@@ -685,14 +683,12 @@ const GAME = {
         if (!MAP[GAME.level].map) {
             SAVE_GAME.save();
             TURN.display("GAME SAVED", "#FFF");
-            console.info("Setting new level ->", GAME.level);
             GAME.STORE.clearPools();
             GAME.newDungeon(level);
             GAME.buildWorld(level);
             GAME.STORE.linkMap(MAP[level].map);
             GAME.setWorld(level);
         } else {
-            console.info("Restoring level ->", GAME.level);
             GAME.STORE.loadIAM(MAP[level].map);
             GAME.STORE.linkMap(MAP[level].map);
             GAME.setWorld(level, true);
@@ -713,10 +709,8 @@ const GAME = {
             GRID.grid();
             GRID.paintCoord("coord", MAP[level].map);
         }
-        console.timeEnd("staircase");
     },
     continueLevel(level) {
-        console.log("game continues on level", level);
         GAME.levelExecute();
     },
     levelExecute() {
@@ -746,7 +740,6 @@ const GAME = {
         if (HERO.dead) GAME.checkIfProcessesComplete();
     },
     processInteraction(interaction) {
-        console.log("Processing interaction", interaction);
         let choices, choice, value, interatcionObj;
         switch (interaction.category) {
             case 'title':
@@ -945,7 +938,6 @@ const GAME = {
     },
     pause() {
         if (GAME.paused) return;
-        //if (HERO.dead) return;
         console.log("%cGAME paused.", PRG.CSS);
         $("#pause").prop("value", "Resume Game [F4]");
         $("#pause").off("click", GAME.pause);
@@ -969,7 +961,6 @@ const GAME = {
     respond(lapsedTime) {
         if (HERO.dead) return;
         HERO.player.respond(lapsedTime);
-
         const map = ENGINE.GAME.keymap;
 
         if (map[ENGINE.KEY.map.F4]) {
@@ -1063,6 +1054,7 @@ const GAME = {
         GAME.fps.update(fps);
         CTX.fillText(GAME.fps.getFps(), 5, 10);
     },
+    /*
     end() {
         ENGINE.showMouse();
         AUDIO.Death.onended = GAME.checkScore;
@@ -1076,8 +1068,9 @@ const GAME = {
         GAME.score += score;
         TITLE.score();
     },
+    */
     over() {
-        console.log(`%c HERO DIED!`, "color: red; font-size: 20px");
+        //console.log(`%c HERO DIED!`, "color: red; font-size: 20px");
         AUDIO.Scream.play();
         ENGINE.TEXT.centeredText("Rest In Peace", ENGINE.gameWIDTH, ENGINE.gameHEIGHT / 2);
         ENGINE.TEXT.centeredText("(ENTER)", ENGINE.gameWIDTH, ENGINE.gameHEIGHT / 2 + ENGINE.TEXT.RD.fs * 1.2);
@@ -1086,7 +1079,7 @@ const GAME = {
         ENGINE.GAME.ANIMATION.next(GAME.gameOverRun);
     },
     won() {
-        console.log("GAME WON");
+        //console.log("GAME WON");
         GAME.completed = true;
         ENGINE.TIMERS.stop();
         ENGINE.GAME.ANIMATION.resetTimer();
@@ -1156,7 +1149,7 @@ const TITLE = {
         scrollDelta: 72,
         statusY: null,
         YL4: 180,
-        YL5: 400, //280
+        YL5: 400,
     },
     firstFrame() {
         TITLE.clearAllLayers();
@@ -1248,16 +1241,12 @@ const TITLE = {
         this.scrolls();
     },
     scrolls() {
-        let INV = HERO.inventory.scroll;
+        const INV = HERO.inventory.scroll;
         ENGINE.clearLayer("scrolls");
-        let CTX = LAYER.scrolls;
+        const CTX = LAYER.scrolls;
 
         TITLE.stack.scrollIndex = Math.min(TITLE.stack.scrollIndex, INV.size() - 1);
-        let scrollSpread = ENGINE.spreadAroundCenter(
-            TITLE.stack.scrollInRow,
-            ((ENGINE.sideWIDTH / 2) | 0) - 16,
-            TITLE.stack.scrollDelta
-        );
+        let scrollSpread = ENGINE.spreadAroundCenter(TITLE.stack.scrollInRow, ((ENGINE.sideWIDTH / 2) | 0) - 16, TITLE.stack.scrollDelta);
 
         let LN = INV.size();
         let startIndex = Math.min((TITLE.stack.scrollIndex - TITLE.stack.scrollInRow / 2) | 0, LN - TITLE.stack.scrollInRow);
@@ -1295,12 +1284,8 @@ const TITLE = {
         ENGINE.clearLayer("keys");
         let y = (SPRITE.LineTop.height / 2 + TITLE.stack.delta2 / 2) | 0;
         let list = [...HERO.inventory.key, ...HERO.inventory.status];
-        let NUM = list.length;
-        let spread = ENGINE.spreadAroundCenter(
-            NUM,
-            ENGINE.sideWIDTH / 2,
-            TITLE.stack.keyDelta
-        );
+        const NUM = list.length;
+        let spread = ENGINE.spreadAroundCenter(NUM, ENGINE.sideWIDTH / 2, TITLE.stack.keyDelta);
         for (const item of list) {
             let x = spread.shift();
             ENGINE.spriteDraw("keys", x, y, SPRITE[item.spriteClass]);
@@ -1311,7 +1296,7 @@ const TITLE = {
         let y = TITLE.stack.YL5 + SPRITE.LineTop.height + 30;
         let x = ((ENGINE.sideWIDTH - SPRITE.LineTop.width) / 2) | 0;
         let fs = 18;
-        var CTX = LAYER.gold;
+        const CTX = LAYER.gold;
         CTX.font = fs + "px Consolas";
         CTX.fillStyle = "#AB8D3F";
         CTX.shadowColor = "#6E5A28";
@@ -1326,7 +1311,7 @@ const TITLE = {
         let y = TITLE.stack.YL4 + SPRITE.LineTop.height + 16;
         let x = ((ENGINE.sideWIDTH - SPRITE.LineTop.width) / 2) | 0;
         let fs = 16;
-        var CTX = LAYER.stat;
+        const CTX = LAYER.stat;
         CTX.font = fs + "px Consolas";
         CTX.fillStyle = "#AAA";
         CTX.shadowColor = "#666";
@@ -1371,7 +1356,7 @@ const TITLE = {
         TITLE.magicBar(x, y);
     },
     statBar(x, y, value, max, color) {
-        var CTX = LAYER.stat;
+        const CTX = LAYER.stat;
         CTX.save();
         ENGINE.resetShadow(CTX);
         let h = 18;
@@ -1391,7 +1376,7 @@ const TITLE = {
     status() {
         ENGINE.clearLayer("statusBars");
         let fs = 16;
-        var CTX = LAYER.statusBars;
+        const CTX = LAYER.statusBars;
         CTX.font = fs + "px Times";
         CTX.fillStyle = "#AAA";
         CTX.shadowColor = "#666";
@@ -1420,7 +1405,7 @@ const TITLE = {
         }
     },
     statusBar(x, y, value, max, color) {
-        var CTX = LAYER.statusBars;
+        const CTX = LAYER.statusBars;
         CTX.save();
         ENGINE.resetShadow(CTX);
         let h = 16;
@@ -1436,7 +1421,7 @@ const TITLE = {
     },
     potion() {
         ENGINE.clearLayer("potion");
-        let CTX = LAYER.potion;
+        const CTX = LAYER.potion;
         CTX.fillStyle = "#AAA";
         CTX.shadowColor = "#666";
         CTX.shadowOffsetX = 1;
@@ -1457,7 +1442,7 @@ const TITLE = {
     },
     compassNeedle() {
         ENGINE.clearLayer("compassNeedle");
-        let CTX = LAYER.compassNeedle;
+        const CTX = LAYER.compassNeedle;
         CTX.strokeStyle = "#F00";
         let [x, y] = [TITLE.stack.compassX, TITLE.stack.compassY];
         CTX.beginPath();
@@ -1467,12 +1452,12 @@ const TITLE = {
         CTX.stroke();
     },
     topBackground() {
-        var CTX = LAYER.title;
+        const CTX = LAYER.title;
         CTX.fillStyle = "#000";
         CTX.roundRect(0, 0, ENGINE.titleWIDTH, ENGINE.titleHEIGHT, { upperLeft: 20, upperRight: 20, lowerLeft: 0, lowerRight: 0 }, true, true);
     },
     bottomBackground() {
-        var CTX = LAYER.bottom;
+        const CTX = LAYER.bottom;
         CTX.fillStyle = "#000";
         CTX.roundRect(0, 0, ENGINE.bottomWIDTH, ENGINE.bottomHEIGHT, { upperLeft: 0, upperRight: 0, lowerLeft: 20, lowerRight: 20 }, true, true);
     },
@@ -1485,7 +1470,7 @@ const TITLE = {
     },
     bottomVersion() {
         ENGINE.clearLayer("bottomText");
-        let CTX = LAYER.bottomText;
+        const CTX = LAYER.bottomText;
         CTX.textAlign = "center";
         var x = ENGINE.bottomWIDTH / 2;
         var y = ENGINE.bottomHEIGHT / 2;
@@ -1513,7 +1498,7 @@ const TITLE = {
         return grad;
     },
     titlePlot() {
-        let CTX = LAYER.title;
+        const CTX = LAYER.title;
         var fs = 36;
         CTX.font = fs + "px DeepDown";
         CTX.textAlign = "center";
@@ -1565,7 +1550,7 @@ const TITLE = {
         let fs = 14;
         let y = ((TITLE.stack.delta2 + SPRITE.LineTop.height) / 2 + fs / 4) | 0;
         let x = ((ENGINE.sideWIDTH - SPRITE.LineTop.width) / 2) | 0;
-        var CTX = LAYER.time;
+        const CTX = LAYER.time;
         ENGINE.clearLayer("time");
         CTX.font = fs + "px Consolas";
         CTX.fillStyle = "#0D0";
@@ -1593,7 +1578,7 @@ const TITLE = {
     },
     _text(layer, txt, y, what, pad) {
         ENGINE.clearLayer(layer);
-        let CTX = LAYER[layer];
+        const CTX = LAYER[layer];
         let x = ENGINE.sideWIDTH / 2;
         let fs = 22;
         this._label(CTX, txt, fs, x, y);
@@ -1607,7 +1592,7 @@ const TITLE = {
     },
     _sprite(layer, txt, y, what, sprite) {
         ENGINE.clearLayer(layer);
-        let CTX = LAYER[layer];
+        const CTX = LAYER[layer];
         let x = ENGINE.sideWIDTH / 2;
         let fs = 22;
         this._label(CTX, txt, fs, x, y);
@@ -1623,7 +1608,7 @@ const TITLE = {
     },
     _percentBar(layer, txt, y, what, firstColor = null) {
         ENGINE.clearLayer(layer);
-        let CTX = LAYER[layer];
+        const CTX = LAYER[layer];
         let x = ENGINE.sideWIDTH / 2;
         let fs = 22;
         this._label(CTX, txt, fs, x, y);
@@ -1636,17 +1621,17 @@ const TITLE = {
         let H = 32;
         ENGINE.percentBar(percent, y, CTX, ENGINE.sideWIDTH, colors, H);
     },
-    score() {
+    /*score() {
         this._text("score", "SCORE", 36, "score", 6);
         if (GAME.score >= GAME.extraLife[0]) {
             GAME.lives++;
             GAME.extraLife.shift();
             TITLE.lives();
         }
-    },
+    },*/
     gameOver() {
         ENGINE.clearLayer("text");
-        var CTX = LAYER.text;
+        const CTX = LAYER.text;
         CTX.textAlign = "center";
         var x = ENGINE.gameWIDTH / 2;
         var y = ENGINE.gameHEIGHT / 2;

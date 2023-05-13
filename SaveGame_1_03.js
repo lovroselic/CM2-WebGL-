@@ -6,7 +6,7 @@
 
 ///////////////SaveGame.js/////////////
 //                                  //
-//  version 1.02 by LS              //
+//  version 1.03 by LS              //
 //                                  //
 //////////////////////////////////////
 
@@ -148,7 +148,6 @@ const SAVE_GAME = {
   loadMap() {
     console.info("loading maps");
     const load = JSON.parse(SAVE_GAME.decode(localStorage[SAVE_GAME.key]));
-    console.warn("load", load);
     const LL = load.value.length;
     for (let i = 0; i < LL; i++) {
       const [prop, pointer] = load.pointer[i].splitOnLastDot();

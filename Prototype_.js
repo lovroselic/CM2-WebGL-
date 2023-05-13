@@ -6,7 +6,7 @@
 console.clear();
 
 var LIB = {
-  VERSION: "3.12",
+  VERSION: "3.13",
   CSS: "color: #EFE",
   log: function () {
     console.log(`%cPrototype LIB ${LIB.VERSION} loaded`, LIB.CSS);
@@ -24,7 +24,8 @@ changelog:
 3.06: 3d vectors
 3.10: optimized, binarySearch
 3.11: date prototypes - used by CoolWeb!
-3.12: float bin search
+3.12: float bin search, 
+3.13: splitByN corrected
 */
 
 (function () {
@@ -279,11 +280,11 @@ Array.prototype.clone = function () {
 Array.prototype.deepClone = function () {
   return this.map((item) => {
     if (Array.isArray(item)) {
-      return item.deepClone(); // recursively clone nested arrays
+      return item.deepClone();                                                                      // recursively clone nested arrays
     } else if (typeof item === 'object' && item !== null) {
-      return Object.fromEntries(Object.entries(item).map(([key, val]) => [key, val.deepClone()])); // recursively clone nested objects
+      return Object.fromEntries(Object.entries(item).map(([key, val]) => [key, val.deepClone()]));  // recursively clone nested objects
     } else {
-      return item; // return primitive values unchanged
+      return item;                                                                                  // return primitive values unchanged
     }
   });
 };
@@ -727,16 +728,6 @@ class Vector {
     let Angle1 = this.toRad();
     return (Math.degrees(Angle2 - Angle1) + 360) % 360;
   }
-  /*
-  dot(vector) {
-    return this.x * vector.x + this.y * vector.y;
-  }
-  radAngleBetweenVectors(vector) {
-    let angle = Math.acos(this.dot(vector));
-    if (this.x * vector.y - this.y * vector.x < 0) angle = 2 * Math.PI - angle;
-    return angle;
-  }
-  */
   radAngleBetweenVectors(vector) {
     let Angle2 = vector.toRad();
     let Angle1 = this.toRad();

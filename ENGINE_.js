@@ -1531,14 +1531,10 @@ const ENGINE = {
         if (ENGINE.LOAD.HMObjects) appendCanvas("Models");
         try {
           const model_files = await Promise.all(arrPath.map(model => load_glTF_files(model)));
-          console.log("--------------------------------------------");
-          console.log("model_files", model_files);
 
           model_files.forEach(
             async (model) => {
-              console.log("model", model);
               const modelName = model.scenes[0].name;
-              console.log(".name", modelName);
 
               //assume single buffer!
               if (model.buffers.length > 1) throw new Error(`Expected single buffer, got ${model.buffers.length}`);
@@ -1549,8 +1545,6 @@ const ENGINE = {
               const texture_names = model.images.map((uri) => ENGINE.MODEL_SOURCE + uri.uri);
               const images = await Promise.all(texture_names.map(img => quickLoadImage(img)));
               const samplers = processSamplers(model.samplers);
-
-              //console.log(`${modelName} files loaded *********************************`);
               markparents(model.nodes);
 
               //meshes
@@ -1568,7 +1562,6 @@ const ENGINE = {
                 }
                 meshes[index] = new $Mesh(mesh.name, primitives);
               }
-              //console.info("..meshes done", modelName);
 
               /** skins */
               let skins = new Array(model.skins.length);
@@ -1584,8 +1577,6 @@ const ENGINE = {
                 makeJointMatrix(parentJoint, jointMatrix, skin.joints);
                 skins[index] = new $Armature(skin.name, skin.joints, parentJoint, jointMatrix);
               }
-              //console.info("..skins done", modelName);
-
 
               /** animations */
               let animations = new Array(model.animations.length);
@@ -1641,17 +1632,14 @@ const ENGINE = {
 
               //add to models
               $3D_MODEL[modelName] = new $3D_Model(modelName, buffer, images, meshes, samplers, skins, animations);
-
-              //console.log("*************************************");
               //finished
+
               ENGINE.LOAD.Models++;
               ENGINE.drawLoadingGraph("Models");
             }
           );
 
-          console.log("--------------------------------------------");
-          console.log("$3D_MODEL", $3D_MODEL);
-          console.log("--------------------------------------------");
+          console.log("$3D_MODELs", $3D_MODEL);
 
         } catch (error) {
           console.error(`Error loading models: ${error}`);

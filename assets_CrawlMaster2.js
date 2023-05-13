@@ -61,7 +61,6 @@ LoadTextures = [
     { srcName: "CoinColor.jpg", name: "Coins" },
     { srcName: "Sting_Base_Color.png", name: "Sting" },
     { srcName: "Marble.jpg", name: "Marble" },
-
     { srcName: "RedGoldBat.jpg", name: "RedGoldBat" },
 
     //decal-gates
@@ -217,7 +216,6 @@ LoadSprites = [
     { srcName: "Skull11.png", name: "Skull11" },
     { srcName: "wow_left.png", name: "WOWc1" },
     { srcName: "wow_right.png", name: "WOWc2" },
-
     { srcName: "Reaper.png", name: "Reaper" },
 
     //decal-pics
@@ -300,7 +298,6 @@ LoadSprites = [
     { srcName: "JSW.png", name: "JSW" },
     { srcName: "Frogger.png", name: "Frogger" },
     { srcName: "Knightlore.png", name: "Knightlore" },
-    //{ srcName: "Galaga1.png", name: "Galaga1" },
     { srcName: "BoogaBoo3.png", name: "BoogaBoo3" },
     { srcName: "BoogaBoo1.png", name: "BoogaBoo1" },
     { srcName: "CrystalCastles.png", name: "CrystalCastles" },
@@ -389,8 +386,8 @@ LoadSprites = [
     { srcName: "PharaohCurse2.png", name: "PharaohCurse2" },
     { srcName: "Frontier.png", name: "Frontier" },
     { srcName: "LSL8.png", name: "LSL8" },
-    { srcName: "SP2.png", name: "SP2" },
-    { srcName: "SP1.png", name: "SP1" },
+    //{ srcName: "SP2.png", name: "SP2" },
+    //{ srcName: "SP1.png", name: "SP1" },
     { srcName: "SVS24.png", name: "SVS24" },
     { srcName: "SVS23.png", name: "SVS23" },
     { srcName: "KQ10.png", name: "KQ10" },
@@ -413,8 +410,7 @@ LoadSprites = [
     { srcName: "KokotoniWilf.png", name: "KokotoniWilf" },
     { srcName: "Cauldron1.png", name: "Cauldron1" },
     { srcName: "Zeppelin2.png", name: "Zeppelin2" },
-    //{ srcName: "TimeTunnel.png", name: "TimeTunnel" },
-    { srcName: "SP3.png", name: "SP3" },
+    //{ srcName: "SP3.png", name: "SP3" },
     { srcName: "AC2.png", name: "AC2" },
     { srcName: "Hero30.png", name: "Hero30" },
     { srcName: "SVS30.png", name: "SVS30" },
@@ -423,7 +419,6 @@ LoadSprites = [
     { srcName: "AA40.png", name: "AA40" },
     { srcName: "SeaWolf.png", name: "SeaWolf" },
     { srcName: "GIJoe10.png", name: "GIJoe10" },
-    //{ srcName: "Hobbit1.png", name: "Hobbit1" },
     { srcName: "Hobbit3.png", name: "Hobbit3" },
     { srcName: "Ghostbusters2.png", name: "Ghostbusters2" },
     { srcName: "Commando3.png", name: "Commando3" },

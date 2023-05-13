@@ -16,68 +16,28 @@
  * https://glmatrix.net/docs/
  * https://thebookofshaders.com/
  * https://webglfundamentals.org/webgl/lessons/resources/webgl-state-diagram.html
- * https://blogs.oregonstate.edu/learnfromscratch/2021/10/05/understanding-various-coordinate-systems-in-opengl/
- * https://learnopengl.com/Getting-started/Transformations
- * https://learnopengl.com/Getting-started/Coordinate-Systems
- * https://webglfundamentals.org/webgl/lessons/webgl-3d-camera.html
  * this: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/#the-model-view-and-projection-matrices
  * https://learnopengl.com/Lighting/Basic-Lighting
  * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-directional.html
  * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-point.html
  * https://webglfundamentals.org/webgl/lessons/webgl-drawing-multiple-things.html
  * https://learnopengl.com/Lighting/Multiple-lights
- * https://webglfundamentals.org/webgl/lessons/webgl-3d-lighting-point.html
- * https://webglfundamentals.org/webgl/lessons/webgl-qna-setting-the-values-of-a-struct-array-from-js-to-glsl.html
  * 
  * https://learnopengl.com/Advanced-OpenGL/Advanced-Data
  * https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/readPixels
  * 
- * https://webglfundamentals.org/webgl/lessons/webgl-render-to-texture.html
- * https://webglfundamentals.org/webgl/lessons/webgl-picking.html
- * http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-an-opengl-hack/
- * 
- * https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferSubData
- * 
- * https://learnopengl.com/Model-Loading/Assimp
- * https://webglfundamentals.org/webgl/lessons/webgl-load-obj.html
- * http://paulbourke.net/dataformats/obj/
  * https://en.wikipedia.org/wiki/Wavefront_.obj_file
- * http://learnwebgl.brown37.net/rendering/obj_to_buffers.html
- * http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
- * 
- * https://www.3dgep.com/simulating-particle-effects-using-opengl/
- * http://nehe.gamedev.net/tutorial/particle_engine_using_triangle_strips/21001/
- * https://webglfundamentals.org/webgl/lessons/webgl-qna-efficient-particle-system-in-javascript---webgl-.html
- * https://registry.khronos.org/webgl/sdk/demos/google/resources/o3djs/particles.js
- * https://registry.khronos.org/webgl/sdk/demos/google/particles/index.html
- * 
- * https://www.chinedufn.com/webgl-particle-effect-billboard-tutorial/
- * https://gpfault.net/posts/webgl2-particles.txt.html
- * 
- * https://www.youtube.com/watch?v=PWjIeJDE7Rc
- * https://youtu.be/PWjIeJDE7Rc?t=844
- * https://youtu.be/PWjIeJDE7Rc?t=1672
- * https://youtu.be/PWjIeJDE7Rc?t=2340
- * https://www.youtube.com/watch?v=OYYZQ1yiXO
- * https://www.youtube.com/watch?v=sMQz3plUUG4
- * 
- * https://github.com/sketchpunk/FunWithWebGL2
- * https://webgl2fundamentals.org/webgl/lessons/webgl-gpgpu.html
- * 
- * https://www.youtube.com/watch?v=ro4bDXcISms
  * 
  * https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#properties-reference
  * https://github.com/KhronosGroup/glTF/tree/main/specification/2.0
  * https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0
  * https://raw.githubusercontent.com/javagl/JglTF/master/images/gltfOverview-0.2.0.png
  * https://github.com/mattdesl/gl-constants/blob/master/1.0/numbers.js
- * https://youtu.be/cWo-sghCp8Y?t=4559
  * https://github.khronos.org/glTF-Tutorials/gltfTutorial/gltfTutorial_001_Introduction.html
- * https://toji.github.io/webgpu-gltf-case-study/
  */
 
 const WebGL = {
-    VERSION: "0.30.1",
+    VERSION: "0.31.0",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: false,
@@ -649,7 +609,7 @@ const WebGL = {
 
         /**  draw per object */
 
-        //existing doors
+        //doors
         for (const door of GATE3D.POOL) {
             if (door) {
                 door.drawObject(gl);
@@ -695,8 +655,6 @@ const WebGL = {
         }
 
         //remember: last draw was on particle renderer!!!
-        //gl.enable(gl.CULL_FACE);
-
     },
     idToVec(id) {
         return [((id >> 0) & 0xFF) / 0xFF, ((id >> 8) & 0xFF) / 0xFF, ((id >> 16) & 0xFF) / 0xFF, ((id >> 24) & 0xFF) / 0xFF];
@@ -723,19 +681,16 @@ const WebGL = {
                     const data = new Uint8Array(4);
                     gl.readPixels(pixelX, pixelY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, data);
                     const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
-                    //console.warn("id", id);
                     if (id <= 0) return;
                     const obj = GLOBAL_ID_MANAGER.getObject(id);
                     if (!obj) return;
                     if (!obj.interactive) return;
-                    //console.log("obj", obj, obj.grid, obj.constructor.name);
                     let PPos2d = Vector3.to_FP_Grid(hero.player.pos);
                     let itemGrid = obj.grid;
                     if (obj.grid.constructor.name === "Grid") {
                         itemGrid = Grid.toCenter(obj.grid);
                     }
                     let distance = PPos2d.EuclidianDistance(itemGrid);
-                    //console.log("distance", distance);
                     if (distance < WebGL.INI.INTERACT_DISTANCE) {
                         return obj.interact(hero.player.GA, hero.inventory);
                     }
@@ -1004,13 +959,11 @@ const WORLD = {
                 this.addPic(Y, decal, "decal");
             }
         }
-        /** static decal end */
 
         /** object map */
         for (let element of object_map) {
             this.reserveObject(ELEMENT[element], element);
         }
-        /** object map end*/
 
         /** map indices */
         {
@@ -1160,16 +1113,14 @@ class $3D_player {
                 continue;
             } else {
                 if (this.GA.isWall(futureGrid) && this.GA.isStair(futureGrid)) {
-                    let IA = this.map.decalIA3D;
-                    let item = BUMP3D.POOL[IA.unroll(futureGrid)[0] - 1];
-                    return item;
+                    const IA = this.map.decalIA3D;
+                    const bump = IA.unroll(futureGrid)[0] - 1;
+                    if (isNaN(bump)) return null;
+                    return BUMP3D.POOL[bump];
                 }
             }
         }
         return null;
-    }
-    log() {
-        console.log("pos:", this.pos, "dir", this.dir);
     }
     circleCollision(entity, nextPos = null) {
         let distance;
@@ -1381,10 +1332,8 @@ class Gate extends Drawable_object {
         VANISHING3D.add(gate);
     }
     interact(GA, inventory) {
-        console.log("Open gate", this.color, this.name);
         if (this.locked) {
             const checkKey = (key, value) => inventory.key.some((o) => o[key] === value);
-            //console.log("checkKey", checkKey("color", this.color));
             if (checkKey("color", this.color)) {
                 this.locked = false;
                 inventory.key = inventory.key.filter((el) => el.color !== this.color);
@@ -1878,7 +1827,7 @@ class $3D_Entity {
         this.distance = null;
         this.dirStack = [];
         this.final_boss = false;
-        this.texture = null; //model is the source, until change!
+        this.texture = null;                                                //model is the source, until change is forced
         this.resetTime();
         this.grid = grid;
         this.type = type;
@@ -1886,7 +1835,7 @@ class $3D_Entity {
             this[prop] = type[prop];
         }
 
-        if (this.texture) this.changeTexture(TEXTURE[this.texture]); //superseed from model
+        if (this.texture) this.changeTexture(TEXTURE[this.texture]);        //superseed from model
 
         this.fullHealth = this.health;
         this.model = $3D_MODEL[this.model];
@@ -1916,7 +1865,7 @@ class $3D_Entity {
         this.moveState.setView(lookAt);
     }
     performAttack(victim) {
-        console.warn(`${this.name} ${this.id} attacking.`);
+        //console.warn(`${this.name} ${this.id} attacking.`);
         if (!this.canAttack || this.IAM.hero.dead) return;
         this.canAttack = false;
         AUDIO[this.attackSound].play();
@@ -2129,7 +2078,7 @@ class $3D_Entity {
     }
     shoot() {
         const dir = Vector3.from_2D_dir(this.moveState.lookDir);
-        console.warn(`${this.name} ${this.id} shooting in:`, dir);
+        //console.warn(`${this.name} ${this.id} shooting in:`, dir);
         this.canShoot = false;
         this.caster = false;
         this.mana -= Missile.calcMana(this.magic);
@@ -2257,25 +2206,22 @@ class $POV extends Drawable_object {
         const IA = this.IAM.IA.enemy;
         const map = this.IAM.map;
         const POOL = this.IAM.external.enemy.POOL;
-        //console.assert(POOL.length = ENTITY3D.POOL.length, "FUCK!!!!!");
         const enemies = map[IA].unrollArray([refGrid, playerGrid]);
 
         if (enemies.size === 0) return this.miss();
         if (enemies.size > 1) {
             let distance = Infinity;
             for (let e of enemies) {
-                //console.log(e, POOL[e - 1].name, POOL[e - 1].distance);
                 if (POOL[e - 1].distance < distance) {
                     distance = POOL[e - 1].distance;
                 } else {
                     enemies.delete(e);
                 }
             }
-            console.info("prunning enemies", enemies, enemies.size === 1);
+            console.warn("prunning enemies", enemies, enemies.size === 1);
         }
         console.assert(enemies.size === 1, "Failed enemy pruning by distance!");
         const enemy = POOL[enemies.first() - 1];
-        //console.log("enemy may be hit", enemy);
         let hit = ENGINE.lineIntersectsCircle(Vector3.to_FP_Grid(this.player.pos), Vector3.to_FP_Grid(refPoint), Vector3.to_FP_Grid(enemy.moveState.pos), enemy.r);
         if (hit) return enemy;
         return null;
@@ -2410,8 +2356,7 @@ const FaceToDirection = function (face) {
         case "BACK": return UP;
         case "LEFT": return LEFT;
         case "RIGHT": return RIGHT;
-        default:
-            console.error("FaceToDirection, invalid face", face);
+        default: console.error("FaceToDirection, invalid face", face);
     }
 };
 
@@ -2425,7 +2370,7 @@ const DirectionToFace = function (dir) {
     } else if (GRID.same(dir, RIGHT)) {
         return "RIGHT";
     } else {
-        console.error("DirectionToFace, invalid dir", dir);
+        console.error("DirectionToFace, invalid direction", dir);
     }
 };
 
