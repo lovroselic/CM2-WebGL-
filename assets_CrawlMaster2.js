@@ -62,6 +62,8 @@ LoadTextures = [
     { srcName: "Sting_Base_Color.png", name: "Sting" },
     { srcName: "Marble.jpg", name: "Marble" },
     { srcName: "RedGoldBat.jpg", name: "RedGoldBat" },
+    { srcName: "BatCatGreen.jpg", name: "BatCatGreen" },
+    { srcName: "GhostFaceGreen.jpg", name: "GhostFaceGreen" },
 
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
@@ -126,7 +128,9 @@ LoadObjects = [
     "treasure_chest.obj", "coins.obj", "sting.obj"
 ];
 
-LoadModels = ['GhostFace.gltf', 'Bat.gltf', 'Hulk.gltf', 'Viking.gltf', 'Astro.gltf', 'MissWhite.gltf', 'BatCat.gltf'];
+LoadModels = ['GhostFace.gltf', 'Bat.gltf', 'Hulk.gltf', 'Viking.gltf', 'Astro.gltf', 'MissWhite.gltf', 'BatCat.gltf',
+    'Spider.gltf',
+];
 
 LoadSprites = [
     //lights
@@ -327,7 +331,7 @@ LoadSprites = [
     { srcName: "TheSentinel.png", name: "TheSentinel" },
     { srcName: "DM12.png", name: "DM12" },
     { srcName: "RickDangerous.png", name: "RickDangerous" },
-    { srcName: "Killerwat.png", name: "Killerwat" },
+    //{ srcName: "Killerwat.png", name: "Killerwat" },
     { srcName: "DM11.png", name: "DM11" },
     { srcName: "DDID2.png", name: "DDID2" },
     { srcName: "JumpmanJr.png", name: "JumpmanJr" },
@@ -386,8 +390,6 @@ LoadSprites = [
     { srcName: "PharaohCurse2.png", name: "PharaohCurse2" },
     { srcName: "Frontier.png", name: "Frontier" },
     { srcName: "LSL8.png", name: "LSL8" },
-    //{ srcName: "SP2.png", name: "SP2" },
-    //{ srcName: "SP1.png", name: "SP1" },
     { srcName: "SVS24.png", name: "SVS24" },
     { srcName: "SVS23.png", name: "SVS23" },
     { srcName: "KQ10.png", name: "KQ10" },
@@ -410,7 +412,6 @@ LoadSprites = [
     { srcName: "KokotoniWilf.png", name: "KokotoniWilf" },
     { srcName: "Cauldron1.png", name: "Cauldron1" },
     { srcName: "Zeppelin2.png", name: "Zeppelin2" },
-    //{ srcName: "SP3.png", name: "SP3" },
     { srcName: "AC2.png", name: "AC2" },
     { srcName: "Hero30.png", name: "Hero30" },
     { srcName: "SVS30.png", name: "SVS30" },
@@ -830,7 +831,6 @@ LoadSprites = [
     { srcName: "WhoDaresWins88.png", name: "WhoDaresWins88" },
     { srcName: "WinterGames79.png", name: "WinterGames79" },
     { srcName: "Zeppelin88.png", name: "Zeppelin88" },
-
     { srcName: "BrianBloodaxe70.png", name: "BrianBloodaxe70" },
     { srcName: "BrianBloodaxe71.png", name: "BrianBloodaxe71" },
     { srcName: "ChuckieEgg1.png", name: "ChuckieEgg1" },

@@ -14,7 +14,7 @@ const DECAL_PAINTINGS = [
     "Fred1", "Fred2", "Frogger", "Galaxian3", "Ghostbusters", "Goonies", "GreenBeret", "HL1", "HL2", "HL3",
     "HL4", "HL5", "HOB11", "HOB2", "HOB5", "Hero1", "Hero10", "Hero2", "Hero3", "HoraceSki",
     "IM", "Iceman", "Imhotep", "Impossible_Mission4", "JSW", "JSW2", "JSW3", "Jumpman", "JumpmanJr", "KQ1",
-    "Kangaroo", "Karateka", "Killerwat", "Knightlore", "LSL20", "LSL6", "LTUT", "LastNinja1", "Lode",
+    "Kangaroo", "Karateka", "Knightlore", "LSL20", "LSL6", "LTUT", "LastNinja1", "Lode",
     "Maniac", "ManicMiner", "Miner", "MonkeyIsland", "Montezuma", "Moon", "Oblivion", "Oblivion2", "OperationWolf",
     "OperationWolf2", "PAC2", "Penta", "Phara", "Pipeline", "Pitfall", "Pitfall3", "Pitfall4", "Pitstop", "Pooyan",
     "Portal1", "Prince1", "Prince2", "RRR", "RickDangerous", "SOF", "SQ1", "SVS1", "SVS10", "SVS2", "SVS3", "SVS4",
@@ -137,39 +137,40 @@ const MONSTER_LAYOUT = {
     1: {
         start: {
             N: 1,
-            monster: { Bat: 1 }
+            monster: { GhostFaceGreen: 1 },
+            //monster: { Bat: 1 }
         },
         corridor: {
             N: 25,
-            monster: { Bat: 1 }
+            monster: { Bat: 1, BatCatGreen: 2, RedGoldBat: 1, BatCat: 1, Spider: 1 , GhostFace: 1}
         },
         common: {
             N: 2,
-            monster: { Bat: 1 }
+            monster: { Bat: 1, BatCatGreen: 3, RedGoldBat: 1, BatCat: 2, Spider: 1, GhostFace: 1 }
         },
         Gold: {
             N: 2,
-            monster: { Bat: 1 },
+            monster: { Spider: 1, GhostFace: 2, GhostFaceGreen: 2 },
             boss: { Bat: 1 }
         },
         Silver: {
             N: 2,
-            monster: { Bat: 1 },
+            monster: { Spider: 1, GhostFace: 2, GhostFaceGreen: 1.5 },
             boss: { Bat: 1 },
         },
         firstKey: {
             N: 2,
-            monster: { Bat: 1 },
+            monster: { Bat: 1, BatCatGreen: 2, BatCat: 3, Spider: 2, GhostFace: 1, GhostFaceGreen: 0.25 },
             boss: { Bat: 1 },
         },
         Red: {
             N: 2,
-            monster: { Bat: 1 },
+            monster: { Spider: 1, BatCat: 1, GhostFace: 2, GhostFaceGreen: 1 },
             boss: { Bat: 1 },
         },
         temple: {
             N: 1,
-            monster: { Bat: 1 },
+            monster: { Bat: 1, BatCatGreen: 1, RedGoldBat: 1 },
         }
     },
     2: {
@@ -609,6 +610,26 @@ const SPAWN = {
 };
 
 const MONSTER_TYPE = {
+    Spider: {
+        name: "Spider",
+        model: "Spider",
+        scale: 1.4 / 2 ** 6,
+        shine: 128.0 * 0.9,
+        rotateToNorth: Math.PI,
+        midHeight: 0.3,
+        deathType: "BloodExplosion",
+        inventory: "Coins",
+        attack: 7,
+        defense: 3,
+        magic: 0,
+        health: 8,
+        xp: 7,
+        gold: 15,
+        attackSound: "MonsterAttack1",
+        hurtSound: "MonsterHurt",
+        behaviourArguments: [5, ["wanderer"], 3, ["follower"]],
+        moveSpeed: 1.0,
+    },
     BatCat: {
         name: "BatCat",
         model: "BatCat",
@@ -618,24 +639,37 @@ const MONSTER_TYPE = {
         midHeight: 0.5,
         deathType: "BloodExplosion",
         inventory: "Coins",
-        //attribs
-        attack: 7,
-        defense: 3,
-        magic: 4,
-        health: 10,
-        xp: 50,
-        gold: 100,
-        //
+        attack: 5,
+        defense: 2,
+        magic: 2,
+        health: 6,
+        xp: 10,
+        gold: 20,
         attackSound: "MonsterAttack2",
         hurtSound: "MonsterHurt3",
         behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
-        //behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
         moveSpeed: 1.0,
-        //casters
-        mana: 3,
-        caster: true,
-        shootDistance: 4,
-        stalkDistance: 5,
+    },
+    BatCatGreen: {
+        name: "BatCatGreen",
+        texture: "BatCatGreen",
+        model: "BatCat",
+        scale: 1.1 / 2 ** 1,
+        shine: 128.0 * 0.9,
+        rotateToNorth: Math.PI,
+        midHeight: 0.5,
+        deathType: "BloodExplosion",
+        inventory: "Coins",
+        attack: 3,
+        defense: 2,
+        magic: 2,
+        health: 4,
+        xp: 4,
+        gold: 10,
+        attackSound: "MonsterAttack2",
+        hurtSound: "MonsterHurt3",
+        behaviourArguments: [5, ["wanderer"], 3, ["advancer"]],
+        moveSpeed: 1.0,
     },
     Hulk: {
         name: "Hulk",
@@ -646,20 +680,16 @@ const MONSTER_TYPE = {
         midHeight: 0.5,
         deathType: "BloodExplosion",
         inventory: "Coins",
-        //attribs
         attack: 7,
         defense: 3,
         magic: 4,
         health: 10,
         xp: 50,
         gold: 100,
-        //
         attackSound: "HumanAttack1",
         hurtSound: "MonsterHurt2",
         behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
-        //behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
         moveSpeed: 1.0,
-        //casters
         mana: 3,
         caster: true,
         shootDistance: 4,
@@ -674,20 +704,16 @@ const MONSTER_TYPE = {
         midHeight: 0.5,
         deathType: "BloodExplosion",
         inventory: "Coins",
-        //attribs
         attack: 7,
         defense: 3,
         magic: 4,
         health: 10,
         xp: 50,
         gold: 100,
-        //
         attackSound: "HumanAttack1",
         hurtSound: "MonsterHurt2",
         behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
-        //behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
         moveSpeed: 1.0,
-        //casters
         mana: 3,
         caster: true,
         shootDistance: 4,
@@ -702,20 +728,16 @@ const MONSTER_TYPE = {
         midHeight: 0.5,
         deathType: "BloodExplosion",
         inventory: "Coins",
-        //attribs
         attack: 7,
         defense: 3,
         magic: 4,
         health: 10,
         xp: 50,
         gold: 100,
-        //
         attackSound: "HumanAttack1",
         hurtSound: "MonsterHurt2",
         behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
-        //behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
         moveSpeed: 1.0,
-        //casters
         mana: 3,
         caster: true,
         shootDistance: 4,
@@ -730,20 +752,16 @@ const MONSTER_TYPE = {
         midHeight: 0.5,
         deathType: "BloodExplosion",
         inventory: "Coins",
-        //attribs
         attack: 7,
         defense: 3,
         magic: 4,
         health: 10,
         xp: 50,
         gold: 100,
-        //
         attackSound: "HumanAttack1",
         hurtSound: "MonsterHurt2",
         behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
-        //behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
         moveSpeed: 1.0,
-        //casters
         mana: 3,
         caster: true,
         shootDistance: 4,
@@ -752,26 +770,47 @@ const MONSTER_TYPE = {
     GhostFace: {
         name: "GhostFace",
         model: "GhostFace",
-        scale: 1.75 / 2 ** 2,
+        scale: 1.82 / 2 ** 2,
         shine: 128.0 * 0.5,
         rotateToNorth: Math.PI,
         midHeight: 0.5,
         deathType: "BloodExplosion",
         inventory: "Coins",
-        //attribs
-        attack: 7,
-        defense: 3,
+        attack: 6,
+        defense: 2,
         magic: 4,
         health: 10,
-        xp: 50,
-        gold: 100,
-        //
+        xp: 25,
+        gold: 25,
         attackSound: "MonsterAttack1",
         hurtSound: "MonsterHurt",
-        //behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
         behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
         moveSpeed: 1.0,
-        //casters
+        mana: 3,
+        caster: true,
+        shootDistance: 4,
+        stalkDistance: 5,
+    },
+    GhostFaceGreen: {
+        name: "GhostFaceGreen",
+        texture: "GhostFaceGreen",
+        model: "GhostFace",
+        scale: 1.82 / 2 ** 2,
+        shine: 128.0 * 0.5,
+        rotateToNorth: Math.PI,
+        midHeight: 0.5,
+        deathType: "BloodExplosion",
+        inventory: "Coins",
+        attack: 8,
+        defense: 3,
+        magic: 5,
+        health: 12,
+        xp: 30,
+        gold: 30,
+        attackSound: "MonsterAttack1",
+        hurtSound: "MonsterHurt",
+        behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
+        moveSpeed: 1.05,
         mana: 3,
         caster: true,
         shootDistance: 4,
@@ -787,20 +826,16 @@ const MONSTER_TYPE = {
         fly: 0.5,
         deathType: "SmokeExplosion",
         inventory: null,
-        //attribs
         attack: 1,
         defense: 0,
         magic: 0,
         health: 1,
         xp: 1,
         gold: 0,
-        //
         attackSound: "BatAttack",
         hurtSound: "BatAttack",
         behaviourArguments: [Infinity, ["wanderer"], -1],
         moveSpeed: 1.0,
-        //casters
-        mana: 0
     },
     RedGoldBat: {
         name: "RedGoldBat",
@@ -813,20 +848,16 @@ const MONSTER_TYPE = {
         fly: 0.5,
         deathType: "SmokeExplosion",
         inventory: null,
-        //attribs
         attack: 2,
         defense: 1,
         magic: 0,
         health: 2,
         xp: 2,
         gold: 0,
-        //
         attackSound: "BatAttack",
         hurtSound: "BatAttack",
         behaviourArguments: [Infinity, ["wanderer"], -1],
         moveSpeed: 1.0,
-        //casters
-        mana: 0
     }
 };
 

@@ -1860,7 +1860,7 @@ const ENGINE = {
           const json = await response.json();
           return json;
         } catch (error) {
-          console.error(`Error loading shader from file ${fileName}:`, error);
+          console.error(`Error loading GLTF model from file ${fileName}:`, error);
           return null;
         }
       }

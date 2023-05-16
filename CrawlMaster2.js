@@ -50,7 +50,7 @@ const INI = {
     FINAL_LEVEL: 3,
 };
 const PRG = {
-    VERSION: "0.16.03",
+    VERSION: "0.16.04",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -724,12 +724,13 @@ const GAME = {
     run(lapsedTime) {
         if (ENGINE.GAME.stopAnimation) return;
         const date = Date.now();
-        GAME.respond(lapsedTime);
+        //GAME.respond(lapsedTime);
         VANISHING3D.manage(lapsedTime);
         MISSILE3D.manage(lapsedTime);
         INTERFACE3D.manage(lapsedTime);
         EXPLOSION3D.manage(date);
         ENTITY3D.manage(lapsedTime, date, [HERO.invisible, HERO.dead]);
+        GAME.respond(lapsedTime);
         MINIMAP.unveil(Vector3.to_FP_Grid(HERO.player.pos), HERO.vision);
         ENGINE.TIMERS.update();
 

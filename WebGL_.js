@@ -37,7 +37,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.31.0",
+    VERSION: "0.31.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: false,
@@ -2105,6 +2105,8 @@ class $3D_Entity {
         this.changeTexture(TEXTURE.Marble);
     }
     changeTexture(texture) {
+        const gl = WebGL.CTX;
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
         this.texture = texture;
         this.texture = WebGL.createTexture(this.texture);
     }

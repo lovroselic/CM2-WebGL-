@@ -765,13 +765,15 @@ class Animated_3d_entity extends IAM {
 
                 //enemy/player collision
                 const EP_hit = this.hero.player.circleCollision(entity);
-                if (EP_hit) {
-                    if (entity.canAttack) {
-                        entity.performAttack(this.hero);
+                if (!this.hero.dead) {
+                    if (EP_hit) {
+                        if (entity.canAttack) {
+                            entity.performAttack(this.hero);
+                        }
+                        entity.setView(this.hero.player.pos);
+                        entity.update(date);
+                        continue;
                     }
-                    entity.setView(this.hero.player.pos);
-                    entity.update(date);
-                    continue;
                 }
 
                 //enemy shoot
@@ -826,7 +828,6 @@ class Animated_3d_entity extends IAM {
         }
         console.log("TOTAL XP:", XP);
         console.log("TOTAL Gold:", gold);
-        console.info(monsterDict);
         console.groupEnd("ENEMY analysis");
     }
 }
