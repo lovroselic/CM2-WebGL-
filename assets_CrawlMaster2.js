@@ -64,6 +64,7 @@ LoadTextures = [
     { srcName: "RedGoldBat.jpg", name: "RedGoldBat" },
     { srcName: "BatCatGreen.jpg", name: "BatCatGreen" },
     { srcName: "GhostFaceGreen.jpg", name: "GhostFaceGreen" },
+    { srcName: "SpiderGreen.jpg", name: "SpiderGreen" },
 
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },
@@ -274,7 +275,7 @@ LoadSprites = [
     { srcName: "moon.png", name: "Moon" },
     { srcName: "monkey.png", name: "MonkeyIsland" },
     { srcName: "winter.png", name: "Winter" },
-    { srcName: "manic.png", name: "ManicMiner" },
+    //{ srcName: "manic.png", name: "ManicMiner" },
     { srcName: "Castle.png", name: "Castle" },
     { srcName: "Valhalla.png", name: "Valhalla" },
     { srcName: "Fred2.png", name: "Fred2" },

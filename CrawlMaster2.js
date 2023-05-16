@@ -50,7 +50,7 @@ const INI = {
     FINAL_LEVEL: 3,
 };
 const PRG = {
-    VERSION: "0.16.04",
+    VERSION: "0.16.05",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",

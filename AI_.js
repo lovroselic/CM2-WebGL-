@@ -61,7 +61,7 @@ const AI = {
     let nodeMap = enemy.parent.map.GA.nodeMap;
     let grid = this.getPosition(enemy);
     let goto = nodeMap[grid.x][grid.y].goto || NOWAY;
-    console.info(`...${enemy.name} ${enemy.id} hunting -> goto:`, goto, "strategy", enemy.behaviour.strategy);
+    //console.info(`...${enemy.name} ${enemy.id} hunting -> goto:`, goto, "strategy", enemy.behaviour.strategy);
     if (GRID.same(goto, NOWAY) && this.setting === "3D") return this.hunt_FP(enemy, exactPosition);
     return [goto];
   },
@@ -70,15 +70,15 @@ const AI = {
     const ePos = Vector3.to_FP_Grid(enemy.moveState.pos);
     const direction = ePos.direction(pPos);
     const orto = direction.ortoAlign();
-    console.info(`${enemy.name} ${enemy.id} FP hunt: ${orto}`, "strategy", enemy.behaviour.strategy);
+    //console.info(`${enemy.name} ${enemy.id} FP hunt: ${orto}`, "strategy", enemy.behaviour.strategy);
     return [orto];
   },
   crossroader(enemy, playerPosition, dir, block, exactPosition) {
-    console.log("------------------------------");
-    console.info(`Crossroader analysis for ${enemy.name} ${enemy.id}`);
+    //console.log("------------------------------");
+    //console.info(`Crossroader analysis for ${enemy.name} ${enemy.id}`);
     let goal, _;
     [goal, _] = enemy.parent.map.GA.findNextCrossroad(playerPosition, dir);
-    console.log(`.. ${enemy.name} ${enemy.id} goal`, goal, "strategy", enemy.behaviour.strategy);
+    //console.log(`.. ${enemy.name} ${enemy.id} goal`, goal, "strategy", enemy.behaviour.strategy);
 
     if (goal === null) {
       return this.hunt(enemy, exactPosition);
@@ -91,13 +91,6 @@ const AI = {
       //console.warn("... overriding behavior -> hunt");
       return this.hunt(enemy, exactPosition);
     }
-
-    /** moved forward for follower!  delete this*/
-    /*
-    if (goal === null) {
-      return this.hunt(enemy, exactPosition);
-    }
-    */
 
     let Astar = enemy.parent.map.GA.findPath_AStar_fast(this.getPosition(enemy), goal, [MAPDICT.WALL], "exclude", block);
     //console.log(`.. ${enemy.name} ${enemy.id} Astar`, Astar);
@@ -169,7 +162,6 @@ const AI = {
     return directions;
   },
   shoot(enemy, ARG) {
-    console.log("shooting:");
     if (enemy.caster) {
       if (enemy.mana >= Missile.calcMana(enemy.magic)) {
         const GA = enemy.parent.map.GA;

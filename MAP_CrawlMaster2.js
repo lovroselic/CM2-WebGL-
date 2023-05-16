@@ -15,7 +15,7 @@ const DECAL_PAINTINGS = [
     "HL4", "HL5", "HOB11", "HOB2", "HOB5", "Hero1", "Hero10", "Hero2", "Hero3", "HoraceSki",
     "IM", "Iceman", "Imhotep", "Impossible_Mission4", "JSW", "JSW2", "JSW3", "Jumpman", "JumpmanJr", "KQ1",
     "Kangaroo", "Karateka", "Knightlore", "LSL20", "LSL6", "LTUT", "LastNinja1", "Lode",
-    "Maniac", "ManicMiner", "Miner", "MonkeyIsland", "Montezuma", "Moon", "Oblivion", "Oblivion2", "OperationWolf",
+    "Maniac", "Miner", "MonkeyIsland", "Montezuma", "Moon", "Oblivion", "Oblivion2", "OperationWolf",
     "OperationWolf2", "PAC2", "Penta", "Phara", "Pipeline", "Pitfall", "Pitfall3", "Pitfall4", "Pitstop", "Pooyan",
     "Portal1", "Prince1", "Prince2", "RRR", "RickDangerous", "SOF", "SQ1", "SVS1", "SVS10", "SVS2", "SVS3", "SVS4",
     "SW4", "Scramble3", "Scramble4", "Skyrim", "Sorcery2", "Sorcery3", "TR1", "TR1", "TR10", "TR2", "TR2", "TR3",
@@ -137,35 +137,35 @@ const MONSTER_LAYOUT = {
     1: {
         start: {
             N: 1,
-            monster: { GhostFaceGreen: 1 },
+            monster: { SpiderGreen: 1 },
             //monster: { Bat: 1 }
         },
         corridor: {
             N: 25,
-            monster: { Bat: 1, BatCatGreen: 2, RedGoldBat: 1, BatCat: 1, Spider: 1 , GhostFace: 1}
+            monster: { Bat: 1, BatCatGreen: 2, RedGoldBat: 1, BatCat: 1, Spider: 1, GhostFace: 1, SpiderGreen: 1 }
         },
         common: {
             N: 2,
-            monster: { Bat: 1, BatCatGreen: 3, RedGoldBat: 1, BatCat: 2, Spider: 1, GhostFace: 1 }
+            monster: { Bat: 1, BatCatGreen: 3, RedGoldBat: 1, BatCat: 2, Spider: 1, GhostFace: 1, SpiderGreen: 1 }
         },
         Gold: {
             N: 2,
-            monster: { Spider: 1, GhostFace: 2, GhostFaceGreen: 2 },
+            monster: { Spider: 1, GhostFace: 2, GhostFaceGreen: 2, SpiderGreen: 2 },
             boss: { Bat: 1 }
         },
         Silver: {
             N: 2,
-            monster: { Spider: 1, GhostFace: 2, GhostFaceGreen: 1.5 },
+            monster: { Spider: 1, GhostFace: 2, GhostFaceGreen: 1.5, SpiderGreen: 1.5 },
             boss: { Bat: 1 },
         },
         firstKey: {
             N: 2,
-            monster: { Bat: 1, BatCatGreen: 2, BatCat: 3, Spider: 2, GhostFace: 1, GhostFaceGreen: 0.25 },
+            monster: { Bat: 1, BatCatGreen: 2, BatCat: 3, Spider: 2, GhostFace: 1, GhostFaceGreen: 0.25, SpiderGreen: 1 },
             boss: { Bat: 1 },
         },
         Red: {
             N: 2,
-            monster: { Spider: 1, BatCat: 1, GhostFace: 2, GhostFaceGreen: 1 },
+            monster: { Spider: 1, BatCat: 1, GhostFace: 2, GhostFaceGreen: 1, SpiderGreen: 1.1 },
             boss: { Bat: 1 },
         },
         temple: {
@@ -629,6 +629,27 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt",
         behaviourArguments: [5, ["wanderer"], 3, ["follower"]],
         moveSpeed: 1.0,
+    },
+    SpiderGreen: {
+        name: "SpiderGreen",
+        texture: "SpiderGreen",
+        model: "Spider",
+        scale: 1.4 / 2 ** 6,
+        shine: 128.0 * 0.9,
+        rotateToNorth: Math.PI,
+        midHeight: 0.3,
+        deathType: "BloodExplosion",
+        inventory: "Coins",
+        attack: 9,
+        defense: 4,
+        magic: 1,
+        health: 10,
+        xp: 10,
+        gold: 20,
+        attackSound: "MonsterAttack1",
+        hurtSound: "MonsterHurt",
+        behaviourArguments: [7, ["wanderer"], 3, ["follower"]],
+        moveSpeed: 1.1,
     },
     BatCat: {
         name: "BatCat",

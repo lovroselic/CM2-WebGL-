@@ -1850,7 +1850,12 @@ class $3D_Entity {
         this.boundingBox = new BoundingBox(this.model.meshes[0].primitives[0].positions.max, this.model.meshes[0].primitives[0].positions.min, this.scale);
         this.actor = new $3D_ACTOR(this, this.model.animations, this.model.skins[0]);
         this.moveState = new $3D_MoveState(this.translate, dir, this.rotateToNorth, this);
-        this.r = ((this.boundingBox.max.z - this.boundingBox.min.z) / 2 + (this.boundingBox.max.x - this.boundingBox.min.x) / 2) / 2;
+        const dZ = (this.boundingBox.max.z - this.boundingBox.min.z) / 2;
+        const dX = (this.boundingBox.max.x - this.boundingBox.min.x) / 2;
+        const avgDim = (dZ + dX) / 2;
+        const maxDim = Math.max(dZ, dX);
+        this.r = (avgDim + maxDim) / 2;
+        //console.warn(this.name, dX, dZ, "avg", avgDim, "max", maxDim, "r:",  this.r);
 
         this.canAttack = true;
         this.canShoot = false;
