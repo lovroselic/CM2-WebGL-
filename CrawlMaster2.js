@@ -23,8 +23,39 @@ const DEBUG = {
     _2D_display: true,
     INVINCIBLE: false,
     FREE_MAGIC: false,
+    LOAD: true,
     goto(grid) {
         HERO.player.pos = Vector3.from_Grid(Grid.toCenter(grid), 0.5);
+    },
+    depth2() {
+        GAME.level = 2;
+        GAME.upperLimit = GAME.level;
+        GAME.gold = 1059;
+        HERO.maxHealth = 27;
+        HERO.maxMana = 52;
+        HERO.health = 19;
+        HERO.mana = 28;
+        HERO.defense = 8;
+        HERO.reference_defense = HERO.defense;
+        HERO.attack = 10;
+        HERO.reference_attack = HERO.attack;
+        HERO.magic = 10;
+        HERO.reference_magic = HERO.magic;
+        HERO.attackExp = 56;
+        HERO.defenseExp = 32;
+        HERO.magicExp = 88;
+        HERO.attackExpGoal = 225;
+        HERO.defenseExpGoal = 100;
+        HERO.magicExpGoal = 338;
+        HERO.inventory.potion.red = 0;
+        HERO.inventory.potion.blue = 2;
+        let scrolls = ["TeleportTemple"];
+        for (let scr of scrolls) {
+            let scroll = new Scroll(scr);
+            HERO.inventory.scroll.add(scroll);
+        }
+        TITLE.stack.scrollIndex = Math.max(TITLE.stack.scrollIndex, 0);
+        TITLE.scrolls();
     }
 };
 const INI = {
@@ -50,7 +81,7 @@ const INI = {
     FINAL_LEVEL: 3,
 };
 const PRG = {
-    VERSION: "0.16.05",
+    VERSION: "0.16.06",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -602,6 +633,15 @@ const GAME = {
             GAME.upperLimit = GAME.level;
             GAME.fromCheckpoint = false;
         }
+
+        if (DEBUG.LOAD) {
+            console.log("########################");
+            console.log("FORCE LOAD FROM DEBUG!!");
+            console.log("########################");
+            HERO.inventory.scroll.clear();
+            DEBUG.depth2();
+        }
+
         GAME.levelStart();
     },
     checkpoint() {

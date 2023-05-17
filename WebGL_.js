@@ -55,6 +55,7 @@ const WebGL = {
         EXPLOSION_DURATION_MS: 2000,
         BLOOD_DURATION_MS: 2500,
         SMUDGE_DURATION_MS: 500,
+        MIN_R: 0.25
     },
     program: null,
     pickProgram: null,
@@ -1854,7 +1855,7 @@ class $3D_Entity {
         const dX = (this.boundingBox.max.x - this.boundingBox.min.x) / 2;
         const avgDim = (dZ + dX) / 2;
         const maxDim = Math.max(dZ, dX);
-        this.r = (avgDim + maxDim) / 2;
+        this.r = Math.max((avgDim + maxDim) / 2, WebGL.INI.MIN_R);
         //console.warn(this.name, dX, dZ, "avg", avgDim, "max", maxDim, "r:",  this.r);
 
         this.canAttack = true;

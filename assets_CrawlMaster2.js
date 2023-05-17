@@ -112,7 +112,8 @@ LoadAudio = [
     { srcName: "MonsterHurt3.mp3", name: "MonsterHurt3" },
     { srcName: "PainSqueek.mp3", name: "PainSqueek" },
     { srcName: "DeathPain1.mp3", name: "DeathPain1" },
-    { srcName: "HumanAttack1.mp3", name: "HumanAttack1" }
+    { srcName: "HumanAttack1.mp3", name: "HumanAttack1" },
+    { srcName: "Ow.mp3", name: "Ow" },
 
 ];
 LoadFonts = [
