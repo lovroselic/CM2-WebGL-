@@ -7,6 +7,7 @@
 console.log("%cAssets for CrawlMaster2 ready.", "color: orange");
 
 LoadTextures = [
+    /** wall, floor, ceil */
     { srcName: "BrickWall128.jpg", name: "BrickWall" },
     { srcName: "BrickWall2_128.jpg", name: "BrickWall2" },
     { srcName: "BlackBrickWall128.jpg", name: "BlackBrickWall" },
@@ -42,6 +43,14 @@ LoadTextures = [
     { srcName: "Wall9.jpg", name: "Wall9" },
     { srcName: "Wall8.jpg", name: "Wall8" },
     { srcName: "GreyWall.jpg", name: "GreyWall" },
+
+    { srcName: "MossyTiles.jpg", name: "MossyTiles" },
+    { srcName: "SmallTiles1.jpg", name: "SmallTiles1" },
+    { srcName: "BrokenTile1.jpg", name: "BrokenTile1" },
+    { srcName: "Broken1.jpg", name: "Broken1" },
+    { srcName: "OrderedTiles.jpg", name: "OrderedTiles" },
+
+    /** other */
     { srcName: "Gold1.jpg", name: "Gold" },
     { srcName: "Silver1.jpg", name: "Silver" },
     { srcName: "RedMetal1.jpg", name: "RedMetal" },
@@ -65,6 +74,7 @@ LoadTextures = [
     { srcName: "BatCatGreen.jpg", name: "BatCatGreen" },
     { srcName: "GhostFaceGreen.jpg", name: "GhostFaceGreen" },
     { srcName: "SpiderGreen.jpg", name: "SpiderGreen" },
+    { srcName: "AstroRed.jpg", name: "AstroRed" },
 
     //decal-gates
     { srcName: "GoldGate1_256.png", name: "GoldGate1" },

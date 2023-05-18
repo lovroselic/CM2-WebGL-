@@ -56,6 +56,36 @@ const DEBUG = {
         }
         TITLE.stack.scrollIndex = Math.max(TITLE.stack.scrollIndex, 0);
         TITLE.scrolls();
+    },
+    depth3() {
+        GAME.level = 3;
+        GAME.upperLimit = GAME.level;
+        GAME.gold = 892;
+        HERO.maxHealth = 55;
+        HERO.maxMana = 62;
+        HERO.health = 29;
+        HERO.mana = 4;
+        HERO.defense = 12;
+        HERO.reference_defense = HERO.defense;
+        HERO.attack = 14;
+        HERO.reference_attack = HERO.attack;
+        HERO.magic = 13;
+        HERO.reference_magic = HERO.magic;
+        HERO.attackExp = 231;
+        HERO.defenseExp = 16;
+        HERO.magicExp = 380;
+        HERO.attackExpGoal = 507;
+        HERO.defenseExpGoal = 150;
+        HERO.magicExpGoal = 507;
+        HERO.inventory.potion.red = 2;
+        HERO.inventory.potion.blue = 1;
+        let scrolls = ["Map", "Cripple", "DrainMana"];
+        for (let scr of scrolls) {
+            let scroll = new Scroll(scr);
+            HERO.inventory.scroll.add(scroll);
+        }
+        TITLE.stack.scrollIndex = Math.max(TITLE.stack.scrollIndex, 0);
+        TITLE.scrolls();
     }
 };
 const INI = {
@@ -78,10 +108,10 @@ const INI = {
     CRIPPLE_SPEED: 0.1,
     BOOST_TIME: 59,
     MM_reveal_radius: 4,
-    FINAL_LEVEL: 3,
+    FINAL_LEVEL: 4,
 };
 const PRG = {
-    VERSION: "0.16.06",
+    VERSION: "0.16.07",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -639,7 +669,7 @@ const GAME = {
             console.log("FORCE LOAD FROM DEBUG!!");
             console.log("########################");
             HERO.inventory.scroll.clear();
-            DEBUG.depth2();
+            DEBUG.depth3();
         }
 
         GAME.levelStart();
