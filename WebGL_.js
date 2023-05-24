@@ -44,7 +44,8 @@ const WebGL = {
     INI: {
         PIC_WIDTH: 0.5,
         PIC_TOP: 0.2,
-        PIC_OUT: 0.01,
+        PIC_OUT: 0.005,
+        ITEM_UP: 0.01,
         LIGHT_WIDTH: 0.4,
         LIGHT_TOP: 0.1,
         DEFAULT_RESOLUTION: 256,
@@ -1401,6 +1402,7 @@ class FloorItem3D extends Drawable_object {
         if (this.glueToFloor) {
             let max = ELEMENT.getMinY(this.element);
             heightTranslate[1] -= max * this.scale[1];
+            heightTranslate[1] += WebGL.INI.ITEM_UP;
         }
         let translate = new Vector3(grid.x, h, grid.y);
         translate = translate.add(Vector3.from_array(heightTranslate));

@@ -1530,7 +1530,7 @@ const ENGINE = {
         ENGINE.LOAD.HMModels = arrPath.length;
         if (ENGINE.LOAD.HMObjects) appendCanvas("Models");
         try {
-          const model_files = await Promise.all(arrPath.map(model => load_glTF_files(model)));
+          const model_files = await Promise.all(arrPath.map(model => load_glTF_files(model, "Models")));
 
           model_files.forEach(
             async (model) => {
@@ -1606,12 +1606,13 @@ const ENGINE = {
                     });
                   }
                 }
-                //console.log("paths", paths);
+                //console.log(modelName, "paths", paths);
                 //to T,R,S
                 const nodes = {};
                 for (let nodeIndex in paths) {
                   const node = paths[nodeIndex];
                   const LEN = node.rotation.samples.length || node.translation.samples.length;
+                  //console.log(".LEN", LEN);
                   nodes[nodeIndex] = { jointIndex: node.jointIndex };
                   nodes[nodeIndex].time = new Array(LEN);
                   nodes[nodeIndex].max = node.rotation.samples[0].max || node.translation.samples[0].max;
@@ -1851,12 +1852,12 @@ const ENGINE = {
         return { audio, name };
       }
 
-      async function load_glTF_files(fileName) {
+      async function load_glTF_files(fileName, counter) {
         try {
           fileName = ENGINE.MODEL_SOURCE + fileName;
           const response = await fetch(fileName);
-          //ENGINE.LOAD[counter]++;
-          //ENGINE.drawLoadingGraph(counter);
+          ENGINE.LOAD[counter]++;
+          ENGINE.drawLoadingGraph(counter);
           const json = await response.json();
           return json;
         } catch (error) {
