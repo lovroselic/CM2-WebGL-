@@ -134,6 +134,14 @@ const MAP = {
     4: {
         width: 37,
         height: 37,
+        floor: "Broken1",
+        ceil: "BrokenTile1",
+        wall: "Wall11",
+        minPad: 2,
+    },
+    5: {
+        width: 37,
+        height: 37,
         floor: "Tile",
         ceil: "OldFloor",
         wall: "Wall7",
@@ -223,10 +231,7 @@ const MONSTER_LAYOUT = {
     3: {
         start: {
             N: 1,
-            //monster: { SpiderGreen: 1 },
-            //monster: { Hulk_BossL2: 1 },
-            //monster: { Wolf: 1 }
-            monster: { RedSkeleton: 1 }
+            monster: { SpiderGreen: 1 },
         },
         corridor: {
             N: 25,
@@ -239,7 +244,7 @@ const MONSTER_LAYOUT = {
         Gold: {
             N: 2,
             monster: { Viking: 2, AstroRed: 2, MissGreen: 2, Hulk: 3, Wolf: 3 },
-            boss: { Hulk_BossL2: 1 }
+            boss: { Goblin_BossL3: 1 }
         },
         Silver: {
             N: 2,
@@ -261,7 +266,45 @@ const MONSTER_LAYOUT = {
             monster: { Viking: 1 },
         }
     },
-    4: { //ARENA
+    4: {
+        start: {
+            N: 1,
+            monster: { SpiderGreen: 1 },
+        },
+        corridor: {
+            N: 25,
+            monster: { GhostFaceGreen: 1, SpiderGreen: 1, Astro: 1, MissWhite: 1, Viking: 2, AstroRed: 2, MissGreen: 3, Wolf: 0.1 }
+        },
+        common: {
+            N: 2,
+            monster: { GhostFaceGreen: 1, SpiderGreen: 1, Astro: 1, MissWhite: 1, Viking: 2, AstroRed: 2, MissGreen: 3, Wolf: 0.2 }
+        },
+        Gold: {
+            N: 2,
+            monster: { Viking: 2, AstroRed: 2, MissGreen: 2, Hulk: 3, Wolf: 3 },
+            boss: { Goblin_BossL3: 1 }
+        },
+        Silver: {
+            N: 2,
+            monster: { Viking: 2, AstroRed: 2, MissGreen: 2, Hulk: 2, Wolf: 2 },
+            boss: { Wolf: 1,  Hulk: 1},
+        },
+        Red: {
+            N: 2,
+            monster: { Viking: 2, AstroRed: 2, MissGreen: 3, Hulk: 1, Wolf: 1 },
+            boss: { Viking: 1 },
+        },
+        firstKey: {
+            N: 2,
+            monster: { GhostFaceGreen: 1, Astro: 1, Viking: 2, AstroRed: 2, MissGreen: 3, Wolf: 0.5 },
+            boss: { Astro: 1 },
+        },
+        temple: {
+            N: 1,
+            monster: { Viking: 1 },
+        }
+    },
+    5: { //ARENA
         corridor: {
             N: 15,
             monster: { Bat: 1 }
@@ -689,8 +732,7 @@ const MONSTER_TYPE = {
         rotateToNorth: Math.PI,
         midHeight: 0.35,
         deathType: "BloodExplosion",
-        //inventory: "Coins",
-        inventory: "Scroll",
+        inventory: "Coins",
         attack: 9,
         defense: 5,
         magic: 2,
@@ -1119,6 +1161,54 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt2",
         behaviourArguments: [8, ["wanderer"], 6, ["advancer"]],
         moveSpeed: 1.1,
+    },
+    Goblin: {
+        name: "Goblin",
+        model: "Goblin",
+        scale: 1.1 / 2 ** 1,
+        shine: 128.0 * 0.5,
+        rotateToNorth: Math.PI,
+        midHeight: 0.5,
+        deathType: "BloodExplosion",
+        inventory: "Coins",
+        attack: 25,
+        defense: 15,
+        magic: 25,
+        health: 50,
+        xp: 80,
+        gold: 50,
+        attackSound: "MonsterAttack1",
+        hurtSound: "MonsterHurt",
+        behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
+        moveSpeed: 1.0,
+        mana: 3,
+        caster: true,
+        shootDistance: 4,
+        stalkDistance: 5,
+    },
+    Goblin_BossL3: {
+        name: "Goblin_BossL3",
+        model: "Goblin",
+        scale: 1.1 / 2 ** 1,
+        shine: 128.0 * 0.5,
+        rotateToNorth: Math.PI,
+        midHeight: 0.5,
+        deathType: "BloodExplosion",
+        inventory: "Heart",
+        attack: 25,
+        defense: 15,
+        magic: 25,
+        health: 50,
+        xp: 200,
+        gold: 0,
+        attackSound: "MonsterAttack1",
+        hurtSound: "MonsterHurt",
+        behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
+        moveSpeed: 1.0,
+        mana: 5,
+        caster: true,
+        shootDistance: 4,
+        stalkDistance: 5,
     },
 };
 

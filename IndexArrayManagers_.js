@@ -777,9 +777,11 @@ class Animated_3d_entity extends IAM {
                 }
 
                 //enemy shoot
-                if (entity.canShoot) {
-                    entity.setView(this.hero.player.pos);
-                    entity.shoot();
+                if (!this.hero.dead) {
+                    if (entity.canShoot) {
+                        entity.setView(this.hero.player.pos);
+                        entity.shoot();
+                    }
                 }
 
                 //enemy translate position

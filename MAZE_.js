@@ -16,7 +16,7 @@
 TODO:
 
 known bugs:
-
+    * no connection after tunneling should return new dungeon
 */
 
 class Room {
@@ -167,7 +167,8 @@ class MasterDungeon {
         let NoOfDoors = Math.min(N, connections.length);
         if (NoOfDoors === 0) {
             console.error("no connections even after tunneling!");
-            return;
+            //return;
+            return new Dungeon(this.width, this.height);
         } else {
             do {
                 let tunnel = connections.removeRandom();

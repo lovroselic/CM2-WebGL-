@@ -63,7 +63,7 @@ const DEBUG = {
         GAME.gold = 892;
         HERO.maxHealth = 55;
         HERO.maxMana = 62;
-        HERO.health = 29;
+        HERO.health = 50;
         HERO.mana = 4;
         HERO.defense = 12;
         HERO.reference_defense = HERO.defense;
@@ -79,7 +79,37 @@ const DEBUG = {
         HERO.magicExpGoal = 507;
         HERO.inventory.potion.red = 2;
         HERO.inventory.potion.blue = 1;
-        let scrolls = ["Map", "Cripple", "DrainMana"];
+        let scrolls = ["MagicBoost", "Cripple", "DrainMana"];
+        for (let scr of scrolls) {
+            let scroll = new Scroll(scr);
+            HERO.inventory.scroll.add(scroll);
+        }
+        TITLE.stack.scrollIndex = Math.max(TITLE.stack.scrollIndex, 0);
+        TITLE.scrolls();
+    },
+    depth4() {
+        GAME.level = 4;
+        GAME.upperLimit = GAME.level;
+        GAME.gold = 1034;
+        HERO.maxHealth = 75;
+        HERO.maxMana = 72;
+        HERO.health = 72;
+        HERO.mana = 0;
+        HERO.defense = 14;
+        HERO.reference_defense = HERO.defense;
+        HERO.attack = 19;
+        HERO.reference_attack = HERO.attack;
+        HERO.magic = 15;
+        HERO.reference_magic = HERO.magic;
+        HERO.attackExp = 126;
+        HERO.defenseExp = 143;
+        HERO.magicExp = 448;
+        HERO.attackExpGoal = 1713;
+        HERO.defenseExpGoal = 150;
+        HERO.magicExpGoal = 761;
+        HERO.inventory.potion.red = 4;
+        HERO.inventory.potion.blue = 1;
+        let scrolls = ["Map", "MagicBoost", "HalfLife"];
         for (let scr of scrolls) {
             let scroll = new Scroll(scr);
             HERO.inventory.scroll.add(scroll);
@@ -108,10 +138,10 @@ const INI = {
     CRIPPLE_SPEED: 0.1,
     BOOST_TIME: 59,
     MM_reveal_radius: 4,
-    FINAL_LEVEL: 4,
+    FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.16.08",
+    VERSION: "0.16.09",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -576,7 +606,8 @@ const HERO = {
     die() {
         if (DEBUG.INVINCIBLE) return;
         this.dead = true;
-        AUDIO.Scream.play();
+        console.warn("HERO die execution", this.dead);
+        //AUDIO.Scream.play();
     },
     death() {
         this.player.pos.set_y(0.1);
@@ -669,7 +700,7 @@ const GAME = {
             console.log("FORCE LOAD FROM DEBUG!!");
             console.log("########################");
             HERO.inventory.scroll.clear();
-            DEBUG.depth3();
+            DEBUG.depth4();
         }
 
         GAME.levelStart();
@@ -923,8 +954,10 @@ const GAME = {
         }
     },
     checkIfProcessesComplete() {
+        console.info("Hero died. Waiting for processes to complete");
         if (EXPLOSION3D.POOL.length !== 0) return;
-        if (VANISHING3D.POOL.length !== 0) return;
+        //if (VANISHING3D.POOL.length !== 0) return;
+        if (VANISHING3D.POOL.some(Boolean)) return;
         if (MISSILE3D.POOL.length !== 0) return;
         HERO.death();
     },
@@ -1125,23 +1158,8 @@ const GAME = {
         GAME.fps.update(fps);
         CTX.fillText(GAME.fps.getFps(), 5, 10);
     },
-    /*
-    end() {
-        ENGINE.showMouse();
-        AUDIO.Death.onended = GAME.checkScore;
-        AUDIO.Death.play();
-    },
-    checkScore() {
-        SCORE.checkScore(GAME.score);
-        SCORE.hiScore();
-    },
-    addScore(score) {
-        GAME.score += score;
-        TITLE.score();
-    },
-    */
     over() {
-        //console.log(`%c HERO DIED!`, "color: red; font-size: 20px");
+        console.log(`%c HERO DIED!`, "color: red; font-size: 20px");
         AUDIO.Scream.play();
         ENGINE.TEXT.centeredText("Rest In Peace", ENGINE.gameWIDTH, ENGINE.gameHEIGHT / 2);
         ENGINE.TEXT.centeredText("(ENTER)", ENGINE.gameWIDTH, ENGINE.gameHEIGHT / 2 + ENGINE.TEXT.RD.fs * 1.2);

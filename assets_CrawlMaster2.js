@@ -141,7 +141,7 @@ LoadObjects = [
 ];
 
 LoadModels = ['GhostFace.gltf', 'Bat.gltf', 'Hulk.gltf', 'Viking.gltf', 'Astro.gltf', 'MissWhite.gltf', 'BatCat.gltf',
-    'Spider.gltf', 'Wolf.gltf', 'Skeleton.gltf'
+    'Spider.gltf', 'Wolf.gltf', 'Skeleton.gltf', 'Goblin.gltf'
 ];
 
 LoadSprites = [
