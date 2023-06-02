@@ -109,7 +109,37 @@ const DEBUG = {
         HERO.magicExpGoal = 761;
         HERO.inventory.potion.red = 4;
         HERO.inventory.potion.blue = 1;
-        let scrolls = ["Map", "MagicBoost", "HalfLife"];
+        let scrolls = ["Cripple", "MagicBoost", "HalfLife"];
+        for (let scr of scrolls) {
+            let scroll = new Scroll(scr);
+            HERO.inventory.scroll.add(scroll);
+        }
+        TITLE.stack.scrollIndex = Math.max(TITLE.stack.scrollIndex, 0);
+        TITLE.scrolls();
+    },
+    depth5() {
+        GAME.level = 5;
+        GAME.upperLimit = GAME.level;
+        GAME.gold = 1634;
+        HERO.maxHealth = 91;
+        HERO.maxMana = 82;
+        HERO.health = 38;
+        HERO.mana = 31;
+        HERO.defense = 18;
+        HERO.reference_defense = HERO.defense;
+        HERO.attack = 22;
+        HERO.reference_attack = HERO.attack;
+        HERO.magic = 18;
+        HERO.reference_magic = HERO.magic;
+        HERO.attackExp = 998;
+        HERO.defenseExp = 159;
+        HERO.magicExp = 445;
+        HERO.attackExpGoal = 2570;
+        HERO.defenseExpGoal = 338;
+        HERO.magicExpGoal = 1142;
+        HERO.inventory.potion.red = 0;
+        HERO.inventory.potion.blue = 0;
+        let scrolls = ["MagicBoost", "HalfLife"];
         for (let scr of scrolls) {
             let scroll = new Scroll(scr);
             HERO.inventory.scroll.add(scroll);
@@ -141,7 +171,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.16.09",
+    VERSION: "0.16.10",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -700,7 +730,7 @@ const GAME = {
             console.log("FORCE LOAD FROM DEBUG!!");
             console.log("########################");
             HERO.inventory.scroll.clear();
-            DEBUG.depth4();
+            DEBUG.depth5();
         }
 
         GAME.levelStart();
@@ -955,10 +985,9 @@ const GAME = {
     },
     checkIfProcessesComplete() {
         console.info("Hero died. Waiting for processes to complete");
-        if (EXPLOSION3D.POOL.length !== 0) return;
-        //if (VANISHING3D.POOL.length !== 0) return;
-        if (VANISHING3D.POOL.some(Boolean)) return;
-        if (MISSILE3D.POOL.length !== 0) return;
+        for (let iam of [EXPLOSION3D, VANISHING3D, MISSILE3D]) {
+            if (iam.POOL.length !== 0) return;
+        }
         HERO.death();
     },
     frameDraw(lapsedTime) {
