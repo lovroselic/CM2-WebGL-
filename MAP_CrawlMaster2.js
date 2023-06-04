@@ -69,7 +69,12 @@ const DECAL_PAINTINGS = [
     "Ishar72", "Jawbreaker", "JetPac70", "Jumpman70", "JupiterLander70", "KokotoniWilf70", "LeisureSuitLarry70", "LeisureSuitLarry71", "LeisureSuitLarry72",
     "LeisureSuitLarry73", "LeisureSuitLarry74", "LeisureSuitLarry75", "LeisureSuitLarry76", "LeisureSuitLarry77", "Miner70", "MrRobot70", "Pitfall70", "Pitfall71",
     "Pitfall72", "Pitfall73", "Pyjamarama70", "RickDangerous70", "RiverRaid70", "SirFred70", "Sorcery70", "Spelunker70", "TempleOfApshai70", "TheHobbit70", "TheHobbit71",
-    "TheHobbit72", "TheHobbit73", "TimeTunnel70", "Ultima70", "Vixen70", "WhoDaresWins70", "WhoDaresWins71", "Wolfenstein70", "Yeppelin70", "Zaxxon70"
+    "TheHobbit72", "TheHobbit73", "TimeTunnel70", "Ultima70", "Vixen70", "WhoDaresWins70", "WhoDaresWins71", "Wolfenstein70", "Yeppelin70", "Zaxxon70",
+    "DynaBlaster60", "FireAnt60", "Gods60", "HalfLife60", "HeavyOnTheMagick60", "Hero60", "Imhotep60", "Infiltrator60", "JetSetWilly60", "JungleStory60", "Kangaroo60",
+    "Killerwat60", "KingsQuest60", "KokotoniWilf60", "LadyTut60", "LeisureSuitLarry60", "LeisureSuitLarry61", "ManicMiner60", "ManicMiner61", "ManicMiner62",
+    "ManicMiner63", "ManicMiner64", "MrRobot60", "ORiley'sMine60", "Pitfall60", "RickDangerous60", "SP60", "SP62", "SP63", "SP64", "SP65", "SP66", "SP67", "SP68",
+    "SP69", "SP70", "SP71", "SasbreWulf60", "Scramble60", "ScubaDive60", "SeaWolf60", "Shamus60", "SirFred60", "SirFred61", "SirFred62", "SkoolDaze60", "SkoolDaze61",
+    "Sp61", "SumerGames60", "TimeTunnel60"
 ];
 
 /*const DECAL_PAINTINGS = [
@@ -269,7 +274,8 @@ const MONSTER_LAYOUT = {
     4: {
         start: {
             N: 1,
-            monster: { Viking: 1 },
+            //monster: { Viking: 1 },
+            monster: { Drax: 1 }, //MissGalaxy
         },
         corridor: {
             N: 25,
@@ -307,9 +313,9 @@ const MONSTER_LAYOUT = {
     5: { //ARENA
         corridor: {
             N: 15,
-            monster: { Bat: 1 }
+            monster: { Skeleton: 1, Hulk: 1, Goblin: 3, RedSkeleton: 3, SilverSkeleton: 4, GoldSkeleton: 3 }
         },
-        boss: { GhostFace: 1 },
+        boss: { Drax_BossL5: 1 },
     }
 };
 
@@ -615,6 +621,9 @@ const SPAWN = {
             const grid = bossGrids[index];
             ENTITY3D.add(new $3D_Entity(Grid.toCenter(grid), MONSTER_TYPE[type], UP));
         }
+
+        //analysis
+        if (DEBUG.VERBOSE) ENTITY3D.analyze();
     },
     arenaDecals(map) {
         //corridor decals
@@ -960,7 +969,7 @@ const MONSTER_TYPE = {
         gold: 0,
         attackSound: "HumanAttack1",
         hurtSound: "Ow",
-        behaviourArguments: [8, ["wanderer"], 6, ["shoot"]],
+        behaviourArguments: [Infinity, ["wanderer"], 6, ["shoot"]],
         moveSpeed: 1.0,
         mana: 5,
         caster: true,
@@ -1159,7 +1168,7 @@ const MONSTER_TYPE = {
         gold: 0,
         attackSound: "MonsterAttack2",
         hurtSound: "MonsterHurt2",
-        behaviourArguments: [8, ["wanderer"], 6, ["advancer"]],
+        behaviourArguments: [Infinity, ["wanderer"], 6, ["advancer"]],
         moveSpeed: 1.1,
     },
     SilverSkeleton: {
@@ -1224,12 +1233,60 @@ const MONSTER_TYPE = {
         gold: 0,
         attackSound: "MonsterAttack1",
         hurtSound: "MonsterHurt",
-        behaviourArguments: [7, ["wanderer"], 4, ["shoot"]],
+        behaviourArguments: [Infinity, ["wanderer"], 4, ["shoot"]],
         moveSpeed: 1.0,
         mana: 5,
         caster: true,
         shootDistance: 4,
         stalkDistance: 5,
+    },
+    Drax: {
+        name: "Drax",
+        model: "Drax",
+        scale: 1.5 / 2 ** 1,
+        shine: 128.0 * 0.5,
+        rotateToNorth: Math.PI,
+        midHeight: 0.5,
+        deathType: "BloodExplosion",
+        inventory: "Coins",
+        attack: 50,
+        defense: 30,
+        magic: 30,
+        health: 100,
+        xp: 125,
+        gold: 100,
+        attackSound: "HumanAttack1",
+        hurtSound: "Ow",
+        behaviourArguments: [Infinity, ["wanderer"], 10, ["shoot"]],
+        moveSpeed: 1.0,
+        mana: 3,
+        caster: true,
+        shootDistance: 10,
+        stalkDistance: 12,
+    },
+    Drax_BossL5: {
+        name: "Drax",
+        model: "Drax",
+        scale: 1.5 / 2 ** 1,
+        shine: 128.0 * 0.5,
+        rotateToNorth: Math.PI,
+        midHeight: 0.5,
+        deathType: "BloodExplosion",
+        inventory: "GoldKey",
+        attack: 50,
+        defense: 30,
+        magic: 30,
+        health: 250,
+        xp: 250,
+        gold: 0,
+        attackSound: "HumanAttack1",
+        hurtSound: "Ow",
+        behaviourArguments: [Infinity, ["wanderer"], 10, ["shoot"]],
+        moveSpeed: 1.0,
+        mana: 5,
+        caster: true,
+        shootDistance: 10,
+        stalkDistance: 12,
     },
 };
 
