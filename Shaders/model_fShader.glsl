@@ -46,23 +46,23 @@ void main(void) {
 
 vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal) {
     //ambient
-    float ambientStrength = 0.15;
-    vec3 ambientLightColor = vec3(1, 1, 0.9);
+    float ambientStrength = 0.225; //OK
+    vec3 ambientLightColor = vec3(0.9, 0.9, 0.81);
     vec3 ambientLight = ambientStrength * ambientLightColor;
 
     //diffuse
     float dist = distance(cameraPos, FragPos);
-    float attenuation = 1.0 / (1.0 + 0.10 * dist + 0.40 * dist * dist);
-    float diffuseStrength = 1.2;
+    float attenuation = 1.0 / (1.0 + 0.10 * dist + 0.65 * dist * dist);
+    float diffuseStrength = 2.5;
     vec3 diffuseLightColor = vec3(1, 1, 0.9);
     float diff = max(dot(normal, viewDir), 0.0);
-    vec3 diffuselight = diffuseStrength * attenuation * diff * diffuseLightColor;
+    vec3 diffuselight = diffuseStrength * attenuation * diff * ambientLightColor;
 
     // specular shading
-    float shininess = 128.0 * 0.20;
+    float shininess = 16.0;
     vec3 reflectDir = reflect(-viewDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-    float specStrength = 1.2;
+    float specStrength = 0.9;
     vec3 specularLight = diffuseLightColor * spec * specStrength * attenuation;
 
     return ambientLight + diffuselight + specularLight;
@@ -78,13 +78,15 @@ vec3 CalcPointLight(vec3 PL_position, vec3 FragPos, vec3 viewDir, vec3 normal, f
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     // attenuation
     float distance = length(PL_position - FragPos);
-    float attenuation = 1.0 / (1.0 + 0.15 * distance + 0.45 * (distance * distance));
+    float attenuation = 1.0 / (1.0 + 0.1 * distance + 0.65 * (distance * distance));
 
-    float ambientStrength = 1.2;
+    float ambientStrength = 1.0;
     vec3 ambient = pointLightColor * ambientStrength * attenuation;
-    float diffuseStrength = 1.2;
+    //float diffuseStrength = 1.75;
+    float diffuseStrength = 2.5;
     vec3 diffuse = pointLightColor * diff * diffuseStrength * attenuation;
-    float specStrength = 0.99;
+    //float specStrength = 1.5;
+    float specStrength = 1.5;
     vec3 specular = pointLightColor * spec * specStrength * attenuation;
 
     return diffuse + ambient + specular;

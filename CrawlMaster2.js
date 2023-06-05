@@ -10,7 +10,7 @@
 TODO:
 
 known bugs: 
-   
+   teleport to temple crashes in arena
 
  */
 ////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ const DEBUG = {
     SETTING: true,
     VERBOSE: true,
     _2D_display: true,
-    INVINCIBLE: false,
+    INVINCIBLE: true,
     FREE_MAGIC: false,
     LOAD: false,
     goto(grid) {
@@ -171,7 +171,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.17.00",
+    VERSION: "0.17.01",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",

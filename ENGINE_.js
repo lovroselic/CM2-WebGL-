@@ -1535,6 +1535,7 @@ const ENGINE = {
           model_files.forEach(
             async (model) => {
               const modelName = model.scenes[0].name;
+              if (ENGINE.verbose) console.info(modelName, model);
 
               //assume single buffer!
               if (model.buffers.length > 1) throw new Error(`Expected single buffer, got ${model.buffers.length}`);
@@ -1579,21 +1580,30 @@ const ENGINE = {
               }
 
               /** animations */
+              //console.warn(modelName, model.animations);
               let animations = new Array(model.animations.length);
               for (let [index, animation] of model.animations.entries()) {
                 const skinJoints = model.skins[index].joints;
                 const paths = {};
                 for (let channel of animation.channels) {
-                  if (channel.target.node === undefined) continue;
-                  if (model.nodes[channel.target.node].skinIndex === undefined) continue;
+                  if (channel.target.node === undefined) {
+                    if (ENGINE.verbose) console.warn(modelName, "undefined channel.target.node");
+                    continue;
+                  }
+                  if (model.nodes[channel.target.node].skinIndex === undefined) {
+                    if (ENGINE.verbose) console.warn(modelName, "undefined model.nodes[channel.target.node].skinIndex");
+                    continue;
+                  }
                   const sampler = animation.samplers[channel.sampler];
-                  if (sampler.interpolation !== "LINEAR") console.error("only LINEAR interpolation implemented and will be used as such!!");
+                  if (sampler.interpolation !== "LINEAR") {
+                    if (ENGINE.verbose) console.error("only LINEAR interpolation implemented and will be used as such!!");
+                  }
                   const timeData = processAccessor(model, buffer, sampler.input);
                   const animData = processAccessor(model, buffer, sampler.output);
                   const nodeIndex = channel.target.node;
+
                   if (!paths[nodeIndex]) paths[nodeIndex] = { jointIndex: skinJoints.indexOf(nodeIndex) };
                   if (!paths[nodeIndex][channel.target.path]) paths[nodeIndex][channel.target.path] = {};
-                  //paths[nodeIndex][channel.target.path].interpolation = sampler.interpolation;
                   paths[nodeIndex][channel.target.path].samples = [];
                   const dataLength = animData.data.length / timeData.data.length;
                   const samples = paths[nodeIndex][channel.target.path].samples;

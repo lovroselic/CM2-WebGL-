@@ -5,6 +5,7 @@
 
 "use strict";
 
+
 const DECAL_PAINTINGS = [
     "AA1", "AA2", "AA3", "AA5", "AA7", "AA8", "AA9", "AMC", "Amberstar", "Apshai", "Arena",
     "BFF", "Bagitman", "Barbarian1", "Barbarian5", "BeachHead", "BoogaBoo1", "BoogaBoo3",
@@ -76,14 +77,10 @@ const DECAL_PAINTINGS = [
     "SP69", "SP70", "SP71", "SasbreWulf60", "Scramble60", "ScubaDive60", "SeaWolf60", "Shamus60", "SirFred60", "SirFred61", "SirFred62", "SkoolDaze60", "SkoolDaze61",
     "Sp61", "SumerGames60", "TimeTunnel60"
 ];
-
-/*const DECAL_PAINTINGS = [
-    
-];*/
 console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 
 const LIGHT_COLORS = {
-    standard: new Float32Array([0.95, 0.95, 0.85]),
+    standard: new Float32Array([0.90, 0.90, 0.81]),
     fire: new Float32Array([0.94, 0.50, 0.07]),
     red: new Float32Array([0.95, 0.70, 0.70]),
     yellowgreen: new Float32Array([0.90, 0.90, 0.50]),
@@ -1356,7 +1353,7 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 3,
         glueToFloor: true,
         texture: "Wood1",
-        shine: 128.0 * 0.1,
+        shine: 128.0 * 0.25,
     },
     TreasureChest: {
         name: "TreasureChest",
@@ -1365,7 +1362,7 @@ const COMMON_ITEM_TYPE = {
         scale: 1.5 / 2 ** 3,
         glueToFloor: true,
         texture: "TreasureChest",
-        shine: 128.0 * 0.1,
+        shine: 128.0 * 0.25,
     },
     Sword: {
         name: "Sword",
@@ -1386,7 +1383,7 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 5,
         glueToFloor: true,
         texture: "ScrapedMetal",
-        shine: 128.0 * 0.80,
+        shine: 128.0 * 0.90,
         inventorySprite: "ShieldSkill",
     },
     Magic: {
@@ -1429,7 +1426,8 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 4,
         texture: "FireballTexture",
         moveSpeed: 8.0,
-        shine: 128.0 * 0.90,
+        //shine: 128.0 * 0.90,
+        shine: 128.0 * 1.90,
         lightColor: "#FF7700",
     },
     Scroll: {
@@ -1483,7 +1481,7 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 3,
         glueToFloor: true,
         texture: "Silver",
-        shine: 128.0 * 0.80,
+        shine: 128.0 * 0.90,
     },
     RedKey: {
         name: "RedKey",
@@ -1494,7 +1492,7 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 3,
         glueToFloor: true,
         texture: "RedMetal",
-        shine: 128.0 * 0.50,
+        shine: 128.0 * 0.80,
     },
     GoldBar: {
         name: "GoldBar",
@@ -1506,6 +1504,7 @@ const COMMON_ITEM_TYPE = {
         minVal: 50,
         maxVal: 100,
         shine: 128.0 * 0.99,
+        //shine: 1000.0,
     },
     SilverBar: {
         name: "SilverBar",
@@ -1516,7 +1515,7 @@ const COMMON_ITEM_TYPE = {
         texture: "Silver",
         minVal: 25,
         maxVal: 50,
-        shine: 128.0 * 0.80,
+        shine: 128.0 * 0.85,
     },
     GoldCube: {
         name: "GoldCube",
