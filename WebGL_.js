@@ -37,7 +37,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.32.0",
+    VERSION: "0.32.1",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: false,
@@ -446,7 +446,7 @@ const WebGL = {
         const cameratarget = this.camera.pos.translate(this.camera.dir);
         glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, cameratarget.array, [0.0, 1.0, 0.0]);
         this.viewMatrix = viewMatrix;
-
+        
         // identity placeholders & and defaults
         const defaultShininess = 128.0 * 0.10;
         const translationMatrix = glMatrix.mat4.create();
