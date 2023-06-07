@@ -5,7 +5,7 @@ precision highp float;
 precision mediump float;
 #endif
 
-const int MAX_JOINTS = 64;
+const int MAX_JOINTS = 256;
 
 attribute vec4 aVertexPosition;
 attribute vec3 aVertexNormal;

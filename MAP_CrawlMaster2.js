@@ -79,29 +79,17 @@ const DECAL_PAINTINGS = [
 ];
 console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 
-/*
-
-const LIGHT_COLORS = {
-    standard: new Float32Array([0.90, 0.90, 0.81]),
-    fire: new Float32Array([0.94, 0.50, 0.07]),
-    red: new Float32Array([0.95, 0.70, 0.70]),
-    yellowgreen: new Float32Array([0.90, 0.90, 0.50]),
-};
-
-
-*/
-
 /** Light decals */
 
 const LIGHT_DECALS = [
+    { sprite: "WallLamp", color: LIGHT_COLORS.standard },
+    { sprite: "WallLamp2", color: LIGHT_COLORS.standard },
     { sprite: "WallLamp", color: LIGHT_COLORS.standard },
     { sprite: "WallLamp2", color: LIGHT_COLORS.standard },
     { sprite: "WallLamp3", color: LIGHT_COLORS.red },
     { sprite: "WallTorch", color: LIGHT_COLORS.fire },
     { sprite: "Lamp4", color: LIGHT_COLORS.yellowgreen }
 ];
-
-
 
 /** Crests */
 

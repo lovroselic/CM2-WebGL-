@@ -23,7 +23,7 @@ const DEBUG = {
     _2D_display: true,
     INVINCIBLE: true,
     FREE_MAGIC: false,
-    LOAD: false,
+    LOAD: true,
     goto(grid) {
         HERO.player.pos = Vector3.from_Grid(Grid.toCenter(grid), 0.5);
     },
@@ -123,8 +123,8 @@ const DEBUG = {
         GAME.gold = 1634;
         HERO.maxHealth = 91;
         HERO.maxMana = 82;
-        HERO.health = 38;
-        HERO.mana = 31;
+        HERO.health = 90;
+        HERO.mana = 80;
         HERO.defense = 18;
         HERO.reference_defense = HERO.defense;
         HERO.attack = 22;
@@ -171,7 +171,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.17.04",
+    VERSION: "0.17.05",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -399,6 +399,8 @@ class Scroll {
                 Scroll.boost("magic");
                 break;
             case "TeleportTemple":
+                console.info("map", map);
+                if (map.type === "ARENA") break;
                 const temple = map.findRoom("temple");
                 const target = map.findMiddleSpaceUnreserved(temple.area);
                 HERO.player.pos = Vector3.from_Grid(Grid.toCenter(target), 0.5);
