@@ -17,14 +17,12 @@ uniform vec3 uPointLights[N_LIGHTS];
 uniform vec3 uLightColors[N_LIGHTS];
 uniform sampler2D uSampler;
 uniform vec3 uCameraPos;
-uniform float uShine;
 uniform Material uMaterial;
 
 varying vec3 FragPos;
 varying vec3 v_normal;
 varying vec2 vTextureCoord;
 
-//vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal, float shininess);
 vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal, float shininess, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor);
 vec3 CalcPointLight(vec3 PL_position, vec3 FragPos, vec3 viewDir, vec3 normal, float shininess, vec3 pointLightColor, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor);
 
@@ -73,7 +71,6 @@ vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal, float s
     vec3 diffuselight = diffuseStrength * attenuation * diff * ambientLightColor * diffuseColor;
 
     // specular shading
-    //float shininess = 16.0;
     vec3 reflectDir = reflect(-viewDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     float specStrength = 0.9;

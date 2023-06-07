@@ -16,6 +16,7 @@ const LIGHT_COLORS = {
     fullRed: new Float32Array([1.0, 0.0, 0.0]),
     gold: new Float32Array([0.831372, 0.686274, 0.21568627]),
     silver: new Float32Array([0.752941176, 0.752941176, 0.752941176]),
+    green: new Float32Array([0.0, 1.0, 0.0]),
 };
 
 /** Materials */
@@ -29,20 +30,8 @@ const MATERIAL = {
     silver: new Material(LIGHT_COLORS.silver, LIGHT_COLORS.silver, LIGHT_COLORS.silver, 0.9999),
     redShine: new Material(LIGHT_COLORS.fullRed, LIGHT_COLORS.fullRed, LIGHT_COLORS.fullRed, 0.99),
     blueShine: new Material(LIGHT_COLORS.blue, LIGHT_COLORS.blue, LIGHT_COLORS.blue, 0.99),
-    fire: new Material(LIGHT_COLORS.fire, LIGHT_COLORS.fire, LIGHT_COLORS.fire, 0.5)
+    fire: new Material(LIGHT_COLORS.fire, LIGHT_COLORS.fire, LIGHT_COLORS.fire, 0.5),
+    greenShine: new Material(LIGHT_COLORS.green, LIGHT_COLORS.green, LIGHT_COLORS.green, 0.99),
 };
 console.log(`%cMATERIAL v${MATERIAL.VERSION} for CrawlMaster2 loaded.`, "color: #888");
-console.table(MATERIAL);
-
-//gold: new Material(new Float32Array([]), new Float32Array([]), new Float32Array([])),
-/*
-gold: new Material(new Float32Array([0.24725, 0.1995, 0.0745]),
-        new Float32Array([0.75164, 0.60648, 0.22648]),
-        new Float32Array([0.628281, 0.555802, 0.366065]),
-        0.90),
-*/
-/*
-silver: new Material(new Float32Array([0.23125, 0.23125, 0.23125]),
-        new Float32Array([0.2775, 0.2775, 0.2775]),
-        new Float32Array([0.773911, 0.773911, 0.773911]), 0.99),
-*/
+if (ENGINE.verbose) console.table(MATERIAL);

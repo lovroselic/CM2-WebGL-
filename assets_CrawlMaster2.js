@@ -133,7 +133,7 @@ LoadFonts = [
 LoadShaders = [
     'vShader.glsl', 'fShader.glsl', 'pick_vShader.glsl', 'pick_fShader.glsl',
     'particle_render_fShader.glsl', 'particle_render_vShader.glsl', 'particle_transform_fShader.glsl', 'particle_transform_vShader.glsl',
-    'model_vShader.glsl', `model_fShader.glsl`
+    'model_vShader.glsl',
 ];
 LoadObjects = [
     "key.obj", "flask.obj", "scroll.obj", "ball.obj", "sword.obj", "heart.obj", "shield.obj", "pentagram.obj", "chest.obj",

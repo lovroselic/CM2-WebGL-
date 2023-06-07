@@ -37,7 +37,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.32.2",
+    VERSION: "0.32.3",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: false,
@@ -86,7 +86,7 @@ const WebGL = {
     },
     model_program: {
         vSource: "model_vShader",
-        fSource: "model_fShader",
+        fSource: "fShader",
         program: null,
     },
     explosion_program: {
@@ -103,7 +103,7 @@ const WebGL = {
             program: null,
         }
     },
-    update_shaders_forLightSources: ['fShader', 'model_fShader'],
+    update_shaders_forLightSources: ['fShader'],
     setContext(layer) {
         this.CTX = LAYER[layer];
         if (this.VERBOSE) console.log(`%cContext:`, this.CSS, this.CTX);
@@ -310,7 +310,7 @@ const WebGL = {
                 uMaterialDiffuseColor: gl.getUniformLocation(this[prog].program, 'uMaterial.diffuseColor'),
                 uMaterialSpecularColor: gl.getUniformLocation(this[prog].program, 'uMaterial.specularColor'),
                 uMaterialShininess: gl.getUniformLocation(this[prog].program, 'uMaterial.shininess'),
-                
+                uNormalMatrix: gl.getUniformLocation(this[prog].program, "uNormalMatrix"),
             };
         }
     },
@@ -399,16 +399,15 @@ const WebGL = {
                 lights: gl.getUniformLocation(shaderProgram, "uPointLights"),
                 uScale: gl.getUniformLocation(shaderProgram, "uScale"),
                 uTranslate: gl.getUniformLocation(shaderProgram, "uTranslate"),
-                uShine: gl.getUniformLocation(shaderProgram, "uShine"),                         //soon redundant
                 uLightColor: gl.getUniformLocation(shaderProgram, "uLightColor"),
                 uItemPosition: gl.getUniformLocation(shaderProgram, "uItemPosition"),
                 lightColors: gl.getUniformLocation(shaderProgram, "uLightColors"),
                 uRotY: gl.getUniformLocation(shaderProgram, "uRotateY"),
-                //new
                 uMaterialAmbientColor: gl.getUniformLocation(shaderProgram, 'uMaterial.ambientColor'),
                 uMaterialDiffuseColor: gl.getUniformLocation(shaderProgram, 'uMaterial.diffuseColor'),
                 uMaterialSpecularColor: gl.getUniformLocation(shaderProgram, 'uMaterial.specularColor'),
                 uMaterialShininess: gl.getUniformLocation(shaderProgram, 'uMaterial.shininess'),
+                uNormalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
             },
         };
 
@@ -458,10 +457,18 @@ const WebGL = {
         this.viewMatrix = viewMatrix;
 
         // identity placeholders & and defaults
-        const defaultShininess = 128.0 * 0.10;
         const translationMatrix = glMatrix.mat4.create();
         const scaleMatrix = glMatrix.mat4.create();
         const rotateY = glMatrix.mat4.create();
+
+        //normalMatrix
+        let modelViewMatrix3x3 = glMatrix.mat3.create();
+        glMatrix.mat3.fromMat4(modelViewMatrix3x3, this.viewMatrix);
+        let inverseModelViewMatrix3x3 = glMatrix.mat3.create();
+        glMatrix.mat3.invert(inverseModelViewMatrix3x3, modelViewMatrix3x3);
+        let normalMatrix = glMatrix.mat3.create();
+        glMatrix.mat3.transpose(normalMatrix, inverseModelViewMatrix3x3);
+        this.normalMatrix = normalMatrix;
 
         gl.useProgram(this.program.program);
 
@@ -471,9 +478,9 @@ const WebGL = {
         gl.uniform3fv(this.program.uniformLocations.cameraPos, this.camera.pos.array);
         gl.uniformMatrix4fv(this.program.uniformLocations.uScale, false, scaleMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, translationMatrix);
-        gl.uniform1f(this.program.uniformLocations.uShine, defaultShininess);
         gl.uniformMatrix4fv(this.program.uniformLocations.uRotY, false, rotateY);
         gl.uniform1i(this.program.uniformLocations.uSampler, 0);
+        gl.uniformMatrix3fv(this.program.uniformLocations.uNormalMatrix, false, this.normalMatrix); /////
         //material
         gl.uniform3fv(this.program.uniformLocations.uMaterialAmbientColor, MATERIAL.standard.ambientColor);
         gl.uniform3fv(this.program.uniformLocations.uMaterialDiffuseColor, MATERIAL.standard.diffuseColor);
@@ -529,13 +536,8 @@ const WebGL = {
         gl.uniform3fv(this.model_program.uniforms.uLights, lights);
         gl.uniform3fv(this.model_program.uniforms.uLightColors, lightColors);
         gl.uniform1i(this.model_program.uniforms.u_sampler, 0);
-        //material
-        /*
-        gl.uniform3fv(this.model_program.uniforms.uMaterialAmbientColor, MATERIAL.standard.ambientColor);
-        gl.uniform3fv(this.model_program.uniforms.uMaterialDiffuseColor, MATERIAL.standard.diffuseColor);
-        gl.uniform3fv(this.model_program.uniforms.uMaterialSpecularColor, MATERIAL.standard.specularColor);
-        gl.uniform1f(this.model_program.uniforms.uMaterialShininess, MATERIAL.standard.shininess);
-        */
+        gl.uniformMatrix3fv(this.model_program.uniforms.uNormalMatrix, false, this.normalMatrix); /////
+
 
         //pickProgram uniforms and defaults
         gl.useProgram(this.pickProgram.program);
@@ -1309,8 +1311,6 @@ class Drawable_object {
         gl.uniformMatrix4fv(uniforms.uScale, false, this.mScaleMatrix);
         gl.uniformMatrix4fv(uniforms.uTranslate, false, this.mTranslationMatrix);
         gl.uniformMatrix4fv(uniforms.uRotY, false, this.mRotationMatrix);
-        //
-        //material
         gl.uniform3fv(uniforms.uMaterialAmbientColor, this.material.ambientColor);
         gl.uniform3fv(uniforms.uMaterialDiffuseColor, this.material.diffuseColor);
         gl.uniform3fv(uniforms.uMaterialSpecularColor, this.material.specularColor);
@@ -1323,7 +1323,6 @@ class Drawable_object {
         gl.useProgram(program);
         this.enableAttributtes(gl, attrib);
         this.setUniforms(gl, uniforms);
-        gl.uniform1f(uniforms.uShine, this.shine);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.drawElements(gl.TRIANGLES, this.indices, gl.UNSIGNED_SHORT, 0);
     }
@@ -1359,7 +1358,6 @@ class Gate extends Drawable_object {
         this.element = ELEMENT[this.element];
         this.initBuffers();
         this.indices = this.element.indices.length;
-        this.shine = 100.0;
 
         this.mScaleMatrix = glMatrix.mat4.create();
         this.mRotationMatrix = glMatrix.mat4.create();
@@ -1972,9 +1970,6 @@ class $3D_Entity {
         const uRotatematrix = gl.getUniformLocation(program, 'uRotateY');
         gl.uniformMatrix4fv(uRotatematrix, false, this.moveState.rotate);
 
-        const uShine = gl.getUniformLocation(program, "uShine");
-        gl.uniform1f(uShine, this.shine);
-
         for (let mesh of this.model.meshes) {
             for (let [index, primitive] of mesh.primitives.entries()) {
 
@@ -2031,10 +2026,6 @@ class $3D_Entity {
         //rotate
         const uRotatematrix = gl.getUniformLocation(program, 'uRotateY');
         gl.uniformMatrix4fv(uRotatematrix, false, this.moveState.rotate);
-
-        //shine
-        const uShine = gl.getUniformLocation(program, "uShine");
-        gl.uniform1f(uShine, this.shine);
 
         //u_jointMat
         const uJointMat = gl.getUniformLocation(program, "u_jointMat");
