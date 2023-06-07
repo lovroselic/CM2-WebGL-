@@ -139,7 +139,7 @@ const DEBUG = {
         HERO.magicExpGoal = 1142;
         HERO.inventory.potion.red = 0;
         HERO.inventory.potion.blue = 0;
-        let scrolls = ["MagicBoost", "HalfLife"];
+        let scrolls = ["MagicBoost", "HalfLife", "TeleportTemple"];
         for (let scr of scrolls) {
             let scroll = new Scroll(scr);
             HERO.inventory.scroll.add(scroll);
@@ -171,7 +171,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.17.02",
+    VERSION: "0.17.03",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",

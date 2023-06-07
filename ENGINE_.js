@@ -63,7 +63,7 @@ const ENGINE = {
     MOUSE_IDLE: 3000,
     OVERLAP_TOLERANCE: 4
   },
-  verbose: true,
+  verbose: false,
   setGridSize(size = 48) {
     ENGINE.INI.GRIDPIX = size;
   },

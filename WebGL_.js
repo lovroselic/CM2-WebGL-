@@ -37,7 +37,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.32.1",
+    VERSION: "0.32.2",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: false,
@@ -306,6 +306,11 @@ const WebGL = {
                 uLights: gl.getUniformLocation(this[prog].program, "uPointLights"),
                 uLightColors: gl.getUniformLocation(this[prog].program, "uLightColors"),
                 u_sampler: gl.getUniformLocation(this[prog].program, "uSampler"),
+                uMaterialAmbientColor: gl.getUniformLocation(this[prog].program, 'uMaterial.ambientColor'),
+                uMaterialDiffuseColor: gl.getUniformLocation(this[prog].program, 'uMaterial.diffuseColor'),
+                uMaterialSpecularColor: gl.getUniformLocation(this[prog].program, 'uMaterial.specularColor'),
+                uMaterialShininess: gl.getUniformLocation(this[prog].program, 'uMaterial.shininess'),
+                
             };
         }
     },
@@ -394,11 +399,16 @@ const WebGL = {
                 lights: gl.getUniformLocation(shaderProgram, "uPointLights"),
                 uScale: gl.getUniformLocation(shaderProgram, "uScale"),
                 uTranslate: gl.getUniformLocation(shaderProgram, "uTranslate"),
-                uShine: gl.getUniformLocation(shaderProgram, "uShine"),
+                uShine: gl.getUniformLocation(shaderProgram, "uShine"),                         //soon redundant
                 uLightColor: gl.getUniformLocation(shaderProgram, "uLightColor"),
                 uItemPosition: gl.getUniformLocation(shaderProgram, "uItemPosition"),
                 lightColors: gl.getUniformLocation(shaderProgram, "uLightColors"),
                 uRotY: gl.getUniformLocation(shaderProgram, "uRotateY"),
+                //new
+                uMaterialAmbientColor: gl.getUniformLocation(shaderProgram, 'uMaterial.ambientColor'),
+                uMaterialDiffuseColor: gl.getUniformLocation(shaderProgram, 'uMaterial.diffuseColor'),
+                uMaterialSpecularColor: gl.getUniformLocation(shaderProgram, 'uMaterial.specularColor'),
+                uMaterialShininess: gl.getUniformLocation(shaderProgram, 'uMaterial.shininess'),
             },
         };
 
@@ -446,7 +456,7 @@ const WebGL = {
         const cameratarget = this.camera.pos.translate(this.camera.dir);
         glMatrix.mat4.lookAt(viewMatrix, this.camera.pos.array, cameratarget.array, [0.0, 1.0, 0.0]);
         this.viewMatrix = viewMatrix;
-        
+
         // identity placeholders & and defaults
         const defaultShininess = 128.0 * 0.10;
         const translationMatrix = glMatrix.mat4.create();
@@ -454,6 +464,7 @@ const WebGL = {
         const rotateY = glMatrix.mat4.create();
 
         gl.useProgram(this.program.program);
+
         // Set the uniform matrices
         gl.uniformMatrix4fv(this.program.uniformLocations.projectionMatrix, false, this.projectionMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.modelViewMatrix, false, this.viewMatrix);
@@ -463,6 +474,11 @@ const WebGL = {
         gl.uniform1f(this.program.uniformLocations.uShine, defaultShininess);
         gl.uniformMatrix4fv(this.program.uniformLocations.uRotY, false, rotateY);
         gl.uniform1i(this.program.uniformLocations.uSampler, 0);
+        //material
+        gl.uniform3fv(this.program.uniformLocations.uMaterialAmbientColor, MATERIAL.standard.ambientColor);
+        gl.uniform3fv(this.program.uniformLocations.uMaterialDiffuseColor, MATERIAL.standard.diffuseColor);
+        gl.uniform3fv(this.program.uniformLocations.uMaterialSpecularColor, MATERIAL.standard.specularColor);
+        gl.uniform1f(this.program.uniformLocations.uMaterialShininess, MATERIAL.standard.shininess);
 
         //light uniforms
         let lights = [];
@@ -513,6 +529,13 @@ const WebGL = {
         gl.uniform3fv(this.model_program.uniforms.uLights, lights);
         gl.uniform3fv(this.model_program.uniforms.uLightColors, lightColors);
         gl.uniform1i(this.model_program.uniforms.u_sampler, 0);
+        //material
+        /*
+        gl.uniform3fv(this.model_program.uniforms.uMaterialAmbientColor, MATERIAL.standard.ambientColor);
+        gl.uniform3fv(this.model_program.uniforms.uMaterialDiffuseColor, MATERIAL.standard.diffuseColor);
+        gl.uniform3fv(this.model_program.uniforms.uMaterialSpecularColor, MATERIAL.standard.specularColor);
+        gl.uniform1f(this.model_program.uniforms.uMaterialShininess, MATERIAL.standard.shininess);
+        */
 
         //pickProgram uniforms and defaults
         gl.useProgram(this.pickProgram.program);
@@ -1005,6 +1028,15 @@ const WORLD = {
 
 /** Classes */
 
+class Material {
+    constructor(ambient, diffuse, specular, shininess) {
+        this.ambientColor = ambient;
+        this.diffuseColor = diffuse;
+        this.specularColor = specular;
+        this.shininess = 128.0 * Math.min(Math.max(shininess, 0.001), 1.0);
+    }
+}
+
 class World {
     constructor(positions, indices, textureCoordinates, vertexNormals, offset, positionOffset) {
         this.positions = positions;
@@ -1277,6 +1309,12 @@ class Drawable_object {
         gl.uniformMatrix4fv(uniforms.uScale, false, this.mScaleMatrix);
         gl.uniformMatrix4fv(uniforms.uTranslate, false, this.mTranslationMatrix);
         gl.uniformMatrix4fv(uniforms.uRotY, false, this.mRotationMatrix);
+        //
+        //material
+        gl.uniform3fv(uniforms.uMaterialAmbientColor, this.material.ambientColor);
+        gl.uniform3fv(uniforms.uMaterialDiffuseColor, this.material.diffuseColor);
+        gl.uniform3fv(uniforms.uMaterialSpecularColor, this.material.specularColor);
+        gl.uniform1f(uniforms.uMaterialShininess, this.material.shininess);
     }
     drawObject(gl) {
         const program = WebGL.program.program;
@@ -1973,6 +2011,11 @@ class $3D_Entity {
         const program = WebGL.model_program.program;
 
         //uniforms
+        //material
+        gl.uniform3fv(WebGL.model_program.uniforms.uMaterialAmbientColor, this.material.ambientColor);
+        gl.uniform3fv(WebGL.model_program.uniforms.uMaterialDiffuseColor, this.material.diffuseColor);
+        gl.uniform3fv(WebGL.model_program.uniforms.uMaterialSpecularColor, this.material.specularColor);
+        gl.uniform1f(WebGL.model_program.uniforms.uMaterialShininess, this.material.shininess);
         //scale
         const mScaleMatrix = glMatrix.mat4.create();
         glMatrix.mat4.fromScaling(mScaleMatrix, this.scale);

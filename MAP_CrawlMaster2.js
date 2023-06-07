@@ -5,7 +5,7 @@
 
 "use strict";
 
-
+/** Decals */
 const DECAL_PAINTINGS = [
     "AA1", "AA2", "AA3", "AA5", "AA7", "AA8", "AA9", "AMC", "Amberstar", "Apshai", "Arena",
     "BFF", "Bagitman", "Barbarian1", "Barbarian5", "BeachHead", "BoogaBoo1", "BoogaBoo3",
@@ -79,12 +79,19 @@ const DECAL_PAINTINGS = [
 ];
 console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 
+/*
+
 const LIGHT_COLORS = {
     standard: new Float32Array([0.90, 0.90, 0.81]),
     fire: new Float32Array([0.94, 0.50, 0.07]),
     red: new Float32Array([0.95, 0.70, 0.70]),
     yellowgreen: new Float32Array([0.90, 0.90, 0.50]),
 };
+
+
+*/
+
+/** Light decals */
 
 const LIGHT_DECALS = [
     { sprite: "WallLamp", color: LIGHT_COLORS.standard },
@@ -93,6 +100,10 @@ const LIGHT_DECALS = [
     { sprite: "WallTorch", color: LIGHT_COLORS.fire },
     { sprite: "Lamp4", color: LIGHT_COLORS.yellowgreen }
 ];
+
+
+
+/** Crests */
 
 const DECAL_CRESTS = ["LS", "Skull4", "Skull3", "Skull2", "Skull1", "Crack4", "Crack3", "Skeleton11", "Skeleton12", "Crack20", "Crack21", "DancingSkeletons2",
     "PrayingSkeleton10", "SittingSkeleton2", "Skeleton21", "Skull10", "Skull11", "WOWc1", "WOWc2", "Reaper"];
@@ -108,6 +119,7 @@ console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
 
 console.log("%cMAP for CrawlMaster2 loaded.", "color: #888");
 
+/** Map definitions */
 const MAP = {
     1: {
         width: 40,
@@ -728,6 +740,7 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt",
         behaviourArguments: [5, ["wanderer"], 3, ["follower"]],
         moveSpeed: 1.0,
+        material: MATERIAL.standard,
     },
     SpiderGreen: {
         name: "SpiderGreen",
@@ -749,6 +762,7 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt",
         behaviourArguments: [7, ["wanderer"], 3, ["follower"]],
         moveSpeed: 1.1,
+        material: MATERIAL.standard,
     },
     BatCat: {
         name: "BatCat",
@@ -769,6 +783,7 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt3",
         behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
         moveSpeed: 1.0,
+        material: MATERIAL.standard,
     },
     BatCatGreen: {
         name: "BatCatGreen",
@@ -790,6 +805,7 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt3",
         behaviourArguments: [5, ["wanderer"], 3, ["advancer"]],
         moveSpeed: 1.0,
+        material: MATERIAL.standard,
     },
     Hulk: {
         name: "Hulk",
@@ -810,6 +826,7 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt2",
         behaviourArguments: [10, ["wanderer"], 4, ["advancer"]],
         moveSpeed: 1.0,
+        material: MATERIAL.standard,
     },
     Hulk_BossL2: {
         name: "Hulk_BossL2",
@@ -830,6 +847,7 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt2",
         behaviourArguments: [Infinity, ["wanderer"], 4, ["advancer"]],
         moveSpeed: 1.0,
+        material: MATERIAL.standard,
     },
     Viking: {
         name: "Viking",
@@ -850,6 +868,7 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt2",
         behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
         moveSpeed: 1.0,
+        material: MATERIAL.standard,
     },
     Astro: {
         name: "Astro",
@@ -874,6 +893,7 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 5,
         stalkDistance: 6,
+        material: MATERIAL.standard,
     },
     AstroRed: {
         name: "AstroRed",
@@ -899,6 +919,7 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 5,
         stalkDistance: 6,
+        material: MATERIAL.standard,
     },
     MissWhite: {
         name: "MissWhite",
@@ -923,6 +944,7 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 6,
         stalkDistance: 3,
+        material: MATERIAL.standard,
     },
     MissGreen: {
         name: "MissGreen",
@@ -948,6 +970,7 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 6,
         stalkDistance: 3,
+        material: MATERIAL.standard,
     },
     MissWhite_BossL1: {
         name: "MissWhite_BossL1",
@@ -972,6 +995,7 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 6,
         stalkDistance: 3,
+        material: MATERIAL.standard,
     },
     GhostFace: {
         name: "GhostFace",
@@ -996,6 +1020,7 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 4,
         stalkDistance: 5,
+        material: MATERIAL.standard,
     },
     GhostFaceGreen: {
         name: "GhostFaceGreen",
@@ -1021,6 +1046,7 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 4,
         stalkDistance: 5,
+        material: MATERIAL.standard,
     },
     Bat: {
         name: "Bat",
@@ -1042,6 +1068,7 @@ const MONSTER_TYPE = {
         hurtSound: "BatAttack",
         behaviourArguments: [Infinity, ["wanderer"], -1],
         moveSpeed: 1.0,
+        material: MATERIAL.standard,
     },
     RedGoldBat: {
         name: "RedGoldBat",
@@ -1064,6 +1091,7 @@ const MONSTER_TYPE = {
         hurtSound: "BatAttack",
         behaviourArguments: [Infinity, ["wanderer"], -1],
         moveSpeed: 1.0,
+        material: MATERIAL.standard,
     },
     Wolf: {
         name: "Wolf",
@@ -1084,6 +1112,7 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt3",
         behaviourArguments: [10, ["wanderer"], 5, ["advancer"]],
         moveSpeed: 1.1,
+        material: MATERIAL.standard,
     },
     Skeleton: {
         name: "Skeleton",
@@ -1104,6 +1133,7 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt2",
         behaviourArguments: [8, ["wanderer"], 6, ["advancer"]],
         moveSpeed: 1.1,
+        material: MATERIAL.standard,
     },
     RedSkeleton: {
         name: "RedSkeleton",
@@ -1125,6 +1155,7 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt2",
         behaviourArguments: [8, ["wanderer"], 6, ["advancer"]],
         moveSpeed: 1.1,
+        material: MATERIAL.standard,
     },
     GoldSkeleton: {
         name: "GoldSkeleton",
@@ -1146,6 +1177,7 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt2",
         behaviourArguments: [8, ["wanderer"], 6, ["advancer"]],
         moveSpeed: 1.1,
+        material: MATERIAL.standard,
     },
     GoldSkeleton_BossL4: {
         name: "GoldSkeleton_BossL4",
@@ -1167,6 +1199,7 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt2",
         behaviourArguments: [Infinity, ["wanderer"], 6, ["advancer"]],
         moveSpeed: 1.1,
+        material: MATERIAL.standard,
     },
     SilverSkeleton: {
         name: "SilverSkeleton",
@@ -1188,6 +1221,7 @@ const MONSTER_TYPE = {
         hurtSound: "MonsterHurt2",
         behaviourArguments: [8, ["wanderer"], 6, ["advancer"]],
         moveSpeed: 1.1,
+        material: MATERIAL.standard,
     },
     Goblin: {
         name: "Goblin",
@@ -1212,6 +1246,7 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 4,
         stalkDistance: 5,
+        material: MATERIAL.standard,
     },
     Goblin_BossL3: {
         name: "Goblin_BossL3",
@@ -1236,6 +1271,7 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 4,
         stalkDistance: 5,
+        material: MATERIAL.standard,
     },
     Drax: {
         name: "Drax",
@@ -1260,6 +1296,7 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 10,
         stalkDistance: 12,
+        material: MATERIAL.standard,
     },
     Drax_BossL5: {
         name: "Drax",
@@ -1284,6 +1321,7 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 10,
         stalkDistance: 12,
+        material: MATERIAL.standard,
     },
 };
 
@@ -1321,6 +1359,7 @@ const GATE_TYPE = {
         locked: false,
         texture: "WoodenGate1",
         element: "CUBE_SM",
+        material: MATERIAL.standard,
     },
     Red: {
         name: "Red",
@@ -1328,6 +1367,7 @@ const GATE_TYPE = {
         locked: true,
         texture: "RedGate1",
         element: "CUBE_SM",
+        material: MATERIAL.standard,
     },
     Silver: {
         name: "Silver",
@@ -1335,6 +1375,7 @@ const GATE_TYPE = {
         locked: true,
         texture: "SilverGate1",
         element: "CUBE_SM",
+        material: MATERIAL.standard,
     },
     Gold: {
         name: "Gold",
@@ -1342,6 +1383,7 @@ const GATE_TYPE = {
         locked: true,
         texture: "GoldGate1",
         element: "CUBE_SM",
+        material: MATERIAL.standard,
     },
 };
 
@@ -1354,6 +1396,7 @@ const COMMON_ITEM_TYPE = {
         glueToFloor: true,
         texture: "Wood1",
         shine: 128.0 * 0.25,
+        material: MATERIAL.standard,
     },
     TreasureChest: {
         name: "TreasureChest",
@@ -1363,6 +1406,7 @@ const COMMON_ITEM_TYPE = {
         glueToFloor: true,
         texture: "TreasureChest",
         shine: 128.0 * 0.25,
+        material: MATERIAL.standard,
     },
     Sword: {
         name: "Sword",
@@ -1374,6 +1418,7 @@ const COMMON_ITEM_TYPE = {
         texture: "Sword",
         shine: 128.0 * 0.99,
         inventorySprite: "SwordSkill",
+        material: MATERIAL.silver,
     },
     Shield: {
         name: "Shield",
@@ -1385,6 +1430,7 @@ const COMMON_ITEM_TYPE = {
         texture: "ScrapedMetal",
         shine: 128.0 * 0.90,
         inventorySprite: "ShieldSkill",
+        material: MATERIAL.silver,
     },
     Magic: {
         name: "Magic",
@@ -1396,6 +1442,7 @@ const COMMON_ITEM_TYPE = {
         texture: "Red2",
         shine: 128.0 * 0.80,
         inventorySprite: "MagicSkill",
+        material: MATERIAL.redShine,
     },
     Heart: {
         name: "Heart",
@@ -1407,6 +1454,7 @@ const COMMON_ITEM_TYPE = {
         texture: "Red",
         shine: 128.0 * 0.99,
         inventorySprite: "Health",
+        material: MATERIAL.redShine,
     },
     Mana: {
         name: "ManaSkill",
@@ -1418,6 +1466,7 @@ const COMMON_ITEM_TYPE = {
         texture: "Magic",
         shine: 128.0 * 0.99,
         inventorySprite: "Mana",
+        material: MATERIAL.standard,
     },
     Fireball: {
         name: "Fireball",
@@ -1426,9 +1475,9 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 4,
         texture: "FireballTexture",
         moveSpeed: 8.0,
-        //shine: 128.0 * 0.90,
-        shine: 128.0 * 1.90,
+        shine: 128.0 * 0.90,
         lightColor: "#FF7700",
+        material: MATERIAL.fire,
     },
     Scroll: {
         name: "Scroll",
@@ -1438,6 +1487,7 @@ const COMMON_ITEM_TYPE = {
         glueToFloor: true,
         texture: "ScrollTexture",
         shine: 128.0 * 0.9,
+        material: MATERIAL.paper,
     },
     RedPotion: {
         name: "RedPotion",
@@ -1448,7 +1498,8 @@ const COMMON_ITEM_TYPE = {
         glueToFloor: true,
         texture: "RedLiquid",
         shine: 128.0 * 0.25,
-        inventorySprite: "RedPotion24"
+        inventorySprite: "RedPotion24",
+        material: MATERIAL.redShine,
     },
     BluePotion: {
         name: "BluePotion",
@@ -1459,7 +1510,8 @@ const COMMON_ITEM_TYPE = {
         glueToFloor: true,
         texture: "BlueLiquid",
         shine: 128.0 * 0.25,
-        inventorySprite: "BluePotion24"
+        inventorySprite: "BluePotion24",
+        material: MATERIAL.blueShine,
     },
     GoldKey: {
         name: "GoldKey",
@@ -1471,6 +1523,7 @@ const COMMON_ITEM_TYPE = {
         glueToFloor: true,
         texture: "Gold",
         shine: 128.0 * 0.99,
+        material: MATERIAL.gold,
     },
     SilverKey: {
         name: "SilverKey",
@@ -1482,6 +1535,7 @@ const COMMON_ITEM_TYPE = {
         glueToFloor: true,
         texture: "Silver",
         shine: 128.0 * 0.90,
+        material: MATERIAL.silver,
     },
     RedKey: {
         name: "RedKey",
@@ -1493,6 +1547,7 @@ const COMMON_ITEM_TYPE = {
         glueToFloor: true,
         texture: "RedMetal",
         shine: 128.0 * 0.80,
+        material: MATERIAL.redShine,
     },
     GoldBar: {
         name: "GoldBar",
@@ -1504,7 +1559,7 @@ const COMMON_ITEM_TYPE = {
         minVal: 50,
         maxVal: 100,
         shine: 128.0 * 0.99,
-        //shine: 1000.0,
+        material: MATERIAL.gold,
     },
     SilverBar: {
         name: "SilverBar",
@@ -1516,6 +1571,7 @@ const COMMON_ITEM_TYPE = {
         minVal: 25,
         maxVal: 50,
         shine: 128.0 * 0.85,
+        material: MATERIAL.silver,
     },
     GoldCube: {
         name: "GoldCube",
@@ -1527,6 +1583,7 @@ const COMMON_ITEM_TYPE = {
         minVal: 10,
         maxVal: 25,
         shine: 128.0 * 0.99,
+        material: MATERIAL.gold,
     },
     Coins: {
         name: "Coins",
@@ -1538,6 +1595,7 @@ const COMMON_ITEM_TYPE = {
         minVal: 10,
         maxVal: 25,
         shine: 128.0 * 0.99,
+        material: MATERIAL.gold,
     },
     Sting: {
         name: "Sting",
@@ -1549,6 +1607,7 @@ const COMMON_ITEM_TYPE = {
         texture: "Sting",
         shine: 128.0 * 0.99,
         inventorySprite: "SwordSkill",
+        material: MATERIAL.silver,
     },
     POV: {
         name: "POV",
@@ -1556,6 +1615,7 @@ const COMMON_ITEM_TYPE = {
         scale: 1 / 2 ** 1,
         texture: "Sting",
         shine: 128.0 * 0.99,
+        material: MATERIAL.silver,
     }
 };
 

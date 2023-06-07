@@ -25,10 +25,11 @@ mat3 inverse3(mat3 matrix);
 void main(void) {
     gl_Position = uProjectionMatrix * uModelViewMatrix * uTranslate * uRotateY * uScale * aVertexPosition;
     vTextureCoord = aTextureCoord;
-    FragPos = vec3(aVertexPosition);          
+    FragPos = vec3(aVertexPosition);
 
     mat4 normalMatrix = mat4(transpose3(inverse3(mat3(uModelViewMatrix))));       //calculate out of shader!!
-    vec4 transformedNormal = normalMatrix * uRotateY * vec4(aVertexNormal, 0.0);                                   
+    vec4 transformedNormal = normalMatrix * uRotateY * vec4(aVertexNormal, 0.0);      
+    //vec4 transformedNormal = normalMatrix * vec4(aVertexNormal, 0.0);
     v_normal = transformedNormal.xyz;
 }
 
