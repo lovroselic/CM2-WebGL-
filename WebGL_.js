@@ -37,7 +37,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.32.3",
+    VERSION: "0.32.4",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: false,
@@ -51,7 +51,7 @@ const WebGL = {
         DEFAULT_RESOLUTION: 256,
         MIN_RESOLUTION: 128,
         INTERACT_DISTANCE: 1.3,
-        DYNAMIC_LIGHTS_RESERVATION: 8,
+        DYNAMIC_LIGHTS_RESERVATION: 32,
         EXPLOSION_N_PARTICLES: 25000,
         EXPLOSION_DURATION_MS: 2000,
         BLOOD_DURATION_MS: 2500,

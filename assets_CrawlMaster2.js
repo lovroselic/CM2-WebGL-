@@ -71,7 +71,8 @@ LoadTextures = [
     { srcName: "Sting_Base_Color.png", name: "Sting" },
     { srcName: "Marble.jpg", name: "Marble" },
     { srcName: "RedGoldBat.jpg", name: "RedGoldBat" },
-    { srcName: "BatCatGreen.jpg", name: "BatCatGreen" },
+    { srcName: "MissGalaxyGreen.jpg", name: "MissGalaxyGreen" },
+    { srcName: "MissGalaxyGold.jpg", name: "MissGalaxyGold" },
     { srcName: "GhostFaceGreen.jpg", name: "GhostFaceGreen" },
     { srcName: "SpiderGreen.jpg", name: "SpiderGreen" },
     { srcName: "AstroRed.jpg", name: "AstroRed" },
@@ -140,8 +141,8 @@ LoadObjects = [
     "treasure_chest.obj", "coins.obj", "sting.obj"
 ];
 
-LoadModels = ['GhostFace.gltf', 'Bat.gltf', 'Hulk.gltf', 'Viking.gltf', 'Astro.gltf', 'MissWhite.gltf', 'BatCat.gltf',
-    'Spider.gltf', 'Wolf.gltf', 'Skeleton.gltf', 'Goblin.gltf', 'Drax.gltf'
+LoadModels = ['GhostFace.gltf', 'Bat.gltf', 'Hulk.gltf', 'Viking.gltf', 'Astro.gltf', 'MissWhite.gltf',
+    'Spider.gltf', 'Wolf.gltf', 'Skeleton.gltf', 'Goblin.gltf', 'Drax.gltf', 'MissGalaxy.gltf',
 ];
 
 LoadSprites = [

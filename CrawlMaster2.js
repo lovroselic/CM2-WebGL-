@@ -23,7 +23,7 @@ const DEBUG = {
     _2D_display: true,
     INVINCIBLE: true,
     FREE_MAGIC: false,
-    LOAD: true,
+    LOAD: false,
     goto(grid) {
         HERO.player.pos = Vector3.from_Grid(Grid.toCenter(grid), 0.5);
     },
@@ -171,7 +171,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.17.05",
+    VERSION: "0.18.00",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",

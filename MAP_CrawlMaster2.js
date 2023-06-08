@@ -155,19 +155,21 @@ const MONSTER_LAYOUT = {
     1: {
         start: {
             N: 1,
-            monster: { Bat: 1 }
+            monster: { Bat: 1 },
+            //monster: { MissGalaxy: 1 },
+            //monster: { MissGalaxyGold: 1 },
         },
         corridor: {
             N: 25,
-            monster: { Bat: 1, BatCatGreen: 2, RedGoldBat: 1, BatCat: 1, Spider: 1, GhostFace: 1, SpiderGreen: 0.5 }
+            monster: { Bat: 1, MissGalaxyGreen: 2, RedGoldBat: 1, MissGalaxy: 1, Spider: 1, GhostFace: 1, SpiderGreen: 0.5 }
         },
         common: {
             N: 2,
-            monster: { Bat: 1, BatCatGreen: 3, RedGoldBat: 1, BatCat: 2, Spider: 1, GhostFace: 1, SpiderGreen: 0.5 }
+            monster: { Bat: 1, MissGalaxyGreen: 3, RedGoldBat: 1, MissGalaxy: 2, Spider: 1, GhostFace: 1, SpiderGreen: 0.5 }
         },
         Gold: {
             N: 2,
-            monster: { Spider: 1, GhostFace: 2, GhostFaceGreen: 1.5, SpiderGreen: 2 },
+            monster: { Spider: 1, GhostFace: 2, GhostFaceGreen: 1.5, SpiderGreen: 2, MissGalaxyGold: 0.5 },
             boss: { MissWhite_BossL1: 1 }
         },
         Silver: {
@@ -177,52 +179,50 @@ const MONSTER_LAYOUT = {
         },
         firstKey: {
             N: 2,
-            monster: { Bat: 1, BatCatGreen: 2, BatCat: 3, Spider: 2, GhostFace: 1, GhostFaceGreen: 0.25, SpiderGreen: 0.5 },
+            monster: { Bat: 1, MissGalaxyGreen: 2, MissGalaxy: 3, Spider: 2, GhostFace: 1, GhostFaceGreen: 0.25, SpiderGreen: 0.5 },
             boss: { SpiderGreen: 1 },
         },
         Red: {
             N: 2,
-            monster: { Spider: 1, BatCat: 1, GhostFace: 2, GhostFaceGreen: 1, SpiderGreen: 1.1 },
+            monster: { Spider: 1, MissGalaxy: 1, GhostFace: 2, GhostFaceGreen: 1, SpiderGreen: 1.1 },
             boss: { GhostFace: 1 },
         },
         temple: {
             N: 1,
-            monster: { Bat: 1, BatCatGreen: 1, RedGoldBat: 1 },
+            monster: { Bat: 1, MissGalaxyGreen: 1, RedGoldBat: 1 },
         }
     },
     2: {
         start: {
             N: 1,
             monster: { RedGoldBat: 1 },
-            //monster: { Hulk_BossL2: 1 },
-            //monster: { MissGreen: 1 }
         },
         corridor: {
             N: 25,
-            monster: { BatCatGreen: 1, RedGoldBat: 1, Bat: 1, BatCat: 3, Spider: 3, GhostFace: 3, SpiderGreen: 5, Astro: 3, MissWhite: 2, Viking: 1 }
+            monster: { MissGalaxyGreen: 1, RedGoldBat: 1, Bat: 1, MissGalaxy: 3, Spider: 3, GhostFace: 3, SpiderGreen: 5, Astro: 3, MissWhite: 2, Viking: 1, MissGalaxyGold: 2 }
         },
         common: {
             N: 2,
-            monster: { BatCat: 3, Spider: 3, GhostFace: 3, SpiderGreen: 5, MissWhite: 2, Astro: 2, Viking: 1 }
+            monster: { MissGalaxy: 3, Spider: 3, GhostFace: 3, SpiderGreen: 5, MissWhite: 2, Astro: 2, Viking: 1, MissGalaxyGold: 2 }
         },
         Gold: {
             N: 2,
-            monster: { SpiderGreen: 1, GhostFace: 1, GhostFaceGreen: 2, MissWhite: 4, Astro: 5, Viking: 4 },
+            monster: { SpiderGreen: 1, GhostFace: 1, GhostFaceGreen: 2, MissWhite: 4, Astro: 5, Viking: 4, MissGalaxyGold: 5 },
             boss: { Hulk_BossL2: 1 }
         },
         Silver: {
             N: 2,
-            monster: { SpiderGreen: 1, GhostFace: 1, GhostFaceGreen: 2, MissWhite: 3, Astro: 4, Viking: 3 },
+            monster: { SpiderGreen: 1, GhostFace: 1, GhostFaceGreen: 2, MissWhite: 3, Astro: 4, Viking: 3, MissGalaxyGold: 3 },
             boss: { Viking: 1 },
         },
         Red: {
             N: 2,
-            monster: { SpiderGreen: 1, GhostFace: 1, GhostFaceGreen: 2, MissWhite: 2, Astro: 3, Viking: 2 },
+            monster: { SpiderGreen: 1, GhostFace: 1, GhostFaceGreen: 2, MissWhite: 2, Astro: 3, Viking: 2, MissGalaxyGold: 2 },
             boss: { Viking: 1 },
         },
         firstKey: {
             N: 2,
-            monster: { SpiderGreen: 1, GhostFace: 1, GhostFaceGreen: 2, MissWhite: 2, Astro: 3, Viking: 1 },
+            monster: { SpiderGreen: 1, GhostFace: 1, GhostFaceGreen: 2, MissWhite: 2, Astro: 3, Viking: 1, MissGalaxyGold: 2 },
             boss: { Astro: 1 },
         },
         temple: {
@@ -237,11 +237,11 @@ const MONSTER_LAYOUT = {
         },
         corridor: {
             N: 25,
-            monster: { GhostFaceGreen: 1, SpiderGreen: 1, Astro: 1, MissWhite: 1, Viking: 2, AstroRed: 2, MissGreen: 3, Wolf: 0.1 }
+            monster: { GhostFaceGreen: 1, SpiderGreen: 1, Astro: 1, MissWhite: 1, Viking: 2, AstroRed: 2, MissGreen: 3, Wolf: 0.1, MissGalaxyGold: 2 }
         },
         common: {
             N: 2,
-            monster: { GhostFaceGreen: 1, SpiderGreen: 1, Astro: 1, MissWhite: 1, Viking: 2, AstroRed: 2, MissGreen: 3, Wolf: 0.2 }
+            monster: { GhostFaceGreen: 1, SpiderGreen: 1, Astro: 1, MissWhite: 1, Viking: 2, AstroRed: 2, MissGreen: 3, Wolf: 0.2, MissGalaxyGold: 2 }
         },
         Gold: {
             N: 2,
@@ -260,7 +260,7 @@ const MONSTER_LAYOUT = {
         },
         firstKey: {
             N: 2,
-            monster: { GhostFaceGreen: 1, Astro: 1, Viking: 2, AstroRed: 2, MissGreen: 3, Wolf: 0.5 },
+            monster: { GhostFaceGreen: 1, Astro: 1, Viking: 2, AstroRed: 2, MissGreen: 3, Wolf: 0.5, MissGalaxyGold: 2 },
             boss: { Astro: 1 },
         },
         temple: {
@@ -271,12 +271,11 @@ const MONSTER_LAYOUT = {
     4: {
         start: {
             N: 1,
-            //monster: { Viking: 1 },
-            monster: { Drax: 1 }, //MissGalaxy
+            monster: { Viking: 1 },
         },
         corridor: {
             N: 25,
-            monster: { Viking: 1, AstroRed: 1, MissGreen: 1, Wolf: 2, Skeleton: 1, Hulk: 1 }
+            monster: { Viking: 1, AstroRed: 1, MissGreen: 1, Wolf: 2, Skeleton: 1, Hulk: 1, MissGalaxyGold: 1 }
         },
         common: {
             N: 2,
@@ -717,7 +716,7 @@ const MONSTER_TYPE = {
         midHeight: 0.35,
         deathType: "BloodExplosion",
         inventory: "Coins",
-        attack: 7,
+        attack: 8,
         defense: 3,
         magic: 0,
         health: 8,
@@ -750,43 +749,64 @@ const MONSTER_TYPE = {
         moveSpeed: 1.1,
         material: MATERIAL.standard,
     },
-    BatCat: {
-        name: "BatCat",
-        model: "BatCat",
-        scale: 1.1 / 2 ** 1,
+    MissGalaxyGold: {
+        name: "MissGalaxyGold",
+        texture: "MissGalaxyGold",
+        model: "MissGalaxy",
+        scale: 1.0 / 2 ** 2,
         rotateToNorth: Math.PI,
         midHeight: 0.5,
         deathType: "BloodExplosion",
         inventory: "Coins",
-        attack: 5,
-        defense: 3,
-        magic: 2,
-        health: 6,
-        xp: 10,
+        attack: 11,
+        defense: 6,
+        magic: 4,
+        health: 20,
+        xp: 20,
         gold: 20,
-        attackSound: "MonsterAttack2",
-        hurtSound: "MonsterHurt3",
+        attackSound: "HumanAttack1",
+        hurtSound: "Ow",
+        behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
+        moveSpeed: 1.0,
+        material: MATERIAL.gold,
+    },
+    MissGalaxy: {
+        name: "MissGalaxy",
+        model: "MissGalaxy",
+        scale: 0.9 / 2 ** 2,
+        rotateToNorth: Math.PI,
+        midHeight: 0.5,
+        deathType: "BloodExplosion",
+        inventory: "Coins",
+        attack: 8,
+        defense: 4,
+        magic: 2,
+        health: 10,
+        xp: 10,
+        gold: 15,
+        attackSound: "HumanAttack1",
+        hurtSound: "Ow",
         behaviourArguments: [7, ["wanderer"], 4, ["advancer"]],
         moveSpeed: 1.0,
         material: MATERIAL.standard,
     },
-    BatCatGreen: {
-        name: "BatCatGreen",
-        texture: "BatCatGreen",
-        model: "BatCat",
-        scale: 1.1 / 2 ** 1,
+    MissGalaxyGreen: {
+        name: "MissGalaxyGreen",
+        texture: "MissGalaxyGreen",
+        model: "MissGalaxy",
+        scale: 0.8 / 2 ** 2,
         rotateToNorth: Math.PI,
         midHeight: 0.5,
         deathType: "BloodExplosion",
         inventory: "Coins",
-        attack: 3,
-        defense: 2,
+        attack: 6,
+        defense: 3,
         magic: 2,
-        health: 4,
+        health: 8,
         xp: 6,
         gold: 10,
-        attackSound: "MonsterAttack2",
-        hurtSound: "MonsterHurt3",
+        attackSound: "HumanAttack1",
+        hurtSound: "Ow",
         behaviourArguments: [5, ["wanderer"], 3, ["advancer"]],
         moveSpeed: 1.0,
         material: MATERIAL.standard,
