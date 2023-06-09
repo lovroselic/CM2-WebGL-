@@ -20,9 +20,9 @@ const TURN = {
         let damage = RND(Math.min(-1, (delta / 2) | 0), Math.max(delta, 1));
         return damage;
     },
-    magicDamage(attacker, defender) {
+    /*magicDamage(attacker, defender) {
         if (attacker.magic === 0) return 0;
-    },
+    },*/
     display(value, color = "#0F0") {
         ENGINE.clearLayer("info");
         let CTX = LAYER.info;

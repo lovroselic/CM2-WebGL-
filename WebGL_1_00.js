@@ -37,7 +37,7 @@
  */
 
 const WebGL = {
-    VERSION: "0.32.4",
+    VERSION: "1.00",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: false,
@@ -399,7 +399,6 @@ const WebGL = {
                 lights: gl.getUniformLocation(shaderProgram, "uPointLights"),
                 uScale: gl.getUniformLocation(shaderProgram, "uScale"),
                 uTranslate: gl.getUniformLocation(shaderProgram, "uTranslate"),
-                uLightColor: gl.getUniformLocation(shaderProgram, "uLightColor"),
                 uItemPosition: gl.getUniformLocation(shaderProgram, "uItemPosition"),
                 lightColors: gl.getUniformLocation(shaderProgram, "uLightColors"),
                 uRotY: gl.getUniformLocation(shaderProgram, "uRotateY"),
@@ -480,12 +479,7 @@ const WebGL = {
         gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, translationMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.uRotY, false, rotateY);
         gl.uniform1i(this.program.uniformLocations.uSampler, 0);
-        gl.uniformMatrix3fv(this.program.uniformLocations.uNormalMatrix, false, this.normalMatrix); /////
-        //material
-        gl.uniform3fv(this.program.uniformLocations.uMaterialAmbientColor, MATERIAL.standard.ambientColor);
-        gl.uniform3fv(this.program.uniformLocations.uMaterialDiffuseColor, MATERIAL.standard.diffuseColor);
-        gl.uniform3fv(this.program.uniformLocations.uMaterialSpecularColor, MATERIAL.standard.specularColor);
-        gl.uniform1f(this.program.uniformLocations.uMaterialShininess, MATERIAL.standard.shininess);
+        gl.uniformMatrix3fv(this.program.uniformLocations.uNormalMatrix, false, this.normalMatrix); 
 
         //light uniforms
         let lights = [];
@@ -495,7 +489,7 @@ const WebGL = {
             lightColors.push(...LIGHTS3D.POOL[L].lightColor);
         }
 
-
+        //dynamic lights
         let dynLights = [];
         let dynLightColors = [];
         let dynCount = 0;
@@ -1085,7 +1079,7 @@ class $3D_player {
         this.dir = Vector3.from_2D_dir(this.dir.rotate2D(angle), this.dir.y);
     }
     bumpEnemy(nextPos) {
-        let checkGrids = this.GA.gridsAroundEntity(nextPos, Vector3.to_FP_Vector(this.dir), this.r); //grid check is 2D!
+        let checkGrids = this.GA.gridsAroundEntity(nextPos, Vector3.to_FP_Vector(this.dir), this.r); //grid check is 2D projection!
         let enemies = this.map.enemyIA.unrollArray(checkGrids);
         if (enemies.size > 0) {
             for (const e of enemies) {
@@ -1894,7 +1888,6 @@ class $3D_Entity {
         const avgDim = (dZ + dX) / 2;
         const maxDim = Math.max(dZ, dX);
         this.r = Math.max((avgDim + maxDim) / 2, WebGL.INI.MIN_R);
-        //console.warn(this.name, dX, dZ, "avg", avgDim, "max", maxDim, "r:",  this.r);
 
         this.canAttack = true;
         this.canShoot = false;
@@ -1909,7 +1902,6 @@ class $3D_Entity {
         this.moveState.setView(lookAt);
     }
     performAttack(victim) {
-        //console.warn(`${this.name} ${this.id} attacking.`);
         if (!this.canAttack || this.IAM.hero.dead) return;
         this.canAttack = false;
         AUDIO[this.attackSound].play();
@@ -2120,7 +2112,6 @@ class $3D_Entity {
     }
     shoot() {
         const dir = Vector3.from_2D_dir(this.moveState.lookDir);
-        //console.warn(`${this.name} ${this.id} shooting in:`, dir);
         this.canShoot = false;
         this.caster = false;
         this.mana -= Missile.calcMana(this.magic);
@@ -2262,9 +2253,7 @@ class $POV extends Drawable_object {
                     enemies.delete(e);
                 }
             }
-            console.warn("prunning enemies", enemies, enemies.size === 1);
         }
-        console.assert(enemies.size === 1, "Failed enemy pruning by distance!");
         const enemy = POOL[enemies.first() - 1];
         let hit = ENGINE.lineIntersectsCircle(Vector3.to_FP_Grid(this.player.pos), Vector3.to_FP_Grid(refPoint), Vector3.to_FP_Grid(enemy.moveState.pos), enemy.r);
         if (hit) return enemy;

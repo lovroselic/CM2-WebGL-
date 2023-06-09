@@ -23,82 +23,67 @@ varying vec3 FragPos;
 varying vec3 v_normal;
 varying vec2 vTextureCoord;
 
-vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal, float shininess, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor);
-vec3 CalcPointLight(vec3 PL_position, vec3 FragPos, vec3 viewDir, vec3 normal, float shininess, vec3 pointLightColor, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor);
+const vec3 innerLightColor = vec3(0.9, 0.9, 0.81);
+const float innerAmbientStrength = 0.35;        //set
+const float innerDiffuseStrength = 2.0;         //set
+const float innerSpecularStrength = 0.5;        //set
+
+const float PL_AmbientStrength = 2.20;          //set
+const float PL_DiffuseStrength = 2.25;          //set
+const float PL_SpecularStrength = 1.5;          //set
+
+vec3 CalcLight(vec3 lightPosition, vec3 FragPos, vec3 viewDir, vec3 normal, vec3 pointLightColor, float shininess, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor, float ambientStrength, float diffuseStrength, float specularStrength, int inner);
 
 void main(void) {
     vec3 ambientColor = uMaterial.ambientColor;
     vec3 diffuseColor = uMaterial.diffuseColor;
     vec3 specularColor = uMaterial.specularColor;
     float shininess = uMaterial.shininess;
-
     vec3 norm = normalize(v_normal);
     vec3 viewDir = normalize(uCameraPos - FragPos);
-    vec3 light = InnerLight(uCameraPos, FragPos, viewDir, norm, shininess, ambientColor, diffuseColor, specularColor);
 
-    //adding point lights
+    vec3 innerLight = CalcLight(uCameraPos, FragPos, viewDir, norm, innerLightColor, shininess, ambientColor, diffuseColor, specularColor, innerAmbientStrength, innerDiffuseStrength, innerSpecularStrength, 1);
     vec3 PL_output = vec3(0.0);
 
-    for(int i = 0; i < N_LIGHTS; i++) {
-        if(uPointLights[i].x < 0.0) {
+    for (int i = 0; i < N_LIGHTS; i++) {
+        if (uPointLights[i].x < 0.0) {
             continue;
         }
-        PL_output += CalcPointLight(uPointLights[i], FragPos, viewDir, norm, shininess, uLightColors[i], ambientColor, diffuseColor, specularColor);
+        PL_output += CalcLight(uPointLights[i], FragPos, viewDir, norm, uLightColors[i], shininess, ambientColor, diffuseColor, specularColor, PL_AmbientStrength, PL_DiffuseStrength, PL_SpecularStrength, 0);
     }
 
-    light += PL_output;
-
+    vec3 light = innerLight + PL_output;
     vec4 texelColor = texture2D(uSampler, vTextureCoord);
-    if(texelColor.a < 0.4) {
+    if (texelColor.a < 0.4) {
         discard;
     }
 
     gl_FragColor = vec4(texelColor.rgb * light, texelColor.a);
 }
 
-vec3 InnerLight(vec3 cameraPos, vec3 FragPos, vec3 viewDir, vec3 normal, float shininess, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor) {
+vec3 CalcLight(vec3 lightPosition, vec3 FragPos, vec3 viewDir, vec3 normal, vec3 pointLightColor, float shininess, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor, float ambientStrength, float diffuseStrength, float specularStrength, int inner) {
+    float distance = distance(lightPosition, FragPos);
+    vec3 lightDir = normalize(lightPosition - FragPos);
+    float attenuation = 1.0 / (1.0 + 0.1 * distance + 0.65 * (distance * distance));
+
     //ambient
-    float ambientStrength = 0.225; //OK
-    vec3 ambientLightColor = vec3(0.9, 0.9, 0.81);
-    vec3 ambientLight = ambientStrength * ambientLightColor * ambientColor;
+    vec3 ambientLight = vec3(0.0);
+    if (inner == 1) {
+        ambientLight = pointLightColor * ambientStrength * ambientColor;
+    } else {
+        ambientLight = pointLightColor * ambientStrength * attenuation * ambientColor;
+    }
 
     //diffuse
-    float dist = distance(cameraPos, FragPos);
-    float attenuation = 1.0 / (1.0 + 0.10 * dist + 0.65 * dist * dist);
-    float diffuseStrength = 2.5;
-    vec3 diffuseLightColor = vec3(1, 1, 0.9);
-    float diff = max(dot(normal, viewDir), 0.0);
-    vec3 diffuselight = diffuseStrength * attenuation * diff * ambientLightColor * diffuseColor;
+    float diffLight = max(dot(normal, lightDir), 0.0); //correct
+    float diffView = max(dot(normal, viewDir), 0.0); //nicer results
+    float diff = 0.15 * diffLight + 0.8 * diffView;
+    vec3 diffuselight = pointLightColor * diff * diffuseStrength * attenuation * diffuseColor;
 
-    // specular shading
-    vec3 reflectDir = reflect(-viewDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-    float specStrength = 0.9;
-    vec3 specularLight = diffuseLightColor * spec * specStrength * attenuation * specularColor;
-
-    return ambientLight + diffuselight + specularLight;
-}
-
-vec3 CalcPointLight(vec3 PL_position, vec3 FragPos, vec3 viewDir, vec3 normal, float shininess, vec3 pointLightColor, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor) {
-    vec3 lightDir = normalize(PL_position - FragPos);
-
-    // diffuse shading
-    float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-    // attenuation
-    float distance = length(PL_position - FragPos);
-    float attenuation = 1.0 / (1.0 + 0.1 * distance + 0.65 * (distance * distance));
+    vec3 specularLight = pointLightColor * spec * specularStrength * attenuation * specularColor;
 
-    float ambientStrength = 1.0;
-    vec3 ambient = pointLightColor * ambientStrength * attenuation * ambientColor;
-    //float diffuseStrength = 1.75;
-    float diffuseStrength = 2.5;
-    vec3 diffuse = pointLightColor * diff * diffuseStrength * attenuation * diffuseColor;
-    //float specStrength = 1.5;
-    float specStrength = 1.5;
-    vec3 specular = pointLightColor * spec * specStrength * attenuation * specularColor;
-
-    return diffuse + ambient + specular;
+    return ambientLight + diffuselight + specularLight;
 }
