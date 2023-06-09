@@ -24,10 +24,9 @@ varying vec3 v_normal;
 varying vec2 vTextureCoord;
 
 const vec3 innerLightColor = vec3(0.9, 0.9, 0.81);
-const float innerAmbientStrength = 0.35;        //set
+const float innerAmbientStrength = 0.30;        //set       
 const float innerDiffuseStrength = 2.0;         //set
 const float innerSpecularStrength = 0.5;        //set
-
 const float PL_AmbientStrength = 2.20;          //set
 const float PL_DiffuseStrength = 2.25;          //set
 const float PL_SpecularStrength = 1.5;          //set
@@ -75,8 +74,8 @@ vec3 CalcLight(vec3 lightPosition, vec3 FragPos, vec3 viewDir, vec3 normal, vec3
     }
 
     //diffuse
-    float diffLight = max(dot(normal, lightDir), 0.0); //correct
-    float diffView = max(dot(normal, viewDir), 0.0); //nicer results
+    float diffLight = max(dot(normal, lightDir), 0.0);      //correct
+    float diffView = max(dot(normal, viewDir), 0.0);        //nicer results
     float diff = 0.15 * diffLight + 0.8 * diffView;
     vec3 diffuselight = pointLightColor * diff * diffuseStrength * attenuation * diffuseColor;
 
