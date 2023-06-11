@@ -19,7 +19,6 @@ uniform mat4 uScale;
 uniform mat4 uTranslate;
 uniform mat4 uRotateY;
 uniform mat4 u_jointMat[MAX_JOINTS];
-uniform mat3 uNormalMatrix;
 
 varying vec2 vTextureCoord;
 varying vec3 FragPos;
@@ -35,8 +34,7 @@ void main(void) {
     gl_Position = uProjectionMatrix * uModelViewMatrix * uTranslate * uRotateY * uScale * position;
     vTextureCoord = aTextureCoord;
     FragPos = vec3(position); 
-    v_normal = vec3(skinMat * vec4(aVertexNormal, 0.0)); 
-    mat4 normalMatrix = mat4(uNormalMatrix);     
-    vec4 transformedNormal = normalMatrix * uRotateY * vec4(v_normal, 0.0); 
+    v_normal = vec3(skinMat * vec4(aVertexNormal, 0.0));   
+    vec4 transformedNormal = uRotateY * vec4(v_normal, 0.0); 
     v_normal = transformedNormal.xyz;
 }
