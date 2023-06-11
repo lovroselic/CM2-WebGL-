@@ -14,7 +14,6 @@ uniform mat4 uProjectionMatrix;
 uniform mat4 uScale;
 uniform mat4 uTranslate;
 uniform mat4 uRotateY;
-uniform mat3 uNormalMatrix;
 
 varying vec2 vTextureCoord;
 varying vec3 FragPos;
@@ -25,7 +24,6 @@ void main(void) {
     vTextureCoord = aTextureCoord;
     FragPos = vec3(aVertexPosition);
 
-    mat4 normalMatrix = mat4(uNormalMatrix);       
-    vec4 transformedNormal = normalMatrix * uRotateY * vec4(aVertexNormal, 0.0);    
+    vec4 transformedNormal = uRotateY * vec4(aVertexNormal, 0.0);      
     v_normal = transformedNormal.xyz;
 }

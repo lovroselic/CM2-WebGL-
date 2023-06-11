@@ -310,7 +310,6 @@ const WebGL = {
                 uMaterialDiffuseColor: gl.getUniformLocation(this[prog].program, 'uMaterial.diffuseColor'),
                 uMaterialSpecularColor: gl.getUniformLocation(this[prog].program, 'uMaterial.specularColor'),
                 uMaterialShininess: gl.getUniformLocation(this[prog].program, 'uMaterial.shininess'),
-                uNormalMatrix: gl.getUniformLocation(this[prog].program, "uNormalMatrix"),
             };
         }
     },
@@ -406,7 +405,6 @@ const WebGL = {
                 uMaterialDiffuseColor: gl.getUniformLocation(shaderProgram, 'uMaterial.diffuseColor'),
                 uMaterialSpecularColor: gl.getUniformLocation(shaderProgram, 'uMaterial.specularColor'),
                 uMaterialShininess: gl.getUniformLocation(shaderProgram, 'uMaterial.shininess'),
-                uNormalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
             },
         };
 
@@ -460,15 +458,6 @@ const WebGL = {
         const scaleMatrix = glMatrix.mat4.create();
         const rotateY = glMatrix.mat4.create();
 
-        //normalMatrix
-        let modelViewMatrix3x3 = glMatrix.mat3.create();
-        glMatrix.mat3.fromMat4(modelViewMatrix3x3, this.viewMatrix);
-        let inverseModelViewMatrix3x3 = glMatrix.mat3.create();
-        glMatrix.mat3.invert(inverseModelViewMatrix3x3, modelViewMatrix3x3);
-        let normalMatrix = glMatrix.mat3.create();
-        glMatrix.mat3.transpose(normalMatrix, inverseModelViewMatrix3x3);
-        this.normalMatrix = normalMatrix;
-
         gl.useProgram(this.program.program);
 
         // Set the uniform matrices
@@ -479,7 +468,6 @@ const WebGL = {
         gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, translationMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.uRotY, false, rotateY);
         gl.uniform1i(this.program.uniformLocations.uSampler, 0);
-        gl.uniformMatrix3fv(this.program.uniformLocations.uNormalMatrix, false, this.normalMatrix); 
 
         //light uniforms
         let lights = [];
@@ -530,8 +518,6 @@ const WebGL = {
         gl.uniform3fv(this.model_program.uniforms.uLights, lights);
         gl.uniform3fv(this.model_program.uniforms.uLightColors, lightColors);
         gl.uniform1i(this.model_program.uniforms.u_sampler, 0);
-        gl.uniformMatrix3fv(this.model_program.uniforms.uNormalMatrix, false, this.normalMatrix); /////
-
 
         //pickProgram uniforms and defaults
         gl.useProgram(this.pickProgram.program);

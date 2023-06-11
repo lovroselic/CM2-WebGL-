@@ -24,12 +24,13 @@ varying vec3 v_normal;
 varying vec2 vTextureCoord;
 
 const vec3 innerLightColor = vec3(0.9, 0.9, 0.81);
-const float innerAmbientStrength = 0.30;        //set       
-const float innerDiffuseStrength = 2.0;         //set
-const float innerSpecularStrength = 0.5;        //set
-const float PL_AmbientStrength = 2.20;          //set
-const float PL_DiffuseStrength = 2.25;          //set
-const float PL_SpecularStrength = 1.5;          //set
+const float innerAmbientStrength = 0.225;        //set 0.225      
+const float innerDiffuseStrength = 2.1;         //set 2.0
+const float innerSpecularStrength = 1.0;        //set 1.0
+
+const float PL_AmbientStrength = 2.0;          //set 2.00
+const float PL_DiffuseStrength = 5.0;         //set 2.125 or 5.0
+const float PL_SpecularStrength = 6.5;        //set 1.125 or 6.5
 
 vec3 CalcLight(vec3 lightPosition, vec3 FragPos, vec3 viewDir, vec3 normal, vec3 pointLightColor, float shininess, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor, float ambientStrength, float diffuseStrength, float specularStrength, int inner);
 
@@ -74,15 +75,19 @@ vec3 CalcLight(vec3 lightPosition, vec3 FragPos, vec3 viewDir, vec3 normal, vec3
     }
 
     //diffuse
-    float diffLight = max(dot(normal, lightDir), 0.0);      //correct
-    float diffView = max(dot(normal, viewDir), 0.0);        //nicer results
-    float diff = 0.15 * diffLight + 0.8 * diffView;
+    float diffLight = max(dot(normal, lightDir), 0.0);
+    float diffView = max(dot(normal, viewDir), 0.0);
+    float diff = 0.9 * diffLight + 0.1 * diffView;
     vec3 diffuselight = pointLightColor * diff * diffuseStrength * attenuation * diffuseColor;
 
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     vec3 specularLight = pointLightColor * spec * specularStrength * attenuation * specularColor;
+
+    ambientLight = clamp(ambientLight, 0.0, 1.0);
+    diffuselight = clamp(diffuselight, 0.0, 1.0);
+    specularLight = clamp(specularLight, 0.0, 1.0);
 
     return ambientLight + diffuselight + specularLight;
 }
