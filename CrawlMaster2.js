@@ -17,10 +17,10 @@ known bugs:
 const DEBUG = {
     FPS: true,
     BUTTONS: false,
-    SETTING: true,
-    VERBOSE: true,
-    _2D_display: true,
-    INVINCIBLE: true,
+    SETTING: false,
+    VERBOSE: false,
+    _2D_display: false,
+    INVINCIBLE: false,
     FREE_MAGIC: false,
     LOAD: false,
     goto(grid) {
@@ -170,7 +170,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.19.01",
+    VERSION: "0.20.00",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -192,7 +192,6 @@ const PRG = {
         ENGINE.init();
     },
     setup() {
-        console.log("PRG.setup");
         if (DEBUG.SETTING) {
             $('#debug').show();
             $("#engine_version").html(ENGINE.VERSION);
@@ -697,9 +696,7 @@ const GAME = {
         GAME.completed = false;
         GAME.upperLimit = 1;
         GAME.level = 1;
-        //GAME.level = 2;
         GAME.gold = 0;
-        //GAME.gold = 10000;
 
         const storeList = ["DECAL3D", "LIGHTS3D", "GATE3D", "VANISHING3D", "ITEM3D", "MISSILE3D", "INTERACTIVE_DECAL3D", "BUMP3D", "ENTITY3D"];
         GAME.STORE = new Store(storeList);
@@ -709,8 +706,6 @@ const GAME = {
         GAME.fps = new FPS_short_term_measurement(300);
         GAME.prepareForRestart();
         GAME.time = new Timer("Main");
-
-        console.info(" GAME.time", GAME.time);
 
         //SAVE GAME
         SAVE_GAME.pointers = [...HERO.attributesForSaveGame, 'GAME.level', 'GAME.gold'];

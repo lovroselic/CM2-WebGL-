@@ -12,7 +12,8 @@ TODO:
 */
 
 const IndexArrayManagers = {
-    VERSION: "2.05",
+    VERSION: "3.00",
+    VERBOSE: false,
 };
 
 class IAM {
@@ -758,6 +759,8 @@ class Animated_3d_entity extends IAM {
                         );
                         if (EE_hit) {
                             wait = true;
+                            entity.update(date);
+                            if (IndexArrayManagers.VERBOSE) console.warn(`${entity.name}-${entity.id} waiting to continue turn`);
                             break;
                         }
                     }
@@ -770,6 +773,7 @@ class Animated_3d_entity extends IAM {
                     if (EP_hit) {
                         if (entity.canAttack) {
                             entity.performAttack(this.hero);
+                            if (IndexArrayManagers.VERBOSE) console.info(`${entity.name}-${entity.id} attacking`);
                         }
                         entity.setView(this.hero.player.pos);
                         entity.update(date);
@@ -782,6 +786,7 @@ class Animated_3d_entity extends IAM {
                     if (entity.canShoot) {
                         entity.setView(this.hero.player.pos);
                         entity.shoot();
+                        if (IndexArrayManagers.VERBOSE) console.info(`${entity.name}-${entity.id} shooting`);
                     }
                 }
 
@@ -801,9 +806,9 @@ class Animated_3d_entity extends IAM {
                         currentPlayerDir: Vector3.to_FP_Vector(this.hero.player.dir).ortoAlign(),
                         exactPlayerPosition: this.hero.player.pos,
                     };
-                    //console.warn(`${entity.name} ${entity.id} strategy`, entity.behaviour.strategy);
+                    if (this.VERBOSE) console.info(`${entity.name} ${entity.id} strategy`, entity.behaviour.strategy);
                     entity.dirStack = AI[entity.behaviour.strategy](entity, ARG);
-                    //console.warn(`${entity.name} ${entity.id} dirStack`, entity.dirStack, "dir", entity.moveState.dir);
+                    if (this.VERBOSE) console.info(`${entity.name} ${entity.id} dirStack`, entity.dirStack, "dir", entity.moveState.dir);
                 }
                 entity.makeMove();
             }

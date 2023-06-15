@@ -40,7 +40,7 @@ const WebGL = {
     VERSION: "1.00",
     CSS: "color: gold",
     CTX: null,
-    VERBOSE: false,
+    VERBOSE: true,
     INI: {
         PIC_WIDTH: 0.5,
         PIC_TOP: 0.2,
@@ -1917,6 +1917,11 @@ class $3D_Entity {
     }
     setDistanceFromNodeMap(nodemap) {
         let gridPosition = Vector3.toGrid(this.moveState.pos);
+        //debug
+        if (!nodemap[gridPosition.x][gridPosition.y]){
+            console.error(this.name, "has issue with gridPosition", gridPosition);
+        }
+        //
         let distance = nodemap[gridPosition.x][gridPosition.y].distance;
         if (distance < Infinity) {
             this.distance = distance;

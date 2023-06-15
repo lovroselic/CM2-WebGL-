@@ -23,9 +23,14 @@
             <div id="load"></div>
 
             <div id="SC"></div>
-            <div class="row">
-                <h1 id="title" style="font-family: 'DeepDown';"></h1>
-                <p style="font-family: 'DeepDown'">This version is currently still in development. It is playable to a point, but there is not much to play.</p>
+            <div class="row" style="font-family: 'DeepDown'">
+                <h1 id="title"></h1>
+                <p>Long, long ago, brave knight entered the dungeon to search for the
+                    missing treasure. Never to return. What
+                    happened? Who can say. You? Would you investigate? Do you dare?</p>
+                <p>Sounds familiar? Crawl master II has the same ... hmmm ... 'story' ... as the original Crawl Master.
+                    So no surprises there. However, this improved version looks and plays much better.</p>
+                <p>So what are you still waiting for? Enter the dungeon ..</p>
             </div>
 
             <div class="row my-5">
@@ -235,18 +240,49 @@
                     </legend>
                     <div class="container">
                         <div class='row-lg-6 clearfix'>
+                            <image src="https://www.c00lsch00l.eu/Images/CM in CM.webp"
+                                alt="Crawl Master - a game by Lovro Selič"
+                                class="border border-dark p-1 m-2 float-start" title="Crawl Master" />
                             <p>
-                                
+                                'Crawl Master II is of course completely based on <a
+                                    href="https://www.c00lsch00l.eu/Games/CrawlMaster.php" target="_blank">'Crawl
+                                    Master'</a>. However, display engine was completely rewritten and went for using
+                                raycasting, to <a href="https://en.wikipedia.org/wiki/Shader#Vertex_shaders"
+                                    target="_blank">triangle shading</a> using <a
+                                    href="https://en.wikipedia.org/wiki/WebGL" target="_blank">WebGL</a>. While
+                                majority of the code ia still written in JavaScript, the shaders are of course
+                                written in <a href="https://en.wikipedia.org/wiki/OpenGL_Shading_Language"
+                                    target="_blank">GLSL</a>.
+                            </p>
+                            <p>As is tradition in my games, the walls are decorated with screens showcasing games
+                                from the 80s home computers, such as C64 and ZX Spectrum, Atari ST, as well as some
+                                major and influential games from later periods. More than 700 screens are randomly
+                                selected, including a screenshot from Crawl Master II, which features a wall
+                                painting image from Crawl Master, as demonstrated on the top left image.
                             </p>
                         </div>
                         <div class='row-lg-6'>
+                            <image src="https://upload.wikimedia.org/wikipedia/en/a/a7/Quake_gameplay.png" alt="Quake"
+                                class="border border-dark p-1 m-2 float-end" title="Quake" style="width: 50%" />
+                            <p> From the technical perspective, Crawl Master II is influenced by <a
+                                    href="https://en.wikipedia.org/wiki/Quake_(video_game)" targte="_blank">Quake</a>, a
+                                game which might not start but definitely popularized real-time polygon shading through
+                                OpenGL.
+                            </p>
+                            <p>
+                                In order to reduce the already long loading times (the game loads approximately 50MB of
+                                data), Crawl Master II features only 5 levels, providing approximately 3-5 hours of
+                                gameplay if you manage to survive. On a more positive note, the game's abundance of
+                                weighted randomization ensures that each attempt offers a totally unique experience.
+                            </p>
 
                         </div>
                     </div>
                 </fieldset>
             </div>
             <p class="version" id="version"></p>
-            <p id="conv" style="font-weight: bold">Loading insane amount of data ... just a minute or two ... be patient ...  i hope you have good internet speed ... this game is huge!
+            <p id="conv" style="font-weight: bold">Loading insane amount of data ... just a minute or two ... be patient
+                ... i hope you have good internet speed ... this game is huge!
             </p>
         </div>
     </div>
@@ -268,11 +304,11 @@
     <script src="./gl-matrix-min.js"></script>
     <script src='./Prototype_3_13.js'></script>
     <script src="./LS_Matrix_.js"></script>
-    <script src='./ENGINE_.js'></script>
-    <script src="./GRID_.js" type="text/javascript"></script>
-    <script src="./AI_.js" type="text/javascript"></script>
-    <script src='./IndexArrayManagers_.js'></script>
-    <script src="./MAZE_.js" type="text/javascript"></script>
+    <script src='./ENGINE_4_00.js'></script>
+    <script src="./GRID_3_10.js" type="text/javascript"></script>
+    <script src="./AI_2_00.js" type="text/javascript"></script>
+    <script src='./IndexArrayManagers_3_00.js'></script>
+    <script src="./MAZE_4_00.js" type="text/javascript"></script>
     <script src="./BWT_1_00.js" type="text/javascript"></script>
     <script src="./WebGL_1_00.js" type="text/javascript"></script>
     <script src="./TURN_1_00.js" type="text/javascript"></script>

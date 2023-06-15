@@ -47,7 +47,7 @@ const DownRight = new Vector(1, 1);
 const DownLeft = new Vector(-1, 1);
 
 const ENGINE = {
-  VERSION: "3.20",
+  VERSION: "4.00",
   CSS: "color: #0FA",
   INI: {
     ANIMATION_INTERVAL: 16,
@@ -63,7 +63,7 @@ const ENGINE = {
     MOUSE_IDLE: 3000,
     OVERLAP_TOLERANCE: 4
   },
-  verbose: false,
+  false: false,
   setGridSize(size = 48) {
     ENGINE.INI.GRIDPIX = size;
   },
@@ -1570,9 +1570,7 @@ const ENGINE = {
                 const invBindMatrices = processAccessor(model, buffer, skin.inverseBindMatrices);
                 markNodes(model.nodes, skin.joints, index);
                 const parentNodeIndex = findParentNode(model.nodes, skin.joints[0], index);
-                //console.warn(`...parentNodeIndex ${modelName}`, parentNodeIndex);
                 const parentJoint = createJoint(model.nodes, skin.joints, invBindMatrices.data, parentNodeIndex, null);
-                //console.info("parentJoint", parentJoint);
                 applyTRS(parentJoint);
                 const jointMatrix = new Float32Array(skin.joints.length * 16);
                 makeJointMatrix(parentJoint, jointMatrix, skin.joints);
@@ -1580,7 +1578,6 @@ const ENGINE = {
               }
 
               /** animations */
-              //console.warn(modelName, model.animations);
               let animations = new Array(model.animations.length);
               for (let [index, animation] of model.animations.entries()) {
                 const skinJoints = model.skins[index].joints;
@@ -1616,13 +1613,12 @@ const ENGINE = {
                     });
                   }
                 }
-                //console.log(modelName, "paths", paths);
+ 
                 //to T,R,S
                 const nodes = {};
                 for (let nodeIndex in paths) {
                   const node = paths[nodeIndex];
                   const LEN = node.rotation.samples.length || node.translation.samples.length;
-                  //console.log(".LEN", LEN);
                   nodes[nodeIndex] = { jointIndex: node.jointIndex };
                   nodes[nodeIndex].time = new Array(LEN);
                   nodes[nodeIndex].max = node.rotation.samples[0].max || node.translation.samples[0].max;
@@ -1637,7 +1633,6 @@ const ENGINE = {
                   }
                 }
 
-                //console.log("nodes", nodes);
                 animations[index] = new $Animation(animation.name, nodes);
               }
 
@@ -1650,7 +1645,7 @@ const ENGINE = {
             }
           );
 
-          console.log("$3D_MODELs", $3D_MODEL);
+          if (ENGINE.verbose) console.info("$3D_MODELs", $3D_MODEL);
 
         } catch (error) {
           console.error(`Error loading models: ${error}`);
