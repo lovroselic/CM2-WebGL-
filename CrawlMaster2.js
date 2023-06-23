@@ -10,6 +10,7 @@
 TODO:
 
 known bugs: 
+    
 
  */
 ////////////////////////////////////////////////////
@@ -29,8 +30,8 @@ const DEBUG = {
     depth2() {
         GAME.level = 2;
         GAME.upperLimit = GAME.level;
-        GAME.gold = 1059;
-        HERO.maxHealth = 27;
+        GAME.gold = 270;
+        HERO.maxHealth = 31;
         HERO.maxMana = 52;
         HERO.health = 19;
         HERO.mana = 28;
@@ -46,9 +47,9 @@ const DEBUG = {
         HERO.attackExpGoal = 225;
         HERO.defenseExpGoal = 100;
         HERO.magicExpGoal = 338;
-        HERO.inventory.potion.red = 0;
-        HERO.inventory.potion.blue = 2;
-        let scrolls = ["TeleportTemple"];
+        HERO.inventory.potion.red = 1;
+        HERO.inventory.potion.blue = 4;
+        let scrolls = ["Map", "BoostWeapon", "BoostArmor"];
         for (let scr of scrolls) {
             let scroll = new Scroll(scr);
             HERO.inventory.scroll.add(scroll);
@@ -170,7 +171,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.20.02",
+    VERSION: "0.20.03",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -685,7 +686,7 @@ const GAME = {
 
         $("#pause").prop("disabled", false);
         $("#pause").off();
-        GAME.paused = false;
+        GAME.paused = true;
 
         let GameRD = new RenderData("DeepDown", 50, "#f6602d", "text", "#F22", 2, 2, 2);
         ENGINE.TEXT.setRD(GameRD);
@@ -1059,7 +1060,7 @@ const GAME = {
         GAME.movingText.draw();
     },
     lostFocus() {
-        if (GAME.paused || false) return;
+        if (GAME.paused || HERO.dead) return;
         GAME.clickPause();
     },
     clickPause() {
@@ -1292,7 +1293,7 @@ const TITLE = {
         ENGINE.layersToClear = new Set(["text", "sideback", "button", "title", "FPS",
             "Lsideback", "potion", "time", "statusBars", "stat", "gold",
             "sideback", "keys", "minimap", "scrolls",
-            "compassRose", "compassNeedle"]);
+            "compassRose", "compassNeedle", "info"]);
         ENGINE.clearLayerStack();
         WebGL.transparent();
     },
