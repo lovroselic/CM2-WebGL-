@@ -442,6 +442,7 @@ const SPAWN = {
             let wallGrids = map.roomWallGrids(room);
             while (N > 0 && wallGrids.length > 0) {
                 const slot = wallGrids.removeRandom();
+                wallGrids = map.filterPoolByDistance(slot, wallGrids);
                 map.GA.reserve(slot.grid);
                 const light = LIGHT_DECALS.chooseRandom();
                 LIGHTS3D.add(new LightDecal(slot.grid, DirectionToFace(slot.dir), SPRITE[light.sprite], "light", light.sprite, light.color));

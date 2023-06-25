@@ -23,7 +23,6 @@ void main(void) {
     gl_Position = uProjectionMatrix * uModelViewMatrix * uTranslate * uRotateY * uScale * aVertexPosition;
     vTextureCoord = aTextureCoord;
     FragPos = vec3(aVertexPosition);
-
-    vec4 transformedNormal = uRotateY * vec4(aVertexNormal, 0.0);      
+    vec4 transformedNormal = uRotateY * vec4(aVertexNormal, 0.0);
     v_normal = transformedNormal.xyz;
 }

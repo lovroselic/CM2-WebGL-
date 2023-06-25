@@ -1193,6 +1193,15 @@ class MasterDungeon {
             start = start.add(dir);
         }
     }
+    filterPoolByDistance(reference, pool, distance = DUNGEON.DEFAULT_LIGHT_DISTANCE) {
+        const grid = reference.grid;
+        let newPool = [];
+        for (let G of pool){
+            let candidate = G.grid;
+            if (candidate.distance(grid) >= distance) newPool.push(G);
+        }
+        return newPool;
+    }
 }
 class Maze extends MasterDungeon {
     constructor(sizeX, sizeY, start) {
@@ -1745,6 +1754,7 @@ const DUNGEON = {
     N_SHRINES: 3,
     MIN_ROOM_NUMBER: 6,
     CREATE_LOCKED: false,
+    DEFAULT_LIGHT_DISTANCE: 3,
     setLockLevel(level) {
         let lockLevel = Math.min(this.MAX_LOCK_LEVEL, level);
         lockLevel = Math.max(this.MIN_LOCK_LEVEL, level);

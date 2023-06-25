@@ -17,12 +17,17 @@ const LIGHT_COLORS = {
     gold: new Float32Array([0.831372, 0.686274, 0.21568627]),
     silver: new Float32Array([0.752941176, 0.752941176, 0.752941176]),
     green: new Float32Array([0.0, 1.0, 0.0]),
+    gray: new Float32Array([0.5, 0.5, 0.5]),
+    darkgray: new Float32Array([0.25, 0.25, 0.25]),
+    lightgray: new Float32Array([0.75, 0.75, 0.75]),
 };
 
 /** Materials */
 
 const MATERIAL = {
     VERSION: "1.00",
+    //wall: new Material(LIGHT_COLORS.gray, LIGHT_COLORS.lightgray, LIGHT_COLORS.gray, 0.999),
+    wall: new Material(LIGHT_COLORS.gray, LIGHT_COLORS.lightgray, LIGHT_COLORS.darkgray, 0.999),
     standard: new Material(LIGHT_COLORS.standard, LIGHT_COLORS.standard, LIGHT_COLORS.standard, 0.125),
     standardShine: new Material(LIGHT_COLORS.standard, LIGHT_COLORS.standard, LIGHT_COLORS.standard, 0.8),
     paper: new Material(LIGHT_COLORS.standard, LIGHT_COLORS.white, LIGHT_COLORS.white, 0.8),

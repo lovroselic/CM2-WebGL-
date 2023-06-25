@@ -468,6 +468,12 @@ const WebGL = {
         gl.uniformMatrix4fv(this.program.uniformLocations.uTranslate, false, translationMatrix);
         gl.uniformMatrix4fv(this.program.uniformLocations.uRotY, false, rotateY);
         gl.uniform1i(this.program.uniformLocations.uSampler, 0);
+        //default material for walls and decals
+        gl.uniform3fv(this.program.uniformLocations.uMaterialAmbientColor, MATERIAL.wall.ambientColor);
+        gl.uniform3fv(this.program.uniformLocations.uMaterialDiffuseColor, MATERIAL.wall.diffuseColor);
+        gl.uniform3fv(this.program.uniformLocations.uMaterialSpecularColor, MATERIAL.wall.specularColor);
+        gl.uniform1f(this.program.uniformLocations.uMaterialShininess, MATERIAL.wall.shininess);
+
 
         //light uniforms
         let lights = [];

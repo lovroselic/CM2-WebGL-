@@ -1530,7 +1530,7 @@ const ENGINE = {
         ENGINE.LOAD.HMModels = arrPath.length;
         if (ENGINE.LOAD.HMObjects) appendCanvas("Models");
         try {
-          const model_files = await Promise.all(arrPath.map(model => load_glTF_files(model, "Models")));
+          const model_files = await Promise.all(arrPath.map(model => load_glTF_files(model)));
 
           model_files.forEach(
             async (model) => {
@@ -1857,12 +1857,10 @@ const ENGINE = {
         return { audio, name };
       }
 
-      async function load_glTF_files(fileName, counter) {
+      async function load_glTF_files(fileName) {
         try {
           fileName = ENGINE.MODEL_SOURCE + fileName;
           const response = await fetch(fileName);
-          ENGINE.LOAD[counter]++;
-          ENGINE.drawLoadingGraph(counter);
           const json = await response.json();
           return json;
         } catch (error) {
