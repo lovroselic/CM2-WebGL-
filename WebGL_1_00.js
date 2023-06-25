@@ -1918,8 +1918,9 @@ class $3D_Entity {
     setDistanceFromNodeMap(nodemap) {
         let gridPosition = Vector3.toGrid(this.moveState.pos);
         //debug
-        if (!nodemap[gridPosition.x][gridPosition.y]){
-            console.error(this.name, "has issue with gridPosition", gridPosition);
+        if (!nodemap[gridPosition.x][gridPosition.y]) {
+            console.error(this.name, this.id, "has issue with gridPosition", gridPosition);
+            console.warn("details:", this);
         }
         //
         let distance = nodemap[gridPosition.x][gridPosition.y].distance;

@@ -20,7 +20,7 @@ const DEBUG = {
     BUTTONS: false,
     SETTING: false,
     VERBOSE: false,
-    _2D_display: false,
+    _2D_display: true,
     INVINCIBLE: false,
     FREE_MAGIC: false,
     LOAD: false,
@@ -171,7 +171,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.20.03",
+    VERSION: "0.20.04",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -478,7 +478,7 @@ const HERO = {
         this.canShoot = true;
         this.inventory.clear();
         const propsToSave = ["health", "maxHealth", "mana", "maxMana", "defense", "reference_defense", "attack",
-            "reference_attack", "magic", "attackExp", "defenseExp", "magicExp", "attackExpGoal", "defenseExpGoal", "magicExpGoal",
+            "reference_attack", "magic", "reference_magic", "attackExp", "defenseExp", "magicExp", "attackExpGoal", "defenseExpGoal", "magicExpGoal",
             "inventory.potion.red", "inventory.potion.blue"];
         this.attributesForSaveGame = [];
         for (const P of propsToSave) {

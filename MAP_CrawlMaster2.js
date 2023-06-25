@@ -86,7 +86,11 @@ const DECAL_PAINTINGS = [
     "Killerwat51", "KingsQuest50", "KingsQuest51", "KingsQuest52", "KingsQuest53", "LeisureSuitLarry50", "ManicMiner50", "ManicMiner51", "ManicMiner52", "MontyMole50",
     "MontyMole51", "MontyMole52", "Nebulus50", "OReillyMine50", "OilWell50", "OilWell51", "OperationWolf50", "Paperboy50", "Pipeline50", "Pipeline51", "Pitfall50", "Platoon50",
     "Predator50", "Prince50", "Prince51", "Pyjamarama50", "RMC50", "RickDangerous50", "RickDangerous51", "RobinOfTheWood50", "SabreWulf50", "Sentinel50", "Serpentine50",
-    "SkoolDaze50", "TimeTunnel50", "Tutamkham50", "Ultima50", "Vixen50", "Vixen51", "Wadca", "WhoDaresWins50", "Wolfenstein50", "Zak50", "Zak51", "Zeppelin50"
+    "SkoolDaze50", "TimeTunnel50", "Tutamkham50", "Ultima50", "Vixen50", "Vixen51", "Wadca", "WhoDaresWins50", "Wolfenstein50", "Zak50", "Zak51", "Zeppelin50",
+    "AztecChallenge100", "AztecChallenge101", "Barbarian100", "DefenderOfTheCrown100", "DungeonMaster100", "EyeOfTheBeholder100", "EyeOfTheBeholder101", "Fred100",
+    "MonkeyIsland100", "MonkeyIsland101", "MonkeyIsland102", "MontyMole100", "Morrowind100", "Oblivion100", "SVS1001", "SVS1011", "TombRaider100", "TombRaider101",
+    "TombRaider102", "TombRaider103", "TombRaider104", "TombRaider105", "TombRaider106", "TombRaider107", "TombRaider108", "TombRaider109", "TombRaider95",
+    "TombRaider96", "TombRaider97", "TombRaider98", "TombRaider99", "Underwurlde100", "Witcher100", "Witcher101", "Witcher102", "Witcher103"
 ];
 console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 

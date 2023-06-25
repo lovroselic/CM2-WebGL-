@@ -14,6 +14,7 @@ TODO:
 const IndexArrayManagers = {
     VERSION: "3.00",
     VERBOSE: false,
+    DEAD_LAPSED_TIME: 5,
 };
 
 class IAM {
@@ -536,7 +537,6 @@ class Enemy_RC extends IAM {
     }
 }
 
-
 /** 3D */
 class Decal_IA_3D extends IAM {
     constructor() {
@@ -792,6 +792,9 @@ class Animated_3d_entity extends IAM {
 
                 //enemy translate position
                 if (entity.moveState.moving) {
+                    if (this.hero.dead){
+                        lapsedTime = IndexArrayManagers.DEAD_LAPSED_TIME;
+                    }
                     GRID.translatePosition3D(entity, lapsedTime);
                     entity.update(date);
                     continue;

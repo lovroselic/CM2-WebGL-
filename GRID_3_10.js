@@ -160,13 +160,13 @@ const GRID = {
     return;
   },
   translatePosition3D(entity, lapsedTime) {
+    //console.info(`${entity.name} ${entity.id} lapsed time: ${lapsedTime}`);
     const length = (lapsedTime / 1000) * entity.moveSpeed;
     const realDir = Vector3.from_2D_dir(entity.moveState.realDir); //2D to 3D
     entity.moveState.pos = entity.moveState.pos.translate(realDir, length);
     const distance = Vector3.to_FP_Grid(entity.moveState.pos).EuclidianDistance(entity.moveState.endPos);
     if (distance < GRID.SETTING.EPSILON) {
       entity.moveState.moving = false;
-      //console.error(`${entity.name} ${entity.id} stopped moving`);
     }
   },
   translatePosition(entity, lapsedTime) {
