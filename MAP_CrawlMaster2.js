@@ -164,6 +164,17 @@ const MAP = {
         wall: "Wall7",
         minPad: 3,
     },
+    999: {
+        data: `
+        {"width":"16","height":"16","map":"BB5ABB7AA2BABAA12BAA2BB4AA5BAA2BAA19BAA11BAA5BAA2BAA2BAA5BAA12BAA3BB6ABAA2BABB4AA11BB2AA2BAA3BB2AA3BB9AA6BB2ABAA2BAA2BABB2AA2BAA7BB3ABAA2BABABB2AA3BABB8ABB3AA4BAA2BB9ABB18A$"}
+        `,
+        floor: "GreenDungeonWall",
+        ceil: "GreyDungeonFloor",
+        wall: "DungeonWall",
+        minPad: 3,
+        entrance: new Pointer(new Grid(0, 4), RIGHT),
+        exit: new Pointer(new Grid(15, 4), LEFT),
+    },
 };
 
 const MONSTER_LAYOUT = {
@@ -720,6 +731,110 @@ const SPAWN = {
         for (const grid of chestPool) {
             const type = weightedRnd({ Chest: 10, TreasureChest: 1 });
             ITEM3D.add(new FloorItem3D(Grid.toCenter(grid), COMMON_ITEM_TYPE[type]));
+        }
+    },
+    study(level) {
+        console.log("spawning for study ...");
+        const map = MAP[level].map;
+        this.stairs(map, level);
+        this.studyLights();
+        this.studyDecals();
+        this.studyItems();
+        this.studyMonsters();
+    },
+    studyDecals() {
+        const decalsLocations = [
+            { grid: new Grid(2, 2), face: 'FRONT' },
+            { grid: new Grid(5, 2), face: 'FRONT' },
+            { grid: new Grid(3, 5), face: 'BACK' },
+            { grid: new Grid(0, 3), face: 'RIGHT' },
+            { grid: new Grid(7, 3), face: 'LEFT' },
+            { grid: new Grid(2, 7), face: 'BACK' },
+            { grid: new Grid(3, 0), face: 'FRONT' },
+            { grid: new Grid(3, 15), face: 'BACK' },
+            { grid: new Grid(3, 7), face: 'FRONT' },
+            { grid: new Grid(12, 0), face: 'FRONT' },
+            { grid: new Grid(7, 4), face: 'LEFT' },
+            { grid: new Grid(7, 4), face: 'RIGHT' },
+            { grid: new Grid(13, 3), face: 'LEFT' },
+        ];
+
+        for (let D of decalsLocations) {
+            const picture = DECAL_PAINTINGS.chooseRandom();
+            console.log("picture", picture);
+            DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[picture], "picture", picture));
+        }
+
+        const crestLocations = [
+            { grid: new Grid(0, 5), face: 'RIGHT' },
+            { grid: new Grid(10, 2), face: 'FRONT' },
+            { grid: new Grid(13, 3), face: 'FRONT' },
+            { grid: new Grid(7, 10), face: 'LEFT' },
+            { grid: new Grid(0, 11), face: 'RIGHT' },
+
+        ];
+        for (let D of crestLocations) {
+            const crest = DECAL_CRESTS.chooseRandom();
+            console.log("crest", crest);
+            DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[crest], "crest", crest));
+        }
+
+        const bottomCrestLocations = [
+            //TOP
+            { grid: new Grid(2, 5), face: 'TOP' },
+            { grid: new Grid(12, 4), face: 'TOP' }
+        ];
+        for (let D of bottomCrestLocations) {
+            const crest = TOP_CRESTS.chooseRandom();
+            console.log("crest", crest);
+            DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[crest], "crest", crest));
+        }
+
+        const topCrestLocations = [
+            //BOTTOM
+            { grid: new Grid(2, 5), face: 'BOTTOM' },
+        ];
+        for (let D of topCrestLocations) {
+            const crest = BOTTOM_CRESTS.chooseRandom();
+            console.log("crest", crest);
+            DECAL3D.add(new StaticDecal(D.grid, D.face, SPRITE[crest], "crest", crest));
+        }
+    },
+    studyLights() {
+        const lightLocations = [
+            { grid: new Grid(1, 0), face: 'FRONT', light: LIGHT_DECALS[0] },
+            { grid: new Grid(6, 0), face: 'FRONT', light: LIGHT_DECALS[0] },
+            { grid: new Grid(11, 15), face: 'BACK', light: LIGHT_DECALS[0] },
+            { grid: new Grid(15, 9), face: 'LEFT', light: LIGHT_DECALS[4] },
+            { grid: new Grid(15, 1), face: 'LEFT', light: LIGHT_DECALS[0] },
+            { grid: new Grid(1, 15), face: 'BACK', light: LIGHT_DECALS[0] },
+            { grid: new Grid(6, 15), face: 'BACK', light: LIGHT_DECALS[0] },
+        ];
+        for (let L of lightLocations) {
+            const light = L.light;
+            LIGHTS3D.add(new LightDecal(L.grid, L.face, SPRITE[light.sprite], "light", light.sprite, light.color));
+        }
+    },
+    studyItems() {
+        const itemLocations = [
+            { grid: new FP_Grid(1.5, 1.5), type: COMMON_ITEM_TYPE.Chest },
+            { grid: new FP_Grid(1.5, 2.5), type: COMMON_ITEM_TYPE.Chest },
+            { grid: new FP_Grid(2.5, 1.5), type: COMMON_ITEM_TYPE.GoldBar },
+            { grid: new FP_Grid(6.5, 2.5), type: COMMON_ITEM_TYPE.TreasureChest },
+            { grid: new FP_Grid(1.5, 13.5), type: COMMON_ITEM_TYPE.Sting },
+            { grid: new FP_Grid(6.5, 13.5), type: COMMON_ITEM_TYPE.Shield },
+        ];
+
+        for (let item of itemLocations) {
+            ITEM3D.add(new FloorItem3D(item.grid, item.type));
+        }
+    },
+    studyMonsters(){
+        const monsterLocations = [
+            { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.MissGalaxyDemo },
+        ]
+        for (let monster of monsterLocations) {
+            ENTITY3D.add(new $3D_Entity(monster.grid, monster.type, monster.dir));
         }
     }
 };
@@ -1320,6 +1435,27 @@ const MONSTER_TYPE = {
         caster: true,
         shootDistance: 10,
         stalkDistance: 12,
+        material: MATERIAL.standard,
+    },
+    MissGalaxyDemo: {
+        name: "MissGalaxyDemo",
+        texture: "MissGalaxyGreen",
+        model: "MissGalaxy",
+        scale: 0.8 / 2 ** 2,
+        rotateToNorth: Math.PI,
+        midHeight: 0.5,
+        deathType: "BloodExplosion",
+        inventory: "Coins",
+        attack: 1,
+        defense: 0,
+        magic: 0,
+        health: 1,
+        xp: 6,
+        gold: 10,
+        attackSound: "HumanAttack1",
+        hurtSound: "Ow",
+        behaviourArguments: [5, ["wanderer"], 3, ["advancer"]],
+        moveSpeed: 1.0,
         material: MATERIAL.standard,
     },
 };

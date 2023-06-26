@@ -24,6 +24,12 @@ const DEBUG = {
     INVINCIBLE: false,
     FREE_MAGIC: false,
     LOAD: false,
+    STUDY: true,
+    study() {
+        console.info("######## FIXED DUNGEON - STUDY MODE ########");
+        GAME.level = 999;
+        GAME.upperLimit = GAME.level;
+    },
     goto(grid) {
         HERO.player.pos = Vector3.from_Grid(Grid.toCenter(grid), 0.5);
     },
@@ -171,7 +177,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.20.05",
+    VERSION: "0.20.06",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -730,6 +736,7 @@ const GAME = {
             DEBUG.depth5();
             //DEBUG.depth4();
         }
+        if (DEBUG.STUDY) DEBUG.study();
 
         GAME.levelStart();
     },
@@ -751,6 +758,10 @@ const GAME = {
         } else if (GAME.level === INI.FINAL_LEVEL) {
             console.log("newDungeon: CREATE FINAL LEVEL");
             randomDungeon = ARENA.create(MAP[level].width, MAP[level].height);
+        } else {
+            console.info("****** STUDY - FIXED DUNGEON ******");
+            randomDungeon = FREE_MAP.import(JSON.parse(MAP[level].data));
+            console.info(randomDungeon);
         }
 
         MAP[level].map = randomDungeon;
@@ -758,10 +769,16 @@ const GAME = {
         MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
         MAP[level].map.GA.massSet(MAPDICT.FOG);
         MAP[level].map.level = level;
+        if (DEBUG.STUDY) {
+            MAP[level].map.entrance = MAP[level].entrance;
+            MAP[level].map.exit = MAP[level].exit;
+        }
     },
     buildWorld(level) {
         if (level === INI.FINAL_LEVEL) {
             SPAWN.arena(level);
+        } else if (DEBUG.STUDY) {
+            SPAWN.study(level);
         } else {
             SPAWN.spawn(level);
         }
