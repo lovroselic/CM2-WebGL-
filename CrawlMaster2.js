@@ -20,11 +20,11 @@ const DEBUG = {
     BUTTONS: false,
     SETTING: false,
     VERBOSE: false,
-    _2D_display: true,
+    _2D_display: false,
     INVINCIBLE: false,
     FREE_MAGIC: false,
     LOAD: false,
-    STUDY: true,
+    STUDY: false,
     study() {
         console.info("######## FIXED DUNGEON - STUDY MODE ########");
         GAME.level = 999;
@@ -177,7 +177,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.20.06",
+    VERSION: "0.20.07",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",

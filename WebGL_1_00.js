@@ -14,6 +14,7 @@
 /**
  * STUDY:
  * https://glmatrix.net/docs/
+ * https://www.tomdalling.com/blog/modern-opengl/
  * https://thebookofshaders.com/
  * https://webglfundamentals.org/webgl/lessons/resources/webgl-state-diagram.html
  * this: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/#the-model-view-and-projection-matrices

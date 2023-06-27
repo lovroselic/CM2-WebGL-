@@ -819,10 +819,15 @@ const SPAWN = {
         const itemLocations = [
             { grid: new FP_Grid(1.5, 1.5), type: COMMON_ITEM_TYPE.Chest },
             { grid: new FP_Grid(1.5, 2.5), type: COMMON_ITEM_TYPE.Chest },
-            { grid: new FP_Grid(2.5, 1.5), type: COMMON_ITEM_TYPE.GoldBar },
+            { grid: new FP_Grid(2.5, 1.5), type: COMMON_ITEM_TYPE.GoldCube },
             { grid: new FP_Grid(6.5, 2.5), type: COMMON_ITEM_TYPE.TreasureChest },
             { grid: new FP_Grid(1.5, 13.5), type: COMMON_ITEM_TYPE.Sting },
             { grid: new FP_Grid(6.5, 13.5), type: COMMON_ITEM_TYPE.Shield },
+            { grid: new FP_Grid(12.5, 9.5), type: COMMON_ITEM_TYPE.Sword },
+            { grid: new FP_Grid(11.5, 9.5), type: COMMON_ITEM_TYPE.Scroll },
+            { grid: new FP_Grid(10.5, 13.5), type: COMMON_ITEM_TYPE.GoldCube },
+            { grid: new FP_Grid(11.5, 13.5), type: COMMON_ITEM_TYPE.GoldBar },
+            { grid: new FP_Grid(12.5, 13.5), type: COMMON_ITEM_TYPE.SilverBar },
         ];
 
         for (let item of itemLocations) {
