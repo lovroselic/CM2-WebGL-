@@ -134,8 +134,10 @@ class MasterDungeon {
                 } else N = RND(2, 4);
             }
 
-            this.connectToGrid(room, N, off);
+            const connected = this.connectToGrid(room, N, off);
             room.priority = 1 + q;
+            if (connected) return true;
+            return false;
         }
     }
     hasConnections(grid) {
@@ -160,6 +162,7 @@ class MasterDungeon {
                 room.door.push(door);
                 NoOfDoors--;
             } while (NoOfDoors > 0);
+            return true;
         }
     }
     tunnelToGrid(room, N, off = 1) {
@@ -167,8 +170,8 @@ class MasterDungeon {
         let NoOfDoors = Math.min(N, connections.length);
         if (NoOfDoors === 0) {
             console.error("no connections even after tunneling!");
-            //return;
-            return new Dungeon(this.width, this.height);
+            return false;
+            // return new Dungeon(this.width, this.height);
         } else {
             do {
                 let tunnel = connections.removeRandom();
@@ -178,6 +181,7 @@ class MasterDungeon {
                 room.door.push(door);
                 NoOfDoors--;
             } while (NoOfDoors > 0);
+            return true;
         }
     }
     findTunnels(room, off = 1) {
@@ -1196,7 +1200,7 @@ class MasterDungeon {
     filterPoolByDistance(reference, pool, distance = DUNGEON.DEFAULT_LIGHT_DISTANCE) {
         const grid = reference.grid;
         let newPool = [];
-        for (let G of pool){
+        for (let G of pool) {
             let candidate = G.grid;
             if (candidate.distance(grid) >= distance) newPool.push(G);
         }
@@ -1455,7 +1459,7 @@ class Dungeon extends MasterDungeon {
             }
         }
 
-        this.connectRooms();
+        if (!this.connectRooms()) return new Dungeon(this.width, this.height);
         this.recheckDeadEnds();
 
         delete this.areas;
@@ -1633,7 +1637,7 @@ class RatArena extends MasterDungeon {
         let start = new Grid(centerX, this.maxY - RAT_ARENA.CORR_LENGTH);
         this.carveMaze(start);
         //this.recheckDeadEnds();
-        this.connectRooms(3, 0);
+        if (!this.connectRooms(3, 0)) return new Dungeon(this.width, this.height);
         this.eradicateDeadEnds();
         this.density = this.measureDensity();
         MAZE.targetDensity = 0.65;

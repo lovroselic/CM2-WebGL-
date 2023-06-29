@@ -10,6 +10,9 @@
 TODO:
 
 known bugs: 
+    * saving skill timers might not work correctly?
+        * refenrece skill without timer saved??
+    * enemy/enemy collision resolution creates superimposed entities
     
 
  */
@@ -177,7 +180,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.20.07",
+    VERSION: "0.20.08",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",

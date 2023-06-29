@@ -747,7 +747,7 @@ class Animated_3d_entity extends IAM {
                 }
                 let setIndices = new Set(Indices);
                 setIndices.delete(entity.id);
-                const FilteredIndices = Array.from(setIndices).filter((val) => val < entity.id);
+                const FilteredIndices = Array.from(setIndices).filter((val) => val > entity.id);
                 let wait = false;
                 if (FilteredIndices.length > 0) {
                     for (let e of FilteredIndices) {

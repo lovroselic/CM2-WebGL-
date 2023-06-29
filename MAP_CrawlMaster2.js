@@ -90,7 +90,16 @@ const DECAL_PAINTINGS = [
     "AztecChallenge100", "AztecChallenge101", "Barbarian100", "DefenderOfTheCrown100", "DungeonMaster100", "EyeOfTheBeholder100", "EyeOfTheBeholder101", "Fred100",
     "MonkeyIsland100", "MonkeyIsland101", "MonkeyIsland102", "MontyMole100", "Morrowind100", "Oblivion100", "SVS1001", "SVS1011", "TombRaider100", "TombRaider101",
     "TombRaider102", "TombRaider103", "TombRaider104", "TombRaider105", "TombRaider106", "TombRaider107", "TombRaider108", "TombRaider109", "TombRaider95",
-    "TombRaider96", "TombRaider97", "TombRaider98", "TombRaider99", "Underwurlde100", "Witcher100", "Witcher101", "Witcher102", "Witcher103"
+    "TombRaider96", "TombRaider97", "TombRaider98", "TombRaider99", "Underwurlde100", "Witcher100", "Witcher101", "Witcher102", "Witcher103",
+    "AticAtac110", "AticAtac111", "AticAtac112", "AticAtac113", "AticAtac114", "AticAtac115", "AticAtac116", "AticAtac117", "AztecChallenge110",
+    "AztecChallenge111", "AztecChallenge112", "Barbarian110", "Barbarian111", "Barbarian112", "BeyondForbiddenForest110", "BeyondForbiddenForest111",
+    "Blackwyche110", "CrawlMaster110", "CrawlMaster111", "CrawlMaster112", "CrawlMaster113", "CrawlMaster114", "CrawlMaster115", "Defender110",
+    "DefenderOfTheCrown110", "DragonSkulle110", "EyeOfTheBeholder110", "EyeOfTheBeholder111", "EyeOfTheBeholder112", "ForbiddenForest110", "Fred110",
+    "Fred111", "Fred112", "Fred113", "Frogger110", "Frogger111", "Frogger112", "GatewayToApshai110", "ImpossibleMsission110", "ImpossibleMsission111",
+    "ImpossibleMsission112", "ImpossibleMsission113", "JSW110", "JSW111", "JSW112", "JSW113", "KnightLore110", "KnightLore111", "LastNinja110",
+    "LastNinja111", "MonkeyIsland110", "MonkeyIsland111", "MonkeyIsland112", "MontyMole110", "MontyMole111", "MontyMole112", "Oblivion110",
+    "PharaohCurse110", "PharaohCurse111", "PharaohCurse112", "SVS110", "SVS111", "SVS112", "TombRaider110", "TombRaider111", "TombRaider112",
+    "TombRaider113", "Underwurlde110", "Underwurlde111", "Witcher110", "Witcher111", "Witcher112", "Witcher113"
 ];
 console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 
@@ -109,7 +118,8 @@ const LIGHT_DECALS = [
 /** Crests */
 
 const DECAL_CRESTS = ["LS", "Skull4", "Skull3", "Skull2", "Skull1", "Crack4", "Crack3", "Skeleton11", "Skeleton12", "Crack20", "Crack21", "DancingSkeletons2",
-    "PrayingSkeleton10", "SittingSkeleton2", "Skeleton21", "Skull10", "Skull11", "WOWc1", "WOWc2", "Reaper"];
+    "PrayingSkeleton10", "SittingSkeleton2", "Skeleton21", "Skull10", "Skull11", "WOWc1", "WOWc2", "Reaper", "AticAtacCrest1"];
+//const DECAL_CRESTS = ["AticAtacCrest1"];
 const BOTTOM_CRESTS = ["Grate1_128"];
 const TOP_CRESTS = ["Drain2_96", "Drain64", "Grate1_128", "RoundGrille96", "FlatPond"];
 
@@ -834,7 +844,7 @@ const SPAWN = {
             ITEM3D.add(new FloorItem3D(item.grid, item.type));
         }
     },
-    studyMonsters(){
+    studyMonsters() {
         const monsterLocations = [
             { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.MissGalaxyDemo },
         ]
