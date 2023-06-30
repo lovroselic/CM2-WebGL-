@@ -1851,6 +1851,7 @@ class WoodExplosion extends ParticleEmmiter {
 class $3D_Entity {
     constructor(grid, type, dir = UP) {
         this.distance = null;
+        this.proximityDistance = null;                                      //euclidian distance when close up
         this.dirStack = [];
         this.final_boss = false;
         this.texture = null;                                                //model is the source, until change is forced

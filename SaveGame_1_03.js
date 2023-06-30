@@ -71,6 +71,7 @@ const SAVE_GAME = {
   },
   loadTimers() {
     const load = JSON.parse(SAVE_GAME.decode(localStorage[SAVE_GAME.key + SAVE_GAME.TIMEABR]));
+    if (ENGINE.verbose) console.info("load timers", load);
     const LL = load.pointer.length;
     for (let i = 0; i < LL; i++) {
       const idx = ENGINE.TIMERS.index(load.pointer[i]);
@@ -126,6 +127,7 @@ const SAVE_GAME = {
     SAVE_GAME.saveObjects();
   },
   saveTimers() {
+    if (ENGINE.verbose) console.info("SAVE_GAME.timers", SAVE_GAME.timers);
     for (let i = 0, LN = SAVE_GAME.timers.length; i < LN; i++) {
       const idx = ENGINE.TIMERS.index(SAVE_GAME.timers[i]);
       if (idx < 0) continue;

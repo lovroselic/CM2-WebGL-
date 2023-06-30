@@ -747,17 +747,23 @@ class Animated_3d_entity extends IAM {
                 }
                 let setIndices = new Set(Indices);
                 setIndices.delete(entity.id);
-                const FilteredIndices = Array.from(setIndices).filter((val) => val > entity.id);
+                const FilteredIndices = Array.from(setIndices);
                 let wait = false;
                 if (FilteredIndices.length > 0) {
+                    if (!entity.proximityDistance) {
+                        entity.proximityDistance = this.hero.player.pos.EuclidianDistance(entity.moveState.pos);
+                    }
                     for (let e of FilteredIndices) {
                         const compareEntity = this.POOL[e - 1];
+                        if (!compareEntity.proximityDistance) {
+                            compareEntity.proximityDistance = this.hero.player.pos.EuclidianDistance(compareEntity.moveState.pos);
+                        }
                         const EE_hit = GRID.circleCollision2D(
                             Vector3.to_FP_Grid(entity.moveState.pos),
                             Vector3.to_FP_Grid(compareEntity.moveState.pos),
                             entity.r + compareEntity.r
                         );
-                        if (EE_hit) {
+                        if (EE_hit && compareEntity.proximityDistance < entity.proximityDistance) {
                             wait = true;
                             entity.update(date);
                             if (IndexArrayManagers.VERBOSE) console.warn(`${entity.name}-${entity.id} waiting to continue turn`);
@@ -792,11 +798,12 @@ class Animated_3d_entity extends IAM {
 
                 //enemy translate position
                 if (entity.moveState.moving) {
-                    if (this.hero.dead){
+                    if (this.hero.dead) {
                         lapsedTime = IndexArrayManagers.DEAD_LAPSED_TIME;
                     }
                     GRID.translatePosition3D(entity, lapsedTime);
                     entity.update(date);
+                    entity.proximityDistance = null;                                                    //this has definitely changed with translation!
                     continue;
                 }
 

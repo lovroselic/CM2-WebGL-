@@ -10,9 +10,6 @@
 TODO:
 
 known bugs: 
-    * saving skill timers might not work correctly?
-        * refenrece skill without timer saved??
-    * enemy/enemy collision resolution creates superimposed entities
     
 
  */
@@ -26,7 +23,7 @@ const DEBUG = {
     _2D_display: false,
     INVINCIBLE: false,
     FREE_MAGIC: false,
-    LOAD: false,
+    LOAD: true,
     STUDY: false,
     study() {
         console.info("######## FIXED DUNGEON - STUDY MODE ########");
@@ -99,26 +96,26 @@ const DEBUG = {
     depth4() {
         GAME.level = 4;
         GAME.upperLimit = GAME.level;
-        GAME.gold = 1034;
-        HERO.maxHealth = 75;
-        HERO.maxMana = 72;
-        HERO.health = 72;
-        HERO.mana = 0;
+        GAME.gold = 429;
+        HERO.maxHealth = 71;
+        HERO.maxMana = 81;
+        HERO.health = 71;
+        HERO.mana = 9;
         HERO.defense = 14;
         HERO.reference_defense = HERO.defense;
-        HERO.attack = 19;
+        HERO.attack = 21;
         HERO.reference_attack = HERO.attack;
-        HERO.magic = 15;
+        HERO.magic = 16;
         HERO.reference_magic = HERO.magic;
-        HERO.attackExp = 126;
-        HERO.defenseExp = 143;
-        HERO.magicExp = 448;
+        HERO.attackExp = 297;
+        HERO.defenseExp = 111;
+        HERO.magicExp = 521;
         HERO.attackExpGoal = 1713;
-        HERO.defenseExpGoal = 150;
+        HERO.defenseExpGoal = 225;
         HERO.magicExpGoal = 761;
-        HERO.inventory.potion.red = 4;
-        HERO.inventory.potion.blue = 1;
-        let scrolls = ["Cripple", "MagicBoost", "HalfLife"];
+        HERO.inventory.potion.red = 2;
+        HERO.inventory.potion.blue = 0;
+        let scrolls = ["BoostArmor", "Map", "Map", "Map", "Invisibility", "DrainMana", "DestroyWeapon", "MagicBoost"];
         for (let scr of scrolls) {
             let scroll = new Scroll(scr);
             HERO.inventory.scroll.add(scroll);
@@ -180,7 +177,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.20.08",
+    VERSION: "0.20.09",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -729,6 +726,10 @@ const GAME = {
             SAVE_GAME.load();
             GAME.upperLimit = GAME.level;
             GAME.fromCheckpoint = false;
+            //skill timers are not saved!! so resetting here!
+            HERO.defense = HERO.reference_defense;
+            HERO.attack = HERO.reference_attack;
+            HERO.magic = HERO.reference_magic;
         }
 
         if (DEBUG.LOAD) {
@@ -736,8 +737,8 @@ const GAME = {
             console.log("FORCE LOAD FROM DEBUG!!");
             console.log("########################");
             HERO.inventory.scroll.clear();
-            DEBUG.depth5();
-            //DEBUG.depth4();
+            //DEBUG.depth5();
+            DEBUG.depth4();
         }
         if (DEBUG.STUDY) DEBUG.study();
 
