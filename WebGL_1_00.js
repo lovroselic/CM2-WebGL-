@@ -1039,8 +1039,8 @@ class World {
 
 class $3D_player {
     constructor(position, dir, map = null, size = 0.5, H = 0.5) {
-        this.setPos(position);
         this.setDir(dir);
+        this.setPos(position);
         this.setMap(map);
         this.setR(size / 2.0);
         this.setFov();
@@ -1053,9 +1053,14 @@ class $3D_player {
     }
     setPos(position) {
         this.pos = position;
+        this.setSwordTip();
+    }
+    setSwordTip() {
+        this.swordTipPosition = this.pos.translate(this.dir, this.r);
     }
     setDir(dir) {
         this.dir = dir;
+        if (this.pos) this.setSwordTip();
     }
     setMap(map) {
         this.map = map;
@@ -1069,7 +1074,7 @@ class $3D_player {
     }
     rotate(rotDirection, lapsedTime) {
         let angle = Math.round(lapsedTime / ENGINE.INI.ANIMATION_INTERVAL) * rotDirection * ((2 * Math.PI) / this.rotationResolution);
-        this.dir = Vector3.from_2D_dir(this.dir.rotate2D(angle), this.dir.y);
+        this.setDir(Vector3.from_2D_dir(this.dir.rotate2D(angle), this.dir.y));
     }
     bumpEnemy(nextPos) {
         let checkGrids = this.GA.gridsAroundEntity(nextPos, Vector3.to_FP_Vector(this.dir), this.r); //grid check is 2D projection!
@@ -1102,7 +1107,7 @@ class $3D_player {
         let check = this.GA.entityNotInWall(nextPos, Vector3.to_FP_Vector(dir), this.r);
 
         if (check) {
-            this.pos = nextPos3;
+            this.setPos(nextPos3);
         }
     }
     strafe(rotDirection, lapsedTime) {
@@ -1119,7 +1124,7 @@ class $3D_player {
         if (this.bumpEnemy(nextPos)) return;
         let check = this.GA.entityNotInWall(nextPos, Vector3.to_FP_Vector(dir), this.r);
         if (check) {
-            this.pos = nextPos3;
+            this.setPos(nextPos3);
         }
     }
     usingStaircase(nextPos, resolution = 4) {
@@ -1852,9 +1857,10 @@ class $3D_Entity {
     constructor(grid, type, dir = UP) {
         this.distance = null;
         this.proximityDistance = null;                                      //euclidian distance when close up
+        this.swordTipDistance = null;                                       //attack priority resolution
         this.dirStack = [];
         this.final_boss = false;
-        this.texture = null;                                                //model is the source, until change is forced
+        this.texture = null;                                                //model is the texture source, until change is forced
         this.resetTime();
         this.grid = grid;
         this.type = type;
@@ -1862,7 +1868,7 @@ class $3D_Entity {
             this[prop] = type[prop];
         }
 
-        if (this.texture) this.changeTexture(TEXTURE[this.texture]);        //superseed from model
+        if (this.texture) this.changeTexture(TEXTURE[this.texture]);        //superseed from model, if forced
 
         this.fullHealth = this.health;
         this.model = $3D_MODEL[this.model];
@@ -2082,6 +2088,7 @@ class $3D_Entity {
     }
     reset() {
         this.moveState.resetView();
+        this.swordTipDistance = null;
     }
     dropInventory() {
         if (!this.inventory) return;
@@ -2135,6 +2142,10 @@ class $3D_Entity {
         }
         this.moveSpeed = 0;
         this.petrified = true;
+        this.defense = 0;
+        this.health = 1;
+        this.inventory = null;
+        this.xp = 1;
         this.changeTexture(TEXTURE.Marble);
     }
     changeTexture(texture) {
@@ -2244,19 +2255,29 @@ class $POV extends Drawable_object {
         const enemies = map[IA].unrollArray([refGrid, playerGrid]);
 
         if (enemies.size === 0) return this.miss();
-        if (enemies.size > 1) {
+        let attackedEnemy = null;
+        if (enemies.size === 1) {
+            attackedEnemy = POOL[enemies.first() - 1];
+        } else if (enemies.size > 1) {
             let distance = Infinity;
             for (let e of enemies) {
-                if (POOL[e - 1].distance < distance) {
-                    distance = POOL[e - 1].distance;
-                } else {
-                    enemies.delete(e);
+                const entity = POOL[e - 1];
+                if (!entity.swordTipDistance) {
+                    entity.swordTipDistance = this.player.swordTipPosition.EuclidianDistance(entity.moveState.pos);
+                }
+                if (entity.swordTipDistance < distance) {
+                    distance = entity.swordTipDistance;
+                    attackedEnemy = entity;
                 }
             }
         }
-        const enemy = POOL[enemies.first() - 1];
-        let hit = ENGINE.lineIntersectsCircle(Vector3.to_FP_Grid(this.player.pos), Vector3.to_FP_Grid(refPoint), Vector3.to_FP_Grid(enemy.moveState.pos), enemy.r);
-        if (hit) return enemy;
+        if (ENGINE.verbose) console.info("selected attackedEnemy", `${attackedEnemy.name}-${attackedEnemy.id}`);
+
+        let hit = ENGINE.lineIntersectsCircle(Vector3.to_FP_Grid(this.player.pos),
+            Vector3.to_FP_Grid(refPoint),
+            Vector3.to_FP_Grid(attackedEnemy.moveState.pos),
+            attackedEnemy.r);
+        if (hit) return attackedEnemy;
         return null;
     }
     manage() {

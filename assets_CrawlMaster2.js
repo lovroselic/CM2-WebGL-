@@ -1002,7 +1002,6 @@ LoadSprites = [
     { srcName: "Zak50.png", name: "Zak50" },
     { srcName: "Zak51.png", name: "Zak51" },
     { srcName: "Zeppelin50.png", name: "Zeppelin50" },
-
     { srcName: "AztecChallenge100.png", name: "AztecChallenge100" },
     { srcName: "AztecChallenge101.png", name: "AztecChallenge101" },
     { srcName: "Barbarian100.png", name: "Barbarian100" },
@@ -1039,7 +1038,6 @@ LoadSprites = [
     { srcName: "Witcher101.png", name: "Witcher101" },
     { srcName: "Witcher102.png", name: "Witcher102" },
     { srcName: "Witcher103.png", name: "Witcher103" },
-
     { srcName: "AticAtac110.png", name: "AticAtac110" },
     { srcName: "AticAtac111.png", name: "AticAtac111" },
     { srcName: "AticAtac112.png", name: "AticAtac112" },

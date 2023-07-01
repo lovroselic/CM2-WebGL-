@@ -345,8 +345,8 @@ const MONSTER_LAYOUT = {
     },
     5: { //ARENA
         corridor: {
-            N: 15,
-            monster: { Skeleton: 1, Hulk: 1, Goblin: 3, RedSkeleton: 3, SilverSkeleton: 4, GoldSkeleton: 3 }
+            N: 20,
+            monster: { Skeleton: 1, Hulk: 1, Goblin: 3, RedSkeleton: 3, SilverSkeleton: 4, GoldSkeleton: 3, MissGalaxyGold: 0.1, MissGreen: 0.5 }
         },
         boss: { Drax_BossL5: 1 },
     }
@@ -1253,7 +1253,7 @@ const MONSTER_TYPE = {
         material: MATERIAL.standard,
     },
     Skeleton: {
-        name: "Skeleton",
+        name: "WhiteSkeleton",
         model: "Skeleton",
         scale: 1.8 / 2 ** 3,
         rotateToNorth: Math.PI,
@@ -1359,7 +1359,7 @@ const MONSTER_TYPE = {
     Goblin: {
         name: "Goblin",
         model: "Goblin",
-        scale: 1.1 / 2 ** 1,
+        scale: 1.01 / 2 ** 1,
         rotateToNorth: Math.PI,
         midHeight: 0.5,
         deathType: "BloodExplosion",
@@ -1451,6 +1451,7 @@ const MONSTER_TYPE = {
         shootDistance: 10,
         stalkDistance: 12,
         material: MATERIAL.standard,
+        final_boss: true,
     },
     MissGalaxyDemo: {
         name: "MissGalaxyDemo",

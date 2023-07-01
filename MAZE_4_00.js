@@ -136,9 +136,9 @@ class MasterDungeon {
 
             const connected = this.connectToGrid(room, N, off);
             room.priority = 1 + q;
-            if (connected) return true;
-            return false;
+            if (!connected) return false;
         }
+        return true;
     }
     hasConnections(grid) {
         let dots = 0;
@@ -171,7 +171,6 @@ class MasterDungeon {
         if (NoOfDoors === 0) {
             console.error("no connections even after tunneling!");
             return false;
-            // return new Dungeon(this.width, this.height);
         } else {
             do {
                 let tunnel = connections.removeRandom();
@@ -1395,7 +1394,6 @@ class Dungeon extends MasterDungeon {
             this.GA.addStair(stairsDown);
             this.exit = new Pointer(stairsDown, exitDir);
 
-            //
             this.shrines = [];
             let temple = this.getRoom(this.rooms, "common", DUNGEON.BIG_ROOM);
             temple.type = 'temple';
@@ -1624,19 +1622,13 @@ class RatArena extends MasterDungeon {
         this.line(bottomLeft.add(UP, RAT_ARENA.CORR_LENGTH - 1), (RAT_ARENA.NCORR - 1) * (RAT_ARENA.CORR_PAD + 1) + 1, RIGHT);
         let tempMaxY = this.maxY;
         this.maxY -= (RAT_ARENA.CORR_LENGTH + 2);
-        this.mainArea = new Area(
-            this.minX,
-            this.minY,
-            this.maxX - this.minX + 1,
-            this.maxY - this.minY + 1
-        );
+        this.mainArea = new Area(this.minX, this.minY, this.maxX - this.minX + 1, this.maxY - this.minY + 1);
         this.areaTree = this.splitArea(this.mainArea, DUNGEON.ITERATIONS, DUNGEON);
         this.areas = this.areaTree.getLeafs();
         this.rooms = this.makeRooms();
         this.maxY = tempMaxY;
         let start = new Grid(centerX, this.maxY - RAT_ARENA.CORR_LENGTH);
         this.carveMaze(start);
-        //this.recheckDeadEnds();
         if (!this.connectRooms(3, 0)) return new Dungeon(this.width, this.height);
         this.eradicateDeadEnds();
         this.density = this.measureDensity();

@@ -10,7 +10,6 @@
 TODO:
 
 known bugs: 
-    
 
  */
 ////////////////////////////////////////////////////
@@ -19,7 +18,7 @@ const DEBUG = {
     FPS: true,
     BUTTONS: false,
     SETTING: false,
-    VERBOSE: false,
+    VERBOSE: true,
     _2D_display: false,
     INVINCIBLE: false,
     FREE_MAGIC: false,
@@ -115,7 +114,7 @@ const DEBUG = {
         HERO.magicExpGoal = 761;
         HERO.inventory.potion.red = 2;
         HERO.inventory.potion.blue = 0;
-        let scrolls = ["BoostArmor", "Map", "Map", "Map", "Invisibility", "DrainMana", "DestroyWeapon", "MagicBoost"];
+        let scrolls = ["BoostArmor", "Map", "Map", "Map", "Invisibility", "DrainMana", "DestroyWeapon", "MagicBoost", "Petrify"];
         for (let scr of scrolls) {
             let scroll = new Scroll(scr);
             HERO.inventory.scroll.add(scroll);
@@ -126,26 +125,26 @@ const DEBUG = {
     depth5() {
         GAME.level = 5;
         GAME.upperLimit = GAME.level;
-        GAME.gold = 1634;
-        HERO.maxHealth = 91;
-        HERO.maxMana = 82;
-        HERO.health = 90;
-        HERO.mana = 80;
+        GAME.gold = 2238;
+        HERO.maxHealth = 87;
+        HERO.maxMana = 92;
+        HERO.health = 87;
+        HERO.mana = 92;
         HERO.defense = 18;
         HERO.reference_defense = HERO.defense;
-        HERO.attack = 22;
+        HERO.attack = 24;
         HERO.reference_attack = HERO.attack;
-        HERO.magic = 18;
+        HERO.magic = 19;
         HERO.reference_magic = HERO.magic;
-        HERO.attackExp = 998;
-        HERO.defenseExp = 159;
-        HERO.magicExp = 445;
+        HERO.attackExp = 2184;
+        HERO.defenseExp = 228;
+        HERO.magicExp = 281;
         HERO.attackExpGoal = 2570;
         HERO.defenseExpGoal = 338;
         HERO.magicExpGoal = 1142;
-        HERO.inventory.potion.red = 0;
+        HERO.inventory.potion.red = 2;
         HERO.inventory.potion.blue = 0;
-        let scrolls = ["MagicBoost", "HalfLife", "TeleportTemple"];
+        let scrolls = ["MagicBoost", "MagicBoost", "DestroyWeapon", "BoostArmor", "Petrify"];
         for (let scr of scrolls) {
             let scroll = new Scroll(scr);
             HERO.inventory.scroll.add(scroll);
@@ -177,7 +176,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.20.09",
+    VERSION: "0.20.10",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -394,6 +393,7 @@ class Scroll {
             case "Petrify":
                 for (let enemy of ENTITY3D.POOL) {
                     if (enemy === null) continue;
+                    if (enemy.final_boss) continue;
                     if (enemy.distance === null) continue;
                     if (enemy.distance <= INI.SCROLL_RANGE) {
                         enemy.petrify();
@@ -726,7 +726,7 @@ const GAME = {
             SAVE_GAME.load();
             GAME.upperLimit = GAME.level;
             GAME.fromCheckpoint = false;
-            //skill timers are not saved!! so resetting here!
+            //skill timers are not saved!! so resetting skills!
             HERO.defense = HERO.reference_defense;
             HERO.attack = HERO.reference_attack;
             HERO.magic = HERO.reference_magic;
@@ -737,8 +737,8 @@ const GAME = {
             console.log("FORCE LOAD FROM DEBUG!!");
             console.log("########################");
             HERO.inventory.scroll.clear();
-            //DEBUG.depth5();
-            DEBUG.depth4();
+            DEBUG.depth5();
+            //DEBUG.depth4();
         }
         if (DEBUG.STUDY) DEBUG.study();
 
