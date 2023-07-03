@@ -1867,11 +1867,11 @@ class $3D_Entity {
         for (const prop in type) {
             this[prop] = type[prop];
         }
-
         if (this.texture) this.changeTexture(TEXTURE[this.texture]);        //superseed from model, if forced
 
         this.fullHealth = this.health;
         this.model = $3D_MODEL[this.model];
+
         if (typeof (this.scale) === "number") this.scale = new Float32Array([this.scale, this.scale, this.scale]);
 
         if (this.fly) {
@@ -1902,7 +1902,7 @@ class $3D_Entity {
         this.moveState.setView(lookAt);
     }
     performAttack(victim) {
-        if (!this.canAttack || this.IAM.hero.dead) return;
+        if (!this.canAttack || this.IAM.hero.dead || this.petrified) return;
         this.canAttack = false;
         AUDIO[this.attackSound].play();
         let damage = TURN.damage(this, victim);
@@ -1948,7 +1948,7 @@ class $3D_Entity {
     resetTime() {
         this.birth = Date.now();
     }
-    draw(gl) {
+    /*draw(gl) {
         const program = WebGL.model_program.program;
 
         //uniforms
@@ -1999,7 +1999,7 @@ class $3D_Entity {
                 gl.drawElements(gl.TRIANGLES, primitive.indices.count, gl[primitive.indices.type], 0);
             }
         }
-    }
+    }*/
     drawSkin(gl, skin = 0) {
         const program = WebGL.model_program.program;
 
@@ -2087,7 +2087,7 @@ class $3D_Entity {
         }
     }
     reset() {
-        this.moveState.resetView();
+        if (!this.petrified) this.moveState.resetView();
         this.swordTipDistance = null;
     }
     dropInventory() {
@@ -2141,12 +2141,16 @@ class $3D_Entity {
             this.fly = 0;
         }
         this.moveSpeed = 0;
+        this.canAttack = false;
+        this.magic = 0;
         this.petrified = true;
         this.defense = 0;
         this.health = 1;
         this.inventory = null;
         this.xp = 1;
         this.changeTexture(TEXTURE.Marble);
+        this.material = MATERIAL.marble;
+        //console.log(`${this.name} - ${this.id} petrified`);       //debug
     }
     changeTexture(texture) {
         const gl = WebGL.CTX;
@@ -2699,14 +2703,17 @@ const ELEMENT = {
 const UNIFORM = {
     spherical_locations: null,
     spherical_directions: null,
+    i_jointMat: null,
     INI: {
         MAX_N_PARTICLES: 50000,
         SPHERE_R: 0.20,
         MIN_VELOCITY_FACTOR: 0.01,
-        MAX_VELOCITY_FACTOR: 0.6
+        MAX_VELOCITY_FACTOR: 0.6,
+        MAX_JOINTS: 256,                //compare to model vShader
     },
     setup() {
         this.spherical_distributed(this.INI.MAX_N_PARTICLES, this.INI.SPHERE_R);
+        //this.identity_joint_matrix();
         console.log(`%cUNIFORM created ${this.INI.MAX_N_PARTICLES} spherical particles.`, WebGL.CSS);
     },
     spherical_distributed(N, R) {
@@ -2734,7 +2741,18 @@ const UNIFORM = {
             this.spherical_locations[idx + 2] = location[2];
         }
         console.timeEnd("particles");
+    },
+    /*
+    identity_joint_matrix(N = this.INI.MAX_JOINTS) {
+        const identityMatrix = glMatrix.mat4.create();
+        const u_jointMat = new Array(N * 16);
+
+        for (let i = 0; i < N; i++) {
+            glMatrix.mat4.copy(u_jointMat, identityMatrix, i + 16);
+        }
+        this.i_jointMat = u_jointMat;
     }
+    */
 };
 
 /** gltf to gl */

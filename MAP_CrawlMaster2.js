@@ -99,7 +99,10 @@ const DECAL_PAINTINGS = [
     "ImpossibleMsission112", "ImpossibleMsission113", "JSW110", "JSW111", "JSW112", "JSW113", "KnightLore110", "KnightLore111", "LastNinja110",
     "LastNinja111", "MonkeyIsland110", "MonkeyIsland111", "MonkeyIsland112", "MontyMole110", "MontyMole111", "MontyMole112", "Oblivion110",
     "PharaohCurse110", "PharaohCurse111", "PharaohCurse112", "SVS110", "SVS111", "SVS112", "TombRaider110", "TombRaider111", "TombRaider112",
-    "TombRaider113", "Underwurlde110", "Underwurlde111", "Witcher110", "Witcher111", "Witcher112", "Witcher113"
+    "TombRaider113", "Underwurlde110", "Underwurlde111", "Witcher110", "Witcher111", "Witcher112", "Witcher113",
+    "AticAtac130", "AticAtac131", "AztecChallenge130", "Barbarian130", "Barbarian131", "CrawlMaster130", "CrawlMaster131", "CrawlMaster132",
+    "CrawlMaster133", "EyeOfTheBeholder130", "Fred130", "GatewayToApshai130", "ImpossibleMission130", "LastNinja130", "LastNinja131", "Morrowind130",
+    "PharaohCurse130", "Portal130", "Portal131", "Portal132", "SVS130", "SVS131", "SVS132", "TombRaider130", "Underwurlde130", "Underwurlde131", "Witcher130"
 ];
 console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 

@@ -1613,7 +1613,7 @@ const ENGINE = {
                     });
                   }
                 }
- 
+
                 //to T,R,S
                 const nodes = {};
                 for (let nodeIndex in paths) {
@@ -2760,7 +2760,6 @@ class _3D_ACTOR {
     return ENGINE.getImgData(img);
   }
 }
-
 class $3D_ACTOR {
   constructor(parent, animations, skin) {
     this.parent = parent;
@@ -2806,7 +2805,7 @@ class $3D_ACTOR {
   applyTRS(joint, animation_matrix) {
     const parentTRS = joint.parent ? joint.parent.global_TRS : glMatrix.mat4.create();
     const animMatrix = animation_matrix[joint.jointIndex];
-    glMatrix.mat4.multiply(joint.global_TRS, parentTRS, animMatrix); // this works!
+    glMatrix.mat4.multiply(joint.global_TRS, parentTRS, animMatrix);
     for (const child of joint.children) {
       this.applyTRS(child, animation_matrix);
     }

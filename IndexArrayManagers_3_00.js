@@ -13,7 +13,7 @@ TODO:
 
 const IndexArrayManagers = {
     VERSION: "3.00",
-    VERBOSE: false,
+    VERBOSE: true,
     DEAD_LAPSED_TIME: 5,
 };
 
@@ -729,13 +729,18 @@ class Animated_3d_entity extends IAM {
 
         for (const entity of this.POOL) {
             if (entity) {
-                //reset
                 entity.reset();
 
                 //check distance
                 entity.setDistanceFromNodeMap(map.GA.nodeMap);
                 if (entity.distance === null) continue;
                 if (entity.petrified) continue;
+                /*
+                if (entity.petrified) {
+                    console.info(`${entity.name}-${entity.id} not making turn, because it's petrified: ${entity.petrified}`);
+                    continue;
+                };
+                */
 
                 //enemy/enemy collision resolution
                 const ThisGrid = Vector3.toGrid(entity.moveState.pos);
@@ -755,6 +760,7 @@ class Animated_3d_entity extends IAM {
                     }
                     for (let e of FilteredIndices) {
                         const compareEntity = this.POOL[e - 1];
+                        if (compareEntity.petrified) continue;
                         if (!compareEntity.proximityDistance) {
                             compareEntity.proximityDistance = this.hero.player.pos.EuclidianDistance(compareEntity.moveState.pos);
                         }
@@ -766,7 +772,7 @@ class Animated_3d_entity extends IAM {
                         if (EE_hit && compareEntity.proximityDistance < entity.proximityDistance) {
                             wait = true;
                             entity.update(date);
-                            if (IndexArrayManagers.VERBOSE) console.warn(`${entity.name}-${entity.id} waiting to continue turn`);
+                            if (IndexArrayManagers.VERBOSE) console.info(`${entity.name}-${entity.id} waiting to continue turn`);
                             break;
                         }
                     }

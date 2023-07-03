@@ -10,6 +10,7 @@
 TODO:
 
 known bugs: 
+    * petrified monsters still sometimes updated ???
 
  */
 ////////////////////////////////////////////////////
@@ -20,7 +21,7 @@ const DEBUG = {
     SETTING: false,
     VERBOSE: true,
     _2D_display: false,
-    INVINCIBLE: false,
+    INVINCIBLE: true,
     FREE_MAGIC: false,
     LOAD: true,
     STUDY: false,
@@ -114,7 +115,7 @@ const DEBUG = {
         HERO.magicExpGoal = 761;
         HERO.inventory.potion.red = 2;
         HERO.inventory.potion.blue = 0;
-        let scrolls = ["BoostArmor", "Map", "Map", "Map", "Invisibility", "DrainMana", "DestroyWeapon", "MagicBoost", "Petrify"];
+        let scrolls = ["Petrify", "Petrify", "Petrify", "Petrify", "Petrify", "Petrify", "Petrify", "Petrify", "Petrify", "Petrify", "Petrify"];
         for (let scr of scrolls) {
             let scroll = new Scroll(scr);
             HERO.inventory.scroll.add(scroll);
@@ -144,7 +145,7 @@ const DEBUG = {
         HERO.magicExpGoal = 1142;
         HERO.inventory.potion.red = 2;
         HERO.inventory.potion.blue = 0;
-        let scrolls = ["MagicBoost", "MagicBoost", "DestroyWeapon", "BoostArmor", "Petrify"];
+        let scrolls = ["MagicBoost", "MagicBoost", "DestroyWeapon", "BoostArmor", "Petrify", "Petrify", "Petrify", "Petrify", "Petrify"];
         for (let scr of scrolls) {
             let scroll = new Scroll(scr);
             HERO.inventory.scroll.add(scroll);
@@ -176,7 +177,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.20.10",
+    VERSION: "0.20.11",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -394,6 +395,7 @@ class Scroll {
                 for (let enemy of ENTITY3D.POOL) {
                     if (enemy === null) continue;
                     if (enemy.final_boss) continue;
+                    if (enemy.petrified) continue;
                     if (enemy.distance === null) continue;
                     if (enemy.distance <= INI.SCROLL_RANGE) {
                         enemy.petrify();
@@ -737,8 +739,8 @@ const GAME = {
             console.log("FORCE LOAD FROM DEBUG!!");
             console.log("########################");
             HERO.inventory.scroll.clear();
-            DEBUG.depth5();
-            //DEBUG.depth4();
+            //DEBUG.depth5();
+            DEBUG.depth4();
         }
         if (DEBUG.STUDY) DEBUG.study();
 
@@ -874,7 +876,6 @@ const GAME = {
     run(lapsedTime) {
         if (ENGINE.GAME.stopAnimation) return;
         const date = Date.now();
-        //GAME.respond(lapsedTime);
         VANISHING3D.manage(lapsedTime);
         MISSILE3D.manage(lapsedTime);
         INTERFACE3D.manage(lapsedTime);

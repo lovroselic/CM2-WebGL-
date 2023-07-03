@@ -28,6 +28,7 @@ const MATERIAL = {
     VERSION: "1.00",
     //wall: new Material(LIGHT_COLORS.gray, LIGHT_COLORS.lightgray, LIGHT_COLORS.gray, 0.999),
     wall: new Material(LIGHT_COLORS.gray, LIGHT_COLORS.lightgray, LIGHT_COLORS.darkgray, 0.8),
+    marble: new Material(LIGHT_COLORS.gray, LIGHT_COLORS.lightgray, LIGHT_COLORS.darkgray, 0.85),
     standard: new Material(LIGHT_COLORS.standard, LIGHT_COLORS.standard, LIGHT_COLORS.standard, 0.125),
     standardShine: new Material(LIGHT_COLORS.standard, LIGHT_COLORS.standard, LIGHT_COLORS.standard, 0.8),
     paper: new Material(LIGHT_COLORS.standard, LIGHT_COLORS.white, LIGHT_COLORS.white, 0.8),
