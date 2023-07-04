@@ -1117,6 +1117,61 @@ class MasterDungeon {
         }
         return decalGrids;
     }
+    poolOfDistancedCorridorDecalGrids(N, distance = DUNGEON.DEFAULT_LIGHT_DISTANCE) {
+        const decalGrids = [];
+        const matrix = Array.create2DArray(this.width, this.height, 0);
+        const proximities = Array(4);
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                if (x === 0 && y === 0) {
+                    matrix[0][0] = Infinity;
+                    continue;
+                }
+
+                proximities.fill(Infinity);
+                const grid = new Grid(x, y);
+                const topLeft = new Grid(x - 1, y - 1);
+                const topCenter = new Grid(x, y - 1);
+                const topRight = new Grid(x + 1, y - 1);
+                const left = new Grid(x - 1, y);
+       
+                for (let [index, adjacent] of [topLeft, topCenter, topRight, left].entries()) {
+                    if (this.GA.isOutOfBounds(adjacent)) continue;
+                    proximities[index] = matrix[adjacent.x][adjacent.y];
+                }
+                const minValue = Math.min(...proximities);
+                let addValue = minValue + 1;
+
+                if (minValue >= distance - 1) {
+                    if (this.GA.notReserved(grid) && this.GA.isWall(grid)) {
+                        const dirCandidates = [];
+                        for (let dir of ENGINE.directions) {
+                            const floorGrid = grid.add(dir);
+                            if (this.GA.isOut(floorGrid)) continue;
+                            if (this.GA.notWall(floorGrid)) {
+                                if (this.GA.notDoor(floorGrid) && this.GA.notRoom(floorGrid)) {
+                                    dirCandidates.push(dir);
+                                }
+                            }
+                        }
+
+                        if (dirCandidates.length > 0) {
+                            let dir = dirCandidates.chooseRandom();
+                            addValue = 0;
+                            decalGrids.push({ grid: grid, dir: dir });
+                        }
+                    }
+                }
+                matrix[x][y] = addValue;
+            }
+        }
+        const selected = decalGrids.removeRandomPool(N);
+        for (const G of selected) {
+            this.GA.reserve(G.grid);
+        }
+ 
+        return selected;
+    }
     freeDeadEnds(N) {
         let DE = [];
         for (let de of this.deadEnds) {

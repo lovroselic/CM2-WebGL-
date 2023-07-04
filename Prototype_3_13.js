@@ -25,7 +25,7 @@ changelog:
 3.10: optimized, binarySearch
 3.11: date prototypes - used by CoolWeb!
 3.12: float bin search, 
-3.13: splitByN corrected
+3.13: splitByN corrected, Array.create2DArray
 */
 
 (function () {
@@ -186,6 +186,9 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, ra
 };
 
 /* collection of prototypes LS */
+Array.create2DArray = function(rows, columns, initialValue = 0) {
+  return new Array(rows).fill().map(() => new Array(columns).fill(initialValue));
+};
 
 Array.prototype.clear = function () {
   this.length = 0;

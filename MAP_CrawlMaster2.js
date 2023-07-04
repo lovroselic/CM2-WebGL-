@@ -682,9 +682,8 @@ const SPAWN = {
         }
     },
     arenaLights(map) {
-        //corridor lights
         const N = (map.width * map.height * parseFloat(map.density) * 0.015) | 0;
-        const corrDecalGrids = map.poolOfCorridorDecalGrids(N);
+        const corrDecalGrids = map.poolOfDistancedCorridorDecalGrids(N);
         for (let grid of corrDecalGrids) {
             const light = LIGHT_DECALS.chooseRandom();
             LIGHTS3D.add(new LightDecal(grid.grid, DirectionToFace(grid.dir), SPRITE[light.sprite], "light", light.sprite, light.color));
