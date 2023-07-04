@@ -19,9 +19,9 @@ const DEBUG = {
     FPS: true,
     BUTTONS: false,
     SETTING: false,
-    VERBOSE: true,
+    VERBOSE: false,
     _2D_display: false,
-    INVINCIBLE: true,
+    INVINCIBLE: false,
     FREE_MAGIC: false,
     LOAD: true,
     STUDY: false,
@@ -177,7 +177,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.20.11",
+    VERSION: "0.20.12",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -739,8 +739,8 @@ const GAME = {
             console.log("FORCE LOAD FROM DEBUG!!");
             console.log("########################");
             HERO.inventory.scroll.clear();
-            //DEBUG.depth5();
-            DEBUG.depth4();
+            DEBUG.depth5();
+            //DEBUG.depth4();
         }
         if (DEBUG.STUDY) DEBUG.study();
 

@@ -13,7 +13,7 @@ TODO:
 
 const IndexArrayManagers = {
     VERSION: "3.00",
-    VERBOSE: true,
+    VERBOSE: false,
     DEAD_LAPSED_TIME: 5,
 };
 
@@ -735,12 +735,6 @@ class Animated_3d_entity extends IAM {
                 entity.setDistanceFromNodeMap(map.GA.nodeMap);
                 if (entity.distance === null) continue;
                 if (entity.petrified) continue;
-                /*
-                if (entity.petrified) {
-                    console.info(`${entity.name}-${entity.id} not making turn, because it's petrified: ${entity.petrified}`);
-                    continue;
-                };
-                */
 
                 //enemy/enemy collision resolution
                 const ThisGrid = Vector3.toGrid(entity.moveState.pos);

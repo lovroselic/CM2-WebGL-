@@ -683,7 +683,7 @@ const SPAWN = {
     },
     arenaLights(map) {
         //corridor lights
-        const N = (map.width * map.height * parseFloat(map.density) * 0.01) | 0;
+        const N = (map.width * map.height * parseFloat(map.density) * 0.015) | 0;
         const corrDecalGrids = map.poolOfCorridorDecalGrids(N);
         for (let grid of corrDecalGrids) {
             const light = LIGHT_DECALS.chooseRandom();
@@ -850,7 +850,7 @@ const SPAWN = {
     studyMonsters() {
         const monsterLocations = [
             { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.MissGalaxyDemo },
-        ]
+        ];
         for (let monster of monsterLocations) {
             ENTITY3D.add(new $3D_Entity(monster.grid, monster.type, monster.dir));
         }
@@ -1416,8 +1416,8 @@ const MONSTER_TYPE = {
         deathType: "BloodExplosion",
         inventory: "Coins",
         attack: 50,
-        defense: 30,
-        magic: 30,
+        defense: 25,
+        magic: 25,
         health: 100,
         xp: 125,
         gold: 100,
@@ -1440,9 +1440,9 @@ const MONSTER_TYPE = {
         deathType: "BloodExplosion",
         inventory: "GoldKey",
         attack: 50,
-        defense: 30,
-        magic: 30,
-        health: 250,
+        defense: 25,
+        magic: 25,
+        health: 200,
         xp: 250,
         gold: 0,
         attackSound: "HumanAttack1",

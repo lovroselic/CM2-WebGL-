@@ -63,7 +63,7 @@ const ENGINE = {
     MOUSE_IDLE: 3000,
     OVERLAP_TOLERANCE: 4
   },
-  verbose: true,
+  verbose: false,
   setGridSize(size = 48) {
     ENGINE.INI.GRIDPIX = size;
   },
@@ -2761,12 +2761,13 @@ class _3D_ACTOR {
   }
 }
 class $3D_ACTOR {
-  constructor(parent, animations, skin) {
+  constructor(parent, animations, skin, jointMatrix) {
     this.parent = parent;
     this.animationIndex = 0; //develop
     this.animations = animations;
     this.birth = parent.birth;
     this.skin = skin; //limited to 0th skin
+    this.jointMatrix = jointMatrix;
   }
   animate(date) {
     const A = this.animations[this.animationIndex];
@@ -2812,7 +2813,8 @@ class $3D_ACTOR {
     glMatrix.mat4.multiply(joint.global_TRS, joint.global_TRS, joint.InverseBindMatrix);
   }
   makeJointMatrix(joint) {
-    const matrix = this.skin.jointMatrix;
+    //const matrix = this.skin.jointMatrix;
+    const matrix = this.jointMatrix;
     const skinJoints = this.skin.skinJoints;
     const index = skinJoints.indexOf(joint.index) * 16;
     glMatrix.mat4.copy(matrix.subarray(index, index + 16), joint.global_TRS);

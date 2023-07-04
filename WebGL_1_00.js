@@ -1871,6 +1871,7 @@ class $3D_Entity {
 
         this.fullHealth = this.health;
         this.model = $3D_MODEL[this.model];
+        this.jointMatrix = Float32Array.from(this.model.skins[0].jointMatrix);  //needs own jointMatrix, 
 
         if (typeof (this.scale) === "number") this.scale = new Float32Array([this.scale, this.scale, this.scale]);
 
@@ -1881,7 +1882,7 @@ class $3D_Entity {
             this.translate = Vector3.from_Grid(grid, minY);
         }
         this.boundingBox = new BoundingBox(this.model.meshes[0].primitives[0].positions.max, this.model.meshes[0].primitives[0].positions.min, this.scale);
-        this.actor = new $3D_ACTOR(this, this.model.animations, this.model.skins[0]);
+        this.actor = new $3D_ACTOR(this, this.model.animations, this.model.skins[0], this.jointMatrix);
         this.moveState = new $3D_MoveState(this.translate, dir, this.rotateToNorth, this);
         const dZ = (this.boundingBox.max.z - this.boundingBox.min.z) / 2;
         const dX = (this.boundingBox.max.x - this.boundingBox.min.x) / 2;
@@ -1948,59 +1949,7 @@ class $3D_Entity {
     resetTime() {
         this.birth = Date.now();
     }
-    /*draw(gl) {
-        const program = WebGL.model_program.program;
-
-        //uniforms
-        //scale
-        const mScaleMatrix = glMatrix.mat4.create();
-        glMatrix.mat4.fromScaling(mScaleMatrix, this.scale);
-        const uScaleMatrix = gl.getUniformLocation(program, 'uScale');
-        gl.uniformMatrix4fv(uScaleMatrix, false, mScaleMatrix);
-
-        //translate
-        const mTranslationMatrix = glMatrix.mat4.create();
-        glMatrix.mat4.fromTranslation(mTranslationMatrix, this.moveState.pos.array);
-        const uTranslateMatrix = gl.getUniformLocation(program, 'uTranslate');
-        gl.uniformMatrix4fv(uTranslateMatrix, false, mTranslationMatrix);
-
-        //rotate
-        const uRotatematrix = gl.getUniformLocation(program, 'uRotateY');
-        gl.uniformMatrix4fv(uRotatematrix, false, this.moveState.rotate);
-
-        for (let mesh of this.model.meshes) {
-            for (let [index, primitive] of mesh.primitives.entries()) {
-
-                //positions
-                gl.bindBuffer(gl.ARRAY_BUFFER, primitive.positions.buffer);
-                const vertexPosition = gl.getAttribLocation(program, "aVertexPosition");
-                gl.vertexAttribPointer(vertexPosition, 3, gl[primitive.positions.type], false, 0, 0);
-                gl.enableVertexAttribArray(vertexPosition);
-
-                //texture
-                gl.bindBuffer(gl.ARRAY_BUFFER, primitive.textcoord.buffer);
-                const textureCoord = gl.getAttribLocation(program, "aTextureCoord");
-                gl.vertexAttribPointer(textureCoord, 2, gl[primitive.textcoord.type], false, 0, 0);
-                gl.enableVertexAttribArray(textureCoord);
-
-                //normals
-                gl.bindBuffer(gl.ARRAY_BUFFER, primitive.normals.buffer);
-                const vertexNormal = gl.getAttribLocation(program, "aVertexNormal");
-                gl.vertexAttribPointer(vertexNormal, 3, gl[primitive.normals.type], false, 0, 0);
-                gl.enableVertexAttribArray(vertexNormal);
-
-                //indices
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, primitive.indices.buffer);
-
-                //binding texture data
-                gl.activeTexture(gl.TEXTURE0);
-                gl.bindTexture(gl.TEXTURE_2D, this.model.textures[index]);
-
-                gl.drawElements(gl.TRIANGLES, primitive.indices.count, gl[primitive.indices.type], 0);
-            }
-        }
-    }*/
-    drawSkin(gl, skin = 0) {
+    drawSkin(gl) {
         const program = WebGL.model_program.program;
 
         //uniforms
@@ -2027,7 +1976,7 @@ class $3D_Entity {
 
         //u_jointMat
         const uJointMat = gl.getUniformLocation(program, "u_jointMat");
-        gl.uniformMatrix4fv(uJointMat, false, this.model.skins[skin].jointMatrix);
+        gl.uniformMatrix4fv(uJointMat, false, this.jointMatrix);
 
         for (let mesh of this.model.meshes) {
             for (let [index, primitive] of mesh.primitives.entries()) {
@@ -2713,7 +2662,6 @@ const UNIFORM = {
     },
     setup() {
         this.spherical_distributed(this.INI.MAX_N_PARTICLES, this.INI.SPHERE_R);
-        //this.identity_joint_matrix();
         console.log(`%cUNIFORM created ${this.INI.MAX_N_PARTICLES} spherical particles.`, WebGL.CSS);
     },
     spherical_distributed(N, R) {
@@ -2742,17 +2690,6 @@ const UNIFORM = {
         }
         console.timeEnd("particles");
     },
-    /*
-    identity_joint_matrix(N = this.INI.MAX_JOINTS) {
-        const identityMatrix = glMatrix.mat4.create();
-        const u_jointMat = new Array(N * 16);
-
-        for (let i = 0; i < N; i++) {
-            glMatrix.mat4.copy(u_jointMat, identityMatrix, i + 16);
-        }
-        this.i_jointMat = u_jointMat;
-    }
-    */
 };
 
 /** gltf to gl */
