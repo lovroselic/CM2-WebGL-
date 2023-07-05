@@ -76,10 +76,15 @@ const ENGINE = {
   },
   readyCall: null,
   start: null,
+  //local links
   SOURCE: "./Assets/AA/",
   WASM_SOURCE: "https://www.c00lsch00l.eu/WASM/",
   AUDIO_SOURCE: "./Assets/Mp3/",
   FONT_SOURCE: "./Assets/Fonts/",
+  SHADER_SOURCE: "./Shaders/",
+  OBJECT_SOURCE: "./Objects/",
+  MODEL_SOURCE: "./Models/",
+  //web links
   /*
   SOURCE: "https://www.c00lsch00l.eu/Games/AA/",
   WASM_SOURCE: "https://www.c00lsch00l.eu/WASM/",
@@ -89,9 +94,6 @@ const ENGINE = {
   OBJECT_SOURCE: "/Games/Objects/",
   MODEL_SOURCE: "/Games/Models/",
   */
-  SHADER_SOURCE: "./Shaders/",
-  OBJECT_SOURCE: "./Objects/",
-  MODEL_SOURCE: "./Models/",
   checkProximity: true, //check proximity before pixel perfect evaluation of collision to background //very obsolete!!
   LOAD_W: 160,
   LOAD_H: 22,
@@ -348,12 +350,7 @@ const ENGINE = {
     CTX.restore();
     let imgDATA = CTX.getImageData(0, 0, CTX.canvas.width, CTX.canvas.height);
     let TRIM = ENGINE.trimCanvas(imgDATA);
-    let trimmed = CTX.getImageData(
-      TRIM.left,
-      TRIM.top,
-      TRIM.right - TRIM.left,
-      TRIM.bottom - TRIM.top
-    );
+    let trimmed = CTX.getImageData(TRIM.left, TRIM.top, TRIM.right - TRIM.left, TRIM.bottom - TRIM.top);
     CTX.canvas.width = TRIM.right - TRIM.left;
     CTX.canvas.height = TRIM.bottom - TRIM.top;
     CTX.putImageData(trimmed, 0, 0);
@@ -379,6 +376,9 @@ const ENGINE = {
     return cR ** 2 * dr2 > D ** 2;
   },
   intersectionCollision(actor1, actor2) {
+    /**
+     * might be already redundant, check current uses
+     */
     if (actor1.class !== "bullet" && actor2.class !== "bullet") return;
     if (actor1.prevX === null || actor2.prevX === null) return;
 
@@ -449,7 +449,10 @@ const ENGINE = {
     } else return null;
   },
   collisionToBackground(actor, layer) {
-    //deprecated - redesign required
+    /**
+     * deprecated - redesign required
+     * candidate for removal
+     */
     var CTX = layer;
     var maxSq = Math.max(actor.width, actor.height);
     var R = Math.ceil(0.5 * Math.sqrt(2 * Math.pow(maxSq, 2)));
@@ -863,9 +866,9 @@ const ENGINE = {
       vt(parts) {
         textureCoordinates.push(parts.map(parseFloat));
       },
-      s() { },    //not supported
-      mtllib() { }, //not supported
-      usemtl() { }, //not supported
+      s() { },              //not supported
+      mtllib() { },         //not supported
+      usemtl() { },         //not supported
       f(parts) {
         const numTriangles = parts.length - 2;
         for (let tri = 0; tri < numTriangles; ++tri) {
@@ -979,32 +982,32 @@ const ENGINE = {
   GAME: {
     running: false,
     keymap: {
-      16: false, //shift
-      17: false, //CTRL
-      37: false, //LEFT
-      38: false, //UP
-      39: false, //RIGHT
-      40: false, //Down
-      32: false, //SPACE
-      13: false, //ENTER
-      113: false, //F2
-      115: false, //F4
-      120: false, //F9
-      119: false, //F8
-      118: false, //F7
-      65: false, //A
-      68: false, //D
-      67: false, //C
-      8: false, //back
-      9: false, //tab
-      72: false, //h
-      77: false, //m
-      81: false, //q
-      69: false, //e
-      87: false, //w
-      83: false, //s
-      60: false, //lt
-      226: false //lt-chrome
+      16: false,    //shift
+      17: false,    //CTRL
+      37: false,    //LEFT
+      38: false,    //UP
+      39: false,    //RIGHT
+      40: false,    //Down
+      32: false,    //SPACE
+      13: false,    //ENTER
+      113: false,   //F2
+      115: false,   //F4
+      120: false,   //F9
+      119: false,   //F8
+      118: false,   //F7
+      65: false,    //A
+      68: false,    //D
+      67: false,    //C
+      8: false,     //back
+      9: false,     //tab
+      72: false,    //h
+      77: false,    //m
+      81: false,    //q
+      69: false,    //e
+      87: false,    //w
+      83: false,    //s
+      60: false,    //lt
+      226: false    //lt-chrome
     },
     clearAllKeys() {
       for (var key in ENGINE.GAME.keymap) {
@@ -1476,7 +1479,7 @@ const ENGINE = {
 
       async function loadWASM(arrPath = LoadExtWasm) {
         if (!arrPath) return;
-        const LoadIntWasm = []; // internal hard-coded ENGINE requirements, never used
+        const LoadIntWasm = []; // internal hard-coded ENGINE requirements, never used yet
         const toLoad = [...arrPath, ...LoadIntWasm];
         console.log(`%c ...loading ${toLoad.length} WASM files`, ENGINE.CSS);
         ENGINE.LOAD.HMWASM = toLoad.length;
@@ -2813,7 +2816,6 @@ class $3D_ACTOR {
     glMatrix.mat4.multiply(joint.global_TRS, joint.global_TRS, joint.InverseBindMatrix);
   }
   makeJointMatrix(joint) {
-    //const matrix = this.skin.jointMatrix;
     const matrix = this.jointMatrix;
     const skinJoints = this.skin.skinJoints;
     const index = skinJoints.indexOf(joint.index) * 16;
@@ -2825,8 +2827,8 @@ class $3D_ACTOR {
 }
 class $3D_MoveState {
   constructor(translation_vector, dir, rotation_to_north, parent) {
-    this.pos = translation_vector; //Vector3
-    this.dir = dir; //2D dir
+    this.pos = translation_vector;              //Vector3
+    this.dir = dir;                             //2D dir
     this.rotation_to_north = rotation_to_north; // rad
     this.parent = parent;
     this.update();
@@ -2849,7 +2851,7 @@ class $3D_MoveState {
   next(dir) {
     if (!dir) throw new Error(`Direction ${dir} not defined error. Stopping execution!`);
     this.startPos = this.endPos;
-    this.dir = dir; //2D dir
+    this.dir = dir;                             //2D dir
     this.endPos = this.startPos.add(this.dir);
     this.realDir = Vector3.to_FP_Grid(this.pos).direction(this.endPos);
     this.moving = true;
@@ -2886,7 +2888,6 @@ class $3D_MoveState {
     this.grid = Vector3.to_FP_Grid(this.pos);
   }
 }
-
 class _1D_MoveState {
   constructor(x, dir) {
     this.x = x;

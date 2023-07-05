@@ -16,15 +16,16 @@ known bugs:
 ////////////////////////////////////////////////////
 
 const DEBUG = {
-    FPS: true,
+    FPS: false,
     BUTTONS: false,
     SETTING: false,
     VERBOSE: false,
     _2D_display: false,
     INVINCIBLE: false,
     FREE_MAGIC: false,
-    LOAD: true,
+    LOAD: false,
     STUDY: false,
+    keys: false,
     study() {
         console.info("######## FIXED DUNGEON - STUDY MODE ########");
         GAME.level = 999;
@@ -177,7 +178,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "0.20.13",
+    VERSION: "0.21.00",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -406,7 +407,6 @@ class Scroll {
                 Scroll.boost("magic");
                 break;
             case "TeleportTemple":
-                console.info("map", map);
                 if (map.type === "ARENA") break;
                 const temple = map.findRoom("temple");
                 const target = map.findMiddleSpaceUnreserved(temple.area);
@@ -616,8 +616,7 @@ const HERO = {
         HERO.incExp(exp, "magic");
     },
     applyDamage(damage) {
-        HERO.health -= damage;
-        HERO.health = Math.max(HERO.health, 0);
+        HERO.health = Math.max(HERO.health - damage, 0);
         TITLE.status();
         if (HERO.health <= 0) {
             HERO.die();
@@ -645,8 +644,6 @@ const HERO = {
     die() {
         if (DEBUG.INVINCIBLE) return;
         this.dead = true;
-        console.warn("HERO die execution", this.dead);
-        //AUDIO.Scream.play();
     },
     death() {
         this.player.pos.set_y(0.1);
@@ -1122,24 +1119,25 @@ const GAME = {
             ENGINE.GAME.keymap[ENGINE.KEY.map.F4] = false;
         }
         if (map[ENGINE.KEY.map.F7]) {
+            if (!DEBUG.keys) return;
             console.log("TELEPORT TO GOLD ROOM");
             const M = MAP[GAME.level].map;
             const room = M.findRoom("Gold");
             const target = M.findMiddleSpaceUnreserved(room.area);
             HERO.player.pos = Vector3.from_Grid(Grid.toCenter(target), 0.5);
-
             ENGINE.GAME.keymap[ENGINE.KEY.map.F7] = false;
         }
         if (map[ENGINE.KEY.map.F8]) {
+            if (!DEBUG.keys) return;
             console.log("TELEPORT TO TEMPLE");
             const M = MAP[GAME.level].map;
             const temple = M.findRoom("temple");
             const target = M.findMiddleSpaceUnreserved(temple.area);
             HERO.player.pos = Vector3.from_Grid(Grid.toCenter(target), 0.5);
-
             ENGINE.GAME.keymap[ENGINE.KEY.map.F8] = false;
         }
         if (map[ENGINE.KEY.map.F9]) {
+            if (!DEBUG.keys) return;
             console.log("\nDEBUG:");
             console.log("#######################################################");
             ENTITY3D.display();
@@ -1187,12 +1185,8 @@ const GAME = {
             HERO.shoot();
             ENGINE.GAME.keymap[ENGINE.KEY.map.ctrl] = false; //NO repeat
         }
-        if (map[ENGINE.KEY.map.up]) {
-
-        }
-        if (map[ENGINE.KEY.map.down]) {
-
-        }
+        if (map[ENGINE.KEY.map.up]) { }
+        if (map[ENGINE.KEY.map.down]) { }
         if (map[ENGINE.KEY.map.space]) {
             SWORD.stab();
             ENGINE.GAME.keymap[ENGINE.KEY.map.space] = false; //NO repeat
@@ -1217,7 +1211,6 @@ const GAME = {
         ENGINE.GAME.ANIMATION.next(GAME.gameOverRun);
     },
     won() {
-        //console.log("GAME WON");
         GAME.completed = true;
         ENGINE.TIMERS.stop();
         ENGINE.GAME.ANIMATION.resetTimer();
@@ -1759,14 +1752,6 @@ const TITLE = {
         let H = 32;
         ENGINE.percentBar(percent, y, CTX, ENGINE.sideWIDTH, colors, H);
     },
-    /*score() {
-        this._text("score", "SCORE", 36, "score", 6);
-        if (GAME.score >= GAME.extraLife[0]) {
-            GAME.lives++;
-            GAME.extraLife.shift();
-            TITLE.lives();
-        }
-    },*/
     gameOver() {
         ENGINE.clearLayer("text");
         const CTX = LAYER.text;
@@ -1845,7 +1830,6 @@ const TITLE = {
 // -- main --
 $(function () {
     PRG.INIT();
-    //SPEECH.init(0.6);
     PRG.setup();
     ENGINE.LOAD.preload();
     UNIFORM.setup();

@@ -102,9 +102,11 @@ const DECAL_PAINTINGS = [
     "TombRaider113", "Underwurlde110", "Underwurlde111", "Witcher110", "Witcher111", "Witcher112", "Witcher113",
     "AticAtac130", "AticAtac131", "AztecChallenge130", "Barbarian130", "Barbarian131", "CrawlMaster130", "CrawlMaster131", "CrawlMaster132",
     "CrawlMaster133", "EyeOfTheBeholder130", "Fred130", "GatewayToApshai130", "ImpossibleMission130", "LastNinja130", "LastNinja131", "Morrowind130",
-    "PharaohCurse130", "Portal130", "Portal131", "Portal132", "SVS130", "SVS131", "SVS132", "TombRaider130", "Underwurlde130", "Underwurlde131", "Witcher130"
+    "PharaohCurse130", "Portal130", "Portal131", "Portal132", "SVS130", "SVS131", "SVS132", "TombRaider130", "Underwurlde130", "Underwurlde131", "Witcher130",
+    "AticAtac140", "EyeOfTheBeholder140", "GatewayToApshai140", "ImpossibleMission140", "LastNinja140", "MonkeyIsland140", "MonkeyIsland141", "MonkeyIsland142",
+    "MonkeyIsland143", "Morrowind140", "Oblivion140", "Oblivion141", "PharaohCurse140", "Portal140", "Tombraider140", "Tombraider141", "Underwurlde140", "Underwurlde141"
 ];
-console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
+if (ENGINE.verbose) console.log("DECAL_PAINTINGS", DECAL_PAINTINGS.length, DECAL_PAINTINGS.sort());
 
 /** Light decals */
 
@@ -122,16 +124,13 @@ const LIGHT_DECALS = [
 
 const DECAL_CRESTS = ["LS", "Skull4", "Skull3", "Skull2", "Skull1", "Crack4", "Crack3", "Skeleton11", "Skeleton12", "Crack20", "Crack21", "DancingSkeletons2",
     "PrayingSkeleton10", "SittingSkeleton2", "Skeleton21", "Skull10", "Skull11", "WOWc1", "WOWc2", "Reaper", "AticAtacCrest1"];
-//const DECAL_CRESTS = ["AticAtacCrest1"];
 const BOTTOM_CRESTS = ["Grate1_128"];
 const TOP_CRESTS = ["Drain2_96", "Drain64", "Grate1_128", "RoundGrille96", "FlatPond"];
 
-//const BOTTOM_CRESTS = ["FlatPond"];
-//const DECAL_CRESTS = ["Reaper"];
 
 const DECAL_SOURCES = { picture: DECAL_PAINTINGS, crest: DECAL_CRESTS };
 const TOP_BOTTOM_SOURCES = { TOP: TOP_CRESTS, BOTTOM: BOTTOM_CRESTS };
-console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
+if (ENGINE.verbose) console.log("DECAL_CRESTS", DECAL_CRESTS.sort());
 
 console.log("%cMAP for CrawlMaster2 loaded.", "color: #888");
 
@@ -195,9 +194,6 @@ const MONSTER_LAYOUT = {
         start: {
             N: 1,
             monster: { Bat: 1 },
-            //monster: { Spider: 1 },
-            //monster: { MissGalaxy: 1 },
-            //monster: { MissGalaxyGold: 1 },
         },
         corridor: {
             N: 25,
@@ -346,7 +342,8 @@ const MONSTER_LAYOUT = {
             monster: { Viking: 1 },
         }
     },
-    5: { //ARENA
+    5: { 
+        //ARENA
         corridor: {
             N: 20,
             monster: { Skeleton: 1, Hulk: 1, Goblin: 3, RedSkeleton: 3, SilverSkeleton: 4, GoldSkeleton: 3, MissGalaxyGold: 0.1, MissGreen: 0.5 }
@@ -746,7 +743,6 @@ const SPAWN = {
         }
     },
     study(level) {
-        console.log("spawning for study ...");
         const map = MAP[level].map;
         this.stairs(map, level);
         this.studyLights();
@@ -1757,7 +1753,7 @@ const SCROLL_TYPE = {
     Invisibility: 100,
     Map: 100,
     DrainMana: 90,
-    Cripple: 90,
+    Cripple: 60,
     BoostWeapon: 100,
     BoostArmor: 100,
     DestroyArmor: 80,
