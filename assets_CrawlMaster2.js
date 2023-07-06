@@ -128,8 +128,7 @@ LoadAudio = [
 
 ];
 LoadFonts = [
-    //{ srcName: "DeepDown.ttf", name: "DeepDown" },
-    { srcName: "MoriaCitadel.ttf", name: "DeepDown" },
+    { srcName: "MoriaCitadel.ttf", name: "Moria" },
 ];
 LoadShaders = [
     'vShader.glsl', 'fShader.glsl', 'pick_vShader.glsl', 'pick_fShader.glsl',

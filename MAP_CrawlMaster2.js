@@ -765,6 +765,7 @@ const SPAWN = {
             { grid: new Grid(7, 4), face: 'LEFT' },
             { grid: new Grid(7, 4), face: 'RIGHT' },
             { grid: new Grid(13, 3), face: 'LEFT' },
+            { grid: new Grid(13, 5), face: 'LEFT' },
         ];
 
         for (let D of decalsLocations) {
@@ -817,6 +818,7 @@ const SPAWN = {
             { grid: new Grid(15, 1), face: 'LEFT', light: LIGHT_DECALS[0] },
             { grid: new Grid(1, 15), face: 'BACK', light: LIGHT_DECALS[0] },
             { grid: new Grid(6, 15), face: 'BACK', light: LIGHT_DECALS[0] },
+            { grid: new Grid(10, 2), face: 'RIGHT', light: LIGHT_DECALS[0] },
         ];
         for (let L of lightLocations) {
             const light = L.light;
@@ -836,6 +838,10 @@ const SPAWN = {
             { grid: new FP_Grid(10.5, 13.5), type: COMMON_ITEM_TYPE.GoldCube },
             { grid: new FP_Grid(11.5, 13.5), type: COMMON_ITEM_TYPE.GoldBar },
             { grid: new FP_Grid(12.5, 13.5), type: COMMON_ITEM_TYPE.SilverBar },
+            { grid: new FP_Grid(12.5, 5.5), type: COMMON_ITEM_TYPE.TreasureChest },
+            { grid: new FP_Grid(12.0, 5.0), type: COMMON_ITEM_TYPE.Sting },
+            { grid: new FP_Grid(12.0, 3.5), type: COMMON_ITEM_TYPE.Shield },
+            { grid: new FP_Grid(11.0, 5.0), type: COMMON_ITEM_TYPE.Scroll },
         ];
 
         for (let item of itemLocations) {
@@ -845,6 +851,8 @@ const SPAWN = {
     studyMonsters() {
         const monsterLocations = [
             { grid: new FP_Grid(5.5, 6.5), dir: UP, type: MONSTER_TYPE.MissGalaxyDemo },
+            { grid: new FP_Grid(12.5, 4.5), dir: UP, type: MONSTER_TYPE.MissGalaxyDemo },
+            { grid: new FP_Grid(11.5, 4.5), dir: UP, type: MONSTER_TYPE.SkeletonDemo },
         ];
         for (let monster of monsterLocations) {
             ENTITY3D.add(new $3D_Entity(monster.grid, monster.type, monster.dir));
@@ -1469,8 +1477,28 @@ const MONSTER_TYPE = {
         attackSound: "HumanAttack1",
         hurtSound: "Ow",
         behaviourArguments: [5, ["wanderer"], 3, ["advancer"]],
-        moveSpeed: 1.0,
+        moveSpeed: 0.001,
         material: MATERIAL.standard,
+    },
+    SkeletonDemo: {
+        name: "WhiteSkeletonDemo",
+        model: "Skeleton",
+        scale: 1.8 / 2 ** 3,
+        rotateToNorth: Math.PI,
+        midHeight: 0.5,
+        deathType: "SmokeExplosion",
+        inventory: "Coins",
+        attack: 1,
+        defense: 0,
+        magic: 0,
+        health: 1,
+        xp: 1,
+        gold: 50,
+        attackSound: "MonsterAttack2",
+        hurtSound: "MonsterHurt2",
+        behaviourArguments: [8, ["wanderer"], 6, ["advancer"]],
+        moveSpeed: 0.001,
+        material: MATERIAL.standardShine,
     },
 };
 

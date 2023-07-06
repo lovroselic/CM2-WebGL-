@@ -20,11 +20,11 @@ const DEBUG = {
     BUTTONS: false,
     SETTING: false,
     VERBOSE: false,
-    _2D_display: false,
+    _2D_display: true,
     INVINCIBLE: false,
     FREE_MAGIC: false,
     LOAD: false,
-    STUDY: false,
+    STUDY: true,
     keys: false,
     study() {
         console.info("######## FIXED DUNGEON - STUDY MODE ########");
@@ -178,7 +178,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "1.00.01",
+    VERSION: "1.00.03",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -693,7 +693,7 @@ const GAME = {
         $("#pause").off();
         GAME.paused = true;
 
-        let GameRD = new RenderData("DeepDown", 50, "#f6602d", "text", "#F22", 2, 2, 2);
+        let GameRD = new RenderData("Moria", 50, "#f6602d", "text", "#F22", 2, 2, 2);
         ENGINE.TEXT.setRD(GameRD);
         ENGINE.watchVisibility(GAME.lostFocus);
         ENGINE.GAME.start(16);
@@ -1631,7 +1631,7 @@ const TITLE = {
     titlePlot() {
         const CTX = LAYER.title;
         var fs = 36;
-        CTX.font = fs + "px DeepDown";
+        CTX.font = fs + "px Moria";
         CTX.textAlign = "center";
         let txt = CTX.measureText(PRG.NAME);
         let x = ENGINE.titleWIDTH / 2;
@@ -1785,7 +1785,7 @@ const TITLE = {
     setEndingCreditsScroll() {
         console.group("endingCredits");
         const text = this.generateEndingCredits();
-        const RD = new RenderData("DeepDown", 16, "#DAA520", "text");
+        const RD = new RenderData("Moria", 16, "#DAA520", "text");
         GAME.endingCreditText = new VerticalScrollingText(text, 1, RD);
         console.groupEnd("endingCredits");
     },

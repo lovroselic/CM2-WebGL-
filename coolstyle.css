@@ -1,41 +1,60 @@
-/* coolstyle CSS v4.0.1 */
+/* coolstyle CSS v4.2.0 */
 
 @charset "utf-8";
 
 @font-face {
+    font-family: 'Kristen';
+    src: url("https://www.c00lsch00l.eu/Fonts/Kristen.ttf");
+    font-display: swap;
+}
+
+@font-face {
     font-family: 'Emulogic';
-    src:url("https://www.c00lsch00l.eu/Fonts/emulogic.ttf");
+    src: url("https://www.c00lsch00l.eu/Fonts/emulogic.ttf");
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Arcade';
     src: url("https://www.c00lsch00l.eu/Fonts/Arcade Classic.ttf");
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Adore';
     src: url("https://www.c00lsch00l.eu/Fonts/Adore64.ttf");
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Annie';
     src: url("https://www.c00lsch00l.eu/Fonts/AnnieUseYourTelescope.ttf");
+    font-display: swap;
 }
 
-/*@font-face {
+@font-face {
     font-family: 'DeepDown';
-    src:url("https://www.c00lsch00l.eu//Fonts/DeepDown.ttf");
-}*/
+    src: url("https://www.c00lsch00l.eu//Fonts/DeepDown.ttf"); 
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Moria';
+    src: url("https://www.c00lsch00l.eu//Fonts/MoriaCitadel.ttf");
+    font-display: swap;
+}
 
 @font-face {
     font-family: "C64";
     src: url("https://www.c00lsch00l.eu//Fonts/C64_Pro-STYLE.ttf");
+    font-display: swap;
 }
 
 /* Overrriding Bootstrap */
 
 body {
-    background: linear-gradient(90deg, #ff7f00, #ffc04d, #ff7f00) !important;
+    /*background: linear-gradient(90deg, #ff7f00, #ffc04d, #ff7f00) !important;*/
+    background: linear-gradient(90deg, #ff7f00, #fdb32d, #ff7f00) !important;
     font-family: "roboto-slab", serif !important;
 }
 
@@ -43,9 +62,13 @@ fieldset, legend {
     all: revert;
 }
 
-/* changing bootsrap*/
+/* changing bootstrap*/
 
 .dropdown a:hover {
+    background-color: #a71a0b;
+}
+
+a.nav-link.white_text:hover {
     background-color: #a71a0b;
 }
 
@@ -54,16 +77,43 @@ h1, h2 {
     text-shadow: 1px 1px #666 !important;
 }
 
+.coolback {
+    background-color: #ffc04d !important;
+    /*background-color: #ff7f00 !important;*/
+}
+
+.coolspan {
+    background-color: #a71a0b !important;
+    color: #fff !important;
+}
+
+.coolspan_light {
+    /*background-color: #ff7f00 !important;*/
+    background-color: #D34D06 !important;
+    color: #fff !important;
+}
+
 .coollist {
-    list-style-image: url(/Images/Eyes-bullet.png);
+    list-style-image: url(/Images/eyes16.svg);
+}
+
+.coollist li {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 0.4rem;
 }
 
 span.cool {
     font-family: consolas, serif;
 }
 
+.kidfont {
+    font-family: 'Kristen', monospace;
+}
+
 .cool_page {
-    background: #ffc04d !important;
+    /*background: #ffc04d !important;*/
+    /*background: #fdb32d !important;*/
     border-radius: 0.5rem !important;
 }
 
@@ -89,13 +139,34 @@ span.cool {
     border-radius: 0.25rem !important;
 }
 
+.about p {
+    padding-top: 1em !important;
+    padding-bottom: 1em !important;
+    border-top: 2px #AAA ridge !important;
+    border-bottom: 2px #AAA ridge !important;
+}
+
+.cool_shadow {
+    /* unused */
+    box-shadow: 2px 0px 5px -1px rgba(255, 127, 0, 1);
+}
+
+/* icons */
+
+.cool_icon {
+    width: 5rem;
+    height: 5rem;
+}
+
+.big-icon {
+    font-size: 3rem;
+}
+
 /* index page */
 
 .covered {
     position: relative;
-    /* make a new "render context", so absolute positioning is relative to this parent container */
     padding: 30px;
-    /* only needed for this demo */
 }
 
 .covered-img {
@@ -181,8 +252,6 @@ span.cool {
     border: 2px #AAA ridge;
     border-radius: 7px !important;
     width: 600px !important;
-    margin-top: 10px;
-    padding: 15px;
 }
 
 .section fieldset p {
@@ -223,5 +292,18 @@ span.cool {
 @media (min-width: 992px) and (max-width: 1047px) {
     .hide_medium {
         display: none;
+    }
+}
+
+/********** XS devices only **********/
+
+@media (max-width: 576px) {
+    .force_width {
+        width: 90%;
+    }
+
+    .row {
+        margin-left: 0px !important;
+        margin-right: 0px !important;
     }
 }
