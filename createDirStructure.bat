@@ -33,22 +33,22 @@ set "dir25=Assets\Graphics\Sprites\UI"
 set "dir26=Assets\Graphics\Textures\Gates"
 set "dir27=Assets\Graphics\Textures\ObjectTextures"
 set "dir28=Assets\Graphics\Textures\Title"
-set "dir28=Assets\Graphics\Textures\Wall"
+set "dir29=Assets\Graphics\Textures\Wall"
 
-set "dir29=Code"
-set "dir30=Code\GLSL"
-set "dir31=Code\JS"
-set "dir32=Code\Python"
+set "dir30=Code"
+set "dir31=Code\GLSL"
+set "dir32=Code\JS"
+set "dir33=Code\Python"
 
-set "dir33=Code\GLSL\Shaders"
+set "dir34=Code\GLSL\Shaders"
 
-set "dir34=Code\JS\Library"
-set "dir35=Code\JS\Library\Engine"
+set "dir35=Code\JS\Library"
+set "dir36=Code\JS\Library\Engine"
 
-set "dir36=CSS"
-set "dir37=External"
-set "dir38=Games"
-set "dir39=Images"
+set "dir37=CSS"
+set "dir38=External"
+set "dir30=Games"
+set "dir40=Images"
 
 :: Add more directories as needed, follow the pattern above
 
