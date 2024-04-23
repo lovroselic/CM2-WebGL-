@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link href="/CSS/LaughingStyle.css" rel="stylesheet" type="text/css">
+    <title>CrawlMaster2</title>
+</head>
+
+<body>
+
+
+    <!-- copy start-->
+    <div id="preload" class="hidden"></div>
+    <div class="container my-5 p-5 cool_page">
+        <div id="setup">
+            <div id="load"></div>
+
+            <div id="SC"></div>
+            <div class="row win" style="font-family: 'Moria'">
+                <h1 id="title"></h1>
+                <p>Long, long ago, brave knight entered the dungeon to search for the
+                    missing treasure. Never to return. What
+                    happened? Who can say. You? Would you investigate? Do you dare?</p>
+                <p>Sounds familiar? Crawl master II has the same ... hmmm ... 'story' ... as the original Crawl Master.
+                    So no surprises there. However, this improved version looks and plays much better.</p>
+                <p>So what are you still waiting for? Enter the dungeon ..</p>
+            </div>
+
+            <div class="row my-5">
+                <div id="debug" class="section">
+                    <fieldset>
+                        <legend>
+                            Version:
+                        </legend>
+                        ENGINE: <span id="engine_version"></span><br>
+                        GRID: <span id="grid_version"></span><br>
+                        MAZE: <span id="maze_version"></span><br>
+                        IAM: <span id="iam_version"></span><br>
+                        Prototype LIB: <span id="lib_version"></span><br>
+                        WebGL: <span id="webgl_version"></span><br>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div>
+                <p id="buttons">
+                    <input type='button' id='pause' value='Pause Game [F4]' disabled="disabled">
+                    <input type='button' id='toggleHelp' value='Show/Hide Instructions'>
+                    <input type='button' id='toggleAbout' value='About'>
+                </p>
+            </div>
+
+            <div id="help" class="section">
+                <fieldset>
+                    <legend>
+                        Instructions:
+                    </legend>
+                    <p><strong>Survival guide:</strong></p>
+                    <p>Running away is a legitimate strategy ...</p>
+                    <p>Game will be saved each time you descend on a new level for the first time.</p>
+                    <p>Use temple to heal and buy skills. But remember, healthcare is expensive ...</p>
+                    <p></p>
+
+                    <p><strong>KEYS:</strong></p>
+                    <p>Mouse to open doors and pick up items and interact with environment</p>
+                    <p>W ... move forward</p>
+                    <p>S ... move backward</p>
+                    <p>A ... strafe left</p>
+                    <p>D ... strafe right</p>
+                    <p>Q ... turn left</p>
+                    <p>E ... turn right</p>
+                    <p>CTRL ... cast magic.</p>
+                    <p>H ... use healing potion</p>
+                    <p>M ... use mana potion</p>
+                    <p>cursor left, right ... move scroll selection cursor</p>
+                    <p>ENTER ... cast selected scroll</p>
+                    <p>F4 ... pause/resume game</p>
+                    <p><strong>SCROLLS:</strong></p>
+
+                    <div class="container">
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src="https://www.c00lsch00l.eu/Games/AA/Light.png" alt="Light" title="Light">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Magic lamp: inreased range of map revealing dungeon</p>
+                            </div>
+                        </div>
+
+
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src="https://www.c00lsch00l.eu/Games/AA/DrainMana.png" alt="DrainMana"
+                                    title="DrainMana">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Drain Mana: drains mana from all creatures in the area. Also yours!</p>
+                            </div>
+                        </div>
+
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src="https://www.c00lsch00l.eu/Games/AA/Map.png" alt="Map" title="Map">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Map: reveals the location of the temple or other important areas</p>
+                            </div>
+                        </div>
+
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src="https://www.c00lsch00l.eu/Games/AA/BoostWeapon.png" alt="BoostWeapon"
+                                    title="BoostWeapon">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Increase the damage of your weapon for certain duration.</p>
+                            </div>
+                        </div>
+
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src="https://www.c00lsch00l.eu/Games/AA/BoostArmor.png" alt="BoostArmor"
+                                    title="BoostArmor">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Increase your armor for certain duration.</p>
+                            </div>
+                        </div>
+
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src="https://www.c00lsch00l.eu/Games/AA/DestroyArmor.png" alt="DestroyArmor"
+                                    title="DestroyArmor">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Decrease your opponent's armor in the certain range.</p>
+                            </div>
+                        </div>
+
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src="https://www.c00lsch00l.eu/Games/AA/DestroyWeapon.png" alt="DestroyWeapon"
+                                    title="DestroyWeapon">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Decrease the damage of your opponent's weapons in the certain range.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src="https://www.c00lsch00l.eu/Games/AA/Cripple.png" alt="Cripple"
+                                    title="Cripple">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Cripple: Decrease speed of the nearby monsters.</p>
+                            </div>
+                        </div>
+
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src="https://www.c00lsch00l.eu/Games/AA/Invisibility.png" alt="Invisibility"
+                                    title="Invisibility">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Invisibility: I will let you figure this one by yourself ...</p>
+                            </div>
+                        </div>
+
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src="https://www.c00lsch00l.eu/Games/AA/MagicBoost.png" alt="Magic Boost"
+                                    title="Magic Boost">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Magic Boost: boost your magic abilities for a while</p>
+                            </div>
+                        </div>
+
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src="https://www.c00lsch00l.eu/Games/AA/Petrify.png" alt="Petrify"
+                                    title="Petrify">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Petrify: petrifies all enemies in a certain range</p>
+                            </div>
+                        </div>
+
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src=" https://www.c00lsch00l.eu/Games/AA/TeleportTemple.png"
+                                    alt="Teleport to Temple" title="Teleport to Temple">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Teleport to the Temple: instant jump to the temple. Could also be on
+                                    top
+                                    of some
+                                    scary monster ...</p>
+                            </div>
+                        </div>
+
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src=" https://www.c00lsch00l.eu/Games/AA/Luck.png" alt="Luck" title="Luck">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Hero's luck is temporarily increased. One of the game's mysteries.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="row my-2">
+                            <div class="col-1">
+                                <image src="https://www.c00lsch00l.eu/Games/AA/HalfLife.png" alt="HalfLife"
+                                    title="HalfLife">
+                            </div>
+                            <div class="col-10 mt-auto">
+                                <p>Monster's life energy in the certain range is halved.</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </fieldset>
+            </div>
+
+            <div id="about" class="section">
+                <fieldset>
+                    <legend>
+                        About:
+                    </legend>
+                    <div class="container">
+                        <div class='row-lg-6 clearfix'>
+                            <image src="https://www.c00lsch00l.eu/Images/CM in CM.webp"
+                                alt="Crawl Master - a game by Lovro Selič"
+                                class="border border-dark p-1 m-2 float-start" title="Crawl Master" />
+                            <p>
+                                'Crawl Master II is of course completely based on <a
+                                    href="https://www.c00lsch00l.eu/Games/CrawlMaster.php" target="_blank">'Crawl
+                                    Master'</a>. However, display engine was completely rewritten and went for using
+                                raycasting, to <a href="https://en.wikipedia.org/wiki/Shader#Vertex_shaders"
+                                    target="_blank">triangle shading</a> using <a
+                                    href="https://en.wikipedia.org/wiki/WebGL" target="_blank">WebGL</a>. While
+                                majority of the code ia still written in JavaScript, the shaders are of course
+                                written in <a href="https://en.wikipedia.org/wiki/OpenGL_Shading_Language"
+                                    target="_blank">GLSL</a>.
+                            </p>
+                            <p>As is tradition in my games, the walls are decorated with screens showcasing games
+                                from the 80s home computers, such as C64 and ZX Spectrum, Atari ST, as well as some
+                                major and influential games from later periods. More than 900 screens are randomly
+                                selected, including a screenshots from Crawl Master II, which features a wall
+                                painting image from Crawl Master, as demonstrated on the top left image. This is my way
+                                of paying respects to the great programmers of the past, which had influenced me and
+                                lighted the passion in me for programming.
+                            </p>
+                        </div>
+                        <div class='row-lg-6'>
+                            <image src="https://upload.wikimedia.org/wikipedia/en/a/a7/Quake_gameplay.png" alt="Quake"
+                                class="border border-dark p-1 m-2 float-end" title="Quake" style="width: 50%" />
+                            <p> From the technical perspective, Crawl Master II is influenced by <a
+                                    href="https://en.wikipedia.org/wiki/Quake_(video_game)" targte="_blank">Quake</a>, a
+                                game which might not start but definitely popularized real-time polygon shading through
+                                OpenGL.
+                            </p>
+                            <p>
+                                In order to reduce the already long loading times (the game loads approximately 50MB of
+                                data), Crawl Master II features only 5 levels, providing approximately 3-5 hours of
+                                gameplay if you manage to survive. On a more positive note, the game's abundance of
+                                weighted randomization ensures that each attempt offers a totally unique experience.
+                            </p>
+
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <p class="version" id="version"></p>
+            <p id="conv" style="font-weight: bold">Loading insane amount of data ... just a minute or two ... be patient
+                ... i hope you have good internet speed ... this game is huge!
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="game" class="winTrans"></div>
+        <div id="bottom" class="cb" style="margin-top: 720px"></div>
+        <div id="temp" class="hidden"></div>
+        <div id="temp2" class="hidden"></div>
+    </div>
+    <!-- COPY END -->
+    <!-- External JS -->
+    <script src="/External/bootstrap.bundle.min.js"></script>
+    <script src="/External/jquery-3.6.0.min.js"></script>
+    <script src="/External/gl-matrix-min.js" type="text/javascript"></script>
+    <!-- JS -->
+    <script src='/Code/JS/Library/Engine/Prototype_4_00.js' type="text/javascript"></script>
+    <script src="/Code/JS/Library/Engine/LS_Matrix_1_00.js" type="text/javascript"></script>
+    <script src='/Code/JS/Library/Engine/ENGINE_4_02.js' type="text/javascript"></script>
+    <script src="/Code/JS/Library/Engine/GRID_3_11.js" type="text/javascript"></script>
+    <script src="/Code/JS/Library/Engine/AI_2_01.js" type="text/javascript"></script>
+    <script src='/Code/JS/Library/Engine/IndexArrayManagers_3_02.js'></script>
+    <script src="/Code/JS/Library/Engine/MAZE_4_01.js" type="text/javascript"></script>
+    <script src="/Code/JS/Library/Engine/BWT_1_00.js" type="text/javascript"></script>
+    <script src="/Code/JS/Library/Engine/WebGL_1_03.js" type="text/javascript"></script>
+    <!--<script src="/Code/JS/Library/Engine/WebGL_1_00.js" type="text/javascript"></script>-->
+    <script src="/Code/JS/Library/Engine/TURN_1_01.js" type="text/javascript"></script>
+    <script src="/Code/JS/Library/Engine/Lights_and_materials_1_01.js" type="text/javascript"></script>
+    <script src="/Assets/Definitions/CM2/assets_CrawlMaster2.js" type="text/javascript"></script>
+    <script src="/Assets/Definitions/CM2/MAP_CrawlMaster2.js" type="text/javascript"></script>
+    <script src='/Code/JS/Library/Engine/SaveGame_1_04.js'></script>
+    <script src="/Games/CrawlMaster2/CrawlMaster2.js"></script>
+
+</body>
+
+</html>
