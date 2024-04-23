@@ -12,7 +12,7 @@ TODO:
 */
 
 const IndexArrayManagers = {
-    VERSION: "3.02",
+    VERSION: "3.03",
     VERBOSE: false,
     DEAD_LAPSED_TIME: 5,
 };
@@ -823,6 +823,7 @@ class Animated_3d_entity extends IAM {
                 if (entity.caster) {
                     distance = entity.airDistance;
                 }
+
                 entity.behaviour.manage(entity, distance, passiveFlag);
                 if (!entity.hasStack()) {
                     let ARG = {

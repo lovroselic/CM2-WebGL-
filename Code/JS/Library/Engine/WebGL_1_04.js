@@ -38,7 +38,7 @@
  */
 
 const WebGL = {
-    VERSION: "1.03",
+    VERSION: "1.04",
     CSS: "color: gold",
     CTX: null,
     VERBOSE: false,
@@ -2970,6 +2970,7 @@ class StaticParticleBomb extends ParticleEmmiter {
 class $3D_Entity {
     constructor(grid, type, dir = UP) {
         this.distance = null;
+        this.airDistance = null;
         this.proximityDistance = null;                                      //euclidian distance when close up
         this.swordTipDistance = null;                                       //attack priority resolution
         this.dirStack = [];
@@ -3060,7 +3061,7 @@ class $3D_Entity {
         }
 
         let distance = nodemap[gridPosition.x][gridPosition.y].distance;
-        if (distance < Infinity) {
+        if (distance >= 0 && distance < Infinity) {
             this[prop] = distance;
         } else this[prop] = null;
     }

@@ -21,7 +21,7 @@ const DEBUG = {
     BUTTONS: false,
     SETTING: true,
     VERBOSE: false,
-    _2D_display: false,
+    _2D_display: true,
     INVINCIBLE: false,
     FREE_MAGIC: false,
     LOAD: false,
@@ -179,7 +179,7 @@ const INI = {
     FINAL_LEVEL: 5,
 };
 const PRG = {
-    VERSION: "1.01.01",
+    VERSION: "1.01.02",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -699,7 +699,8 @@ const GAME = {
         ENGINE.watchVisibility(GAME.lostFocus);
         ENGINE.GAME.start(16);
         MINIMAP.setOffset(TITLE.stack.minimapX, TITLE.stack.minimapY);
-        AI.immobileWander = false;
+        AI.VERBOSE = true;
+        AI.immobileWander = true;
         GAME.completed = false;
         GAME.upperLimit = 1;
         GAME.level = 1;
@@ -779,6 +780,7 @@ const GAME = {
         }
     },
     buildWorld(level) {
+        WebGL.init_required_IAM(MAP[level].map, HERO);
         if (level === INI.FINAL_LEVEL) {
             SPAWN.arena(level);
         } else if (DEBUG.STUDY) {
@@ -802,18 +804,17 @@ const GAME = {
     initLevel(level) {
         this.newDungeon(level);
 
+        AI.initialize(HERO.player, "3D");
+        //WebGL.init_required_IAM(MAP[level].map, HERO);
+        WebGL.MOUSE.initialize("ROOM");
+        WebGL.setContext('webgl');
+        this.buildWorld(level);
+
         const start_dir = MAP[level].map.entrance.vector;
         let start_grid = Grid.toClass(MAP[level].map.entrance.grid).add(start_dir);
         start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
-
         HERO.player = new $3D_player(start_grid, Vector3.from_2D_dir(start_dir), MAP[level].map);
-        AI.initialize(HERO.player, "3D");
-
-        WebGL.init_required_IAM(MAP[level].map, HERO);
-        WebGL.MOUSE.initialize("ROOM");
-        WebGL.setContext('webgl');
-
-        this.buildWorld(level);
+        
         this.setWorld(level);
 
         //set POV
