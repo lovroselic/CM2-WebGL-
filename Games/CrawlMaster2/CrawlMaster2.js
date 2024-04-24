@@ -184,7 +184,7 @@ const INI = {
     INVENTORY_HARD_LIMIT: 20,
 };
 const PRG = {
-    VERSION: "1.02.00",
+    VERSION: "1.02.01",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -689,6 +689,7 @@ const GAME = {
         GAME.completed = false;
         GAME.upperLimit = 1;
         GAME.level = 1;
+        GAME.level = 5; //
         GAME.gold = 0;
 
         const storeList = ["DECAL3D", "LIGHTS3D", "GATE3D", "VANISHING3D", "ITEM3D", "MISSILE3D", "INTERACTIVE_DECAL3D", "BUMP3D", "ENTITY3D"];

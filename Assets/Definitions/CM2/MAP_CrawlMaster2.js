@@ -81,9 +81,21 @@ const LIGHT_DECALS = [
     { sprite: "Lamp4", color: LIGHT_COLORS.yellowgreen }
 ];
 
+const LIGHT_DECAL_SPRITES = ["WallLamp10", "WallLamp11", "WallLamp12", "WallLamp13", "WallLamp14", "WallLamp15",
+    "WallLamp16", "WallLamp17", "WallLamp18", "WallLamp19", "WallLamp20", "WallLamp9",
+    "WallLamp31", "WallLamp32", "WallLamp33", "WallLamp34", "WallLamp35",
+    "Lamp40", "Lamp41", "Lamp42", "Lamp43", "Lamp44", "Lamp45", "Lamp46", "Lamp47", "Lamp48", "Lamp49", "Lamp50", "Lamp51", "Lamp52", "Lamp53",
+];
+
+const LIGHT_COLOR_TYPES = ["standard", "standardDimmed", "standardRedish", "fire", "dim", "dimRed"];
+
+for (const LS of LIGHT_DECAL_SPRITES) {
+    LIGHT_DECALS.push({ sprite: LS, color: LIGHT_COLORS[LIGHT_COLOR_TYPES.chooseRandom()] });
+}
+
 /** Crests */
 const DECAL_CRESTS = ["LS", "Skull4", "Skull3", "Skull2", "Skull1", "Crack4", "Crack3", "Skeleton11", "Skeleton12", "Crack20", "Crack21", "DancingSkeletons2",
-    "PrayingSkeleton10", "SittingSkeleton2", "Skeleton21", "Skull10", "Skull11", "WOWc1", "WOWc2", "Reaper", "AticAtacCrest1", "DungeonWall", "DungeonDoor_Blocked",
+    "PrayingSkeleton10", "SittingSkeleton2", "Skeleton21", "Skull10", "Skull11", "WOWc1", "WOWc2", "Reaper", "AticAtacCrest1",
     "Skeleton20", "Skeleton121", "Skeleton23", "Skull20", "Skull21"];
 const BOTTOM_CRESTS = ["Grate1_128"];
 const TOP_CRESTS = ["Drain2_96", "Drain64", "Grate1_128", "RoundGrille96", "FlatPond", "FlatPond2", "FlatPond3", "FlatPond4", "FlatPond5", "FlatPond6", "FlatPond7"];
@@ -108,25 +120,25 @@ const MAP = {
     2: {
         width: 40,
         height: 40,
-        floor: "MorgueFloor",
-        ceil: "GreyDungeonFloor",
-        wall: "GreenDungeonWall",
+        floor: "DarkMarble1",
+        ceil: "Sand6",
+        wall: "ColorfullWall1",
         minPad: 3,
     },
     3: {
         width: 37,
         height: 37,
-        floor: "BrokenTile1",
-        ceil: "SmallTiles1",
-        wall: "Wall8",
+        floor: "RedMArbleFloor5",
+        ceil: "Wood1",
+        wall: "GreyWall31",
         minPad: 2,
     },
     4: {
         width: 37,
         height: 37,
-        floor: "Broken1",
-        ceil: "BrokenTile1",
-        wall: "Wall11",
+        floor: "MC_Floor12",
+        ceil: "RedBricks45",
+        wall: "BrownWall39",
         minPad: 2,
     },
     5: {
