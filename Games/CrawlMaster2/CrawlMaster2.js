@@ -133,15 +133,15 @@ const DEBUG = {
         GAME.level = 5;
         GAME.upperLimit = GAME.level;
         GAME.gold = 2238;
-        HERO.maxHealth = 87;
-        HERO.maxMana = 92;
-        HERO.health = 87;
-        HERO.mana = 92;
-        HERO.defense = 18;
+        HERO.maxHealth = 1000;
+        HERO.maxMana = 1000;
+        HERO.health = 1000;
+        HERO.mana = 1000;
+        HERO.defense = 99;
         HERO.reference_defense = HERO.defense;
-        HERO.attack = 24;
+        HERO.attack = 99;
         HERO.reference_attack = HERO.attack;
-        HERO.magic = 19;
+        HERO.magic = 99;
         HERO.reference_magic = HERO.magic;
         HERO.attackExp = 2184;
         HERO.defenseExp = 228;
@@ -149,8 +149,8 @@ const DEBUG = {
         HERO.attackExpGoal = 2570;
         HERO.defenseExpGoal = 338;
         HERO.magicExpGoal = 1142;
-        HERO.inventory.potion.red = 2;
-        HERO.inventory.potion.blue = 0;
+        HERO.inventory.potion.red = 20;
+        HERO.inventory.potion.blue = 20;
         let scrolls = ["MagicBoost", "MagicBoost", "DestroyWeapon", "BoostArmor", "Petrify", "Petrify", "Petrify", "Petrify", "Petrify"];
         for (let scr of scrolls) {
             let scroll = new Scroll(scr);
@@ -184,7 +184,7 @@ const INI = {
     INVENTORY_HARD_LIMIT: 20,
 };
 const PRG = {
-    VERSION: "1.02.01",
+    VERSION: "1.03",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -225,6 +225,10 @@ const PRG = {
 
         $("#toggleAbout").click(function () {
             $("#about").toggle(400);
+        });
+
+        $("#toggleVersion").click(function () {
+            $("#debug").toggle(400);
         });
 
 
@@ -689,7 +693,6 @@ const GAME = {
         GAME.completed = false;
         GAME.upperLimit = 1;
         GAME.level = 1;
-        GAME.level = 5; //
         GAME.gold = 0;
 
         const storeList = ["DECAL3D", "LIGHTS3D", "GATE3D", "VANISHING3D", "ITEM3D", "MISSILE3D", "INTERACTIVE_DECAL3D", "BUMP3D", "ENTITY3D"];

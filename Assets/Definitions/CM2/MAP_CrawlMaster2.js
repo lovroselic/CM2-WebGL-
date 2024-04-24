@@ -1725,7 +1725,7 @@ const MONSTER_TYPE = {
         rotateToNorth: Math.PI,
         midHeight: 0.5,
         deathType: "BloodExplosion",
-        inventory: "GoldKey",
+        inventory: COMMON_ITEM_TYPE.GoldKey,
         attack: 50,
         defense: 25,
         magic: 25,

@@ -50,6 +50,7 @@
                     <input type='button' id='pause' value='Pause Game [F4]' disabled="disabled">
                     <input type='button' id='toggleHelp' value='Show/Hide Instructions'>
                     <input type='button' id='toggleAbout' value='About'>
+                    <input type='button' id='toggleVersion' value='Version'>
                 </p>
             </div>
 
@@ -214,45 +215,49 @@
                     <legend>
                         About:
                     </legend>
+
                     <div class="container">
-                        <div class='row-lg-6 clearfix'>
-                            <image src="https://www.c00lsch00l.eu/Images/CM in CM.webp"
-                                alt="Crawl Master - a game by Lovro Selič"
-                                class="border border-dark p-1 m-2 float-start" title="Crawl Master" />
-                            <p>
-                                'Crawl Master II is of course completely based on <a
-                                    href="https://www.c00lsch00l.eu/Games/CrawlMaster.php" target="_blank">'Crawl
-                                    Master'</a>. However, display engine was completely rewritten and went for using
-                                raycasting, to <a href="https://en.wikipedia.org/wiki/Shader#Vertex_shaders"
-                                    target="_blank">triangle shading</a> using <a
-                                    href="https://en.wikipedia.org/wiki/WebGL" target="_blank">WebGL</a>. While
-                                majority of the code ia still written in JavaScript, the shaders are of course
-                                written in <a href="https://en.wikipedia.org/wiki/OpenGL_Shading_Language"
-                                    target="_blank">GLSL</a>.
-                            </p>
-                            <p>As is tradition in my games, the walls are decorated with screens showcasing games
-                                from the 80s home computers, such as C64 and ZX Spectrum, Atari ST, as well as some
-                                major and influential games from later periods. More than 900 screens are randomly
-                                selected, including a screenshots from Crawl Master II, which features a wall
-                                painting image from Crawl Master, as demonstrated on the top left image. This is my way
-                                of paying respects to the great programmers of the past, which had influenced me and
-                                lighted the passion in me for programming.
-                            </p>
-                        </div>
-                        <div class='row-lg-6'>
-                            <image src="https://upload.wikimedia.org/wikipedia/en/a/a7/Quake_gameplay.png" alt="Quake"
-                                class="border border-dark p-1 m-2 float-end" title="Quake" style="width: 50%" />
-                            <p> From the technical perspective, Crawl Master II is influenced by <a
-                                    href="https://en.wikipedia.org/wiki/Quake_(video_game)" targte="_blank">Quake</a>, a
-                                game which might not start but definitely popularized real-time polygon shading through
-                                OpenGL.
-                            </p>
-                            <p>
-                                In order to reduce the already long loading times (the game loads approximately 50MB of
-                                data), Crawl Master II features only 5 levels, providing approximately 3-5 hours of
-                                gameplay if you manage to survive. On a more positive note, the game's abundance of
-                                weighted randomization ensures that each attempt offers a totally unique experience.
-                            </p>
+                        <div class='row'>
+                            <div class=" col-lg-4 col-12 d-flex justify-content-center">
+                                <image src="/Images/CM in CM.webp" alt="Crawl Master - a game by Lovro Selič"
+                                    class="border border-dark p-1 m-2 img-fluid" title="Crawl Master" />
+                            </div>
+                            <div class="col-lg-8 col-12">
+                                <p>
+                                    'Crawl Master II is of course completely based on Crawl
+                                    Master'. However, display engine was completely rewritten and went for using
+                                    raycasting, to <a href="https://en.wikipedia.org/wiki/Shader#Vertex_shaders"
+                                        target="_blank">triangle shading</a> using <a
+                                        href="https://en.wikipedia.org/wiki/WebGL" target="_blank">WebGL</a>. While
+                                    majority of the code ia still written in JavaScript, the shaders are of course
+                                    written in <a href="https://en.wikipedia.org/wiki/OpenGL_Shading_Language"
+                                        target="_blank">GLSL</a>.
+                                </p>
+                                <p>As is tradition in my games, the walls are decorated with screens showcasing games
+                                    from the 80s home computers, such as C64 and ZX Spectrum, Atari ST, as well as some
+                                    major and influential games from later periods. About 800 screens are randomly
+                                    selected, including a screenshots from Crawl Master II, which features a wall
+                                    painting image from Crawl Master, as demonstrated on the top left image. This is my
+                                    way
+                                    of paying respects to the great programmers of the past, which had influenced me and
+                                    lighted the passion in me for programming.
+                                </p>
+
+                                <p> From the technical perspective, Crawl Master II is influenced by <a
+                                        href="https://en.wikipedia.org/wiki/Quake_(video_game)"
+                                        targte="_blank">Quake</a>, a
+                                    game which might not start but definitely popularized real-time polygon shading
+                                    through
+                                    OpenGL.
+                                </p>
+                                <p>
+                                    In order to reduce the already long loading times (the game loads approximately
+                                    150MB of
+                                    data), Crawl Master II features only 5 levels, providing approximately 3-5 hours of
+                                    gameplay if you manage to survive. On a more positive note, the game's abundance of
+                                    weighted randomization ensures that each attempt offers a totally unique experience.
+                                </p>
+                            </div>
 
                         </div>
                     </div>
@@ -260,7 +265,7 @@
             </div>
             <p class="version" id="version"></p>
             <p id="conv" style="font-weight: bold">Loading insane amount of data ... just a minute or two ... be patient
-                ... i hope you have good internet speed ... this game is huge!
+                ... i hope you have good internet speed ... this game is huge (> 150Mb)!
             </p>
         </div>
     </div>
