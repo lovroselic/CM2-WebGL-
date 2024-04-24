@@ -83,6 +83,13 @@ const WebGL = {
                     throw `WebGL CONFIG type error: ${type}`;
             }
             if (WebGL.VERBOSE) console.info(`%cWebGL set to type: ${type}, dual mode: ${dual}, prevent_movement_in_exlusion_grids: ${prevent}`, WebGL.CSS);
+        },
+        holesSupported: true,
+        supportHoles() {
+            this.holesSupported = true;
+        },
+        ignoreHoles() {
+            this.holesSupported = false;
         }
     },
     programs_compiled: false,
@@ -541,7 +548,7 @@ const WebGL = {
         for (let iam of this.dynamicLightSources) {
             for (let LS of iam.POOL) {
                 if (!LS) continue;
-                //console.warn("LS", LS)
+
                 dynLights.push(...LS.pos.array);
                 dynLightColors.push(...LS.lightColor);
                 dynLightDirs.push(255, 255, 255);
@@ -1067,14 +1074,14 @@ const WORLD = {
                 case MAPDICT.EMPTY:
                 case MAPDICT.DOOR:
                 case MAPDICT.WALL + MAPDICT.DOOR:
-                    this.addCube(Y - 1, grid, "floor"); 
-                    this.addCube(Y + 1, grid, "ceil"); ////**************************** */
+                    this.addCube(Y - 1, grid, "floor");
+                    this.addCube(Y + 1, grid, "ceil");
                     break;
                 case MAPDICT.WALL:
                 case MAPDICT.WALL + MAPDICT.STAIR:
                 case MAPDICT.WALL + MAPDICT.SHRINE:
                     this.addCube(Y, grid, "wall");
-                    this.addCube(Y - 1, grid, "wall");                  //support for holes
+                    if (WebGL.CONFIG.holesSupported) this.addCube(Y - 1, grid, "wall");                  //support for holes //breaks CM2 if on - why?
                     break;
                 case MAPDICT.HOLE:
                     this.addCube(Y + 1, grid, "ceil");

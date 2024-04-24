@@ -22,8 +22,8 @@ const DEBUG = {
     SETTING: true,
     VERBOSE: false,
     _2D_display: false,
-    INVINCIBLE: false,
-    FREE_MAGIC: false,
+    INVINCIBLE: true,
+    FREE_MAGIC: true,
     LOAD: false,
     STUDY: false,
     keys: true,
@@ -184,7 +184,7 @@ const INI = {
     INVENTORY_HARD_LIMIT: 20,
 };
 const PRG = {
-    VERSION: "1.01.03",
+    VERSION: "1.02.00",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -265,29 +265,6 @@ const PRG = {
     }
 };
 
-/** WebGL extensions */
-
-/*class Shrine extends WallFeature3D {
-    constructor(grid, face, type) {
-        super(grid, face, type);
-    }
-    interact() {
-        if (GAME.gold >= 1000) {
-            this.interactive = false;
-            GAME.gold -= 1000;
-            TITLE.gold();
-
-            return {
-                category: this.interactionCategory,
-                inventorySprite: this.inventorySprite,
-                which: this.which,
-            };
-        } else {
-            AUDIO.MagicFail.play();
-            return null;
-        }
-    }
-}*/
 /** ******************************** */
 
 class Key {
@@ -815,6 +792,7 @@ const GAME = {
         AI.initialize(HERO.player, "3D");
         WebGL.MOUSE.initialize("ROOM");
         WebGL.setContext('webgl');
+        WebGL.CONFIG.ignoreHoles();
         this.buildWorld(level);
 
         const start_dir = MAP[level].map.entrance.vector;
@@ -822,8 +800,9 @@ const GAME = {
         start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
         HERO.player = new $3D_player(start_grid, Vector3.from_2D_dir(start_dir), MAP[level].map);
 
-         //WebGL.CONFIG.set("first_person", true);
-         //WebGL.CONFIG.set("third_person", true);
+        //WebGL.CONFIG.set("first_person", true);
+        //WebGL.CONFIG.set("third_person", true);
+        //GAME.setFirstPerson();
 
         this.setWorld(level);
 
@@ -836,6 +815,12 @@ const GAME = {
 
         ENTITY3D.resetTime();
     },
+    /*setFirstPerson() {
+        WebGL.CONFIG.set("first_person", false);
+        HERO.player.clearCamera();
+        HERO.player.moveSpeed = 4.0;
+        WebGL.setCamera(HERO.player);
+    },*/
     useStaircase(destination) {
         GAME.STORE.storeIAM(MAP[GAME.level].map);
         GAME.level = destination.level;
