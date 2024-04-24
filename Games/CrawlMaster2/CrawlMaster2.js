@@ -21,12 +21,12 @@ const DEBUG = {
     BUTTONS: false,
     SETTING: true,
     VERBOSE: false,
-    _2D_display: true,
+    _2D_display: false,
     INVINCIBLE: false,
     FREE_MAGIC: false,
     LOAD: false,
     STUDY: false,
-    keys: false,
+    keys: true,
     study() {
         console.info("######## FIXED DUNGEON - STUDY MODE ########");
         GAME.level = 999;
@@ -34,6 +34,10 @@ const DEBUG = {
     },
     goto(grid) {
         HERO.player.pos = Vector3.from_Grid(Grid.toCenter(grid), 0.5);
+    },
+    kill() {
+        console.log("KILL all");
+        ENTITY3D.POOL.clear();
     },
     depth2() {
         GAME.level = 2;
@@ -177,9 +181,10 @@ const INI = {
     BOOST_TIME: 59,
     MM_reveal_radius: 4,
     FINAL_LEVEL: 5,
+    INVENTORY_HARD_LIMIT: 20,
 };
 const PRG = {
-    VERSION: "1.01.02",
+    VERSION: "1.01.03",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -661,6 +666,9 @@ const HERO = {
             this.potion.red = 0;
             this.potion.blue = 0;
             this.scroll = new Inventory();
+        },
+        totalSize() {
+            return this.key.length;
         }
     },
 };
@@ -699,7 +707,7 @@ const GAME = {
         ENGINE.watchVisibility(GAME.lostFocus);
         ENGINE.GAME.start(16);
         MINIMAP.setOffset(TITLE.stack.minimapX, TITLE.stack.minimapY);
-        AI.VERBOSE = true;
+        AI.VERBOSE = false;
         AI.immobileWander = true;
         GAME.completed = false;
         GAME.upperLimit = 1;
@@ -759,13 +767,13 @@ const GAME = {
         DUNGEON.MIN_PADDING = MAP[level].minPad;
         let randomDungeon;
         if (level < INI.FINAL_LEVEL) {
-            randomDungeon = DUNGEON.create(MAP[level].width, MAP[level].height);
+            randomDungeon = DUNGEON.create(MAP[level].width, MAP[level].height, 2);
         } else if (GAME.level === INI.FINAL_LEVEL) {
             console.log("newDungeon: CREATE FINAL LEVEL");
-            randomDungeon = ARENA.create(MAP[level].width, MAP[level].height);
+            randomDungeon = ARENA.create(MAP[level].width, MAP[level].height, 2);
         } else {
             console.info("****** STUDY - FIXED DUNGEON ******");
-            randomDungeon = FREE_MAP.import(JSON.parse(MAP[level].data));
+            randomDungeon = FREE_MAP.import(JSON.parse(MAP[level].data), 2);
             console.info(randomDungeon);
         }
 
@@ -778,6 +786,7 @@ const GAME = {
             MAP[level].map.entrance = MAP[level].entrance;
             MAP[level].map.exit = MAP[level].exit;
         }
+        console.info("MAP[level].map", MAP[level].map);
     },
     buildWorld(level) {
         WebGL.init_required_IAM(MAP[level].map, HERO);
@@ -803,9 +812,7 @@ const GAME = {
     },
     initLevel(level) {
         this.newDungeon(level);
-
         AI.initialize(HERO.player, "3D");
-        //WebGL.init_required_IAM(MAP[level].map, HERO);
         WebGL.MOUSE.initialize("ROOM");
         WebGL.setContext('webgl');
         this.buildWorld(level);
@@ -814,7 +821,10 @@ const GAME = {
         let start_grid = Grid.toClass(MAP[level].map.entrance.grid).add(start_dir);
         start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
         HERO.player = new $3D_player(start_grid, Vector3.from_2D_dir(start_dir), MAP[level].map);
-        
+
+         //WebGL.CONFIG.set("first_person", true);
+         //WebGL.CONFIG.set("third_person", true);
+
         this.setWorld(level);
 
         //set POV
@@ -1140,6 +1150,7 @@ const GAME = {
         }
         if (map[ENGINE.KEY.map.F9]) {
             if (!DEBUG.keys) return;
+            DEBUG.kill();
             console.log("\nDEBUG:");
             console.log("#######################################################");
             ENTITY3D.display();

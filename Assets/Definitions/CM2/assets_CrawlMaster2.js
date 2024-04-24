@@ -10,8 +10,11 @@ LoadTextures = [
     /** wall, floor, ceil */
 
     { srcName: "Wall/GreenDungeonWall.jpg", name: "GreenDungeonWall" },
-    { srcName: "Wall/GreyDungeonFloor.jpg", name: "GreyDungeonFloor" },
+    
     { srcName: "Wall/DungeonWall.jpg", name: "DungeonWall" },
+    { srcName: "Wall/MorgueFloor.jpg", name: "MorgueFloor" },
+
+    { srcName: "Wall/GreyDungeonFloor.jpg", name: "GreyDungeonFloor" },
 
     /*
     { srcName: "Wall/BrickWall128.jpg", name: "BrickWall" },
@@ -118,7 +121,7 @@ LoadAudio = [
     { srcName: "Laughing Skull.mp3", name: "Title" },
     { srcName: "UseScroll.mp3", name: "PickBox" },
     { srcName: "Scream.mp3", name: "Scream" },
-    { srcName: "OpenGate.mp3", name: "OpenGate" },
+    { srcName: "OpenGate.mp3", name: "LiftGate" },
     { srcName: "ClosedDoor.mp3", name: "ClosedDoor" },
     { srcName: "Keys.mp3", name: "Keys" },
     { srcName: "Swallow.mp3", name: "Swallow" },
