@@ -17,16 +17,16 @@ known bugs:
 ////////////////////////////////////////////////////
 
 const DEBUG = {
-    FPS: true,
+    FPS: false,
     BUTTONS: false,
     SETTING: true,
     VERBOSE: false,
     _2D_display: false,
-    INVINCIBLE: true,
-    FREE_MAGIC: true,
+    INVINCIBLE: false,
+    FREE_MAGIC: false,
     LOAD: false,
     STUDY: false,
-    keys: true,
+    keys: false,
     study() {
         console.info("######## FIXED DUNGEON - STUDY MODE ########");
         GAME.level = 999;
@@ -184,7 +184,7 @@ const INI = {
     INVENTORY_HARD_LIMIT: 20,
 };
 const PRG = {
-    VERSION: "1.03",
+    VERSION: "1.04",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -761,8 +761,9 @@ const GAME = {
         MAP[level].map = randomDungeon;
         MAP[level].pw = MAP[level].map.width * ENGINE.INI.GRIDPIX;
         MAP[level].ph = MAP[level].map.height * ENGINE.INI.GRIDPIX;
-        MAP[level].map.GA.massSet(MAPDICT.FOG);
+        
         MAP[level].map.level = level;
+        MAP[level].map.GA.massSet(MAPDICT.FOG);
         if (DEBUG.STUDY) {
             MAP[level].map.entrance = MAP[level].entrance;
             MAP[level].map.exit = MAP[level].exit;
@@ -819,12 +820,6 @@ const GAME = {
 
         ENTITY3D.resetTime();
     },
-    /*setFirstPerson() {
-        WebGL.CONFIG.set("first_person", false);
-        HERO.player.clearCamera();
-        HERO.player.moveSpeed = 4.0;
-        WebGL.setCamera(HERO.player);
-    },*/
     useStaircase(destination) {
         GAME.STORE.storeIAM(MAP[GAME.level].map);
         GAME.level = destination.level;
