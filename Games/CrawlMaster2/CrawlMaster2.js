@@ -184,7 +184,7 @@ const INI = {
     INVENTORY_HARD_LIMIT: 20,
 };
 const PRG = {
-    VERSION: "1.04",
+    VERSION: "1.05",
     NAME: "Crawl Master II",
     YEAR: "2023",
     SG: "CrawlMaster2",
@@ -805,10 +805,6 @@ const GAME = {
         start_grid = Vector3.from_Grid(Grid.toCenter(start_grid), 0.5);
         HERO.player = new $3D_player(start_grid, Vector3.from_2D_dir(start_dir), MAP[level].map);
 
-        //WebGL.CONFIG.set("first_person", true);
-        //WebGL.CONFIG.set("third_person", true);
-        //GAME.setFirstPerson();
-
         this.setWorld(level);
 
         //set POV
@@ -1056,7 +1052,7 @@ const GAME = {
     },
     generateTitleText() {
         let text = `${PRG.NAME} ${PRG.VERSION
-            }, a game by Lovro Selič, ${"\u00A9"} C00LSch00L ${PRG.YEAR
+            }, a game by Lovro Selič, ${"\u00A9"} LaughingSkull ${PRG.YEAR
             }. 
              
             Music: 'Laughing Skull' written and performed by LaughingSkull, ${"\u00A9"
